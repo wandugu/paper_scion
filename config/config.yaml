@@ -82,6 +82,7 @@ input:
   type: file
   text: "这里可以直接放置自定义背景文本……"
   file_path: input/background.txt
+  existing_ontology_path: input/ontology_schema_exist.json
   source_label: lotr_wikipedia
   chunk_size: 1200
 runtime:
