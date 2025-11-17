@@ -1,0 +1,9 @@
+data/dataset_public/duIE/train.json filter=lfs diff=lfs merge=lfs -text
+data/dataset_public/FewRel/test_pubmed_input-5-5.json filter=lfs diff=lfs merge=lfs -text
+data/dataset_public/FewRel/test_pubmed_input-10-5.json filter=lfs diff=lfs merge=lfs -text
+data/dataset_public/InstructIE/train_en.json filter=lfs diff=lfs merge=lfs -text
+data/dataset_public/InstructIE/train_zh.json filter=lfs diff=lfs merge=lfs -text
+data/dataset_public/re/duIE/train.json filter=lfs diff=lfs merge=lfs -text
+data/dataset_public/re/re-zh/DuIE2.0/train.json filter=lfs diff=lfs merge=lfs -text
+data/dataset_public/re/InstructIE/train_en.json filter=lfs diff=lfs merge=lfs -text
+data/dataset_public/re/InstructIE/train_zh.json filter=lfs diff=lfs merge=lfs -text

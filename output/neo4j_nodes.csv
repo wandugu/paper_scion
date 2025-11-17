@@ -1,0 +1,37 @@
+node_id,label,name
+Organisation:海辰市政府,Organisation,海辰市政府
+Organisation:星河智能研究院,Organisation,星河智能研究院
+Person:林岚,Person,林岚
+Object:星河-1,Object,星河-1
+Person:周启明,Person,周启明
+Place:海辰市中心商务区,Place,海辰市中心商务区
+Place:临港新区,Place,临港新区
+Place:量子城云计算中心,Place,量子城云计算中心
+Document:星河-1 城市交通智能调度白皮书,Document,星河-1 城市交通智能调度白皮书
+Place:量子城大学,Place,量子城大学
+Person:张婷,Person,张婷
+Place:滨江大道,Place,滨江大道
+Person:陈博文,Person,陈博文
+Object:黄闪时间,Object,黄闪时间
+Event:临港新区隧道口多车追尾,Event,临港新区隧道口多车追尾
+Place:星港隧道北向入口,Place,星港隧道北向入口
+Organisation:海辰市交通警察支队,Organisation,海辰市交通警察支队
+Organisation:快行出行,Organisation,快行出行
+Document:关于星河-1 控制策略异常的技术备忘录,Document,关于星河-1 控制策略异常的技术备忘录
+Organisation:星河-1 安全专项工作组,Organisation,星河-1 安全专项工作组
+Person:顾远,Person,顾远
+Document:星河-1 部署阶段风险评估报告,Document,星河-1 部署阶段风险评估报告
+Action:调整强化学习奖励函数,Action,调整强化学习奖励函数
+Organisation:开源交通联盟,Organisation,开源交通联盟
+Document:星河-1 系统架构非官方技术解析,Document,星河-1 系统架构非官方技术解析
+Person:量子行者,Person,量子行者
+Place:市政府会议中心,Place,市政府会议中心
+Event:系统风险说明会,Event,系统风险说明会
+Document:星河-1 Beta 部署阶段缺陷清单（非最终版）,Document,星河-1 Beta 部署阶段缺陷清单（非最终版）
+Event:关于算法透明性与责任归属的讨论,Event,关于算法透明性与责任归属的讨论
+Organisation:量子城大学,Organisation,量子城大学
+Document:白皮书,Document,白皮书
+Event:重建事件链条和责任边界,Event,重建事件链条和责任边界
+Document:技术备忘录,Document,技术备忘录
+Document:风险评估报告,Document,风险评估报告
+Document:民间技术解析文档,Document,民间技术解析文档
