@@ -1,10 +1,9 @@
 from .types import Ontology, LLMClient, Edge, Document
-from .llm_clients.groq_client import GroqClient
 from pydantic import ValidationError
 import json
 import re
 from .logger import GraphLogger
-from typing import List, Union
+from typing import List, Union, Optional
 import time
 
 green_logger = GraphLogger(name="GRAPH MAKER LOG", color="green_bright").getLogger()
@@ -35,11 +34,11 @@ class GraphMaker:
     def __init__(
         self,
         ontology: Ontology = default_ontology,
-        llm_client: LLMClient = GroqClient(
-            model="mixtral-8x7b-32768", temperature=0.2, top_p=1
-        ),
+        llm_client: Optional[LLMClient] = None,
         verbose: bool = False,
     ):
+        if llm_client is None:
+            raise ValueError("llm_client 不能为空，请显式传入一个实现了 LLMClient 接口的实例。")
         self._ontology = ontology
         self._llm_client = llm_client
         self._verbose = verbose
