@@ -1,24 +1,24 @@
 """Graph Maker 演示脚本
 =========================
 
-此脚本展示如何使用 ``knowledge-graph-maker`` 包从任意文本生成知识图谱，并把
-结果保存到 ``output/`` 目录下的多种文件格式中。所有运行配置均集中在
+此脚本展示如何使用仓库内置的 ``knowledge_graph_maker`` 包从任意文本生成知识图谱，
+并把结果保存到 ``output/`` 目录下的多种文件格式中。所有运行配置均集中在
 ``config/config.yaml`` 中，可直接根据自身场景进行修改。
 
 运行前准备
 ----------
-1. 安装依赖：``pip install knowledge-graph-maker``（仓库自带 ``poetry`` 环境亦可）。
+1. 安装依赖：确保 ``requirements.txt``（或 ``poetry`` 环境）已安装好即可，
+   无需额外 ``pip install knowledge-graph-maker``。
 2. 配置 LLM 服务：
    - DeepSeek: 设置 ``DEEPSEEK_API_KEY`` 环境变量（示例脚本默认使用
      ``provider='deepseek'``，API Key 也可通过 ``config/config.yaml`` 中的
      ``llm.default_api_key`` 字段临时填写）。
    - OpenAI: 设置 ``OPENAI_API_KEY`` 环境变量。
-   - Groq: 设置 ``GROQ_API_KEY`` 环境变量（脚本已提供占位符，只有当你选择
-     ``provider='groq'`` 时才会真正使用）。
+   - Groq: 设置 ``GROQ_API_KEY`` 环境变量。
 3. 如需自动写入 Neo4j，请确保本地或远端 Neo4j 实例已启动，且账号、密码、URI
    与 ``config/config.yaml`` 的 ``neo4j`` 配置保持一致。
 
-执行：``python src/demo.py`` 或 ``python -m src.demo``
+执行：``python src/demo.py``
 """
 
 
@@ -29,6 +29,7 @@ import json
 import logging
 import os
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Sequence, Tuple
@@ -36,6 +37,10 @@ from typing import Any, Dict, Iterable, List, Sequence, Tuple
 import yaml
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+SRC_DIR = PROJECT_ROOT / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
 CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
 LOG_DIR = PROJECT_ROOT / "logs"
 BACKGROUND_SNIPPET_MAX_CHARS = 4000
@@ -75,40 +80,9 @@ def setup_logger() -> logging.Logger:
 CONFIG: Dict = load_config()
 LOGGER = setup_logger()
 
-# ---------------------------------------------------
-# 0) 记录当前进程的代理环境变量，稍后再恢复
-# ---------------------------------------------------
-_PROXY_ENV_VARS = (
-    "HTTP_PROXY",
-    "HTTPS_PROXY",
-    "ALL_PROXY",
-    "http_proxy",
-    "https_proxy",
-    "all_proxy",
-)
-_SAVED_PROXIES: Dict[str, str | None] = {k: os.environ.get(k) for k in _PROXY_ENV_VARS}
-
-# 临时把代理从环境里移除，避免 Groq + httpx 在 import 阶段读到 socks5h 就炸
-for k in _PROXY_ENV_VARS:
-    os.environ.pop(k, None)
-
-# ---------------------------------------------------
-# 1) 给 Groq 一个占位 API Key，避免它在 import 阶段因为缺 key 报错
-# ---------------------------------------------------
-if not os.environ.get("GROQ_API_KEY"):
-    os.environ["GROQ_API_KEY"] = "placeholder-key"
-
-# 这里 import 时会顺带实例化 GroqClient，但不会真正发网络请求
 from knowledge_graph_maker.graph_maker import GraphMaker
 from knowledge_graph_maker.neo4j_graph_model import Neo4jGraphModel
 from knowledge_graph_maker.types import Document, Edge, LLMClient, Node, Ontology
-
-# ---------------------------------------------------
-# 2) import 完之后，把代理环境变量恢复回来，给 DeepSeek 用
-# ---------------------------------------------------
-for k, v in _SAVED_PROXIES.items():
-    if v is not None:
-        os.environ[k] = v
 
 
 
