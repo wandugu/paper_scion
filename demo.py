@@ -28,6 +28,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Sequence, Tuple
@@ -36,6 +37,7 @@ import yaml
 
 CONFIG_PATH = Path(__file__).resolve().parent / "config" / "config.yaml"
 LOG_DIR = Path(__file__).resolve().parent / "logs"
+BACKGROUND_SNIPPET_MAX_CHARS = 4000
 
 
 def load_config(path: Path = CONFIG_PATH) -> Dict[str, Any]:
@@ -239,6 +241,17 @@ def chunk_text(text: str, chunk_size: int) -> List[str]:
     return chunks
 
 
+def build_background_excerpt(chunks: Sequence[str], limit: int = BACKGROUND_SNIPPET_MAX_CHARS) -> str:
+    """将所有文本块拼成给 LLM 使用的背景摘要，并裁剪长度。"""
+
+    combined = "\n\n".join(chunk.strip() for chunk in chunks if chunk.strip()).strip()
+    if not combined:
+        return ""
+    if len(combined) <= limit:
+        return combined
+    return combined[:limit]
+
+
 def build_documents(chunks: Sequence[str]) -> List[Document]:
     metadata_base = {
         "source": CONFIG["input"]["source_label"],
@@ -255,11 +268,108 @@ def build_documents(chunks: Sequence[str]) -> List[Document]:
     return documents
 
 
-def build_ontology() -> Ontology:
+def _format_label_hints() -> str:
+    hints: List[str] = []
+    for item in CONFIG["ontology"]["labels"]:
+        if isinstance(item, str):
+            hints.append(f"- {item}")
+        elif isinstance(item, dict):
+            for key, value in item.items():
+                hints.append(f"- {key}: {value}")
+    return "\n".join(hints)
+
+
+def _format_relationship_hints() -> str:
+    return "\n".join(f"- {relation}" for relation in CONFIG["ontology"]["relationships"])
+
+
+def _extract_json_payload(response: str) -> Dict[str, Any]:
+    try:
+        return json.loads(response)
+    except json.JSONDecodeError:
+        match = re.search(r"\{.*\}", response, re.S)
+        if match:
+            return json.loads(match.group(0))
+    raise ValueError("LLM 响应未包含合法的 JSON")
+
+
+def _normalize_labels(raw_labels: Any) -> List[Any]:
+    if not isinstance(raw_labels, list):
+        return []
+    normalized: List[Any] = []
+    for item in raw_labels:
+        if isinstance(item, str):
+            stripped = item.strip()
+            if stripped:
+                normalized.append(stripped)
+        elif isinstance(item, dict):
+            cleaned = {str(k).strip(): str(v).strip() for k, v in item.items() if str(k).strip()}
+            if cleaned:
+                normalized.append(cleaned)
+    return normalized
+
+
+def _normalize_relationships(raw_relationships: Any) -> List[str]:
+    if not isinstance(raw_relationships, list):
+        return []
+    relationships: List[str] = []
+    for rel in raw_relationships:
+        if isinstance(rel, str):
+            stripped = rel.strip()
+            if stripped:
+                relationships.append(stripped)
+    return relationships
+
+
+def _fallback_ontology() -> Ontology:
     return Ontology(
         labels=CONFIG["ontology"]["labels"],
         relationships=CONFIG["ontology"]["relationships"],
     )
+
+
+def build_ontology(llm_client: LLMClient, background_text: str) -> Ontology:
+    """根据背景语料动态生成本体。"""
+
+    if not background_text.strip():
+        LOGGER.warning("背景文本为空，退回使用配置中的本体。")
+        return _fallback_ontology()
+
+    system_message = (
+        "你是一名资深本体工程师，负责根据输入背景语料设计知识图谱本体。"
+        "输出需聚焦核心实体，标签数量建议 6-10 个，并结合语料给出关键关系类型。"
+        "最终只返回 JSON。"
+    )
+
+    label_hint = _format_label_hints()
+    relation_hint = _format_relationship_hints()
+    user_message = (
+        "请参考以下背景语料，并以上述提示为灵感，生成最贴近内容的知识图谱本体。\n"
+        "- 允许微调标签或新增更贴近场景的标签描述。\n"
+        "- 关系需覆盖主要角色/事件之间的因果、隶属或互动。\n"
+        "- 输出 JSON，字段只包含 labels 与 relationships。\n\n"
+        "【背景摘录】\n"
+        f"{background_text}\n\n"
+        "【可参考的标签提示】\n"
+        f"{label_hint}\n\n"
+        "【可参考的关系提示】\n"
+        f"{relation_hint}\n\n"
+        "示例输出格式：\n"
+        "{\n  \"labels\": [\"概念A\", {\"概念B\": \"描述\"}],\n"
+        "  \"relationships\": [\"关系1\", \"关系2\"]\n}"
+    )
+
+    try:
+        response = llm_client.generate(user_message=user_message, system_message=system_message)
+        payload = _extract_json_payload(response)
+        labels = _normalize_labels(payload.get("labels"))
+        relationships = _normalize_relationships(payload.get("relationships"))
+        if not labels or not relationships:
+            raise ValueError("LLM 响应缺少标签或关系")
+        return Ontology(labels=labels, relationships=relationships)
+    except Exception as exc:  # noqa: BLE001
+        LOGGER.warning("根据背景生成动态本体失败，改用配置本体。原因: %s", exc)
+        return _fallback_ontology()
 
 
 def instantiate_llm_client():
@@ -401,8 +511,9 @@ def main():
     if not chunks:
         raise RuntimeError("未获取到任何文本块，请检查 input 配置")
     documents = build_documents(chunks)
-    ontology = build_ontology()
     llm_client = instantiate_llm_client()
+    background_excerpt = build_background_excerpt(chunks)
+    ontology = build_ontology(llm_client=llm_client, background_text=background_excerpt)
     graph_maker = GraphMaker(ontology=ontology, llm_client=llm_client, verbose=CONFIG["runtime"]["verbose"])
     edges = graph_maker.from_documents(
         docs=documents,
