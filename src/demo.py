@@ -278,6 +278,29 @@ def build_documents(chunks: Sequence[str]) -> List[Document]:
     return documents
 
 
+def load_existing_ontology_schema() -> Tuple[Dict[str, Any] | None, Path | None]:
+    """尝试加载已有本体定义，返回 (payload, path)。"""
+
+    cfg = CONFIG.get("input", {})
+    raw_path = cfg.get("existing_ontology_path")
+    if not raw_path:
+        return None, None
+    path = resolve_project_path(raw_path)
+    if not path.exists():
+        LOGGER.info("配置了 existing_ontology_path，但文件不存在: %s", path)
+        return None, path
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:  # noqa: BLE001
+        LOGGER.warning("读取输入本体失败 (%s): %s", path, exc)
+        return None, path
+    if not isinstance(data, dict):
+        LOGGER.warning("输入本体文件内容必须是 JSON 对象: %s", path)
+        return None, path
+    LOGGER.info("检测到已有本体文件: %s", path)
+    return data, path
+
+
 def _format_label_hints() -> str:
     hints: List[str] = []
     for item in CONFIG["ontology"]["labels"]:
@@ -472,8 +495,161 @@ def _normalize_event_schema(raw_events: Any) -> List[Dict[str, Any]]:
                 "trigger_words": trigger_words,
                 "arguments": arguments,
             }
-        )
+            )
     return normalized
+
+
+def _iter_label_entries(item: Any) -> Iterable[Tuple[str, str | None]]:
+    if isinstance(item, str):
+        stripped = item.strip()
+        if stripped:
+            yield stripped, None
+    elif isinstance(item, dict):
+        for key, value in item.items():
+            label = str(key).strip()
+            if not label:
+                continue
+            description = str(value).strip() if value is not None else ""
+            yield label, description or None
+
+
+def _merge_label_items(existing: List[Any], new_items: List[Any]) -> List[Any]:
+    merged: List[Any] = []
+    index: Dict[str, int] = {}
+
+    def _add(label: str, description: str | None):
+        label = label.strip()
+        if not label:
+            return
+        if label not in index:
+            idx = len(merged)
+            index[label] = idx
+            if description:
+                merged.append({label: description})
+            else:
+                merged.append(label)
+            return
+        if not description:
+            return
+        current_idx = index[label]
+        current = merged[current_idx]
+        if isinstance(current, str):
+            merged[current_idx] = {label: description}
+        elif isinstance(current, dict):
+            existing_desc = next(iter(current.values()))
+            if not existing_desc:
+                merged[current_idx] = {label: description}
+
+    for candidate in existing:
+        for label, description in _iter_label_entries(candidate):
+            _add(label, description)
+    for candidate in new_items:
+        for label, description in _iter_label_entries(candidate):
+            _add(label, description)
+    return merged
+
+
+def _merge_string_list(primary: Sequence[str], secondary: Sequence[str]) -> List[str]:
+    seen: set[str] = set()
+    merged: List[str] = []
+    for value in list(primary) + list(secondary):
+        if not isinstance(value, str):
+            continue
+        stripped = value.strip()
+        if stripped and stripped not in seen:
+            seen.add(stripped)
+            merged.append(stripped)
+    return merged
+
+
+def _merge_event_arguments(existing: Sequence[Dict[str, Any]], new_items: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    merged: List[Dict[str, Any]] = []
+    index: Dict[str, int] = {}
+
+    def _add(arg: Dict[str, Any]):
+        role = str(arg.get("role", "")).strip()
+        if not role:
+            return
+        description = str(arg.get("description", "")).strip()
+        required = bool(arg.get("required", False))
+        payload = {"role": role, "description": description, "required": required}
+        if role not in index:
+            index[role] = len(merged)
+            merged.append(payload)
+            return
+        existing_payload = merged[index[role]]
+        if description and not existing_payload.get("description"):
+            existing_payload["description"] = description
+        if required:
+            existing_payload["required"] = True
+
+    for item in existing:
+        if isinstance(item, dict):
+            _add(item)
+    for item in new_items:
+        if isinstance(item, dict):
+            _add(item)
+    return merged
+
+
+def _merge_event_schema(existing: Sequence[Dict[str, Any]], new_items: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    merged: List[Dict[str, Any]] = []
+    index: Dict[str, int] = {}
+
+    def _add(event: Dict[str, Any]):
+        event_type = str(event.get("event_type", "")).strip()
+        if not event_type:
+            return
+        description = str(event.get("description", "")).strip()
+        trigger_words = _merge_string_list(event.get("trigger_words", []), [])
+        arguments = _merge_event_arguments([], event.get("arguments", []))
+        if event_type not in index:
+            merged.append(
+                {
+                    "event_type": event_type,
+                    "description": description,
+                    "trigger_words": trigger_words,
+                    "arguments": arguments,
+                }
+            )
+            index[event_type] = len(merged) - 1
+            return
+        current = merged[index[event_type]]
+        if description and not current.get("description"):
+            current["description"] = description
+        current["trigger_words"] = _merge_string_list(current.get("trigger_words", []), trigger_words)
+        current["arguments"] = _merge_event_arguments(current.get("arguments", []), arguments)
+
+    for event in existing:
+        if isinstance(event, dict):
+            _add(event)
+    for event in new_items:
+        if isinstance(event, dict):
+            _add(event)
+    return merged
+
+
+def merge_schema_payload(
+    existing_schema: Dict[str, Any] | None,
+    new_ontology: Ontology,
+    new_events: Sequence[Dict[str, Any]],
+) -> Tuple[Ontology, Dict[str, Any]]:
+    existing_labels = _normalize_labels(existing_schema.get("labels")) if existing_schema else []
+    existing_relationships = _normalize_relationships(existing_schema.get("relationships")) if existing_schema else []
+    existing_events = _normalize_event_schema(existing_schema.get("events")) if existing_schema else []
+
+    normalized_labels = _normalize_labels(new_ontology.labels)
+    normalized_relationships = _normalize_relationships(new_ontology.relationships)
+
+    merged_labels = _merge_label_items(existing_labels, normalized_labels)
+    merged_relationships = _merge_string_list(existing_relationships, normalized_relationships)
+    merged_events = _merge_event_schema(existing_events, new_events)
+
+    merged_ontology = Ontology(labels=merged_labels, relationships=merged_relationships)
+    payload = merged_ontology.model_dump()
+    if merged_events:
+        payload["events"] = merged_events
+    return merged_ontology, payload
 
 
 def build_event_schema(llm_client: LLMClient, background_text: str) -> List[Dict[str, Any]]:
@@ -660,6 +836,7 @@ def maybe_save_to_neo4j(edges: Sequence[Edge]):
 
 def main():
     output_paths = ensure_output_paths()
+    existing_schema, _ = load_existing_ontology_schema()
     chunks = load_text_chunks()
     if not chunks:
         raise RuntimeError("未获取到任何文本块，请检查 input 配置")
@@ -667,8 +844,11 @@ def main():
     llm_client = instantiate_llm_client()
     background_excerpt = build_background_excerpt(chunks)
     ontology = build_ontology(llm_client=llm_client, background_text=background_excerpt)
+    log_label = "新构建出的本体" if existing_schema else "构建出的本体"
+    LOGGER.info("%s: %s", log_label, json.dumps(ontology.model_dump(), ensure_ascii=False, indent=2))
     event_schema = build_event_schema(llm_client=llm_client, background_text=background_excerpt)
-    graph_maker = GraphMaker(ontology=ontology, llm_client=llm_client, verbose=CONFIG["runtime"]["verbose"])
+    merged_ontology, schema_payload = merge_schema_payload(existing_schema, ontology, event_schema)
+    graph_maker = GraphMaker(ontology=merged_ontology, llm_client=llm_client, verbose=CONFIG["runtime"]["verbose"])
     edges = graph_maker.from_documents(
         docs=documents,
         delay_s_between=CONFIG["runtime"]["delay_between_requests"],
@@ -676,9 +856,6 @@ def main():
 
     nodes = collect_nodes(edges)
 
-    schema_payload = ontology.model_dump()
-    if event_schema:
-        schema_payload["events"] = event_schema
     save_json(output_paths.schema, schema_payload)
     write_nodes_json(output_paths.nodes, nodes)
     write_edges_json(output_paths.edges, edges)
