@@ -73,6 +73,17 @@ ontology = Ontology(
 )
 ```
 
+#### Event extraction add-on in this repo
+
+The demo script in this repository extends the ontology configuration with an optional `event_extraction` block (see
+`config/config.yaml`). When enabled, the script will ask the LLM to propose high-level event types along with:
+
+- `trigger_words`: verbs or short phrases that can be used to anchor the event in the text corpus.
+- `arguments`: a list of roles, each containing `role`, `description`, and whether the role is `required`.
+
+The generated list is merged into `output/ontology_schema.json` under the `events` field so that downstream consumers have a
+ready-made schema for event/argument extraction without interfering with the base `Ontology` model.
+
 ### 2. Split the text into chunks.
 
 We can use as large a corpus of text as we want to create large knowledge graphs. However, LLMs have a finite context window right now. So we need to chunk the text appropriately and create the graph one chunk at a time. The chunk size that we should use depends on the model context window. The prompts that are used in this project eat up around 500 tokens. The rest of the context can be divided into input text and output graph. In my experience, 800 to 1200 token chunks are well suited.
