@@ -6,7 +6,7 @@ llm:
   proxy: socks5h://192.168.134.165:1010
   deepseek:
     model: deepseek-chat
-    max_tokens: 2048
+    max_tokens: 4096
   openai:
     model: gpt-4o-mini
     max_tokens: 2048
@@ -28,7 +28,7 @@ ontology:
     - "事件与参与者的因果关系"
 event_extraction:
   enabled: true
-  max_event_types: 5
+  max_event_types: 10
   event_type_hints:
     - 战争: "长期或规模化的军事冲突"
     - 冲突: "规模较小，但包含明显对抗的事件"
@@ -88,7 +88,7 @@ input:
 runtime:
   verbose: false
   delay_between_requests: 8
-  graph_extraction_enabled: true
+  graph_extraction_enabled: false
 output:
   dir: output
   schema_filename: ontology_schema.json
