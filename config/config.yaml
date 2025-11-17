@@ -88,6 +88,7 @@ input:
 runtime:
   verbose: false
   delay_between_requests: 8
+  graph_extraction_enabled: true
 output:
   dir: output
   schema_filename: ontology_schema.json
