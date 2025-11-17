@@ -3,20 +3,20 @@
 
 此脚本展示如何使用 ``knowledge-graph-maker`` 包从任意文本生成知识图谱，并把
 结果保存到 ``output/`` 目录下的多种文件格式中。所有运行配置均集中在
-``src/config/config.yaml`` 中，可直接根据自身场景进行修改。
+``config/config.yaml`` 中，可直接根据自身场景进行修改。
 
 运行前准备
 ----------
 1. 安装依赖：``pip install knowledge-graph-maker``（仓库自带 ``poetry`` 环境亦可）。
 2. 配置 LLM 服务：
    - DeepSeek: 设置 ``DEEPSEEK_API_KEY`` 环境变量（示例脚本默认使用
-     ``provider='deepseek'``，API Key 也可通过 ``src/config/config.yaml`` 中的
+     ``provider='deepseek'``，API Key 也可通过 ``config/config.yaml`` 中的
      ``llm.default_api_key`` 字段临时填写）。
    - OpenAI: 设置 ``OPENAI_API_KEY`` 环境变量。
    - Groq: 设置 ``GROQ_API_KEY`` 环境变量（脚本已提供占位符，只有当你选择
      ``provider='groq'`` 时才会真正使用）。
 3. 如需自动写入 Neo4j，请确保本地或远端 Neo4j 实例已启动，且账号、密码、URI
-   与 ``src/config/config.yaml`` 的 ``neo4j`` 配置保持一致。
+   与 ``config/config.yaml`` 的 ``neo4j`` 配置保持一致。
 
 执行：``python src/demo.py`` 或 ``python -m src.demo``
 """
@@ -35,9 +35,19 @@ from typing import Any, Dict, Iterable, List, Sequence, Tuple
 
 import yaml
 
-CONFIG_PATH = Path(__file__).resolve().parent / "config" / "config.yaml"
-LOG_DIR = Path(__file__).resolve().parent / "logs"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
+LOG_DIR = PROJECT_ROOT / "logs"
 BACKGROUND_SNIPPET_MAX_CHARS = 4000
+
+
+def resolve_project_path(path_str: str | Path) -> Path:
+    """将相对路径解析为相对于项目根目录的绝对路径。"""
+
+    path = Path(path_str).expanduser()
+    if path.is_absolute():
+        return path
+    return (PROJECT_ROOT / path).resolve()
 
 
 def load_config(path: Path = CONFIG_PATH) -> Dict[str, Any]:
@@ -123,7 +133,7 @@ class DeepSeekClient(LLMClient):
     ):
         if not api_key or api_key == "123":
             raise EnvironmentError(
-                "请设置有效的 DeepSeek API Key（DEEPSEEK_API_KEY 或 src/config/config.yaml 中的 llm.default_api_key)"
+                "请设置有效的 DeepSeek API Key（DEEPSEEK_API_KEY 或 config/config.yaml 中的 llm.default_api_key)"
             )
 
         self._model = model
@@ -193,7 +203,7 @@ class OutputPaths:
 
 
 def ensure_output_paths() -> OutputPaths:
-    base_dir = Path(CONFIG["output"]["dir"]).resolve()
+    base_dir = resolve_project_path(CONFIG["output"]["dir"])
     base_dir.mkdir(parents=True, exist_ok=True)
     return OutputPaths(
         base_dir=base_dir,
@@ -214,7 +224,7 @@ def load_text_chunks() -> Sequence[str]:
     if cfg["type"] == "text":
         return chunk_text(cfg["text"], cfg["chunk_size"])
     if cfg["type"] == "file":
-        text_path = Path(cfg["file_path"]).expanduser()
+        text_path = resolve_project_path(cfg["file_path"])
         if not text_path.exists():
             raise FileNotFoundError(f"未找到输入文件: {text_path}")
         return chunk_text(text_path.read_text(encoding="utf-8"), cfg["chunk_size"])
@@ -524,7 +534,7 @@ def instantiate_llm_client():
         api_key = os.environ.get("DEEPSEEK_API_KEY") or llm_cfg.get("default_api_key")
         if not api_key:
             raise EnvironmentError(
-                "请先设置 DEEPSEEK_API_KEY 或在 src/config/config.yaml 的 llm.default_api_key 中提供 Key"
+                "请先设置 DEEPSEEK_API_KEY 或在 config/config.yaml 的 llm.default_api_key 中提供 Key"
             )
 
         proxy = llm_cfg.get("proxy")  # 例如 socks5h://192.168.134.165:1010
