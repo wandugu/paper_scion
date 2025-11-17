@@ -31,6 +31,8 @@ This project is an example notebook that demonstrates the use of the knowledge g
 - 如已拥有一份旧的本体定义，可将其放入 `input/ontology_schema_exist.json`（或在
   `config/config.yaml` 的 `input.existing_ontology_path` 中指定其它路径）。脚本会先
   构建新的本体，再与旧版本进行去重合并，最终输出合并后的 `ontology_schema.json`。
+- 若只需生成本体文件，可在 `runtime.graph_extraction_enabled` 中设置为 `false`，
+  此时脚本只会输出合并后的本体 JSON，跳过节点/边文件及 Neo4j 相关流程。
 
 运行示例脚本：
 
