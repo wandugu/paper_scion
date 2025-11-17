@@ -13,18 +13,13 @@
     "负责设计",
     "负责推进",
     "部署在",
-    "发布",
-    "撰写",
-    "举办",
-    "导致",
-    "报告",
-    "质疑",
-    "成立",
-    "邀请",
-    "调整",
-    "触发",
-    "解析",
-    "举行"
+    "发布报告",
+    "引发事故",
+    "参与调查",
+    "提出质疑",
+    "组织说明会",
+    "撰写文档",
+    "触发讨论"
   ],
   "events": [
     {
@@ -35,27 +30,27 @@
         "上线",
         "落地",
         "推进落地",
-        "部署阶段"
+        "运行在"
       ],
       "arguments": [
         {
           "role": "发起方",
-          "description": "负责系统部署和推广的组织或个人",
+          "description": "负责系统部署和推进的组织或个人",
           "required": true
         },
         {
-          "role": "技术负责方",
-          "description": "负责系统技术设计和开发的组织或个人",
+          "role": "系统名称",
+          "description": "被部署的智能系统名称",
           "required": true
         },
         {
           "role": "部署地点",
-          "description": "系统部署的具体区域或位置",
+          "description": "系统部署的具体位置或区域",
           "required": true
         },
         {
-          "role": "核心组件",
-          "description": "系统运行所需的关键技术组件",
+          "role": "技术负责人",
+          "description": "负责系统技术设计和开发的人员",
           "required": false
         }
       ]
@@ -64,21 +59,22 @@
       "event_type": "事故报告",
       "description": "",
       "trigger_words": [
-        "发生事故",
+        "发生",
+        "相撞",
         "追尾",
-        "异常切换",
-        "安全隐患",
-        "吐槽"
+        "异常",
+        "吐槽",
+        "报告"
       ],
       "arguments": [
         {
           "role": "报告方",
-          "description": "发现并报告事故的个人或组织",
+          "description": "报告事故的个人或组织",
           "required": true
         },
         {
           "role": "受影响方",
-          "description": "受到事故影响的个人或组织",
+          "description": "受到事故影响的个人或群体",
           "required": true
         },
         {
@@ -88,106 +84,108 @@
         },
         {
           "role": "事故描述",
-          "description": "事故的具体情况和表现",
+          "description": "事故的具体情况和细节",
           "required": false
         }
       ]
     },
     {
-      "event_type": "技术评估",
+      "event_type": "技术分析",
       "description": "",
       "trigger_words": [
-        "风险评估",
-        "技术解析",
-        "缺陷清单",
-        "质疑",
-        "验证"
+        "解析",
+        "分析",
+        "推断",
+        "提出假设",
+        "整理",
+        "评估"
+      ],
+      "arguments": [
+        {
+          "role": "分析方",
+          "description": "进行技术分析的组织或个人",
+          "required": true
+        },
+        {
+          "role": "分析对象",
+          "description": "被分析的系统或技术",
+          "required": true
+        },
+        {
+          "role": "关键发现",
+          "description": "分析过程中的重要发现或结论",
+          "required": false
+        },
+        {
+          "role": "分析报告",
+          "description": "分析结果的文档或报告名称",
+          "required": false
+        }
+      ]
+    },
+    {
+      "event_type": "风险评估",
+      "description": "",
+      "trigger_words": [
+        "评估",
+        "风险",
+        "缺陷",
+        "安全隐患",
+        "质疑"
       ],
       "arguments": [
         {
           "role": "评估方",
-          "description": "进行技术评估的组织或个人",
+          "description": "进行风险评估的组织或个人",
           "required": true
         },
         {
           "role": "评估对象",
-          "description": "被评估的技术系统或组件",
+          "description": "被评估的系统或项目",
           "required": true
         },
         {
-          "role": "评估报告",
-          "description": "评估过程中产生的文档或报告",
+          "role": "风险类型",
+          "description": "识别出的具体风险类别",
           "required": false
         },
         {
-          "role": "发现的问题",
-          "description": "评估过程中发现的技术缺陷或风险",
+          "role": "风险等级",
+          "description": "评估的风险严重程度",
           "required": false
         }
       ]
     },
     {
-      "event_type": "舆论传播",
+      "event_type": "公众沟通",
       "description": "",
       "trigger_words": [
         "发布",
-        "转发",
-        "登上热搜",
-        "引发讨论",
-        "误读"
+        "宣讲",
+        "说明会",
+        "通报",
+        "宣布",
+        "转发"
       ],
       "arguments": [
         {
           "role": "发布方",
-          "description": "发布信息或内容的个人或组织",
+          "description": "发布信息或组织沟通活动的组织",
           "required": true
         },
         {
-          "role": "传播平台",
-          "description": "信息传播的主要渠道或平台",
+          "role": "沟通内容",
+          "description": "发布或沟通的核心信息主题",
           "required": true
         },
         {
-          "role": "传播内容",
-          "description": "被传播的具体信息或话题",
+          "role": "受众群体",
+          "description": "信息接收的目标群体",
           "required": false
         },
         {
-          "role": "影响范围",
-          "description": "信息传播的影响程度和范围",
-          "required": false
-        }
-      ]
-    },
-    {
-      "event_type": "官方回应",
-      "description": "",
-      "trigger_words": [
-        "成立工作组",
-        "举行说明会",
-        "通报",
-        "宣布",
-        "邀请专家"
-      ],
-      "arguments": [
-        {
-          "role": "回应方",
-          "description": "做出官方回应的组织或机构",
-          "required": true
-        },
-        {
-          "role": "回应对象",
-          "description": "回应针对的事件或问题",
-          "required": true
-        },
-        {
-          "role": "回应措施",
-          "description": "采取的具体应对措施或行动",
-          "required": false
-        },
-        {
-          "role": "参与方",
-          "description": "参与回应的相关组织或个人",
+          "role": "沟通渠道",
+          "description": "信息发布或沟通的平台/场所",
           "required": false
         }
       ]
