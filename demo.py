@@ -283,6 +283,42 @@ def _format_relationship_hints() -> str:
     return "\n".join(f"- {relation}" for relation in CONFIG["ontology"]["relationships"])
 
 
+def _event_cfg() -> Dict[str, Any]:
+    return CONFIG.get("event_extraction") or {}
+
+
+def _format_event_type_hints() -> str:
+    cfg = _event_cfg()
+    hints = cfg.get("event_type_hints", [])
+    lines: List[str] = []
+    for item in hints:
+        if isinstance(item, str):
+            lines.append(f"- {item}")
+        elif isinstance(item, dict):
+            for key, value in item.items():
+                lines.append(f"- {key}: {value}")
+    return "\n".join(lines)
+
+
+def _format_argument_role_hints() -> str:
+    cfg = _event_cfg()
+    hints = cfg.get("argument_role_hints", [])
+    lines: List[str] = []
+    for item in hints:
+        if isinstance(item, str):
+            lines.append(f"- {item}")
+        elif isinstance(item, dict):
+            for key, value in item.items():
+                lines.append(f"- {key}: {value}")
+    return "\n".join(lines)
+
+
+def _format_trigger_guidelines() -> str:
+    cfg = _event_cfg()
+    guidelines = cfg.get("trigger_word_guidelines", [])
+    return "\n".join(f"- {item}" for item in guidelines if isinstance(item, str))
+
+
 def _extract_json_payload(response: str) -> Dict[str, Any]:
     try:
         return json.loads(response)
@@ -328,6 +364,16 @@ def _fallback_ontology() -> Ontology:
     )
 
 
+def _fallback_events() -> List[Dict[str, Any]]:
+    cfg = _event_cfg()
+    fallback = cfg.get("fallback_events")
+    if isinstance(fallback, list):
+        normalized = _normalize_event_schema(fallback)
+        if normalized:
+            return normalized
+    return []
+
+
 def build_ontology(llm_client: LLMClient, background_text: str) -> Ontology:
     """根据背景语料动态生成本体。"""
 
@@ -370,6 +416,103 @@ def build_ontology(llm_client: LLMClient, background_text: str) -> Ontology:
     except Exception as exc:  # noqa: BLE001
         LOGGER.warning("根据背景生成动态本体失败，改用配置本体。原因: %s", exc)
         return _fallback_ontology()
+
+
+def _normalize_event_schema(raw_events: Any) -> List[Dict[str, Any]]:
+    if not isinstance(raw_events, list):
+        return []
+    normalized: List[Dict[str, Any]] = []
+    for item in raw_events:
+        if not isinstance(item, dict):
+            continue
+        event_type = str(item.get("event_type", "")).strip()
+        if not event_type:
+            continue
+        description = str(item.get("description", "")).strip()
+        trigger_words: List[str] = []
+        raw_triggers = item.get("trigger_words", [])
+        if isinstance(raw_triggers, list):
+            for trig in raw_triggers:
+                if isinstance(trig, str):
+                    stripped = trig.strip()
+                    if stripped:
+                        trigger_words.append(stripped)
+        arguments: List[Dict[str, Any]] = []
+        raw_arguments = item.get("arguments", [])
+        if isinstance(raw_arguments, list):
+            for arg in raw_arguments:
+                if not isinstance(arg, dict):
+                    continue
+                role = str(arg.get("role", "")).strip()
+                if not role:
+                    continue
+                description_text = str(arg.get("description", "")).strip()
+                required = bool(arg.get("required", False))
+                arguments.append(
+                    {
+                        "role": role,
+                        "description": description_text,
+                        "required": required,
+                    }
+                )
+        normalized.append(
+            {
+                "event_type": event_type,
+                "description": description,
+                "trigger_words": trigger_words,
+                "arguments": arguments,
+            }
+        )
+    return normalized
+
+
+def build_event_schema(llm_client: LLMClient, background_text: str) -> List[Dict[str, Any]]:
+    cfg = _event_cfg()
+    if not cfg.get("enabled", False):
+        return []
+
+    if not background_text.strip():
+        LOGGER.warning("背景文本为空，事件抽取提示退回使用 fallback 配置。")
+        return _fallback_events()
+
+    system_message = (
+        "你是事件抽取专家，需为知识图谱设计事件类型与论元。"
+        "输出包含可复用的 event_type、触发词和论元。"
+        "最终只返回 JSON，结构为 {\"events\": [...]}。"
+    )
+
+    event_hint = _format_event_type_hints()
+    argument_hint = _format_argument_role_hints()
+    trigger_guidelines = _format_trigger_guidelines()
+
+    max_events = cfg.get("max_event_types", 6)
+    user_message = (
+        "请基于以下背景语料，总结最重要的事件类型。\n"
+        f"- 事件数量不超过 {max_events} 个，可根据内容增删。\n"
+        "- 每个事件需包含触发词 trigger_words（数组）与 arguments（论元列表）。\n"
+        "- 论元至少覆盖发起方、受影响方或其它关键角色。\n"
+        "- arguments 中的每一项需包含 role、description、required 字段。\n"
+        "- JSON 结构示例：{\"events\": [{\"event_type\": \"行动\", \"trigger_words\": [..], \"arguments\": [{...}]}]}。\n\n"
+        "【背景摘录】\n"
+        f"{background_text}\n\n"
+        "【可参考的事件类型提示】\n"
+        f"{event_hint}\n\n"
+        "【论元角色提示】\n"
+        f"{argument_hint}\n\n"
+        "【触发词撰写建议】\n"
+        f"{trigger_guidelines}\n"
+    )
+
+    try:
+        response = llm_client.generate(user_message=user_message, system_message=system_message)
+        payload = _extract_json_payload(response)
+        events = _normalize_event_schema(payload.get("events"))
+        if not events:
+            raise ValueError("LLM 响应缺少 events 字段或内容为空")
+        return events
+    except Exception as exc:  # noqa: BLE001
+        LOGGER.warning("生成事件抽取配置失败，改用 fallback。原因: %s", exc)
+        return _fallback_events()
 
 
 def instantiate_llm_client():
@@ -514,6 +657,7 @@ def main():
     llm_client = instantiate_llm_client()
     background_excerpt = build_background_excerpt(chunks)
     ontology = build_ontology(llm_client=llm_client, background_text=background_excerpt)
+    event_schema = build_event_schema(llm_client=llm_client, background_text=background_excerpt)
     graph_maker = GraphMaker(ontology=ontology, llm_client=llm_client, verbose=CONFIG["runtime"]["verbose"])
     edges = graph_maker.from_documents(
         docs=documents,
@@ -522,7 +666,10 @@ def main():
 
     nodes = collect_nodes(edges)
 
-    save_json(output_paths.schema, ontology.model_dump())
+    schema_payload = ontology.model_dump()
+    if event_schema:
+        schema_payload["events"] = event_schema
+    save_json(output_paths.schema, schema_payload)
     write_nodes_json(output_paths.nodes, nodes)
     write_edges_json(output_paths.edges, edges)
     export_neo4j_csv(output_paths, edges)
