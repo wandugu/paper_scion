@@ -26,7 +26,7 @@ This project is an example notebook that demonstrates the use of the knowledge g
 ## 项目结构与运行方式
 
 - 所有 Python 脚本均位于 `src/` 目录下，其中 `src/demo.py` 是主要的演示脚本。
-- 运行脚本前请确保 `src/config/config.yaml` 中的参数已经根据自身环境调整完毕。
+- 运行脚本前请确保 `config/config.yaml` 中的参数已经根据自身环境调整完毕。
 - 示例素材（如封面图、样例文本等）也集中在 `src/assets/` 下，方便统一维护。
 
 运行示例脚本：
@@ -90,7 +90,7 @@ ontology = Ontology(
 #### Event extraction add-on in this repo
 
 The demo script in this repository extends the ontology configuration with an optional `event_extraction` block (see
-`src/config/config.yaml`). When enabled, the script will ask the LLM to propose high-level event types along with:
+`config/config.yaml`). When enabled, the script will ask the LLM to propose high-level event types along with:
 
 - `trigger_words`: verbs or short phrases that can be used to anchor the event in the text corpus.
 - `arguments`: a list of roles, each containing `role`, `description`, and whether the role is `required`.
