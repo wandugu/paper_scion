@@ -1,27 +1,196 @@
 {
   "labels": [
-    {
-      "Person": "人物姓名，避免形容词"
-    },
-    {
-      "Object": "有形物体，名称中不含冠词"
-    },
-    {
-      "Event": "事件或情节，保持中立描述"
-    },
-    "Place",
+    "Person",
     "Organisation",
+    "Place",
+    "Event",
     "Document",
-    {
-      "Action": "关键动作或行为"
-    },
-    {
-      "Misc": "其它重要概念"
-    }
+    "SystemComponent",
+    "Action",
+    "Misc"
   ],
   "relationships": [
-    "人物与地点/组织的关联",
-    "人物之间的情节联系",
-    "事件与参与者的因果关系"
+    "负责设计",
+    "负责推进",
+    "部署在",
+    "发布",
+    "撰写",
+    "举办",
+    "导致",
+    "报告",
+    "质疑",
+    "成立",
+    "邀请",
+    "调整",
+    "触发",
+    "解析",
+    "举行"
+  ],
+  "events": [
+    {
+      "event_type": "系统部署",
+      "description": "",
+      "trigger_words": [
+        "部署",
+        "上线",
+        "落地",
+        "推进落地",
+        "部署阶段"
+      ],
+      "arguments": [
+        {
+          "role": "发起方",
+          "description": "负责系统部署和推广的组织或个人",
+          "required": true
+        },
+        {
+          "role": "技术负责方",
+          "description": "负责系统技术设计和开发的组织或个人",
+          "required": true
+        },
+        {
+          "role": "部署地点",
+          "description": "系统部署的具体区域或位置",
+          "required": true
+        },
+        {
+          "role": "核心组件",
+          "description": "系统运行所需的关键技术组件",
+          "required": false
+        }
+      ]
+    },
+    {
+      "event_type": "事故报告",
+      "description": "",
+      "trigger_words": [
+        "发生事故",
+        "追尾",
+        "异常切换",
+        "安全隐患",
+        "吐槽"
+      ],
+      "arguments": [
+        {
+          "role": "报告方",
+          "description": "发现并报告事故的个人或组织",
+          "required": true
+        },
+        {
+          "role": "受影响方",
+          "description": "受到事故影响的个人或组织",
+          "required": true
+        },
+        {
+          "role": "事故地点",
+          "description": "事故发生的确切位置",
+          "required": true
+        },
+        {
+          "role": "事故描述",
+          "description": "事故的具体情况和表现",
+          "required": false
+        }
+      ]
+    },
+    {
+      "event_type": "技术评估",
+      "description": "",
+      "trigger_words": [
+        "风险评估",
+        "技术解析",
+        "缺陷清单",
+        "质疑",
+        "验证"
+      ],
+      "arguments": [
+        {
+          "role": "评估方",
+          "description": "进行技术评估的组织或个人",
+          "required": true
+        },
+        {
+          "role": "评估对象",
+          "description": "被评估的技术系统或组件",
+          "required": true
+        },
+        {
+          "role": "评估报告",
+          "description": "评估过程中产生的文档或报告",
+          "required": false
+        },
+        {
+          "role": "发现的问题",
+          "description": "评估过程中发现的技术缺陷或风险",
+          "required": false
+        }
+      ]
+    },
+    {
+      "event_type": "舆论传播",
+      "description": "",
+      "trigger_words": [
+        "发布",
+        "转发",
+        "登上热搜",
+        "引发讨论",
+        "误读"
+      ],
+      "arguments": [
+        {
+          "role": "发布方",
+          "description": "发布信息或内容的个人或组织",
+          "required": true
+        },
+        {
+          "role": "传播平台",
+          "description": "信息传播的主要渠道或平台",
+          "required": true
+        },
+        {
+          "role": "传播内容",
+          "description": "被传播的具体信息或话题",
+          "required": false
+        },
+        {
+          "role": "影响范围",
+          "description": "信息传播的影响程度和范围",
+          "required": false
+        }
+      ]
+    },
+    {
+      "event_type": "官方回应",
+      "description": "",
+      "trigger_words": [
+        "成立工作组",
+        "举行说明会",
+        "通报",
+        "宣布",
+        "邀请专家"
+      ],
+      "arguments": [
+        {
+          "role": "回应方",
+          "description": "做出官方回应的组织或机构",
+          "required": true
+        },
+        {
+          "role": "回应对象",
+          "description": "回应针对的事件或问题",
+          "required": true
+        },
+        {
+          "role": "回应措施",
+          "description": "采取的具体应对措施或行动",
+          "required": false
+        },
+        {
+          "role": "参与方",
+          "description": "参与回应的相关组织或个人",
+          "required": false
+        }
+      ]
+    }
   ]
 }
