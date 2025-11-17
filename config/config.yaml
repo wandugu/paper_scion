@@ -1,0 +1,50 @@
+llm:
+  provider: deepseek
+  temperature: 0.1
+  top_p: 0.5
+  default_api_key: "sk-17a236632dd6433c8dda23a460fb7699"
+  proxy: socks5h://192.168.134.165:1010
+  deepseek:
+    model: deepseek-chat
+    max_tokens: 2048
+  openai:
+    model: gpt-4o-mini
+    max_tokens: 2048
+  groq:
+    model: mixtral-8x7b-32768
+ontology:
+  labels:
+    - Person: "人物姓名，避免形容词"
+    - Object: "有形物体，名称中不含冠词"
+    - Event: "事件或情节，保持中立描述"
+    - Place
+    - Organisation
+    - Document
+    - Action: "关键动作或行为"
+    - Misc: "其它重要概念"
+  relationships:
+    - "人物与地点/组织的关联"
+    - "人物之间的情节联系"
+    - "事件与参与者的因果关系"
+input:
+  type: file
+  text: "这里可以直接放置自定义背景文本……"
+  file_path: input/background.txt
+  source_label: lotr_wikipedia
+  chunk_size: 1200
+runtime:
+  verbose: false
+  delay_between_requests: 8
+output:
+  dir: output
+  schema_filename: ontology_schema.json
+  nodes_filename: graph_nodes.json
+  edges_filename: graph_edges.json
+  neo4j_nodes_csv: neo4j_nodes.csv
+  neo4j_edges_csv: neo4j_edges.csv
+neo4j:
+  enabled: false
+  uri: bolt://localhost:7687
+  username: neo4j
+  password: password
+  create_indices: false
