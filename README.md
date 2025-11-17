@@ -21,7 +21,8 @@ The best of all, we can achieve **Graph Retrieval Augmented Generation (GRAG)** 
 
 ## This project
 
-This project is an example notebook that demonstrates the use of the knowledge graph maker library.
+This project is an example notebook that demonstrates the use of the knowledge graph maker library。仓库现已自带
+`knowledge_graph_maker` 源码，默认会优先加载本地实现，无需联网下载。
 
 ## 项目结构与运行方式
 
@@ -42,15 +43,10 @@ python src/demo.py
 
 如需自定义 PYTHONPATH 或以模块方式运行，也可以执行 `python -m src.demo`。
 
-> Note: I have moved the graph maker library to a pip package. For information about how to use the library or how to define your own LLM client to use graph maker, please refer to the package github page.
+> Note: 仓库自带的 `src/knowledge_graph_maker` 目录已经同步了官方实现，若只需运行本示例，
+> 无需通过网络安装 `knowledge-graph-maker`，断网环境下也可直接执行。
 
-**[Knowledge Graph Maker](https://github.com/rahulnyk/knowledge_graph_maker)**
-
-You can install the graph maker library as follows
-
-```shell
-$ pip install knowledge-graph-maker
-```
+如果希望使用官方 pip 版本，可根据需要执行 `pip install knowledge-graph-maker`。
 
 To set up this project you can use [Poetry](https://python-poetry.org/docs/configuration/).
 If you use poetry, please dont install the graph maker library manually. The poetry environment will manage that for you.
@@ -148,8 +144,8 @@ The [Knowledge Graph Maker](https://github.com/rahulnyk/knowledge_graph_maker) d
 Here is the simple example code
 
 ```python
-from knowledge_graph_maker import GraphMaker, Ontology, GroqClient
-from knowledge_graph_maker import Document
+from knowledge_graph_maker import GraphMaker, Ontology, Document
+from knowledge_graph_maker.llm_clients.groq_client import GroqClient
 
 
 graph_maker = GraphMaker(ontology=ontology, llm_client=llm, verbose=False)
