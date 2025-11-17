@@ -8,3 +8,4 @@ experiments*
 assets/evolution_gif
 assets/*.psd
 data
+output/*
