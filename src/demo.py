@@ -215,6 +215,11 @@ def ensure_output_paths() -> OutputPaths:
     )
 
 
+def graph_extraction_enabled() -> bool:
+    runtime_cfg = CONFIG.get("runtime", {})
+    return bool(runtime_cfg.get("graph_extraction_enabled", True))
+
+
 def load_text_chunks() -> Sequence[str]:
     cfg = CONFIG["input"]
     if cfg["type"] == "sample":
@@ -848,6 +853,13 @@ def main():
     LOGGER.info("%s: %s", log_label, json.dumps(ontology.model_dump(), ensure_ascii=False, indent=2))
     event_schema = build_event_schema(llm_client=llm_client, background_text=background_excerpt)
     merged_ontology, schema_payload = merge_schema_payload(existing_schema, ontology, event_schema)
+
+    save_json(output_paths.schema, schema_payload)
+
+    if not graph_extraction_enabled():
+        LOGGER.info("已根据配置仅输出本体文件，跳过图谱抽取及 Neo4j 导出。输出目录: %s", output_paths.base_dir)
+        return
+
     graph_maker = GraphMaker(ontology=merged_ontology, llm_client=llm_client, verbose=CONFIG["runtime"]["verbose"])
     edges = graph_maker.from_documents(
         docs=documents,
@@ -856,7 +868,6 @@ def main():
 
     nodes = collect_nodes(edges)
 
-    save_json(output_paths.schema, schema_payload)
     write_nodes_json(output_paths.nodes, nodes)
     write_edges_json(output_paths.edges, edges)
     export_neo4j_csv(output_paths, edges)
