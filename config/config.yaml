@@ -26,6 +26,58 @@ ontology:
     - "人物与地点/组织的关联"
     - "人物之间的情节联系"
     - "事件与参与者的因果关系"
+event_extraction:
+  enabled: true
+  max_event_types: 5
+  event_type_hints:
+    - 战争: "长期或规模化的军事冲突"
+    - 冲突: "规模较小，但包含明显对抗的事件"
+    - 联盟: "角色之间达成合作或结盟"
+    - 行动计划: "需要多个步骤或角色配合的重要行动"
+  argument_role_hints:
+    - 发起方: "主动推动事件的个人、组织或阵营"
+    - 受影响方: "事件影响到的核心对象"
+    - 关键资源: "决定事件走向的重要物品、信息或能力"
+    - 地点: "事件发生的具体地点或范围"
+    - 时间: "事件发生或计划实施的时间节点"
+  trigger_word_guidelines:
+    - "触发词应为动词或动宾短语，能够直接体现事件开始或发生"
+    - "优先收集可以在文本中直接检索的词汇"
+  fallback_events:
+    - event_type: 战争冲突
+      description: "涉及多个势力的军事对抗，往往伴随战略目标或关键资源争夺"
+      trigger_words:
+        - "开战"
+        - "入侵"
+        - "围攻"
+      arguments:
+        - role: 发起方
+          description: "首先挑起或宣战的一方"
+          required: true
+        - role: 受影响方
+          description: "被攻击或被迫应战的一方"
+          required: true
+        - role: 关键资源
+          description: "驱动冲突的资源、神器或战略目标"
+          required: false
+        - role: 地点
+          description: "战争的主要战场或据点"
+          required: false
+    - event_type: 联盟成立
+      description: "两个或多个角色为了共同目标而正式结盟"
+      trigger_words:
+        - "结盟"
+        - "达成协议"
+      arguments:
+        - role: 参与方
+          description: "组成联盟的主要成员"
+          required: true
+        - role: 目标
+          description: "联盟成立的共同目的"
+          required: false
+        - role: 条件
+          description: "联盟达成所需的关键条件或交换"
+          required: false
 input:
   type: file
   text: "这里可以直接放置自定义背景文本……"
