@@ -1,0 +1,23 @@
+{
+  "labels": [
+    "Person",
+    "Organisation",
+    {"Artifact": "在剧情中具有特殊意义的物品或技术"}
+  ],
+  "relationships": [
+    "隶属于",
+    "位于",
+    "对抗"
+  ],
+  "events": [
+    {
+      "event_type": "盟约签订",
+      "description": "角色之间就共同目标达成协定",
+      "trigger_words": ["签订", "结盟"],
+      "arguments": [
+        {"role": "参与方", "description": "协议中的主要成员", "required": true},
+        {"role": "目标", "description": "盟约指向的共同目标", "required": false}
+      ]
+    }
+  ]
+}
