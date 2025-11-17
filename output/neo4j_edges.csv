@@ -1,47 +1,41 @@
 start_id,end_id,relationship,metadata,order
-Organisation:海辰市政府,Organisation:星河智能研究院,联合发布,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Organisation:海辰市政府,SystemComponent:星河-1,发布,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Organisation:星河智能研究院,SystemComponent:星河-1,发布,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Person:林岚,SystemComponent:星河-1,负责设计,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Person:周启明,SystemComponent:星河-1,负责推进,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
+Organisation:海辰市政府,Organisation:星河智能研究院,联合发布名为「星河-1」的城市交通感知与决策系统,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
+Person:林岚,SystemComponent:星河-1,负责总体算法设计,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
+Person:周启明,SystemComponent:星河-1,负责推进落地,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
 SystemComponent:星河-1,Place:海辰市中心商务区,部署在,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
 SystemComponent:星河-1,Place:临港新区,部署在,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
 SystemComponent:星河-1,Place:量子城云计算中心,部署在,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Organisation:星河智能研究院,Document:星河-1 城市交通智能调度白皮书,撰写,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Organisation:星河智能研究院,Event:城市计算论坛,举办,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Event:城市计算论坛,Place:量子城大学,举行,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-SystemComponent:星河-1,Action:早高峰平均通行时间下降了 17%,导致,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Person:张婷,SystemComponent:微声,报告,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Person:陈博文,SystemComponent:司机之家,报告,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Event:临港新区隧道口多车追尾,SystemComponent:星河-1,导致,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Organisation:快行出行,Document:关于星河-1 控制策略异常的技术备忘录,撰写,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Organisation:快行出行,SystemComponent:星河-1,质疑,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Organisation:海辰市政府,Organisation:星河-1 安全专项工作组,成立,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Organisation:海辰市政府,Person:顾远,邀请,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Organisation:星河-1 安全专项工作组,Document:星河-1 部署阶段风险评估报告,撰写,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Person:林岚,SystemComponent:强化学习奖励函数,调整,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Organisation:开源交通联盟,Document:星河-1 系统架构非官方技术解析,撰写,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Document:星河-1 系统架构非官方技术解析,SystemComponent:星河-1,解析,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Organisation:海辰市政府,Event:星河-1 公众和媒体会议,举行,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Event:星河-1 公众和媒体会议,Place:市政府会议中心,举行,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
-Person:林岚,Event:系统风险说明会,林岚被列为系统风险说明会的发言人,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Person:周启明,Event:系统风险说明会,周启明被列为系统风险说明会的发言人,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Person:顾远,Event:系统风险说明会,顾远被列为系统风险说明会的发言人,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Organisation:快行出行,Event:系统风险说明会,快行出行的技术负责人被列为系统风险说明会的发言人,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Organisation:星河智能研究院,Document:星河-1 Beta 部署阶段缺陷清单（非最终版）,星河智能研究院内部流出一份《星河-1 Beta 部署阶段缺陷清单（非最终版）》的截图,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Document:星河-1 Beta 部署阶段缺陷清单（非最终版）,Event:关于算法透明性与责任归属的讨论,缺陷清单引发了新一轮关于算法透明性与责任归属的讨论,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Organisation:星河智能研究院,SystemComponent:星河-1,星河智能研究院围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成关系网络,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Organisation:海辰市政府,SystemComponent:星河-1,海辰市政府围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成关系网络,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Organisation:快行出行,SystemComponent:星河-1,快行出行围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成关系网络,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Organisation:开源交通联盟,SystemComponent:星河-1,开源交通联盟围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成关系网络,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Organisation:量子城大学,SystemComponent:星河-1,量子城大学围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成关系网络,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Person:林岚,SystemComponent:星河-1,林岚围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成关系网络,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Person:周启明,SystemComponent:星河-1,周启明围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成关系网络,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Person:张婷,SystemComponent:星河-1,张婷围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成关系网络,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Person:陈博文,SystemComponent:星河-1,陈博文围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成关系网络,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Person:顾远,SystemComponent:星河-1,顾远围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成关系网络,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Person:量子行者,SystemComponent:星河-1,量子行者围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成关系网络,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Document:白皮书,Event:重建事件链条和责任边界,不同版本的白皮书为重建事件链条和责任边界提供了文本证据,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Document:技术备忘录,Event:重建事件链条和责任边界,技术备忘录为重建事件链条和责任边界提供了文本证据,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Document:风险评估报告,Event:重建事件链条和责任边界,风险评估报告为重建事件链条和责任边界提供了文本证据,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
-Document:民间技术解析文档,Event:重建事件链条和责任边界,民间技术解析文档为重建事件链条和责任边界提供了文本证据,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Organisation:星河智能研究院,Document:《星河-1 城市交通智能调度白皮书》,撰写文档,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
+Person:张婷,Place:滨江大道,在社交媒体平台「微声」上连续发布多条吐槽，称遇到红绿灯异常切换,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
+Person:陈博文,Place:凌晨路段,在「司机之家」论坛上报告黄闪时间被缩短，给重型车辆转弯带来安全隐患,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
+Event:临港新区隧道口多车追尾,SystemComponent:星河-1,引发事故,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
+Organisation:海辰市交通警察支队,Event:临港新区隧道口多车追尾,在通报中证实发生三车相撞事故,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
+Organisation:快行出行,Document:《关于星河-1 控制策略异常的技术备忘录》,向市政府提交，质疑系统在压力测试场景下的鲁棒性,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
+Person:周启明,Organisation:星河-1 安全专项工作组,牵头成立,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
+Person:顾远,Organisation:星河-1 安全专项工作组,作为外部独立专家被邀请参与,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
+Organisation:星河-1 安全专项工作组,Document:《星河-1 部署阶段风险评估报告》,内部形成，记录了多起未公开的「接近事故事件」,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
+Person:林岚,SystemComponent:星河-1,团队在最后一轮模型更新中调整了强化学习奖励函数,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
+Organisation:开源交通联盟,Document:《星河-1 系统架构非官方技术解析》,整理出在线文档，试图反向推断系统的模块划分和数据流向,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
+Person:量子行者,Document:《星河-1 系统架构非官方技术解析》,在文档中提出假设：星河-1 的决策模块可能过度依赖来自特定摄像头厂商的视觉流数据,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
+Organisation:海辰市政府,Place:市政府会议中心,宣布将举行一次面向公众和媒体的「星河-1」说明会,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 0, ""chunk_id"": ""chunk-000""}",0
+Person:林岚,Event:系统风险说明会,林岚被列为系统风险说明会的发言人，参与该事件的公开说明环节。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Person:周启明,Event:系统风险说明会,周启明被列为系统风险说明会的发言人，参与该事件的公开说明环节。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Person:顾远,Event:系统风险说明会,顾远被列为系统风险说明会的发言人，参与该事件的公开说明环节。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Person:快行出行的技术负责人,Event:系统风险说明会,快行出行的技术负责人被列为系统风险说明会的发言人，参与该事件的公开说明环节。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Organisation:星河智能研究院,Document:星河-1 Beta 部署阶段缺陷清单（非最终版）,星河智能研究院内部流出了《星河-1 Beta 部署阶段缺陷清单（非最终版）》的截图，表明该组织与该文档的发布或内部流转相关。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Document:星河-1 Beta 部署阶段缺陷清单（非最终版）,Action:引发新一轮关于算法透明性与责任归属的讨论,《星河-1 Beta 部署阶段缺陷清单（非最终版）》的截图内容引发了新一轮关于算法透明性与责任归属的讨论，触发了公众和行业内的广泛关注。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Organisation:星河智能研究院,SystemComponent:星河-1,星河智能研究院围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成复杂关系，表明该组织负责设计或推进该系统组件。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Organisation:海辰市政府,SystemComponent:星河-1,海辰市政府围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成复杂关系，可能参与部署或监管该系统组件。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Organisation:快行出行,SystemComponent:星河-1,快行出行围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成复杂关系，可能负责推进或部署该系统组件。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Organisation:开源交通联盟,SystemComponent:星河-1,开源交通联盟围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成复杂关系，可能参与设计或评估该系统组件。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Organisation:量子城大学,SystemComponent:星河-1,量子城大学围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成复杂关系，可能参与设计或评估该系统组件。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Person:林岚,SystemComponent:星河-1,林岚围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成复杂关系，可能负责设计或参与调查该系统组件。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Person:周启明,SystemComponent:星河-1,周启明围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成复杂关系，可能负责设计或参与调查该系统组件。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Person:张婷,SystemComponent:星河-1,张婷围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成复杂关系，可能参与调查或提出质疑。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Person:陈博文,SystemComponent:星河-1,陈博文围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成复杂关系，可能参与调查或提出质疑。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Person:顾远,SystemComponent:星河-1,顾远围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成复杂关系，可能负责设计或参与调查该系统组件。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Person:量子行者,SystemComponent:星河-1,量子行者围绕星河-1的设计、部署、事故、举报、评估报告和公众说明会形成复杂关系，可能参与调查或提出质疑。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Document:白皮书,Action:重建事件链条和责任边界,不同版本的白皮书为重建事件链条和责任边界提供了多源异构的文本证据，支持分析和调查过程。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Document:技术备忘录,Action:重建事件链条和责任边界,技术备忘录为重建事件链条和责任边界提供了多源异构的文本证据，支持分析和调查过程。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Document:风险评估报告,Action:重建事件链条和责任边界,风险评估报告为重建事件链条和责任边界提供了多源异构的文本证据，支持分析和调查过程。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
+Document:民间技术解析文档,Action:重建事件链条和责任边界,民间技术解析文档为重建事件链条和责任边界提供了多源异构的文本证据，支持分析和调查过程。,"{""source"": ""lotr_wikipedia"", ""total_chunks"": 2, ""chunk_index"": 1, ""chunk_id"": ""chunk-001""}",1
