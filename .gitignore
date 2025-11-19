@@ -7,7 +7,6 @@ experiments*
 .venv
 assets/evolution_gif
 assets/*.psd
-output/*
 src/assets/evolution_gif
 src/assets/*.psd
 data
