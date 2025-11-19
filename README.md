@@ -40,12 +40,31 @@ This project is an example notebook that demonstrates the use of the knowledge g
 - 所有输入/输出文件都会根据语言自动追加 `_cn` 或 `_en` 后缀。例如
   `input/background.txt` 在中文模式下会读取 `input/background_cn.txt`，输出文件也会
   命名为 `graph_nodes_cn.json`、`ontology_schema_cn.json` 等。
+- `evaluation.enabled` 控制是否在生成新 schema 后，与 `input.existing_ontology_path`
+  中的金标准 schema 做本体评测。开启后脚本会记录 Literal/Fuzzy/Continuous/Graph F1，
+  并把指标写入 `evaluation.output_json`（默认 `output/ontology_eval_metrics.json`）。
 
 运行示例脚本：
 
 ```bash
 python src/demo.py
 ```
+
+## 本体评测命令行工具
+
+若需要在离线环境或不同 schema 之间做对比，可直接运行 `eval_ontology.py`：
+
+```bash
+python src/eval_ontology.py \
+  --gold_onto input/ontology_schema_exist_cn.json \
+  --pred_onto output/ontology_schema_cn.json \
+  --emb_model BAAI/bge-large-zh-v1.5 \
+  --threshold 0.45 \
+  --output_json results/metrics.json
+```
+
+脚本会加载两个 schema，构建图表示，并输出 Literal / Fuzzy / Continuous / Graph F1。
+运行前请先 `pip install sentence-transformers numpy scipy` 以满足依赖。
 
 如需自定义 PYTHONPATH 或以模块方式运行，也可以执行 `python -m src.demo`。
 
