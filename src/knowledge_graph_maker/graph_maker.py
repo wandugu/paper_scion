@@ -43,12 +43,15 @@ class GraphMaker:
         ontology: Ontology = default_ontology,
         llm_client: Optional[LLMClient] = None,
         verbose: bool = False,
+        language: str = "en",
     ):
         if llm_client is None:
             raise ValueError("llm_client 不能为空，请显式传入一个实现了 LLMClient 接口的实例。")
         self._ontology = ontology
         self._llm_client = llm_client
         self._verbose = verbose
+        normalized_language = (language or "en").lower()
+        self._language = normalized_language if normalized_language in {"cn", "en"} else "en"
         if self._verbose:
             verbose_logger.setLevel("INFO")
         else:
@@ -56,6 +59,11 @@ class GraphMaker:
 
     def user_message(self, text: str) -> str:
         return f"input text: ```\n{text}\n```"
+
+    def _language_instruction(self) -> str:
+        if self._language == "cn":
+            return "Respond only in Simplified Chinese for every entity, relationship, and description."
+        return "Respond only in English for every entity, relationship, and description."
 
     def system_message(self) -> str:
         return (
@@ -75,6 +83,7 @@ class GraphMaker:
             "   },\n"
             "]\n"
             "Do not add any other comment before or after the json. Respond ONLY with a well formed json that can be directly read by a program."
+            f" {self._language_instruction()}"
         )
 
     def generate(self, text: str) -> str:

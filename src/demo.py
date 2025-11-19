@@ -80,6 +80,85 @@ def setup_logger() -> logging.Logger:
 CONFIG: Dict = load_config()
 LOGGER = setup_logger()
 
+SUPPORTED_LANG_CODES: Dict[str, str] = {"cn": "中文", "en": "English"}
+
+
+def _configured_language_code() -> str:
+    lang_cfg = CONFIG.get("language")
+    if isinstance(lang_cfg, dict):
+        raw_code = lang_cfg.get("code")
+    else:
+        raw_code = lang_cfg
+    code = str(raw_code or "cn").lower()
+    if code not in SUPPORTED_LANG_CODES:
+        return "cn"
+    return code
+
+
+LANGUAGE_CODE: str = _configured_language_code()
+LANGUAGE_SUFFIX: str = f"_{LANGUAGE_CODE}"
+
+
+def _language_label() -> str:
+    return SUPPORTED_LANG_CODES.get(LANGUAGE_CODE, "English")
+
+
+def _language_instruction_text() -> str:
+    if LANGUAGE_CODE == "cn":
+        return "请确保所有输出字段均使用简体中文。"
+    return "Please ensure every output field is in English."
+
+
+def _ontology_language_cfg() -> Dict[str, Any]:
+    ontology_cfg = CONFIG.get("ontology") or {}
+    languages = ontology_cfg.get("languages")
+    if isinstance(languages, dict):
+        lang_cfg = languages.get(LANGUAGE_CODE)
+        if isinstance(lang_cfg, dict):
+            return lang_cfg
+    return ontology_cfg
+
+
+def _localized_entities_config() -> List[Any]:
+    ontology_cfg = CONFIG.get("ontology") or {}
+    entities = _ontology_language_cfg().get("entities")
+    if isinstance(entities, list):
+        return entities
+    fallback = ontology_cfg.get("entities")
+    if isinstance(fallback, list):
+        return fallback
+    return []
+
+
+def _localized_relationships_config() -> List[Dict[str, Any]]:
+    ontology_cfg = CONFIG.get("ontology") or {}
+    relationships = _ontology_language_cfg().get("relationships")
+    if isinstance(relationships, list):
+        return relationships
+    fallback = ontology_cfg.get("relationships")
+    if isinstance(fallback, list):
+        return fallback
+    return []
+
+
+def _apply_language_suffix(path: Path) -> Path:
+    suffix = LANGUAGE_SUFFIX
+    name = path.name
+    ext = path.suffix
+    target_suffix = f"{suffix}{ext}" if ext else suffix
+    if name.endswith(target_suffix):
+        return path
+    if ext:
+        new_name = f"{path.stem}{suffix}{ext}"
+    else:
+        new_name = f"{name}{suffix}"
+    return path.with_name(new_name)
+
+
+def _input_path_with_language(raw_path: str | Path) -> Path:
+    resolved = resolve_project_path(raw_path)
+    return _apply_language_suffix(resolved)
+
 from knowledge_graph_maker.graph_maker import GraphMaker
 from knowledge_graph_maker.neo4j_graph_model import Neo4jGraphModel
 from knowledge_graph_maker.types import (
@@ -188,11 +267,11 @@ def ensure_output_paths() -> OutputPaths:
     base_dir.mkdir(parents=True, exist_ok=True)
     return OutputPaths(
         base_dir=base_dir,
-        schema=base_dir / CONFIG["output"]["schema_filename"],
-        nodes=base_dir / CONFIG["output"]["nodes_filename"],
-        edges=base_dir / CONFIG["output"]["edges_filename"],
-        neo4j_nodes_csv=base_dir / CONFIG["output"]["neo4j_nodes_csv"],
-        neo4j_edges_csv=base_dir / CONFIG["output"]["neo4j_edges_csv"],
+        schema=_apply_language_suffix(base_dir / CONFIG["output"]["schema_filename"]),
+        nodes=_apply_language_suffix(base_dir / CONFIG["output"]["nodes_filename"]),
+        edges=_apply_language_suffix(base_dir / CONFIG["output"]["edges_filename"]),
+        neo4j_nodes_csv=_apply_language_suffix(base_dir / CONFIG["output"]["neo4j_nodes_csv"]),
+        neo4j_edges_csv=_apply_language_suffix(base_dir / CONFIG["output"]["neo4j_edges_csv"]),
     )
 
 
@@ -262,7 +341,7 @@ def load_text_chunks() -> Sequence[str]:
     if cfg["type"] == "text":
         return chunk_text(cfg["text"], cfg["chunk_size"])
     if cfg["type"] == "file":
-        text_path = resolve_project_path(cfg["file_path"])
+        text_path = _input_path_with_language(cfg["file_path"])
         if not text_path.exists():
             raise FileNotFoundError(f"未找到输入文件: {text_path}")
         return chunk_text(text_path.read_text(encoding="utf-8"), cfg["chunk_size"])
@@ -304,6 +383,7 @@ def build_documents(chunks: Sequence[str]) -> List[Document]:
     metadata_base = {
         "source": CONFIG["input"]["source_label"],
         "total_chunks": len(chunks),
+        "language": LANGUAGE_CODE,
     }
     documents: List[Document] = []
     for idx, chunk in enumerate(chunks):
@@ -323,7 +403,7 @@ def load_existing_ontology_schema() -> Tuple[Dict[str, Any] | None, Path | None]
     raw_path = cfg.get("existing_ontology_path")
     if not raw_path:
         return None, None
-    path = resolve_project_path(raw_path)
+    path = _input_path_with_language(raw_path)
     if not path.exists():
         LOGGER.info("配置了 existing_ontology_path，但文件不存在: %s", path)
         return None, path
@@ -341,7 +421,7 @@ def load_existing_ontology_schema() -> Tuple[Dict[str, Any] | None, Path | None]
 
 def _format_entity_hints() -> str:
     hints: List[str] = []
-    for item in CONFIG["ontology"]["entities"]:
+    for item in _localized_entities_config():
         if isinstance(item, str):
             hints.append(f"- {item}")
         elif isinstance(item, dict):
@@ -352,7 +432,7 @@ def _format_entity_hints() -> str:
 
 def _format_relationship_hints() -> str:
     hints: List[str] = []
-    for relation in CONFIG["ontology"].get("relationships", []):
+    for relation in _localized_relationships_config():
         normalized = _normalize_relationship_entry(relation)
         if not normalized:
             continue
@@ -365,7 +445,16 @@ def _format_relationship_hints() -> str:
 
 
 def _event_cfg() -> Dict[str, Any]:
-    return CONFIG.get("event_extraction") or {}
+    base_cfg = CONFIG.get("event_extraction") or {}
+    languages = base_cfg.get("languages")
+    lang_cfg: Dict[str, Any] = {}
+    if isinstance(languages, dict):
+        candidate = languages.get(LANGUAGE_CODE)
+        if isinstance(candidate, dict):
+            lang_cfg = candidate
+    merged = {k: v for k, v in base_cfg.items() if k != "languages"}
+    merged.update(lang_cfg)
+    return merged
 
 
 def _format_event_type_hints() -> str:
@@ -512,8 +601,8 @@ def _normalize_relationships(raw_relationships: Any) -> List[Dict[str, Any]]:
 
 def _fallback_ontology() -> Ontology:
     return Ontology(
-        entities=CONFIG["ontology"]["entities"],
-        relationships=_normalize_relationships(CONFIG["ontology"]["relationships"]),
+        entities=_localized_entities_config(),
+        relationships=_normalize_relationships(_localized_relationships_config()),
     )
 
 
@@ -534,33 +623,67 @@ def build_ontology(llm_client: LLMClient, background_text: str) -> Ontology:
         LOGGER.warning("背景文本为空，退回使用配置中的本体。")
         return _fallback_ontology()
 
-    system_message = (
-        "你是一名资深本体工程师，负责根据输入背景语料设计知识图谱本体。"
-        "输出需聚焦核心实体，实体类型数量建议 6-10 个，并结合语料给出关键关系类型。"
-        "最终只返回 JSON。"
-    )
+    language_instruction = _language_instruction_text()
 
     entity_hint = _format_entity_hints()
     relation_hint = _format_relationship_hints()
-    user_message = (
-        "请参考以下背景语料，并以上述提示为灵感，生成最贴近内容的知识图谱本体。\n"
-        "- 允许微调实体类型或新增更贴近场景的实体描述。\n"
-        "- 关系需覆盖主要角色/事件之间的因果、隶属或互动。\n"
-        "- 严禁输出具体角色/组织名称，只描述抽象的实体类型（可附简短解释）。\n"
-        "- relationships 数组中的每一项必须包含 head_entity、tail_entity、rel_type 字段，可选填 description。\n"
-        "- 输出 JSON，字段只包含 entities 与 relationships。\n\n"
-        "【背景摘录】\n"
-        f"{background_text}\n\n"
-        "【可参考的实体提示】\n"
-        f"{entity_hint}\n\n"
-        "【可参考的关系提示】\n"
-        f"{relation_hint}\n\n"
-        "示例输出格式：\n"
-        "{\n  \"entities\": [\"概念A\", {\"概念B\": \"描述\"}],\n"
-        "  \"relationships\": [\n"
-        "    {\"head_entity\": \"Person\", \"tail_entity\": \"Organisation\", \"rel_type\": \"隶属于\", \"description\": \"可选说明\"}\n"
-        "  ]\n}"
-    )
+
+    if LANGUAGE_CODE == "cn":
+        system_message = (
+            "你是一名资深本体工程师，负责根据输入背景语料设计知识图谱本体。"
+            "输出需聚焦核心实体，实体类型数量建议 6-10 个，并结合语料给出关键关系类型。"
+            "最终只返回 JSON。"
+            f"{language_instruction}"
+        )
+
+        user_message = (
+            "请参考以下背景语料，并以上述提示为灵感，生成最贴近内容的知识图谱本体。\n"
+            "- 允许微调实体类型或新增更贴近场景的实体描述。\n"
+            "- 关系需覆盖主要角色/事件之间的因果、隶属或互动。\n"
+            "- 严禁输出具体角色/组织名称，只描述抽象的实体类型（可附简短解释）。\n"
+            "- relationships 数组中的每一项必须包含 head_entity、tail_entity、rel_type 字段，可选填 description。\n"
+            "- 输出 JSON，字段只包含 entities 与 relationships。\n\n"
+            "【背景摘录】\n"
+            f"{background_text}\n\n"
+            "【可参考的实体提示】\n"
+            f"{entity_hint}\n\n"
+            "【可参考的关系提示】\n"
+            f"{relation_hint}\n\n"
+            "示例输出格式：\n"
+            "{\n  \"entities\": [\"概念A\", {\"概念B\": \"描述\"}],\n"
+            "  \"relationships\": [\n"
+            "    {\"head_entity\": \"Person\", \"tail_entity\": \"Organisation\", \"rel_type\": \"隶属于\", \"description\": \"可选说明\"}\n"
+            "  ]\n}\n"
+            f"{language_instruction}"
+        )
+    else:
+        system_message = (
+            "You are a senior ontology engineer who must design a schema from the provided background text."
+            " Focus on 6-10 core entity types and the most critical relationship types."
+            " Respond with JSON only. "
+            f"{language_instruction}"
+        )
+
+        user_message = (
+            "Use the following background excerpt and hints to craft an ontology.\n"
+            "- You may tweak entity types or add better aligned descriptions.\n"
+            "- Relationships should cover causality, affiliation or interaction between major roles/events.\n"
+            "- NEVER output concrete names of roles/organisations; only abstract entity types with short notes.\n"
+            "- Each item in the relationships array must include head_entity, tail_entity and rel_type, with optional description.\n"
+            "- Output JSON with only 'entities' and 'relationships'.\n\n"
+            "[Background Excerpt]\n"
+            f"{background_text}\n\n"
+            "[Entity Hints]\n"
+            f"{entity_hint}\n\n"
+            "[Relationship Hints]\n"
+            f"{relation_hint}\n\n"
+            "Sample output:\n"
+            "{\n  \"entities\": [\"Concept A\", {\"Concept B\": \"description\"}],\n"
+            "  \"relationships\": [\n"
+            "    {\"head_entity\": \"Person\", \"tail_entity\": \"Organisation\", \"rel_type\": \"member_of\", \"description\": \"optional note\"}\n"
+            "  ]\n}\n"
+            f"{language_instruction}"
+        )
 
     try:
         response = llm_client.generate(user_message=user_message, system_message=system_message)
@@ -793,7 +916,7 @@ def _preferred_schema_entities(
     existing_entities = _normalize_entities(existing_schema.get("entities")) if existing_schema else []
     if existing_entities:
         return _merge_entity_items(existing_entities, merged_entities)
-    config_entities = _normalize_entities(CONFIG["ontology"].get("entities", []))
+    config_entities = _normalize_entities(_localized_entities_config())
     if config_entities:
         return _merge_entity_items(config_entities, merged_entities)
     return list(merged_entities)
@@ -809,7 +932,7 @@ def _preferred_schema_relationships(
     )
     if existing_relationships:
         return _merge_relationship_items(existing_relationships, merged_relationships)
-    config_relationships = _normalize_relationships(CONFIG["ontology"].get("relationships", []))
+    config_relationships = _normalize_relationships(_localized_relationships_config())
     if config_relationships:
         return _merge_relationship_items(config_relationships, merged_relationships)
     return list(merged_relationships)
@@ -859,33 +982,64 @@ def build_event_schema(llm_client: LLMClient, background_text: str) -> List[Dict
         LOGGER.warning("背景文本为空，事件抽取提示退回使用 fallback 配置。")
         return _fallback_events()
 
-    system_message = (
-        "你是事件抽取专家，需为知识图谱设计事件类型与论元。"
-        "输出包含可复用的 event_type、触发词和论元。"
-        "最终只返回 JSON，结构为 {\"events\": [...]}。"
-    )
+    language_instruction = _language_instruction_text()
 
     event_hint = _format_event_type_hints()
     argument_hint = _format_argument_role_hints()
     trigger_guidelines = _format_trigger_guidelines()
 
     max_events = cfg.get("max_event_types", 6)
-    user_message = (
-        "请基于以下背景语料，总结最重要的事件类型。\n"
-        f"- 事件数量不超过 {max_events} 个，可根据内容增删。\n"
-        "- 每个事件需包含触发词 trigger_words（数组）与 arguments（论元列表）。\n"
-        "- 论元至少覆盖发起方、受影响方或其它关键角色。\n"
-        "- arguments 中的每一项需包含 role、description、required 字段。\n"
-        "- JSON 结构示例：{\"events\": [{\"event_type\": \"行动\", \"trigger_words\": [..], \"arguments\": [{...}]}]}。\n\n"
-        "【背景摘录】\n"
-        f"{background_text}\n\n"
-        "【可参考的事件类型提示】\n"
-        f"{event_hint}\n\n"
-        "【论元角色提示】\n"
-        f"{argument_hint}\n\n"
-        "【触发词撰写建议】\n"
-        f"{trigger_guidelines}\n"
-    )
+
+    if LANGUAGE_CODE == "cn":
+        system_message = (
+            "你是事件抽取专家，需为知识图谱设计事件类型与论元。"
+            "输出包含可复用的 event_type、触发词和论元。"
+            "最终只返回 JSON，结构为 {\"events\": [...]}。"
+            f"{language_instruction}"
+        )
+
+        user_message = (
+            "请基于以下背景语料，总结最重要的事件类型。\n"
+            f"- 事件数量不超过 {max_events} 个，可根据内容增删。\n"
+            "- 每个事件需包含触发词 trigger_words（数组）与 arguments（论元列表）。\n"
+            "- 论元至少覆盖发起方、受影响方或其它关键角色。\n"
+            "- arguments 中的每一项需包含 role、description、required 字段。\n"
+            "- JSON 结构示例：{\"events\": [{\"event_type\": \"行动\", \"trigger_words\": [..], \"arguments\": [{...}]}]}。\n\n"
+            "【背景摘录】\n"
+            f"{background_text}\n\n"
+            "【可参考的事件类型提示】\n"
+            f"{event_hint}\n\n"
+            "【论元角色提示】\n"
+            f"{argument_hint}\n\n"
+            "【触发词撰写建议】\n"
+            f"{trigger_guidelines}\n"
+            f"{language_instruction}"
+        )
+    else:
+        system_message = (
+            "You are an event extraction expert who must design reusable event types and arguments for a knowledge graph."
+            " Provide event_type, trigger_words and arguments."
+            " Respond with JSON shaped as {\"events\": [...]} only. "
+            f"{language_instruction}"
+        )
+
+        user_message = (
+            "Summarize the most important event types from the background excerpt.\n"
+            f"- Limit the number of events to {max_events}, adjusting as needed.\n"
+            "- Each event must include trigger_words (array) and arguments (list of roles).\n"
+            "- Arguments should at least cover initiators, impacted parties or other key roles.\n"
+            "- Every argument entry must contain role, description and required fields.\n"
+            "- JSON example: {\"events\": [{\"event_type\": \"Action\", \"trigger_words\": [..], \"arguments\": [{...}]}]}.\n\n"
+            "[Background Excerpt]\n"
+            f"{background_text}\n\n"
+            "[Event Type Hints]\n"
+            f"{event_hint}\n\n"
+            "[Argument Role Hints]\n"
+            f"{argument_hint}\n\n"
+            "[Trigger Word Guidelines]\n"
+            f"{trigger_guidelines}\n"
+            f"{language_instruction}"
+        )
 
     try:
         response = llm_client.generate(user_message=user_message, system_message=system_message)
@@ -1058,7 +1212,12 @@ def main():
         LOGGER.info("已根据配置仅输出本体文件，跳过图谱抽取及 Neo4j 导出。输出目录: %s", output_paths.base_dir)
         return
 
-    graph_maker = GraphMaker(ontology=merged_ontology, llm_client=llm_client, verbose=CONFIG["runtime"]["verbose"])
+    graph_maker = GraphMaker(
+        ontology=merged_ontology,
+        llm_client=llm_client,
+        verbose=CONFIG["runtime"]["verbose"],
+        language=LANGUAGE_CODE,
+    )
     edges = graph_maker.from_documents(
         docs=documents,
         delay_s_between=CONFIG["runtime"]["delay_between_requests"],
