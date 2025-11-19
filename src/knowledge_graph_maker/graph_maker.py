@@ -1,4 +1,4 @@
-from .types import Ontology, LLMClient, Edge, Document
+from .types import Ontology, LLMClient, Edge, Document, RelationshipSchema
 from pydantic import ValidationError
 import json
 import re
@@ -21,7 +21,14 @@ default_ontology = Ontology(
         "Event",
         "Action",
     ],
-    relationships=["Relationship between Any two entities defined in the ontology"],
+    relationships=[
+        RelationshipSchema(
+            head_entity="Person",
+            tail_entity="Organisation",
+            rel_type="member_of",
+            description="Person belongs to or works for an organization",
+        )
+    ],
 )
 
 
