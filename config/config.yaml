@@ -23,9 +23,46 @@ ontology:
     - Action: "关键动作或行为"
     - Misc: "其它重要概念"
   relationships:
-    - "人物与地点/组织的关联"
-    - "人物之间的情节联系"
-    - "事件与参与者的因果关系"
+    - head_entity: Person
+      tail_entity: Organisation
+      rel_type: 隶属于
+      description: "角色在某个组织或阵营中任职、受训或接受指挥"
+    - head_entity: Organisation
+      tail_entity: Place
+      rel_type: 位于
+      description: "组织的总部、设施或主要部署区域"
+    - head_entity: Organisation
+      tail_entity: Organisation
+      rel_type: 对抗
+      description: "两个组织在战略、舆论或资源层面发生直接冲突"
+    - head_entity: Person
+      tail_entity: Object
+      rel_type: 负责设计
+      description: "个人主导或负责关键系统、装备或技术方案的设计"
+    - head_entity: Person
+      tail_entity: Action
+      rel_type: 负责推进
+      description: "个人主导执行或推动一项行动、计划或改革"
+    - head_entity: Object
+      tail_entity: Place
+      rel_type: 部署于
+      description: "系统、装备或技术在特定地理区域或设施中的部署"
+    - head_entity: Object
+      tail_entity: Object
+      rel_type: 包含组件
+      description: "上层系统所包含的子模块、传感器或软件组件"
+    - head_entity: Object
+      tail_entity: Event
+      rel_type: 引发事件
+      description: "系统或技术变化导致的事故、舆情或调查"
+    - head_entity: Person
+      tail_entity: Document
+      rel_type: 报告问题
+      description: "个人通过备忘录、报告或公告形式提出质疑与反馈"
+    - head_entity: Person
+      tail_entity: Event
+      rel_type: 参与评估
+      description: "个人以专家、负责人或调查成员身份参与事件评估"
   output_sections:
     # - all
     # - labels
