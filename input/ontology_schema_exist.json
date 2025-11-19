@@ -1,5 +1,5 @@
 {
-  "labels": [
+  "entities": [
     "Person",
     "Organisation",
     {"Artifact": "在剧情中具有特殊意义的物品或技术"}

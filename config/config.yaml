@@ -13,7 +13,7 @@ llm:
   groq:
     model: mixtral-8x7b-32768
 ontology:
-  labels:
+  entities:
     - Person: "人物姓名，避免形容词"
     - Object: "有形物体，名称中不含冠词"
     - Event: "事件或情节，保持中立描述"
