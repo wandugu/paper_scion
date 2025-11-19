@@ -98,6 +98,255 @@ def _configured_language_code() -> str:
 LANGUAGE_CODE: str = _configured_language_code()
 LANGUAGE_SUFFIX: str = f"_{LANGUAGE_CODE}"
 
+ONTOLOGY_SAMPLE_JSON_CN = (
+    '{\n'
+    '  "entities": ["概念A", {"概念B": "描述"}],\n'
+    '  "relationships": [\n'
+    '    {"head_entity": "Person", "tail_entity": "Organisation", "rel_type": "隶属于", "description": "可选说明"}\n'
+    '  ]\n'
+    '}'
+)
+
+ONTOLOGY_SAMPLE_JSON_EN = (
+    '{\n'
+    '  "entities": ["Concept A", {"Concept B": "description"}],\n'
+    '  "relationships": [\n'
+    '    {"head_entity": "Person", "tail_entity": "Organisation", "rel_type": "member_of", "description": "optional note"}\n'
+    '  ]\n'
+    '}'
+)
+
+EVENT_SAMPLE_JSON_CN = (
+    '{"events": [{"event_type": "行动", "trigger_words": ["发起", "部署"], '
+    '"arguments": [{"role": "发起方", "description": "主动推动事件的一方", "required": true}]}]}'
+)
+
+EVENT_SAMPLE_JSON_EN = (
+    '{"events": [{"event_type": "Action", "trigger_words": ["initiate", "deploy"], '
+    '"arguments": [{"role": "Initiator", "description": "Side that drives the event", "required": true}]}]}'
+)
+
+DEFAULT_PROMPT_TEMPLATES: Dict[str, Dict[str, Dict[str, str]]] = {
+    "ontology": {
+        "cn": {
+            "system": (
+                "你是一名资深本体工程师，负责根据输入背景语料设计知识图谱本体。"
+                "{entity_range_sentence}{relationship_range_sentence}最终只返回 JSON。"
+                "{language_instruction}"
+            ),
+            "user": (
+                "请参考以下背景语料，并以上述提示为灵感，生成最贴近内容的知识图谱本体。\n"
+                "- 允许微调实体类型或新增更贴近场景的实体描述。\n"
+                "- 关系需覆盖主要角色/事件之间的因果、隶属或互动。\n"
+                "- 严禁输出具体角色/组织名称，只描述抽象的实体类型（可附简短解释）。\n"
+                "- relationships 数组中的每一项必须包含 head_entity、tail_entity、rel_type 字段，可选填 description。\n"
+                "- 输出 JSON，字段只包含 entities 与 relationships。\n\n"
+                "【背景摘录】\n"
+                "{background_text}\n\n"
+                "【可参考的实体提示】\n"
+                "{entity_hint}\n\n"
+                "【可参考的关系提示】\n"
+                "{relation_hint}\n\n"
+                "示例输出格式：\n"
+                "{ontology_sample_json}\n"
+                "{language_instruction}"
+            ),
+        },
+        "en": {
+            "system": (
+                "You are a senior ontology engineer who must design a schema from the provided background text. "
+                "{entity_range_sentence}{relationship_range_sentence}Respond with JSON only. {language_instruction}"
+            ),
+            "user": (
+                "Use the following background excerpt and hints to craft an ontology.\n"
+                "- You may tweak entity types or add better aligned descriptions.\n"
+                "- Relationships should cover causality, affiliation or interaction between major roles/events.\n"
+                "- NEVER output concrete names of roles/organisations; only abstract entity types with short notes.\n"
+                "- Each item in the relationships array must include head_entity, tail_entity and rel_type, with optional description.\n"
+                "- Output JSON with only 'entities' and 'relationships'.\n\n"
+                "[Background Excerpt]\n"
+                "{background_text}\n\n"
+                "[Entity Hints]\n"
+                "{entity_hint}\n\n"
+                "[Relationship Hints]\n"
+                "{relation_hint}\n\n"
+                "Sample output:\n"
+                "{ontology_sample_json}\n"
+                "{language_instruction}"
+            ),
+        },
+    },
+    "events": {
+        "cn": {
+            "system": (
+                "你是事件抽取专家，需为知识图谱设计事件类型与论元。{event_range_sentence}输出包含可复用的 "
+                "event_type、触发词和论元。最终只返回 JSON，仅保留 events 数组。{language_instruction}"
+            ),
+            "user": (
+                "请基于以下背景语料，总结最重要的事件类型。\n"
+                "{event_limit_instruction}\n"
+                "- 每个事件需包含触发词 trigger_words（数组）与 arguments（论元列表）。\n"
+                "- 论元至少覆盖发起方、受影响方或其它关键角色。\n"
+                "- arguments 中的每一项需包含 role、description、required 字段。\n"
+                "- JSON 结构示例：{event_sample_json}\n\n"
+                "【背景摘录】\n"
+                "{background_text}\n\n"
+                "【可参考的事件类型提示】\n"
+                "{event_hint}\n\n"
+                "【论元角色提示】\n"
+                "{argument_hint}\n\n"
+                "【触发词撰写建议】\n"
+                "{trigger_guidelines}\n"
+                "{language_instruction}"
+            ),
+        },
+        "en": {
+            "system": (
+                "You are an event extraction expert who must design reusable event types and arguments for a knowledge graph. "
+                "{event_range_sentence}Provide event_type, trigger_words and arguments. Respond with JSON shaped as an 'events' "
+                "array only. {language_instruction}"
+            ),
+            "user": (
+                "Summarize the most important event types from the background excerpt.\n"
+                "{event_limit_instruction}\n"
+                "- Each event must include trigger_words (array) and arguments (list of roles).\n"
+                "- Arguments should at least cover initiators, impacted parties or other key roles.\n"
+                "- Every argument entry must contain role, description and required fields.\n"
+                "- JSON example: {event_sample_json}\n\n"
+                "[Background Excerpt]\n"
+                "{background_text}\n\n"
+                "[Event Type Hints]\n"
+                "{event_hint}\n\n"
+                "[Argument Role Hints]\n"
+                "{argument_hint}\n\n"
+                "[Trigger Word Guidelines]\n"
+                "{trigger_guidelines}\n"
+                "{language_instruction}"
+            ),
+        },
+    },
+}
+
+
+def _prompts_cfg() -> Dict[str, Any]:
+    prompts = CONFIG.get("prompts")
+    if isinstance(prompts, dict):
+        return prompts
+    return {}
+
+
+def _prompt_limits_cfg() -> Dict[str, Any]:
+    limits = _prompts_cfg().get("limits")
+    if isinstance(limits, dict):
+        return limits
+    return {}
+
+
+def _prompt_templates_cfg() -> Dict[str, Any]:
+    templates = _prompts_cfg().get("templates")
+    if isinstance(templates, dict):
+        return templates
+    return {}
+
+
+def _get_prompt_template(section: str, message_type: str) -> str | None:
+    templates = _prompt_templates_cfg().get(section)
+    if not isinstance(templates, dict):
+        return None
+    lang_templates = templates.get(LANGUAGE_CODE)
+    if not isinstance(lang_templates, dict):
+        return None
+    value = lang_templates.get(message_type)
+    if isinstance(value, str):
+        return value
+    return None
+
+
+def _default_prompt_template(section: str, message_type: str) -> str:
+    return (
+        DEFAULT_PROMPT_TEMPLATES.get(section, {})
+        .get(LANGUAGE_CODE, {})
+        .get(message_type, "")
+    )
+
+
+def _render_prompt(section: str, message_type: str, context: Dict[str, Any]) -> str:
+    template = _get_prompt_template(section, message_type) or _default_prompt_template(section, message_type)
+    if not template:
+        raise ValueError(f"缺少 {section}-{message_type} 的提示词模板")
+    try:
+        return template.format(**context)
+    except KeyError as exc:  # noqa: PERF203
+        raise KeyError(f"提示词模板缺少变量 {exc}") from exc
+
+
+def _coerce_int(value: Any) -> int | None:
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _count_range_tuple(limit_key: str) -> Tuple[int | None, int | None]:
+    cfg = _prompt_limits_cfg().get(limit_key)
+    if isinstance(cfg, dict):
+        min_val = _coerce_int(cfg.get("min"))
+        max_val = _coerce_int(cfg.get("max"))
+        return min_val, max_val
+    return None, None
+
+
+def _format_range_text(limit_key: str) -> str:
+    min_val, max_val = _count_range_tuple(limit_key)
+    lang_is_cn = LANGUAGE_CODE == "cn"
+    unit = "个" if lang_is_cn else " types"
+
+    if min_val is None and (max_val is None or max_val < 0):
+        return ""
+
+    if max_val is None or max_val < 0:
+        if min_val is None:
+            return ""
+        return (f"不少于 {min_val}{unit}" if lang_is_cn else f"at least {min_val}{unit}")
+
+    if min_val is None:
+        return (f"不超过 {max_val}{unit}" if lang_is_cn else f"up to {max_val}{unit}")
+
+    if min_val == max_val:
+        return f"{min_val}{unit}"
+
+    return f"{min_val}-{max_val}{unit}"
+
+
+def _count_range_sentence(limit_key: str, label_cn: str, label_en: str) -> str:
+    range_text = _format_range_text(limit_key)
+    if not range_text:
+        return ""
+    if LANGUAGE_CODE == "cn":
+        return f"{label_cn}{range_text}。"
+    return f"{label_en}{range_text}."
+
+
+def _ontology_sample_json_text() -> str:
+    return ONTOLOGY_SAMPLE_JSON_CN if LANGUAGE_CODE == "cn" else ONTOLOGY_SAMPLE_JSON_EN
+
+
+def _event_sample_json_text() -> str:
+    return EVENT_SAMPLE_JSON_CN if LANGUAGE_CODE == "cn" else EVENT_SAMPLE_JSON_EN
+
+
+def _event_limit_instruction_text(max_events: int | None) -> str:
+    if LANGUAGE_CODE == "cn":
+        if max_events is not None and max_events > 0:
+            return f"- 事件数量不超过 {max_events} 个，可根据内容增删。"
+        return "- 事件数量不设硬性上限，可结合语料自由确定。"
+
+    if max_events is not None and max_events > 0:
+        return f"- Limit the number of event types to {max_events}, adjusting as needed."
+    return "- There is no hard cap on event types; adjust freely based on the excerpt."
+
 
 def _language_label() -> str:
     return SUPPORTED_LANG_CODES.get(LANGUAGE_CODE, "English")
@@ -628,62 +877,22 @@ def build_ontology(llm_client: LLMClient, background_text: str) -> Ontology:
     entity_hint = _format_entity_hints()
     relation_hint = _format_relationship_hints()
 
-    if LANGUAGE_CODE == "cn":
-        system_message = (
-            "你是一名资深本体工程师，负责根据输入背景语料设计知识图谱本体。"
-            "输出需聚焦核心实体，实体类型数量建议 6-10 个，并结合语料给出关键关系类型。"
-            "最终只返回 JSON。"
-            f"{language_instruction}"
-        )
+    context = {
+        "language_instruction": language_instruction,
+        "background_text": background_text,
+        "entity_hint": entity_hint,
+        "relation_hint": relation_hint,
+        "entity_range_sentence": _count_range_sentence("entity_types", "实体类型数量建议 ", "Recommended entity types: "),
+        "relationship_range_sentence": _count_range_sentence(
+            "relationship_types", "关系类型数量建议 ", "Recommended relationship types: "
+        ),
+        "entity_range_text": _format_range_text("entity_types"),
+        "relationship_range_text": _format_range_text("relationship_types"),
+        "ontology_sample_json": _ontology_sample_json_text(),
+    }
 
-        user_message = (
-            "请参考以下背景语料，并以上述提示为灵感，生成最贴近内容的知识图谱本体。\n"
-            "- 允许微调实体类型或新增更贴近场景的实体描述。\n"
-            "- 关系需覆盖主要角色/事件之间的因果、隶属或互动。\n"
-            "- 严禁输出具体角色/组织名称，只描述抽象的实体类型（可附简短解释）。\n"
-            "- relationships 数组中的每一项必须包含 head_entity、tail_entity、rel_type 字段，可选填 description。\n"
-            "- 输出 JSON，字段只包含 entities 与 relationships。\n\n"
-            "【背景摘录】\n"
-            f"{background_text}\n\n"
-            "【可参考的实体提示】\n"
-            f"{entity_hint}\n\n"
-            "【可参考的关系提示】\n"
-            f"{relation_hint}\n\n"
-            "示例输出格式：\n"
-            "{\n  \"entities\": [\"概念A\", {\"概念B\": \"描述\"}],\n"
-            "  \"relationships\": [\n"
-            "    {\"head_entity\": \"Person\", \"tail_entity\": \"Organisation\", \"rel_type\": \"隶属于\", \"description\": \"可选说明\"}\n"
-            "  ]\n}\n"
-            f"{language_instruction}"
-        )
-    else:
-        system_message = (
-            "You are a senior ontology engineer who must design a schema from the provided background text."
-            " Focus on 6-10 core entity types and the most critical relationship types."
-            " Respond with JSON only. "
-            f"{language_instruction}"
-        )
-
-        user_message = (
-            "Use the following background excerpt and hints to craft an ontology.\n"
-            "- You may tweak entity types or add better aligned descriptions.\n"
-            "- Relationships should cover causality, affiliation or interaction between major roles/events.\n"
-            "- NEVER output concrete names of roles/organisations; only abstract entity types with short notes.\n"
-            "- Each item in the relationships array must include head_entity, tail_entity and rel_type, with optional description.\n"
-            "- Output JSON with only 'entities' and 'relationships'.\n\n"
-            "[Background Excerpt]\n"
-            f"{background_text}\n\n"
-            "[Entity Hints]\n"
-            f"{entity_hint}\n\n"
-            "[Relationship Hints]\n"
-            f"{relation_hint}\n\n"
-            "Sample output:\n"
-            "{\n  \"entities\": [\"Concept A\", {\"Concept B\": \"description\"}],\n"
-            "  \"relationships\": [\n"
-            "    {\"head_entity\": \"Person\", \"tail_entity\": \"Organisation\", \"rel_type\": \"member_of\", \"description\": \"optional note\"}\n"
-            "  ]\n}\n"
-            f"{language_instruction}"
-        )
+    system_message = _render_prompt("ontology", "system", context)
+    user_message = _render_prompt("ontology", "user", context)
 
     try:
         response = llm_client.generate(user_message=user_message, system_message=system_message)
@@ -988,58 +1197,25 @@ def build_event_schema(llm_client: LLMClient, background_text: str) -> List[Dict
     argument_hint = _format_argument_role_hints()
     trigger_guidelines = _format_trigger_guidelines()
 
-    max_events = cfg.get("max_event_types", 6)
+    max_events_val = _coerce_int(cfg.get("max_event_types"))
+    if max_events_val is not None and max_events_val < 0:
+        max_events_val = None
 
-    if LANGUAGE_CODE == "cn":
-        system_message = (
-            "你是事件抽取专家，需为知识图谱设计事件类型与论元。"
-            "输出包含可复用的 event_type、触发词和论元。"
-            "最终只返回 JSON，结构为 {\"events\": [...]}。"
-            f"{language_instruction}"
-        )
+    context = {
+        "language_instruction": language_instruction,
+        "background_text": background_text,
+        "event_hint": event_hint,
+        "argument_hint": argument_hint,
+        "trigger_guidelines": trigger_guidelines,
+        "event_range_sentence": _count_range_sentence("event_types", "事件类型数量建议 ", "Recommended event types: "),
+        "event_range_text": _format_range_text("event_types"),
+        "event_limit_instruction": _event_limit_instruction_text(max_events_val),
+        "event_sample_json": _event_sample_json_text(),
+        "max_events": str(max_events_val) if max_events_val is not None else "",
+    }
 
-        user_message = (
-            "请基于以下背景语料，总结最重要的事件类型。\n"
-            f"- 事件数量不超过 {max_events} 个，可根据内容增删。\n"
-            "- 每个事件需包含触发词 trigger_words（数组）与 arguments（论元列表）。\n"
-            "- 论元至少覆盖发起方、受影响方或其它关键角色。\n"
-            "- arguments 中的每一项需包含 role、description、required 字段。\n"
-            "- JSON 结构示例：{\"events\": [{\"event_type\": \"行动\", \"trigger_words\": [..], \"arguments\": [{...}]}]}。\n\n"
-            "【背景摘录】\n"
-            f"{background_text}\n\n"
-            "【可参考的事件类型提示】\n"
-            f"{event_hint}\n\n"
-            "【论元角色提示】\n"
-            f"{argument_hint}\n\n"
-            "【触发词撰写建议】\n"
-            f"{trigger_guidelines}\n"
-            f"{language_instruction}"
-        )
-    else:
-        system_message = (
-            "You are an event extraction expert who must design reusable event types and arguments for a knowledge graph."
-            " Provide event_type, trigger_words and arguments."
-            " Respond with JSON shaped as {\"events\": [...]} only. "
-            f"{language_instruction}"
-        )
-
-        user_message = (
-            "Summarize the most important event types from the background excerpt.\n"
-            f"- Limit the number of events to {max_events}, adjusting as needed.\n"
-            "- Each event must include trigger_words (array) and arguments (list of roles).\n"
-            "- Arguments should at least cover initiators, impacted parties or other key roles.\n"
-            "- Every argument entry must contain role, description and required fields.\n"
-            "- JSON example: {\"events\": [{\"event_type\": \"Action\", \"trigger_words\": [..], \"arguments\": [{...}]}]}.\n\n"
-            "[Background Excerpt]\n"
-            f"{background_text}\n\n"
-            "[Event Type Hints]\n"
-            f"{event_hint}\n\n"
-            "[Argument Role Hints]\n"
-            f"{argument_hint}\n\n"
-            "[Trigger Word Guidelines]\n"
-            f"{trigger_guidelines}\n"
-            f"{language_instruction}"
-        )
+    system_message = _render_prompt("events", "system", context)
+    user_message = _render_prompt("events", "user", context)
 
     try:
         response = llm_client.generate(user_message=user_message, system_message=system_message)
