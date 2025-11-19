@@ -34,8 +34,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Collection, Dict, Iterable, List, Sequence, Set, Tuple
 
-import yaml
-
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
@@ -45,24 +43,7 @@ CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
 LOG_DIR = PROJECT_ROOT / "logs"
 BACKGROUND_SNIPPET_MAX_CHARS = 4000
 
-
-def resolve_project_path(path_str: str | Path) -> Path:
-    """将相对路径解析为相对于项目根目录的绝对路径。"""
-
-    path = Path(path_str).expanduser()
-    if path.is_absolute():
-        return path
-    return (PROJECT_ROOT / path).resolve()
-
-
-def load_config(path: Path = CONFIG_PATH) -> Dict[str, Any]:
-    if not path.exists():
-        raise FileNotFoundError(f"未找到配置文件: {path}")
-    with path.open("r", encoding="utf-8") as fp:
-        data = yaml.safe_load(fp) or {}
-    if not isinstance(data, dict):
-        raise ValueError("配置文件格式必须为字典")
-    return data
+from utils.common import load_yaml_config, resolve_project_path, save_json
 
 
 def setup_logger() -> logging.Logger:
@@ -77,7 +58,7 @@ def setup_logger() -> logging.Logger:
     return logger
 
 
-CONFIG: Dict = load_config()
+CONFIG: Dict = load_yaml_config(CONFIG_PATH)
 LOGGER = setup_logger()
 
 SUPPORTED_LANG_CODES: Dict[str, str] = {"cn": "中文", "en": "English"}
@@ -527,6 +508,85 @@ def ensure_output_paths() -> OutputPaths:
 def graph_extraction_enabled() -> bool:
     runtime_cfg = CONFIG.get("runtime", {})
     return bool(runtime_cfg.get("graph_extraction_enabled", True))
+
+
+def evaluation_config() -> Dict[str, Any]:
+    cfg = CONFIG.get("evaluation")
+    return cfg if isinstance(cfg, dict) else {}
+
+
+def evaluation_enabled() -> bool:
+    cfg = evaluation_config()
+    return bool(cfg.get("enabled"))
+
+
+def evaluation_output_path(base_dir: Path) -> Path:
+    cfg = evaluation_config()
+    raw_path = cfg.get("output_json")
+    if isinstance(raw_path, str) and raw_path.strip():
+        return resolve_project_path(raw_path)
+    filename = f"ontology_eval_metrics{LANGUAGE_SUFFIX}.json"
+    return base_dir / filename
+
+
+def maybe_run_schema_evaluation(
+    pred_schema: Dict[str, Any], existing_schema: Dict[str, Any] | None, output_paths: OutputPaths
+) -> None:
+    if not evaluation_enabled():
+        return
+    if not existing_schema:
+        LOGGER.warning("已启用本体评估，但缺少 existing_ontology_path，跳过比较。")
+        return
+    try:
+        from utils.ontology_eval import compute_ontology_metrics, schema_dict_to_graph
+    except Exception as exc:  # noqa: BLE001
+        LOGGER.warning("导入本体评估模块失败: %s", exc)
+        return
+
+    cfg = evaluation_config()
+    try:
+        threshold = float(cfg.get("threshold", 0.45))
+    except (TypeError, ValueError):
+        threshold = 0.45
+    try:
+        smoothing_rounds = int(cfg.get("graph_smoothing_rounds", 2))
+    except (TypeError, ValueError):
+        smoothing_rounds = 2
+    try:
+        smoothing_alpha = float(cfg.get("graph_smoothing_alpha", 0.5))
+    except (TypeError, ValueError):
+        smoothing_alpha = 0.5
+
+    try:
+        gold_graph = schema_dict_to_graph(existing_schema)
+        pred_graph = schema_dict_to_graph(pred_schema)
+        metrics = compute_ontology_metrics(
+            gold_graph=gold_graph,
+            pred_graph=pred_graph,
+            emb_model=str(cfg.get("emb_model") or "BAAI/bge-large-zh-v1.5"),
+            threshold=threshold,
+            graph_smoothing_rounds=smoothing_rounds,
+            graph_smoothing_alpha=smoothing_alpha,
+        )
+    except ImportError as exc:
+        LOGGER.warning("运行本体评测缺少依赖 (numpy/scipy/sentence-transformers): %s", exc)
+        return
+    except Exception as exc:  # noqa: BLE001
+        LOGGER.warning("运行本体评测失败: %s", exc)
+        return
+
+    for name, metric in metrics.items():
+        LOGGER.info(
+            "[ontology_eval][%s] P=%.4f R=%.4f F1=%.4f",
+            name,
+            metric.get("precision", 0.0),
+            metric.get("recall", 0.0),
+            metric.get("f1", 0.0),
+        )
+
+    metrics_path = evaluation_output_path(output_paths.base_dir)
+    save_json(metrics_path, metrics)
+    LOGGER.info("本体评测指标已写入: %s", metrics_path)
 
 
 SCHEMA_SECTION_ALIASES = {
@@ -1277,12 +1337,6 @@ def instantiate_llm_client():
 
     raise ValueError("llm.provider 仅支持 'deepseek'、'openai' 或 'groq'")
 
-
-
-def save_json(path: Path, payload: Dict | List):
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-
-
 def collect_nodes(edges: Iterable[Edge]) -> List[Node]:
     unique: Dict[Tuple[str, str], Node] = {}
     for edge in edges:
@@ -1375,6 +1429,12 @@ def main():
     log_label = "新构建出的本体" if existing_schema else "构建出的本体"
     LOGGER.info("%s: %s", log_label, json.dumps(ontology.model_dump(), ensure_ascii=False, indent=2))
     event_schema = build_event_schema(llm_client=llm_client, background_text=background_excerpt)
+    schema_for_eval: Dict[str, Any] = {
+        "entities": _normalize_entities(ontology.entities),
+        "relationships": _normalize_relationships(ontology.relationships),
+    }
+    if event_schema:
+        schema_for_eval["events"] = event_schema
     merged_ontology, schema_payload = merge_schema_payload(
         existing_schema,
         ontology,
@@ -1383,6 +1443,7 @@ def main():
     )
 
     save_json(output_paths.schema, schema_payload)
+    maybe_run_schema_evaluation(schema_for_eval, existing_schema, output_paths)
 
     if not graph_extraction_enabled():
         LOGGER.info("已根据配置仅输出本体文件，跳过图谱抽取及 Neo4j 导出。输出目录: %s", output_paths.base_dir)
