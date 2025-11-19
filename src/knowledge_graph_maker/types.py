@@ -15,7 +15,7 @@ class LLMClient(ABC):
 
 
 class Ontology(BaseModel):
-    labels: List[Union[str, Dict]]
+    entities: List[Union[str, Dict]]
     relationships: List[str]
 
     def dump(self):
@@ -26,7 +26,7 @@ class Ontology(BaseModel):
 
 
 class Node(BaseModel):
-    label: str
+    entity: str
     name: str
 
 

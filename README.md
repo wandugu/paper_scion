@@ -70,8 +70,8 @@ The library understands the following schema for the Ontology. Behind the scene,
 
 ```python
 ontology = Ontology(
-    # labels of the entities to be extracted. Can be a string or an object, like the following.
-    labels=[
+    # entities to be extracted. Can be a string or an object, like the following.
+    entities=[
         {"Person": "Person name without any adjectives, Remember a person may be references by their name or using a pronoun"},
         {"Object": "Do not add the definite article 'the' in the object name"},
         {"Event": "Event event involving multiple people. Do not include qualifiers or verbs like gives, leaves, works etc."},
@@ -79,7 +79,7 @@ ontology = Ontology(
         "Document",
         "Organisation",
         "Action",
-        {"Miscellanous": "Any important concept can not be categorised with any other given label"},
+        {"Miscellanous": "Any important concept can not be categorised with any other given entity type"},
     ],
     # Relationships that are important for your application.
     # These are more like instructions for the LLM to nudge it to focus on specific relationships.
@@ -166,7 +166,7 @@ The output is the final graph as a list of edges, where every edge is a pydantic
 
 ```python
 class Node(BaseModel):
-    label: str
+    entity: str
     name: str
 
 class Edge(BaseModel):

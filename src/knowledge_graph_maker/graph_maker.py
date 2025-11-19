@@ -11,7 +11,7 @@ json_parse_logger = GraphLogger(name="GRAPH MAKER ERROR", color="magenta").getLo
 verbose_logger = GraphLogger(name="GRAPH MAKER VERBOSE", color="blue").getLogger()
 
 default_ontology = Ontology(
-    labels=[
+    entities=[
         {"Person": "Person name without any adjectives"},
         "Place",
         "Object",
@@ -21,7 +21,7 @@ default_ontology = Ontology(
         "Event",
         "Action",
     ],
-    relationships=["Relationship between Any two labeled entities"],
+    relationships=["Relationship between Any two entities defined in the ontology"],
 )
 
 
@@ -58,12 +58,12 @@ class GraphMaker:
             "The user will provide you with an input text delimited by ```. "
             "Extract all the entities and relationships from the user-provided text as per the given ontology. Do not use any previous knowledge about the context."
             "Remember there can be multiple direct (explicit) or implied relationships between the same pair of nodes. "
-            "Be consistent with the given ontology. Use ONLY the labels and relationships mentioned in the ontology. "
+            "Be consistent with the given ontology. Use ONLY the entities and relationships mentioned in the ontology. "
             "Format your output as a json with the following schema. \n"
             "[\n"
             "   {\n"
-            '       node_1: Required, an entity object with attributes: {"label": "as per the ontology", "name": "Name of the entity"},\n'
-            '       node_2: Required, an entity object with attributes: {"label": "as per the ontology", "name": "Name of the entity"},\n'
+            '       node_1: Required, an entity object with attributes: {"entity": "as per the ontology", "name": "Name of the entity"},\n'
+            '       node_2: Required, an entity object with attributes: {"entity": "as per the ontology", "name": "Name of the entity"},\n'
             "       relationship: Describe the relationship between node_1 and node_2 as per the context, in a few sentences.\n"
             "   },\n"
             "]\n"
