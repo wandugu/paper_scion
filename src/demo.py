@@ -32,7 +32,7 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Sequence, Tuple
+from typing import Any, Collection, Dict, Iterable, List, Sequence, Set, Tuple
 
 import yaml
 
@@ -192,6 +192,58 @@ def ensure_output_paths() -> OutputPaths:
 def graph_extraction_enabled() -> bool:
     runtime_cfg = CONFIG.get("runtime", {})
     return bool(runtime_cfg.get("graph_extraction_enabled", True))
+
+
+SCHEMA_SECTION_ALIASES = {
+    "entity": "labels",
+    "entities": "labels",
+    "label": "labels",
+    "labels": "labels",
+    "节点": "labels",
+    "实体": "labels",
+    "relationship": "relationships",
+    "relationships": "relationships",
+    "edge": "relationships",
+    "edges": "relationships",
+    "边": "relationships",
+    "关系": "relationships",
+    "event": "events",
+    "events": "events",
+    "事件": "events",
+}
+DEFAULT_SCHEMA_SECTIONS: Set[str] = {"labels", "relationships", "events"}
+
+
+def schema_output_sections() -> Set[str]:
+    """基于 config 决定本体 JSON 中需要保留的板块。"""
+
+    ontology_cfg = CONFIG.get("ontology", {})
+    raw_sections = ontology_cfg.get("output_sections")
+    if not isinstance(raw_sections, list):
+        raw_sections = []
+
+    normalized: Set[str] = set()
+    for section in raw_sections:
+        if not isinstance(section, str):
+            continue
+        key = section.strip().lower()
+        if not key:
+            continue
+        if key in {"all", "全部", "全量"}:
+            return set(DEFAULT_SCHEMA_SECTIONS)
+        alias = SCHEMA_SECTION_ALIASES.get(key)
+        if alias:
+            normalized.add(alias)
+
+    if not raw_sections or not normalized:
+        return set(DEFAULT_SCHEMA_SECTIONS)
+    return normalized
+
+
+def _section_enabled(section: str, enabled_sections: Collection[str] | None) -> bool:
+    if not enabled_sections:
+        return True
+    return section in enabled_sections
 
 
 def load_text_chunks() -> Sequence[str]:
@@ -612,6 +664,7 @@ def merge_schema_payload(
     existing_schema: Dict[str, Any] | None,
     new_ontology: Ontology,
     new_events: Sequence[Dict[str, Any]],
+    enabled_sections: Collection[str] | None = None,
 ) -> Tuple[Ontology, Dict[str, Any]]:
     existing_labels = _normalize_labels(existing_schema.get("labels")) if existing_schema else []
     existing_relationships = _normalize_relationships(existing_schema.get("relationships")) if existing_schema else []
@@ -625,8 +678,13 @@ def merge_schema_payload(
     merged_events = _merge_event_schema(existing_events, new_events)
 
     merged_ontology = Ontology(labels=merged_labels, relationships=merged_relationships)
-    payload = merged_ontology.model_dump()
-    if merged_events:
+
+    payload: Dict[str, Any] = {}
+    if _section_enabled("labels", enabled_sections):
+        payload["labels"] = merged_labels
+    if _section_enabled("relationships", enabled_sections):
+        payload["relationships"] = merged_relationships
+    if merged_events and _section_enabled("events", enabled_sections):
         payload["events"] = merged_events
     return merged_ontology, payload
 
@@ -826,7 +884,12 @@ def main():
     log_label = "新构建出的本体" if existing_schema else "构建出的本体"
     LOGGER.info("%s: %s", log_label, json.dumps(ontology.model_dump(), ensure_ascii=False, indent=2))
     event_schema = build_event_schema(llm_client=llm_client, background_text=background_excerpt)
-    merged_ontology, schema_payload = merge_schema_payload(existing_schema, ontology, event_schema)
+    merged_ontology, schema_payload = merge_schema_payload(
+        existing_schema,
+        ontology,
+        event_schema,
+        enabled_sections=schema_output_sections(),
+    )
 
     save_json(output_paths.schema, schema_payload)
 
