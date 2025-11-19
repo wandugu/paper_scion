@@ -34,6 +34,8 @@ This project is an example notebook that demonstrates the use of the knowledge g
   构建新的本体，再与旧版本进行去重合并，最终输出合并后的 `ontology_schema.json`。
 - 若只需生成本体文件，可在 `runtime.graph_extraction_enabled` 中设置为 `false`，
   此时脚本只会输出合并后的本体 JSON，跳过节点/边文件及 Neo4j 相关流程。
+- `ontology.output_sections` 可以是 `entities`、`relationships`、`events` 的任意组合，
+  仅保留列表中指定的板块；如需输出所有信息，配置 `all`（默认值）即可。
 
 运行示例脚本：
 
