@@ -25,7 +25,7 @@ class Relationship(StructuredRel):
 
 
 class Entity(StructuredNode):
-    label = StringProperty()
+    entity = StringProperty()
     name = StringProperty(unique_index=True)
     relationship = RelationshipTo("Entity", "RELATED", model=Relationship)
 
