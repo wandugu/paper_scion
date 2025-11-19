@@ -409,6 +409,30 @@ def _normalize_entities(raw_entities: Any) -> List[Any]:
     return normalized
 
 
+def _extract_relation_type(text: str) -> str:
+    """从 "实体A-关系-实体B" 这样的描述中抽取中间的关系类型。"""
+
+    stripped = text.strip()
+    if stripped.count("-") < 2:
+        return stripped
+
+    indices: List[int] = []
+    for idx in range(1, len(stripped) - 1):
+        if stripped[idx] != "-":
+            continue
+        prev_char = stripped[idx - 1]
+        next_char = stripped[idx + 1]
+        if prev_char.isdigit() or next_char.isdigit():
+            continue
+        indices.append(idx)
+
+    if len(indices) < 2:
+        return stripped
+
+    candidate = stripped[indices[0] + 1 : indices[-1]].strip(" -")
+    return candidate or stripped
+
+
 def _normalize_relationships(raw_relationships: Any) -> List[str]:
     if not isinstance(raw_relationships, list):
         return []
@@ -417,7 +441,7 @@ def _normalize_relationships(raw_relationships: Any) -> List[str]:
         if isinstance(rel, str):
             stripped = rel.strip()
             if stripped:
-                relationships.append(stripped)
+                relationships.append(_extract_relation_type(stripped))
     return relationships
 
 
@@ -457,6 +481,8 @@ def build_ontology(llm_client: LLMClient, background_text: str) -> Ontology:
         "请参考以下背景语料，并以上述提示为灵感，生成最贴近内容的知识图谱本体。\n"
         "- 允许微调实体类型或新增更贴近场景的实体描述。\n"
         "- 关系需覆盖主要角色/事件之间的因果、隶属或互动。\n"
+        "- 严禁输出具体角色/组织名称，只描述抽象的实体类型（可附简短解释）。\n"
+        "- relationships 数组只能列出关系类型（如“负责设计”），不得出现“实体A-关系-实体B”格式。\n"
         "- 输出 JSON，字段只包含 entities 与 relationships。\n\n"
         "【背景摘录】\n"
         f"{background_text}\n\n"
