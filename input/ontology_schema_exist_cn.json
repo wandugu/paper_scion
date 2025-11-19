@@ -1,53 +1,53 @@
 {
   "entities": [
-    "Person",
-    "Organisation",
-    {"Artifact": "在剧情中具有特殊意义的物品或技术"},
-    "SystemComponent",
-    "Document",
-    "Event",
-    "Location"
+    "人物",
+    "组织",
+    {"重要器物": "在剧情中具有特殊意义的物品或技术"},
+    "系统组件",
+    "文档",
+    "事件",
+    "地点"
   ],
   "relationships": [
     {
-      "head_entity": "Person",
-      "tail_entity": "Organisation",
+      "head_entity": "人物",
+      "tail_entity": "组织",
       "rel_type": "隶属于",
       "description": "角色加入或在组织体系内任职"
     },
     {
-      "head_entity": "Organisation",
-      "tail_entity": "Location",
+      "head_entity": "组织",
+      "tail_entity": "地点",
       "rel_type": "位于",
       "description": "组织的总部、基地或部署地点"
     },
     {
-      "head_entity": "Person",
-      "tail_entity": "SystemComponent",
+      "head_entity": "人物",
+      "tail_entity": "系统组件",
       "rel_type": "负责设计",
       "description": "个人主导关键系统或组件的设计"
     },
     {
-      "head_entity": "SystemComponent",
-      "tail_entity": "Location",
+      "head_entity": "系统组件",
+      "tail_entity": "地点",
       "rel_type": "部署于",
       "description": "组件或设备在具体场景中的落位"
     },
     {
-      "head_entity": "SystemComponent",
-      "tail_entity": "Event",
+      "head_entity": "系统组件",
+      "tail_entity": "事件",
       "rel_type": "引发事件",
       "description": "技术异常导致事故、调查或舆情"
     },
     {
-      "head_entity": "Person",
-      "tail_entity": "Document",
+      "head_entity": "人物",
+      "tail_entity": "文档",
       "rel_type": "报告问题",
       "description": "个人通过文档提出质疑或反馈"
     },
     {
-      "head_entity": "Person",
-      "tail_entity": "Event",
+      "head_entity": "人物",
+      "tail_entity": "事件",
       "rel_type": "参与评估",
       "description": "个人以专家或负责人身份介入事件评估"
     }

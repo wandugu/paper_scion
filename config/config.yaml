@@ -124,6 +124,112 @@ ontology:
     - entities
     - relationships
     - events
+prompts:
+  limits:
+    entity_types:
+      min: 6
+      max: 10
+    relationship_types:
+      min: 6
+      max: 10
+    event_types:
+      min: 4
+      max: 8
+  templates:
+    ontology:
+      cn:
+        system: |
+          你是一名资深本体工程师，负责根据输入背景语料设计知识图谱本体。{entity_range_sentence}{relationship_range_sentence}最终只返回 JSON。{language_instruction}
+        user: |
+          请参考以下背景语料，并以上述提示为灵感，生成最贴近内容的知识图谱本体。
+          - 允许微调实体类型或新增更贴近场景的实体描述。
+          - 关系需覆盖主要角色/事件之间的因果、隶属或互动。
+          - 严禁输出具体角色/组织名称，只描述抽象的实体类型（可附简短解释）。
+          - relationships 数组中的每一项必须包含 head_entity、tail_entity、rel_type 字段，可选填 description。
+          - 输出 JSON，字段只包含 entities 与 relationships。
+
+          【背景摘录】
+          {background_text}
+
+          【可参考的实体提示】
+          {entity_hint}
+
+          【可参考的关系提示】
+          {relation_hint}
+
+          示例输出格式：
+          {ontology_sample_json}
+          {language_instruction}
+      en:
+        system: |
+          You are a senior ontology engineer who must design a schema from the provided background text. {entity_range_sentence}{relationship_range_sentence}Respond with JSON only. {language_instruction}
+        user: |
+          Use the following background excerpt and hints to craft an ontology.
+          - You may tweak entity types or add better aligned descriptions.
+          - Relationships should cover causality, affiliation or interaction between major roles/events.
+          - NEVER output concrete names of roles/organisations; only abstract entity types with short notes.
+          - Each item in the relationships array must include head_entity, tail_entity and rel_type, with optional description.
+          - Output JSON with only 'entities' and 'relationships'.
+
+          [Background Excerpt]
+          {background_text}
+
+          [Entity Hints]
+          {entity_hint}
+
+          [Relationship Hints]
+          {relation_hint}
+
+          Sample output:
+          {ontology_sample_json}
+          {language_instruction}
+    events:
+      cn:
+        system: |
+          你是事件抽取专家，需为知识图谱设计事件类型与论元。{event_range_sentence}输出包含可复用的 event_type、触发词和论元。最终只返回 JSON，仅保留 events 数组。{language_instruction}
+        user: |
+          请基于以下背景语料，总结最重要的事件类型。
+          {event_limit_instruction}
+          - 每个事件需包含触发词 trigger_words（数组）与 arguments（论元列表）。
+          - 论元至少覆盖发起方、受影响方或其它关键角色。
+          - arguments 中的每一项需包含 role、description、required 字段。
+          - JSON 结构示例：{event_sample_json}
+
+          【背景摘录】
+          {background_text}
+
+          【可参考的事件类型提示】
+          {event_hint}
+
+          【论元角色提示】
+          {argument_hint}
+
+          【触发词撰写建议】
+          {trigger_guidelines}
+          {language_instruction}
+      en:
+        system: |
+          You are an event extraction expert who must design reusable event types and arguments for a knowledge graph. {event_range_sentence}Provide event_type, trigger_words and arguments. Respond with JSON shaped as an 'events' array only. {language_instruction}
+        user: |
+          Summarize the most important event types from the background excerpt.
+          {event_limit_instruction}
+          - Each event must include trigger_words (array) and arguments (list of roles).
+          - Arguments should at least cover initiators, impacted parties or other key roles.
+          - Every argument entry must contain role, description and required fields.
+          - JSON example: {event_sample_json}
+
+          [Background Excerpt]
+          {background_text}
+
+          [Event Type Hints]
+          {event_hint}
+
+          [Argument Role Hints]
+          {argument_hint}
+
+          [Trigger Word Guidelines]
+          {trigger_guidelines}
+          {language_instruction}
 event_extraction:
   enabled: true
   max_event_types: 10
