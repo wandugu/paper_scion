@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Optional
 from abc import ABC, abstractmethod
 
 
@@ -14,9 +14,16 @@ class LLMClient(ABC):
         pass
 
 
+class RelationshipSchema(BaseModel):
+    head_entity: str
+    tail_entity: str
+    rel_type: str
+    description: Optional[str] = None
+
+
 class Ontology(BaseModel):
     entities: List[Union[str, Dict]]
-    relationships: List[str]
+    relationships: List[RelationshipSchema]
 
     def dump(self):
         if len(self.relationships) == 0:

@@ -82,7 +82,14 @@ LOGGER = setup_logger()
 
 from knowledge_graph_maker.graph_maker import GraphMaker
 from knowledge_graph_maker.neo4j_graph_model import Neo4jGraphModel
-from knowledge_graph_maker.types import Document, Edge, LLMClient, Node, Ontology
+from knowledge_graph_maker.types import (
+    Document,
+    Edge,
+    LLMClient,
+    Node,
+    Ontology,
+    RelationshipSchema,
+)
 
 
 
@@ -344,7 +351,17 @@ def _format_entity_hints() -> str:
 
 
 def _format_relationship_hints() -> str:
-    return "\n".join(f"- {relation}" for relation in CONFIG["ontology"]["relationships"])
+    hints: List[str] = []
+    for relation in CONFIG["ontology"].get("relationships", []):
+        normalized = _normalize_relationship_entry(relation)
+        if not normalized:
+            continue
+        desc = normalized.get("description")
+        suffix = f"（{desc}）" if desc else ""
+        hints.append(
+            f"- {normalized['head_entity']} -> {normalized['tail_entity']}: {normalized['rel_type']}{suffix}"
+        )
+    return "\n".join(hints)
 
 
 def _event_cfg() -> Dict[str, Any]:
@@ -433,22 +450,70 @@ def _extract_relation_type(text: str) -> str:
     return candidate or stripped
 
 
-def _normalize_relationships(raw_relationships: Any) -> List[str]:
+def _normalize_relationship_entry(item: Any) -> Dict[str, Any] | None:
+    if isinstance(item, RelationshipSchema):
+        payload = item.model_dump()
+    elif isinstance(item, dict):
+        payload = item
+    else:
+        return None
+
+    head_entity = str(
+        payload.get("head_entity")
+        or payload.get("head")
+        or payload.get("source_entity")
+        or payload.get("source")
+        or ""
+    ).strip()
+    tail_entity = str(
+        payload.get("tail_entity")
+        or payload.get("tail")
+        or payload.get("target_entity")
+        or payload.get("target")
+        or payload.get("object")
+        or ""
+    ).strip()
+    rel_type = str(
+        payload.get("rel_type")
+        or payload.get("relationship")
+        or payload.get("type")
+        or payload.get("name")
+        or ""
+    ).strip()
+    description_val = payload.get("description")
+    if isinstance(description_val, str):
+        description = description_val.strip() or None
+    elif description_val is None:
+        description = None
+    else:
+        description = str(description_val).strip() or None
+
+    if not (head_entity and tail_entity and rel_type):
+        return None
+
+    return {
+        "head_entity": head_entity,
+        "tail_entity": tail_entity,
+        "rel_type": rel_type,
+        "description": description,
+    }
+
+
+def _normalize_relationships(raw_relationships: Any) -> List[Dict[str, Any]]:
     if not isinstance(raw_relationships, list):
         return []
-    relationships: List[str] = []
+    relationships: List[Dict[str, Any]] = []
     for rel in raw_relationships:
-        if isinstance(rel, str):
-            stripped = rel.strip()
-            if stripped:
-                relationships.append(_extract_relation_type(stripped))
+        normalized = _normalize_relationship_entry(rel)
+        if normalized:
+            relationships.append(normalized)
     return relationships
 
 
 def _fallback_ontology() -> Ontology:
     return Ontology(
         entities=CONFIG["ontology"]["entities"],
-        relationships=CONFIG["ontology"]["relationships"],
+        relationships=_normalize_relationships(CONFIG["ontology"]["relationships"]),
     )
 
 
@@ -482,7 +547,7 @@ def build_ontology(llm_client: LLMClient, background_text: str) -> Ontology:
         "- 允许微调实体类型或新增更贴近场景的实体描述。\n"
         "- 关系需覆盖主要角色/事件之间的因果、隶属或互动。\n"
         "- 严禁输出具体角色/组织名称，只描述抽象的实体类型（可附简短解释）。\n"
-        "- relationships 数组只能列出关系类型（如“负责设计”），不得出现“实体A-关系-实体B”格式。\n"
+        "- relationships 数组中的每一项必须包含 head_entity、tail_entity、rel_type 字段，可选填 description。\n"
         "- 输出 JSON，字段只包含 entities 与 relationships。\n\n"
         "【背景摘录】\n"
         f"{background_text}\n\n"
@@ -492,7 +557,9 @@ def build_ontology(llm_client: LLMClient, background_text: str) -> Ontology:
         f"{relation_hint}\n\n"
         "示例输出格式：\n"
         "{\n  \"entities\": [\"概念A\", {\"概念B\": \"描述\"}],\n"
-        "  \"relationships\": [\"关系1\", \"关系2\"]\n}"
+        "  \"relationships\": [\n"
+        "    {\"head_entity\": \"Person\", \"tail_entity\": \"Organisation\", \"rel_type\": \"隶属于\", \"description\": \"可选说明\"}\n"
+        "  ]\n}"
     )
 
     try:
@@ -619,6 +686,38 @@ def _merge_string_list(primary: Sequence[str], secondary: Sequence[str]) -> List
     return merged
 
 
+def _merge_relationship_items(
+    existing: Sequence[Dict[str, Any]], new_items: Sequence[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
+    merged: List[Dict[str, Any]] = []
+    index: Dict[Tuple[str, str, str], int] = {}
+
+    def _add(item: Dict[str, Any] | RelationshipSchema | None):
+        if item is None:
+            return
+        normalized = _normalize_relationship_entry(item)
+        if not normalized:
+            return
+        key = (
+            normalized["head_entity"],
+            normalized["tail_entity"],
+            normalized["rel_type"],
+        )
+        if key not in index:
+            index[key] = len(merged)
+            merged.append(normalized)
+            return
+        current = merged[index[key]]
+        if not current.get("description") and normalized.get("description"):
+            current["description"] = normalized["description"]
+
+    for relation in existing:
+        _add(relation)
+    for relation in new_items:
+        _add(relation)
+    return merged
+
+
 def _merge_event_arguments(existing: Sequence[Dict[str, Any]], new_items: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
     merged: List[Dict[str, Any]] = []
     index: Dict[str, int] = {}
@@ -701,18 +800,18 @@ def _preferred_schema_entities(
 
 
 def _preferred_schema_relationships(
-    existing_schema: Dict[str, Any] | None, merged_relationships: Sequence[str]
-) -> List[str]:
+    existing_schema: Dict[str, Any] | None, merged_relationships: Sequence[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
     """返回最终写入 schema 文件的关系类型列表，包含新抽取的类型。"""
 
     existing_relationships = (
         _normalize_relationships(existing_schema.get("relationships")) if existing_schema else []
     )
     if existing_relationships:
-        return _merge_string_list(existing_relationships, merged_relationships)
+        return _merge_relationship_items(existing_relationships, merged_relationships)
     config_relationships = _normalize_relationships(CONFIG["ontology"].get("relationships", []))
     if config_relationships:
-        return _merge_string_list(config_relationships, merged_relationships)
+        return _merge_relationship_items(config_relationships, merged_relationships)
     return list(merged_relationships)
 
 
@@ -723,21 +822,25 @@ def merge_schema_payload(
     enabled_sections: Collection[str] | None = None,
 ) -> Tuple[Ontology, Dict[str, Any]]:
     existing_entities = _normalize_entities(existing_schema.get("entities")) if existing_schema else []
-    existing_relationships = _normalize_relationships(existing_schema.get("relationships")) if existing_schema else []
+    existing_relationships = (
+        _normalize_relationships(existing_schema.get("relationships")) if existing_schema else []
+    )
     existing_events = _normalize_event_schema(existing_schema.get("events")) if existing_schema else []
 
     normalized_entities = _normalize_entities(new_ontology.entities)
     normalized_relationships = _normalize_relationships(new_ontology.relationships)
 
     merged_entities = _merge_entity_items(existing_entities, normalized_entities)
-    merged_relationships = _merge_string_list(existing_relationships, normalized_relationships)
+    merged_relationships = _merge_relationship_items(existing_relationships, normalized_relationships)
     merged_events = _merge_event_schema(existing_events, new_events)
 
     merged_ontology = Ontology(entities=merged_entities, relationships=merged_relationships)
 
     payload: Dict[str, Any] = {}
     preferred_entities = _preferred_schema_entities(existing_schema, merged_entities) or merged_entities
-    preferred_relationships = _preferred_schema_relationships(existing_schema, merged_relationships) or merged_relationships
+    preferred_relationships = (
+        _preferred_schema_relationships(existing_schema, merged_relationships) or merged_relationships
+    )
     if _section_enabled("entities", enabled_sections):
         payload["entities"] = preferred_entities
     if _section_enabled("relationships", enabled_sections):
