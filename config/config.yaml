@@ -345,6 +345,13 @@ runtime:
   verbose: false
   delay_between_requests: 8
   graph_extraction_enabled: false
+evaluation:
+  enabled: false
+  emb_model: BAAI/bge-large-zh-v1.5
+  threshold: 0.45
+  graph_smoothing_rounds: 2
+  graph_smoothing_alpha: 0.5
+  output_json: output/ontology_eval_metrics.json
 output:
   dir: output
   schema_filename: ontology_schema.json
