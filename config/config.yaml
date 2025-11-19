@@ -3,7 +3,7 @@ llm:
   temperature: 0.1
   top_p: 0.5
   default_api_key: "sk-17a236632dd6433c8dda23a460fb7699"
-  proxy: socks5h://192.168.134.165:1010
+  proxy: socks5h://127.0.0.1:8101
   deepseek:
     model: deepseek-chat
     max_tokens: 4096
@@ -65,8 +65,8 @@ ontology:
       description: "个人以专家、负责人或调查成员身份参与事件评估"
   output_sections:
     # - all
-    # - labels
-    # - relationships
+    - entities
+    - relationships
     - events
 event_extraction:
   enabled: true
