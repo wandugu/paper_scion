@@ -26,6 +26,8 @@ ontology:
     - "人物与地点/组织的关联"
     - "人物之间的情节联系"
     - "事件与参与者的因果关系"
+  output_sections:
+    - all
 event_extraction:
   enabled: true
   max_event_types: 10
