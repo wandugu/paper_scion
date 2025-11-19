@@ -29,13 +29,17 @@ This project is an example notebook that demonstrates the use of the knowledge g
 - 所有 Python 脚本均位于 `src/` 目录下，其中 `src/demo.py` 是主要的演示脚本。
 - 运行脚本前请确保 `config/config.yaml` 中的参数已经根据自身环境调整完毕。
 - 示例素材（如封面图、样例文本等）也集中在 `src/assets/` 下，方便统一维护。
-- 如已拥有一份旧的本体定义，可将其放入 `input/ontology_schema_exist.json`（或在
-  `config/config.yaml` 的 `input.existing_ontology_path` 中指定其它路径）。脚本会先
-  构建新的本体，再与旧版本进行去重合并，最终输出合并后的 `ontology_schema.json`。
+- 如已拥有一份旧的本体定义，可将其放入 `input/ontology_schema_exist_<lang>.json`
+  （或在 `config/config.yaml` 的 `input.existing_ontology_path` 中指定其它路径）。脚本会
+  先构建新的本体，再与旧版本进行去重合并，最终输出合并后的 `ontology_schema_<lang>.json`。
 - 若只需生成本体文件，可在 `runtime.graph_extraction_enabled` 中设置为 `false`，
   此时脚本只会输出合并后的本体 JSON，跳过节点/边文件及 Neo4j 相关流程。
 - `ontology.output_sections` 可以是 `entities`、`relationships`、`events` 的任意组合，
   仅保留列表中指定的板块；如需输出所有信息，配置 `all`（默认值）即可。
+- `language.code`（目前支持 `cn`、`en`）用于控制 LLM 的输出语言。
+- 所有输入/输出文件都会根据语言自动追加 `_cn` 或 `_en` 后缀。例如
+  `input/background.txt` 在中文模式下会读取 `input/background_cn.txt`，输出文件也会
+  命名为 `graph_nodes_cn.json`、`ontology_schema_cn.json` 等。
 
 运行示例脚本：
 
@@ -98,7 +102,7 @@ The demo script in this repository extends the ontology configuration with an op
 - `trigger_words`: verbs or short phrases that can be used to anchor the event in the text corpus.
 - `arguments`: a list of roles, each containing `role`, `description`, and whether the role is `required`.
 
-The generated list is merged into `output/ontology_schema.json` under the `events` field so that downstream consumers have a
+The generated list is merged into `output/ontology_schema_<lang>.json` under the `events` field so that downstream consumers have a
 ready-made schema for event/argument extraction without interfering with the base `Ontology` model.
 
 ### 2. Split the text into chunks.
