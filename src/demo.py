@@ -195,12 +195,12 @@ def graph_extraction_enabled() -> bool:
 
 
 SCHEMA_SECTION_ALIASES = {
-    "entity": "labels",
-    "entities": "labels",
-    "label": "labels",
-    "labels": "labels",
-    "节点": "labels",
-    "实体": "labels",
+    "entity": "entities",
+    "entities": "entities",
+    "label": "entities",
+    "labels": "entities",
+    "节点": "entities",
+    "实体": "entities",
     "relationship": "relationships",
     "relationships": "relationships",
     "edge": "relationships",
@@ -211,7 +211,7 @@ SCHEMA_SECTION_ALIASES = {
     "events": "events",
     "事件": "events",
 }
-DEFAULT_SCHEMA_SECTIONS: Set[str] = {"labels", "relationships", "events"}
+DEFAULT_SCHEMA_SECTIONS: Set[str] = {"entities", "relationships", "events"}
 
 
 def schema_output_sections() -> Set[str]:
@@ -332,9 +332,9 @@ def load_existing_ontology_schema() -> Tuple[Dict[str, Any] | None, Path | None]
     return data, path
 
 
-def _format_label_hints() -> str:
+def _format_entity_hints() -> str:
     hints: List[str] = []
-    for item in CONFIG["ontology"]["labels"]:
+    for item in CONFIG["ontology"]["entities"]:
         if isinstance(item, str):
             hints.append(f"- {item}")
         elif isinstance(item, dict):
@@ -393,11 +393,11 @@ def _extract_json_payload(response: str) -> Dict[str, Any]:
     raise ValueError("LLM 响应未包含合法的 JSON")
 
 
-def _normalize_labels(raw_labels: Any) -> List[Any]:
-    if not isinstance(raw_labels, list):
+def _normalize_entities(raw_entities: Any) -> List[Any]:
+    if not isinstance(raw_entities, list):
         return []
     normalized: List[Any] = []
-    for item in raw_labels:
+    for item in raw_entities:
         if isinstance(item, str):
             stripped = item.strip()
             if stripped:
@@ -423,7 +423,7 @@ def _normalize_relationships(raw_relationships: Any) -> List[str]:
 
 def _fallback_ontology() -> Ontology:
     return Ontology(
-        labels=CONFIG["ontology"]["labels"],
+        entities=CONFIG["ontology"]["entities"],
         relationships=CONFIG["ontology"]["relationships"],
     )
 
@@ -447,36 +447,36 @@ def build_ontology(llm_client: LLMClient, background_text: str) -> Ontology:
 
     system_message = (
         "你是一名资深本体工程师，负责根据输入背景语料设计知识图谱本体。"
-        "输出需聚焦核心实体，标签数量建议 6-10 个，并结合语料给出关键关系类型。"
+        "输出需聚焦核心实体，实体类型数量建议 6-10 个，并结合语料给出关键关系类型。"
         "最终只返回 JSON。"
     )
 
-    label_hint = _format_label_hints()
+    entity_hint = _format_entity_hints()
     relation_hint = _format_relationship_hints()
     user_message = (
         "请参考以下背景语料，并以上述提示为灵感，生成最贴近内容的知识图谱本体。\n"
-        "- 允许微调标签或新增更贴近场景的标签描述。\n"
+        "- 允许微调实体类型或新增更贴近场景的实体描述。\n"
         "- 关系需覆盖主要角色/事件之间的因果、隶属或互动。\n"
-        "- 输出 JSON，字段只包含 labels 与 relationships。\n\n"
+        "- 输出 JSON，字段只包含 entities 与 relationships。\n\n"
         "【背景摘录】\n"
         f"{background_text}\n\n"
-        "【可参考的标签提示】\n"
-        f"{label_hint}\n\n"
+        "【可参考的实体提示】\n"
+        f"{entity_hint}\n\n"
         "【可参考的关系提示】\n"
         f"{relation_hint}\n\n"
         "示例输出格式：\n"
-        "{\n  \"labels\": [\"概念A\", {\"概念B\": \"描述\"}],\n"
+        "{\n  \"entities\": [\"概念A\", {\"概念B\": \"描述\"}],\n"
         "  \"relationships\": [\"关系1\", \"关系2\"]\n}"
     )
 
     try:
         response = llm_client.generate(user_message=user_message, system_message=system_message)
         payload = _extract_json_payload(response)
-        labels = _normalize_labels(payload.get("labels"))
+        entities = _normalize_entities(payload.get("entities"))
         relationships = _normalize_relationships(payload.get("relationships"))
-        if not labels or not relationships:
-            raise ValueError("LLM 响应缺少标签或关系")
-        return Ontology(labels=labels, relationships=relationships)
+        if not entities or not relationships:
+            raise ValueError("LLM 响应缺少实体或关系")
+        return Ontology(entities=entities, relationships=relationships)
     except Exception as exc:  # noqa: BLE001
         LOGGER.warning("根据背景生成动态本体失败，改用配置本体。原因: %s", exc)
         return _fallback_ontology()
@@ -530,53 +530,53 @@ def _normalize_event_schema(raw_events: Any) -> List[Dict[str, Any]]:
     return normalized
 
 
-def _iter_label_entries(item: Any) -> Iterable[Tuple[str, str | None]]:
+def _iter_entity_entries(item: Any) -> Iterable[Tuple[str, str | None]]:
     if isinstance(item, str):
         stripped = item.strip()
         if stripped:
             yield stripped, None
     elif isinstance(item, dict):
         for key, value in item.items():
-            label = str(key).strip()
-            if not label:
+            entity_name = str(key).strip()
+            if not entity_name:
                 continue
             description = str(value).strip() if value is not None else ""
-            yield label, description or None
+            yield entity_name, description or None
 
 
-def _merge_label_items(existing: List[Any], new_items: List[Any]) -> List[Any]:
+def _merge_entity_items(existing: List[Any], new_items: List[Any]) -> List[Any]:
     merged: List[Any] = []
     index: Dict[str, int] = {}
 
-    def _add(label: str, description: str | None):
-        label = label.strip()
-        if not label:
+    def _add(entity_name: str, description: str | None):
+        entity_name = entity_name.strip()
+        if not entity_name:
             return
-        if label not in index:
+        if entity_name not in index:
             idx = len(merged)
-            index[label] = idx
+            index[entity_name] = idx
             if description:
-                merged.append({label: description})
+                merged.append({entity_name: description})
             else:
-                merged.append(label)
+                merged.append(entity_name)
             return
         if not description:
             return
-        current_idx = index[label]
+        current_idx = index[entity_name]
         current = merged[current_idx]
         if isinstance(current, str):
-            merged[current_idx] = {label: description}
+            merged[current_idx] = {entity_name: description}
         elif isinstance(current, dict):
             existing_desc = next(iter(current.values()))
             if not existing_desc:
-                merged[current_idx] = {label: description}
+                merged[current_idx] = {entity_name: description}
 
     for candidate in existing:
-        for label, description in _iter_label_entries(candidate):
-            _add(label, description)
+        for entity_name, description in _iter_entity_entries(candidate):
+            _add(entity_name, description)
     for candidate in new_items:
-        for label, description in _iter_label_entries(candidate):
-            _add(label, description)
+        for entity_name, description in _iter_entity_entries(candidate):
+            _add(entity_name, description)
     return merged
 
 
@@ -666,22 +666,22 @@ def merge_schema_payload(
     new_events: Sequence[Dict[str, Any]],
     enabled_sections: Collection[str] | None = None,
 ) -> Tuple[Ontology, Dict[str, Any]]:
-    existing_labels = _normalize_labels(existing_schema.get("labels")) if existing_schema else []
+    existing_entities = _normalize_entities(existing_schema.get("entities")) if existing_schema else []
     existing_relationships = _normalize_relationships(existing_schema.get("relationships")) if existing_schema else []
     existing_events = _normalize_event_schema(existing_schema.get("events")) if existing_schema else []
 
-    normalized_labels = _normalize_labels(new_ontology.labels)
+    normalized_entities = _normalize_entities(new_ontology.entities)
     normalized_relationships = _normalize_relationships(new_ontology.relationships)
 
-    merged_labels = _merge_label_items(existing_labels, normalized_labels)
+    merged_entities = _merge_entity_items(existing_entities, normalized_entities)
     merged_relationships = _merge_string_list(existing_relationships, normalized_relationships)
     merged_events = _merge_event_schema(existing_events, new_events)
 
-    merged_ontology = Ontology(labels=merged_labels, relationships=merged_relationships)
+    merged_ontology = Ontology(entities=merged_entities, relationships=merged_relationships)
 
     payload: Dict[str, Any] = {}
-    if _section_enabled("labels", enabled_sections):
-        payload["labels"] = merged_labels
+    if _section_enabled("entities", enabled_sections):
+        payload["entities"] = merged_entities
     if _section_enabled("relationships", enabled_sections):
         payload["relationships"] = merged_relationships
     if merged_events and _section_enabled("events", enabled_sections):
@@ -795,8 +795,8 @@ def save_json(path: Path, payload: Dict | List):
 def collect_nodes(edges: Iterable[Edge]) -> List[Node]:
     unique: Dict[Tuple[str, str], Node] = {}
     for edge in edges:
-        unique[(edge.node_1.label, edge.node_1.name)] = edge.node_1
-        unique[(edge.node_2.label, edge.node_2.name)] = edge.node_2
+        unique[(edge.node_1.entity, edge.node_1.name)] = edge.node_1
+        unique[(edge.node_2.entity, edge.node_2.name)] = edge.node_2
     return list(unique.values())
 
 
@@ -821,18 +821,18 @@ def write_csv(path: Path, headers: Sequence[str], rows: Iterable[Sequence[str]])
 def export_neo4j_csv(paths: OutputPaths, edges: Sequence[Edge]):
     nodes = collect_nodes(edges)
     node_rows = [
-        [f"{node.label}:{node.name}", node.label, node.name]
+        [f"{node.entity}:{node.name}", node.entity, node.name]
         for node in nodes
     ]
     write_csv(
         paths.neo4j_nodes_csv,
-        headers=["node_id", "label", "name"],
+        headers=["node_id", "entity", "name"],
         rows=node_rows,
     )
     edge_rows = []
     for edge in edges:
-        start_id = f"{edge.node_1.label}:{edge.node_1.name}"
-        end_id = f"{edge.node_2.label}:{edge.node_2.name}"
+        start_id = f"{edge.node_1.entity}:{edge.node_1.name}"
+        end_id = f"{edge.node_2.entity}:{edge.node_2.name}"
         edge_rows.append(
             [
                 start_id,
