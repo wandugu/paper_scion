@@ -660,6 +660,36 @@ def _merge_event_schema(existing: Sequence[Dict[str, Any]], new_items: Sequence[
     return merged
 
 
+def _preferred_schema_entities(
+    existing_schema: Dict[str, Any] | None, merged_entities: Sequence[Any]
+) -> List[Any]:
+    """返回最终写入 schema 文件的实体类型列表，包含新抽取的类型。"""
+
+    existing_entities = _normalize_entities(existing_schema.get("entities")) if existing_schema else []
+    if existing_entities:
+        return _merge_entity_items(existing_entities, merged_entities)
+    config_entities = _normalize_entities(CONFIG["ontology"].get("entities", []))
+    if config_entities:
+        return _merge_entity_items(config_entities, merged_entities)
+    return list(merged_entities)
+
+
+def _preferred_schema_relationships(
+    existing_schema: Dict[str, Any] | None, merged_relationships: Sequence[str]
+) -> List[str]:
+    """返回最终写入 schema 文件的关系类型列表，包含新抽取的类型。"""
+
+    existing_relationships = (
+        _normalize_relationships(existing_schema.get("relationships")) if existing_schema else []
+    )
+    if existing_relationships:
+        return _merge_string_list(existing_relationships, merged_relationships)
+    config_relationships = _normalize_relationships(CONFIG["ontology"].get("relationships", []))
+    if config_relationships:
+        return _merge_string_list(config_relationships, merged_relationships)
+    return list(merged_relationships)
+
+
 def merge_schema_payload(
     existing_schema: Dict[str, Any] | None,
     new_ontology: Ontology,
@@ -680,10 +710,12 @@ def merge_schema_payload(
     merged_ontology = Ontology(entities=merged_entities, relationships=merged_relationships)
 
     payload: Dict[str, Any] = {}
+    preferred_entities = _preferred_schema_entities(existing_schema, merged_entities) or merged_entities
+    preferred_relationships = _preferred_schema_relationships(existing_schema, merged_relationships) or merged_relationships
     if _section_enabled("entities", enabled_sections):
-        payload["entities"] = merged_entities
+        payload["entities"] = preferred_entities
     if _section_enabled("relationships", enabled_sections):
-        payload["relationships"] = merged_relationships
+        payload["relationships"] = preferred_relationships
     if merged_events and _section_enabled("events", enabled_sections):
         payload["events"] = merged_events
     return merged_ontology, payload
