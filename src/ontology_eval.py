@@ -80,10 +80,17 @@ def _normalize_dataset_name(dataset_name: str) -> str:
     return normalized or "dataset"
 
 
+def _append_language_suffix(name: str) -> str:
+    if name.endswith(LANGUAGE_SUFFIX):
+        return name
+    return f"{name}{LANGUAGE_SUFFIX}"
+
+
 def _schema_filename(output_cfg: Dict[str, Any], dataset_name: str) -> str:
     if dataset_name:
         normalized = _normalize_dataset_name(dataset_name)
-        return f"ontology_schema_{normalized}{LANGUAGE_SUFFIX}.json"
+        normalized = _append_language_suffix(normalized)
+        return f"ontology_schema_{normalized}.json"
     schema_name = output_cfg.get("schema_filename", "ontology_schema.json")
     return _apply_language_suffix(Path(schema_name)).name
 
