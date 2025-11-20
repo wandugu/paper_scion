@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any, Dict, Set, Tuple
 
@@ -37,6 +38,11 @@ except Exception:  # pragma: no cover - optional dependency guard
 CONFIG = load_yaml_config()
 LOGGER = get_ot_logger()
 _MODEL_CACHE: Dict[Tuple[str, str], Any] = {}
+
+
+# 禁止联网加载 Hugging Face 资源，强制使用本地缓存
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
+os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
 
 
 SUPPORTED_LANG_CODES = {"zh", "en"}
@@ -179,10 +185,11 @@ def _load_sentence_model(model_name: str, device: str | None = None):  # type: i
         raise ImportError("运行本体评测需要 sentence-transformers，请先安装对应依赖")
 
     resolved_device = _select_device(device)
-    cache_key = (model_name, resolved_device)
+    model_path = _resolve_local_model(model_name)
+    cache_key = (str(model_path), resolved_device)
     if cache_key not in _MODEL_CACHE:
-        LOGGER.info("加载向量模型 %s 到设备 %s", model_name, resolved_device)
-        _MODEL_CACHE[cache_key] = SentenceTransformer(model_name, device=resolved_device)
+        LOGGER.info("加载向量模型 %s 到设备 %s (仅使用本地文件)", model_path, resolved_device)
+        _MODEL_CACHE[cache_key] = SentenceTransformer(str(model_path), device=resolved_device)
     return _MODEL_CACHE[cache_key]
 
 
@@ -220,14 +227,27 @@ def _coerce_int(value, default: int) -> int:
         return default
 
 
+def _resolve_local_model(model_name: str) -> Path:
+    """确保使用本地向量模型，缺失时直接报错避免联网。"""
+
+    candidate = resolve_project_path(model_name)
+    if candidate.exists():
+        return candidate
+
+    fallback = Path(model_name)
+    if fallback.exists():
+        return fallback
+
+    raise FileNotFoundError(
+        f"未找到本地向量模型: {model_name}，请将模型放在本地后再运行（例如 models/bge-m3）。"
+    )
+
+
 def _embedding_model_path(eval_cfg: Dict) -> Path:
     raw_model = eval_cfg.get("emb_model") or "models/bge-m3"
-    model_path = resolve_project_path(raw_model)
-    if model_path.exists():
-        LOGGER.info("将使用本地向量模型: %s", model_path)
-        return model_path
-    LOGGER.warning("指定的本地模型路径不存在，按原值传递: %s", raw_model)
-    return Path(raw_model)
+    model_path = _resolve_local_model(str(raw_model))
+    LOGGER.info("将使用本地向量模型: %s", model_path)
+    return model_path
 
 
 def build_embeddings(onto: OntologyGraph, model: Any) -> Dict[str, "np.ndarray"]:
