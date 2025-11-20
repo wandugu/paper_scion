@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Set, Tuple
 
 from utils.common import load_yaml_config, resolve_project_path, save_json
 from utils.dataset_paths import resolve_dataset_paths
@@ -276,15 +276,27 @@ def fuzzy_f1_edges(
     pred_vecs: Dict[str, "np.ndarray"],
     threshold: float = 0.45,
 ):
+    """计算基于节点相似度的模糊匹配 F1。
+
+    之前的实现按预测边逐条累计命中，可能出现命中次数大于金标准边数量，
+    导致 Recall/F1 > 1。这里改为双向一一匹配，命中数最多为 min(len(gold), len(pred))。
+    """
+
     if not pred.edges or not gold.edges:
         return 0.0, 0.0, 0.0
-    best_scores = _best_similarity_scores(pred_vecs, gold_vecs)
+
+    matched_pred_edges: Set[int] = set()
     tp = 0
-    for edge in pred.edges:
-        s1 = best_scores.get(edge.src, 0.0)
-        s2 = best_scores.get(edge.tgt, 0.0)
-        if min(s1, s2) >= threshold:
-            tp += 1
+    for g_edge in gold.edges:
+        for idx, p_edge in enumerate(pred.edges):
+            if idx in matched_pred_edges:
+                continue
+            sim = edge_similarity(p_edge, g_edge, pred_vecs, gold_vecs)
+            if sim >= threshold:
+                matched_pred_edges.add(idx)
+                tp += 1
+                break
+
     prec = tp / (len(pred.edges) + 1e-9)
     rec = tp / (len(gold.edges) + 1e-9)
     f1 = 2 * prec * rec / (prec + rec + 1e-9)
