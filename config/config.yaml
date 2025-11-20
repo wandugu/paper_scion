@@ -1,3 +1,6 @@
+language:
+  code: cn
+
 llm:
   provider: deepseek
   temperature: 0.1
@@ -13,113 +16,324 @@ llm:
   groq:
     model: mixtral-8x7b-32768
 ontology:
-  entities:
-    - Person: "人物姓名，避免形容词"
-    - Object: "有形物体，名称中不含冠词"
-    - Event: "事件或情节，保持中立描述"
-    - Place
-    - Organisation
-    - Document
-    - Action: "关键动作或行为"
-    - Misc: "其它重要概念"
-  relationships:
-    - head_entity: Person
-      tail_entity: Organisation
-      rel_type: 隶属于
-      description: "角色在某个组织或阵营中任职、受训或接受指挥"
-    - head_entity: Organisation
-      tail_entity: Place
-      rel_type: 位于
-      description: "组织的总部、设施或主要部署区域"
-    - head_entity: Organisation
-      tail_entity: Organisation
-      rel_type: 对抗
-      description: "两个组织在战略、舆论或资源层面发生直接冲突"
-    - head_entity: Person
-      tail_entity: Object
-      rel_type: 负责设计
-      description: "个人主导或负责关键系统、装备或技术方案的设计"
-    - head_entity: Person
-      tail_entity: Action
-      rel_type: 负责推进
-      description: "个人主导执行或推动一项行动、计划或改革"
-    - head_entity: Object
-      tail_entity: Place
-      rel_type: 部署于
-      description: "系统、装备或技术在特定地理区域或设施中的部署"
-    - head_entity: Object
-      tail_entity: Object
-      rel_type: 包含组件
-      description: "上层系统所包含的子模块、传感器或软件组件"
-    - head_entity: Object
-      tail_entity: Event
-      rel_type: 引发事件
-      description: "系统或技术变化导致的事故、舆情或调查"
-    - head_entity: Person
-      tail_entity: Document
-      rel_type: 报告问题
-      description: "个人通过备忘录、报告或公告形式提出质疑与反馈"
-    - head_entity: Person
-      tail_entity: Event
-      rel_type: 参与评估
-      description: "个人以专家、负责人或调查成员身份参与事件评估"
+  languages:
+    cn:
+      entities:
+        - 人物: "人物姓名，避免形容词"
+        - 物体: "有形物体，名称中不含冠词"
+        - 事件: "事件或情节，保持中立描述"
+        - 地点
+        - 组织
+        - 文档
+        - 行动: "关键动作或行为"
+        - 其它: "其它重要概念"
+      relationships:
+        - head_entity: 人物
+          tail_entity: 组织
+          rel_type: 隶属于
+          description: "角色在某个组织或阵营中任职、受训或接受指挥"
+        - head_entity: 组织
+          tail_entity: 地点
+          rel_type: 位于
+          description: "组织的总部、设施或主要部署区域"
+        - head_entity: 组织
+          tail_entity: 组织
+          rel_type: 对抗
+          description: "两个组织在战略、舆论或资源层面发生直接冲突"
+        - head_entity: 人物
+          tail_entity: 物体
+          rel_type: 负责设计
+          description: "个人主导或负责关键系统、装备或技术方案的设计"
+        - head_entity: 人物
+          tail_entity: 行动
+          rel_type: 负责推进
+          description: "个人主导执行或推动一项行动、计划或改革"
+        - head_entity: 物体
+          tail_entity: 地点
+          rel_type: 部署于
+          description: "系统、装备或技术在特定地理区域或设施中的部署"
+        - head_entity: 物体
+          tail_entity: 物体
+          rel_type: 包含组件
+          description: "上层系统所包含的子模块、传感器或软件组件"
+        - head_entity: 物体
+          tail_entity: 事件
+          rel_type: 引发事件
+          description: "系统或技术变化导致的事故、舆情或调查"
+        - head_entity: 人物
+          tail_entity: 文档
+          rel_type: 报告问题
+          description: "个人通过备忘录、报告或公告形式提出质疑与反馈"
+        - head_entity: 人物
+          tail_entity: 事件
+          rel_type: 参与评估
+          description: "个人以专家、负责人或调查成员身份参与事件评估"
+    en:
+      entities:
+        - Person: "Person name without adjectives"
+        - Object: "Tangible object name without articles"
+        - Event: "Neutral description of a key event"
+        - Place
+        - Organisation
+        - Document
+        - Action: "Critical action or initiative"
+        - Misc: "Other important concepts"
+      relationships:
+        - head_entity: Person
+          tail_entity: Organisation
+          rel_type: member_of
+          description: "A character serves, trains or operates within an organisation"
+        - head_entity: Organisation
+          tail_entity: Place
+          rel_type: located_in
+          description: "Headquarters, facilities or deployment area of an organisation"
+        - head_entity: Organisation
+          tail_entity: Organisation
+          rel_type: conflicts_with
+          description: "Two organisations engage in strategic or resource-level confrontation"
+        - head_entity: Person
+          tail_entity: Object
+          rel_type: designs
+          description: "An individual leads the design of a key system, equipment or technology"
+        - head_entity: Person
+          tail_entity: Action
+          rel_type: leads
+          description: "An individual drives or executes a plan, action or reform"
+        - head_entity: Object
+          tail_entity: Place
+          rel_type: deployed_in
+          description: "Where a system, device or technology is deployed"
+        - head_entity: Object
+          tail_entity: Object
+          rel_type: contains_component
+          description: "How upper systems contain submodules, sensors or software components"
+        - head_entity: Object
+          tail_entity: Event
+          rel_type: triggers
+          description: "System changes that cause incidents, public opinion or investigations"
+        - head_entity: Person
+          tail_entity: Document
+          rel_type: reports_issue
+          description: "Individuals raise concerns via memos, reports or announcements"
+        - head_entity: Person
+          tail_entity: Event
+          rel_type: evaluates
+          description: "Individuals participate in event assessments as experts or leaders"
   output_sections:
     # - all
     - entities
     - relationships
     - events
+prompts:
+  limits:
+    entity_types:
+      min: 6
+      max: 10
+    relationship_types:
+      min: 6
+      max: 10
+    event_types:
+      min: 4
+      max: 8
+  templates:
+    ontology:
+      cn:
+        system: |
+          你是一名资深本体工程师，负责根据输入背景语料设计知识图谱本体。{entity_range_sentence}{relationship_range_sentence}最终只返回 JSON。{language_instruction}
+        user: |
+          请参考以下背景语料，并以上述提示为灵感，生成最贴近内容的知识图谱本体。
+          - 允许微调实体类型或新增更贴近场景的实体描述。
+          - 关系需覆盖主要角色/事件之间的因果、隶属或互动。
+          - 严禁输出具体角色/组织名称，只描述抽象的实体类型（可附简短解释）。
+          - relationships 数组中的每一项必须包含 head_entity、tail_entity、rel_type 字段，可选填 description。
+          - 输出 JSON，字段只包含 entities 与 relationships。
+
+          【背景摘录】
+          {background_text}
+
+          【可参考的实体提示】
+          {entity_hint}
+
+          【可参考的关系提示】
+          {relation_hint}
+
+          示例输出格式：
+          {ontology_sample_json}
+          {language_instruction}
+      en:
+        system: |
+          You are a senior ontology engineer who must design a schema from the provided background text. {entity_range_sentence}{relationship_range_sentence}Respond with JSON only. {language_instruction}
+        user: |
+          Use the following background excerpt and hints to craft an ontology.
+          - You may tweak entity types or add better aligned descriptions.
+          - Relationships should cover causality, affiliation or interaction between major roles/events.
+          - NEVER output concrete names of roles/organisations; only abstract entity types with short notes.
+          - Each item in the relationships array must include head_entity, tail_entity and rel_type, with optional description.
+          - Output JSON with only 'entities' and 'relationships'.
+
+          [Background Excerpt]
+          {background_text}
+
+          [Entity Hints]
+          {entity_hint}
+
+          [Relationship Hints]
+          {relation_hint}
+
+          Sample output:
+          {ontology_sample_json}
+          {language_instruction}
+    events:
+      cn:
+        system: |
+          你是事件抽取专家，需为知识图谱设计事件类型与论元。{event_range_sentence}输出包含可复用的 event_type、触发词和论元。最终只返回 JSON，仅保留 events 数组。{language_instruction}
+        user: |
+          请基于以下背景语料，总结最重要的事件类型。
+          {event_limit_instruction}
+          - 每个事件需包含触发词 trigger_words（数组）与 arguments（论元列表）。
+          - 论元至少覆盖发起方、受影响方或其它关键角色。
+          - arguments 中的每一项需包含 role、description、required 字段。
+          - JSON 结构示例：{event_sample_json}
+
+          【背景摘录】
+          {background_text}
+
+          【可参考的事件类型提示】
+          {event_hint}
+
+          【论元角色提示】
+          {argument_hint}
+
+          【触发词撰写建议】
+          {trigger_guidelines}
+          {language_instruction}
+      en:
+        system: |
+          You are an event extraction expert who must design reusable event types and arguments for a knowledge graph. {event_range_sentence}Provide event_type, trigger_words and arguments. Respond with JSON shaped as an 'events' array only. {language_instruction}
+        user: |
+          Summarize the most important event types from the background excerpt.
+          {event_limit_instruction}
+          - Each event must include trigger_words (array) and arguments (list of roles).
+          - Arguments should at least cover initiators, impacted parties or other key roles.
+          - Every argument entry must contain role, description and required fields.
+          - JSON example: {event_sample_json}
+
+          [Background Excerpt]
+          {background_text}
+
+          [Event Type Hints]
+          {event_hint}
+
+          [Argument Role Hints]
+          {argument_hint}
+
+          [Trigger Word Guidelines]
+          {trigger_guidelines}
+          {language_instruction}
 event_extraction:
   enabled: true
   max_event_types: 10
-  event_type_hints:
-    - 战争: "长期或规模化的军事冲突"
-    - 冲突: "规模较小，但包含明显对抗的事件"
-    - 联盟: "角色之间达成合作或结盟"
-    - 行动计划: "需要多个步骤或角色配合的重要行动"
-  argument_role_hints:
-    - 发起方: "主动推动事件的个人、组织或阵营"
-    - 受影响方: "事件影响到的核心对象"
-    - 关键资源: "决定事件走向的重要物品、信息或能力"
-    - 地点: "事件发生的具体地点或范围"
-    - 时间: "事件发生或计划实施的时间节点"
-  trigger_word_guidelines:
-    - "触发词应为动词或动宾短语，能够直接体现事件开始或发生"
-    - "优先收集可以在文本中直接检索的词汇"
-  fallback_events:
-    - event_type: 战争冲突
-      description: "涉及多个势力的军事对抗，往往伴随战略目标或关键资源争夺"
-      trigger_words:
-        - "开战"
-        - "入侵"
-        - "围攻"
-      arguments:
-        - role: 发起方
-          description: "首先挑起或宣战的一方"
-          required: true
-        - role: 受影响方
-          description: "被攻击或被迫应战的一方"
-          required: true
-        - role: 关键资源
-          description: "驱动冲突的资源、神器或战略目标"
-          required: false
-        - role: 地点
-          description: "战争的主要战场或据点"
-          required: false
-    - event_type: 联盟成立
-      description: "两个或多个角色为了共同目标而正式结盟"
-      trigger_words:
-        - "结盟"
-        - "达成协议"
-      arguments:
-        - role: 参与方
-          description: "组成联盟的主要成员"
-          required: true
-        - role: 目标
-          description: "联盟成立的共同目的"
-          required: false
-        - role: 条件
-          description: "联盟达成所需的关键条件或交换"
-          required: false
+  languages:
+    cn:
+      event_type_hints:
+        - 战争: "长期或规模化的军事冲突"
+        - 冲突: "规模较小，但包含明显对抗的事件"
+        - 联盟: "角色之间达成合作或结盟"
+        - 行动计划: "需要多个步骤或角色配合的重要行动"
+      argument_role_hints:
+        - 发起方: "主动推动事件的个人、组织或阵营"
+        - 受影响方: "事件影响到的核心对象"
+        - 关键资源: "决定事件走向的重要物品、信息或能力"
+        - 地点: "事件发生的具体地点或范围"
+        - 时间: "事件发生或计划实施的时间节点"
+      trigger_word_guidelines:
+        - "触发词应为动词或动宾短语，能够直接体现事件开始或发生"
+        - "优先收集可以在文本中直接检索的词汇"
+      fallback_events:
+        - event_type: 战争冲突
+          description: "涉及多个势力的军事对抗，往往伴随战略目标或关键资源争夺"
+          trigger_words:
+            - "开战"
+            - "入侵"
+            - "围攻"
+          arguments:
+            - role: 发起方
+              description: "首先挑起或宣战的一方"
+              required: true
+            - role: 受影响方
+              description: "被攻击或被迫应战的一方"
+              required: true
+            - role: 关键资源
+              description: "驱动冲突的资源、神器或战略目标"
+              required: false
+            - role: 地点
+              description: "战争的主要战场或据点"
+              required: false
+        - event_type: 联盟成立
+          description: "两个或多个角色为了共同目标而正式结盟"
+          trigger_words:
+            - "结盟"
+            - "达成协议"
+          arguments:
+            - role: 参与方
+              description: "组成联盟的主要成员"
+              required: true
+            - role: 目标
+              description: "联盟成立的共同目的"
+              required: false
+            - role: 条件
+              description: "联盟达成所需的关键条件或交换"
+              required: false
+    en:
+      event_type_hints:
+        - War: "Large scale or long-running military conflict"
+        - Conflict: "Smaller scale confrontation with clear opposing sides"
+        - Alliance: "Actors forming a cooperation pact"
+        - Operation Plan: "Important operation requiring multiple steps or actors"
+      argument_role_hints:
+        - Initiator: "The actor who proactively triggers the event"
+        - Impacted Party: "Key subject influenced by the event"
+        - Critical Asset: "Items, intel or capabilities that shape the outcome"
+        - Location: "Where the event happens"
+        - Time: "When the event happens or is planned"
+      trigger_word_guidelines:
+        - "Trigger words should be verbs or verb phrases indicating the start of an event"
+        - "Prioritize words that can be directly searched in text"
+      fallback_events:
+        - event_type: War Conflict
+          description: "Military confrontation among multiple forces over strategy or resources"
+          trigger_words:
+            - "invade"
+            - "besiege"
+            - "declare war"
+          arguments:
+            - role: Initiator
+              description: "The side that starts or declares war"
+              required: true
+            - role: Impacted Party
+              description: "The side being attacked or forced to respond"
+              required: true
+            - role: Critical Asset
+              description: "Resource or strategic goal that fuels the conflict"
+              required: false
+            - role: Location
+              description: "Primary battlefield or stronghold"
+              required: false
+        - event_type: Alliance Formed
+          description: "Multiple actors formally align toward a shared goal"
+          trigger_words:
+            - "form alliance"
+            - "sign pact"
+          arguments:
+            - role: Participants
+              description: "Members that form the alliance"
+              required: true
+            - role: Objective
+              description: "Shared purpose behind the alliance"
+              required: false
+            - role: Conditions
+              description: "Key conditions or exchanges that enable the alliance"
+              required: false
 input:
   type: file
   text: "这里可以直接放置自定义背景文本……"
@@ -131,6 +345,13 @@ runtime:
   verbose: false
   delay_between_requests: 8
   graph_extraction_enabled: false
+evaluation:
+  enabled: false
+  emb_model: BAAI/bge-large-zh-v1.5
+  threshold: 0.45
+  graph_smoothing_rounds: 2
+  graph_smoothing_alpha: 0.5
+  output_json: output/ontology_eval_metrics.json
 output:
   dir: output
   schema_filename: ontology_schema.json
