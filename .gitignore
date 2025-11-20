@@ -9,6 +9,5 @@ assets/evolution_gif
 assets/*.psd
 src/assets/evolution_gif
 src/assets/*.psd
-data
 */__pycache__/*
 *.pyc
