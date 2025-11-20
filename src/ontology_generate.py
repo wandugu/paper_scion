@@ -42,7 +42,7 @@ CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
 BACKGROUND_SNIPPET_MAX_CHARS = 4000
 
 from utils.common import load_yaml_config, resolve_project_path, save_json
-from utils.dataset_paths import load_dataset_text, resolve_dataset_paths
+from utils.dataset_paths import dataset_is_relation_only, load_dataset_background_text
 from utils.logger import get_ot_logger
 
 
@@ -661,8 +661,7 @@ def load_text_chunks() -> Sequence[str]:
         dataset_name = selected_dataset_name()
         if not dataset_name:
             raise ValueError("input.type 为 dataset 时需在 config 中提供 dataset_name")
-        _, samples_path = resolve_dataset_paths(CONFIG, dataset_name)
-        dataset_text = load_dataset_text(samples_path)
+        dataset_text = load_dataset_background_text(CONFIG, dataset_name)
         return chunk_text(dataset_text, cfg["chunk_size"])
     if cfg["type"] == "text":
         return chunk_text(cfg["text"], cfg["chunk_size"])
@@ -1436,6 +1435,14 @@ def maybe_save_to_neo4j(edges: Sequence[Edge]):
 def main():
     output_paths = ensure_output_paths()
     existing_schema, _ = load_existing_ontology_schema()
+    dataset_name = selected_dataset_name() if CONFIG.get("input", {}).get("type") == "dataset" else ""
+    relation_only_dataset = False
+    if dataset_name:
+        try:
+            relation_only_dataset = dataset_is_relation_only(CONFIG, dataset_name)
+        except Exception as exc:  # noqa: BLE001
+            LOGGER.warning("无法判断数据集是否仅包含关系类型 (%s): %s", dataset_name, exc)
+
     chunks = load_text_chunks()
     if not chunks:
         raise RuntimeError("未获取到任何文本块，请检查 input 配置")
@@ -1445,7 +1452,15 @@ def main():
     ontology = build_ontology(llm_client=llm_client, background_text=background_excerpt)
     log_label = "新构建出的本体" if existing_schema else "构建出的本体"
     LOGGER.info("%s: %s", log_label, json.dumps(ontology.model_dump(), ensure_ascii=False, indent=2))
-    event_schema = build_event_schema(llm_client=llm_client, background_text=background_excerpt)
+    schema_sections = schema_output_sections()
+    if relation_only_dataset and "events" in schema_sections:
+        schema_sections = {section for section in schema_sections if section != "events"}
+
+    event_schema: List[Dict[str, Any]] = []
+    if relation_only_dataset:
+        LOGGER.info("检测到数据集 %s 仅包含关系，将跳过事件类型生成。", dataset_name)
+    else:
+        event_schema = build_event_schema(llm_client=llm_client, background_text=background_excerpt)
     schema_for_eval: Dict[str, Any] = {
         "entities": _normalize_entities(ontology.entities),
         "relationships": _normalize_relationships(ontology.relationships),
@@ -1456,7 +1471,7 @@ def main():
         existing_schema,
         ontology,
         event_schema,
-        enabled_sections=schema_output_sections(),
+        enabled_sections=schema_sections,
     )
 
     save_json(output_paths.schema, schema_payload)
