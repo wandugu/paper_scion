@@ -279,10 +279,10 @@ all表示都输出。
 【一、整体目标】
 ----------------------------
 
-1. 提供一个命令行脚本（例如 `ontology_eval.py`），用法类似：
+1. 提供一个命令行脚本（例如 `eval_ontology.py`），用法类似：
 
    ```bash
-   python ontology_eval.py \
+   python eval_ontology.py \
      --gold_onto path/to/gold.json \
      --pred_onto path/to/pred.json \
      --emb_model BAAI/bge-large-zh-v1.5 \
