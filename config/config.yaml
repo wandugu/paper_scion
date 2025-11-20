@@ -349,7 +349,7 @@ runtime:
 evaluation:
   enabled: false
   dataset_name: duIE_zh
-  emb_model: BAAI/bge-m3
+  emb_model: models/bge-m3
   threshold: 0.45
   graph_smoothing_rounds: 2
   graph_smoothing_alpha: 0.5

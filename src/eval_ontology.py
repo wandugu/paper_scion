@@ -5,15 +5,16 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Dict
 
 from utils.common import load_yaml_config, resolve_project_path, save_json
 from utils.dataset_paths import resolve_dataset_paths
 from utils.ontology_eval import compute_ontology_metrics, load_schema_file, schema_dict_to_graph
+from utils.logger import get_ot_logger
 
 CONFIG = load_yaml_config()
+LOGGER = get_ot_logger()
 
 
 SUPPORTED_LANG_CODES = {"zh", "en"}
@@ -105,37 +106,77 @@ def _coerce_int(value, default: int) -> int:
         return default
 
 
+def _embedding_model_path(eval_cfg: Dict) -> Path:
+    raw_model = eval_cfg.get("emb_model") or "models/bge-m3"
+    model_path = resolve_project_path(raw_model)
+    if model_path.exists():
+        LOGGER.info("将使用本地向量模型: %s", model_path)
+        return model_path
+    LOGGER.warning("指定的本地模型路径不存在，按原值传递: %s", raw_model)
+    return Path(raw_model)
+
+
 def main() -> None:
     eval_cfg = evaluation_config()
     dataset_name = _selected_dataset_name()
+    LOGGER.info("开始本体评估，语言=%s，数据集=%s", LANGUAGE_CODE, dataset_name or "未指定")
     gold_schema_path = _resolve_golden_schema_path(dataset_name)
     pred_schema_path = _resolve_pred_schema_path()
 
+    LOGGER.info("加载金标准本体文件: %s", gold_schema_path)
     gold_schema = load_schema_file(gold_schema_path)
+    LOGGER.info(
+        "金标准本体加载完成，实体=%d，关系=%d",
+        len(gold_schema.get("entities", [])),
+        len(gold_schema.get("relationships", [])),
+    )
+
+    LOGGER.info("加载预测本体文件: %s", pred_schema_path)
     pred_schema = load_schema_file(pred_schema_path)
+    LOGGER.info(
+        "预测本体加载完成，实体=%d，关系=%d",
+        len(pred_schema.get("entities", [])),
+        len(pred_schema.get("relationships", [])),
+    )
 
     gold_graph = schema_dict_to_graph(gold_schema)
     pred_graph = schema_dict_to_graph(pred_schema)
 
+    emb_model_path = _embedding_model_path(eval_cfg)
+    threshold = _coerce_float(eval_cfg.get("threshold"), 0.45)
+    smoothing_rounds = _coerce_int(eval_cfg.get("graph_smoothing_rounds"), 2)
+    smoothing_alpha = _coerce_float(eval_cfg.get("graph_smoothing_alpha"), 0.5)
+
+    LOGGER.info(
+        "开始计算本体评估指标 | 向量模型=%s | 阈值=%.2f | 平滑轮数=%d | 平滑因子=%.2f",
+        emb_model_path,
+        threshold,
+        smoothing_rounds,
+        smoothing_alpha,
+    )
+
     metrics = compute_ontology_metrics(
         gold_graph=gold_graph,
         pred_graph=pred_graph,
-        emb_model=str(eval_cfg.get("emb_model") or "BAAI/bge-m3"),
-        threshold=_coerce_float(eval_cfg.get("threshold"), 0.45),
-        graph_smoothing_rounds=_coerce_int(eval_cfg.get("graph_smoothing_rounds"), 2),
-        graph_smoothing_alpha=_coerce_float(eval_cfg.get("graph_smoothing_alpha"), 0.5),
+        emb_model=str(emb_model_path),
+        threshold=threshold,
+        graph_smoothing_rounds=smoothing_rounds,
+        graph_smoothing_alpha=smoothing_alpha,
     )
 
     for name, result in metrics.items():
-        print(
-            f"[{name}] Precision={result['precision']:.4f} "
-            f"Recall={result['recall']:.4f} F1={result['f1']:.4f}"
+        LOGGER.info(
+            "[%s] Precision=%.4f Recall=%.4f F1=%.4f",
+            name,
+            result["precision"],
+            result["recall"],
+            result["f1"],
         )
 
     output_dir = resolve_project_path(CONFIG.get("output", {}).get("dir", "output"))
     output_path = evaluation_output_path(output_dir)
     save_json(output_path, metrics)
-    print(f"评测指标已写入: {output_path}")
+    LOGGER.info("评测指标已写入: %s", output_path)
 
 
 if __name__ == "__main__":
