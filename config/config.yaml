@@ -346,6 +346,11 @@ runtime:
   verbose: false
   delay_between_requests: 8
   graph_extraction_enabled: false
+pipeline:
+  # all: 生成+评估全流程；generate_only: 只生成；eval_only: 只评估
+  mode: all
+  generation_enabled: true
+  evaluation_enabled: true
 evaluation:
   enabled: false
   dataset_name: duIE_zh
