@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 from typing import Any, Dict, Set, Tuple
 
@@ -73,6 +74,20 @@ def _apply_language_suffix(path: Path) -> Path:
     return path.with_name(f"{path.name}{suffix}")
 
 
+def _normalize_dataset_name(dataset_name: str) -> str:
+    cleaned = dataset_name.strip()
+    normalized = re.sub(r"[^\w.-]+", "_", cleaned)
+    return normalized or "dataset"
+
+
+def _schema_filename(output_cfg: Dict[str, Any], dataset_name: str) -> str:
+    if dataset_name:
+        normalized = _normalize_dataset_name(dataset_name)
+        return f"ontology_schema_{normalized}{LANGUAGE_SUFFIX}.json"
+    schema_name = output_cfg.get("schema_filename", "ontology_schema.json")
+    return _apply_language_suffix(Path(schema_name)).name
+
+
 def evaluation_config() -> Dict:
     cfg = CONFIG.get("evaluation")
     return cfg if isinstance(cfg, dict) else {}
@@ -96,8 +111,9 @@ def _resolve_pred_schema_path() -> Path:
 
     output_cfg = CONFIG.get("output", {})
     base_dir = resolve_project_path(output_cfg.get("dir", "output"))
-    schema_name = output_cfg.get("schema_filename", "ontology_schema.json")
-    return _apply_language_suffix(base_dir / schema_name)
+    dataset_name = _selected_dataset_name()
+    schema_name = _schema_filename(output_cfg, dataset_name)
+    return base_dir / schema_name
 
 
 def _eval_device(eval_cfg: Dict) -> str:
