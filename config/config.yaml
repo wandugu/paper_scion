@@ -15,6 +15,9 @@ llm:
     max_tokens: 2048
   groq:
     model: mixtral-8x7b-32768
+
+dataset:
+  name: &dataset_name instrctIE_zh
 ontology:
   languages:
     zh:
@@ -335,8 +338,8 @@ event_extraction:
               description: "Key conditions or exchanges that enable the alliance"
               required: false
 input:
-  type: instrctIE
-  dataset_name: instrctIE_zh
+  type: dataset
+  dataset_name: *dataset_name
   text: "这里可以直接放置自定义背景文本……"
   file_path: input/background.txt
   existing_ontology_path: input/golden_schema_instrctIE_zh.json
@@ -353,7 +356,7 @@ pipeline:
   evaluation_enabled: true
 evaluation:
   enabled: true
-  dataset_name: instrctIE_zh
+  dataset_name: *dataset_name
   # 可填 auto / cpu / cuda:{index}；默认使用第二张卡 cuda:1
   device: cuda:1
   emb_model: models/bge-m3
