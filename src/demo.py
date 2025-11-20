@@ -44,6 +44,7 @@ LOG_DIR = PROJECT_ROOT / "logs"
 BACKGROUND_SNIPPET_MAX_CHARS = 4000
 
 from utils.common import load_yaml_config, resolve_project_path, save_json
+from utils.dataset_paths import load_dataset_text, resolve_dataset_paths
 
 
 def setup_logger() -> logging.Logger:
@@ -520,6 +521,16 @@ def evaluation_enabled() -> bool:
     return bool(cfg.get("enabled"))
 
 
+def selected_dataset_name() -> str:
+    cfg = evaluation_config()
+    dataset = cfg.get("dataset_name") or cfg.get("dataset")
+    if dataset:
+        return str(dataset).strip()
+    input_cfg = CONFIG.get("input") or {}
+    dataset = input_cfg.get("dataset_name")
+    return str(dataset).strip() if dataset else ""
+
+
 def evaluation_output_path(base_dir: Path) -> Path:
     cfg = evaluation_config()
     raw_path = cfg.get("output_json")
@@ -647,6 +658,13 @@ def load_text_chunks() -> Sequence[str]:
         from lotr_wikipedia_summary import lord_of_the_rings_wikipedia_summary
 
         return [chunk.strip() for chunk in lord_of_the_rings_wikipedia_summary if chunk.strip()]
+    if cfg["type"] == "dataset":
+        dataset_name = selected_dataset_name()
+        if not dataset_name:
+            raise ValueError("input.type 为 dataset 时需在 config 中提供 dataset_name")
+        _, samples_path = resolve_dataset_paths(CONFIG, dataset_name)
+        dataset_text = load_dataset_text(samples_path)
+        return chunk_text(dataset_text, cfg["chunk_size"])
     if cfg["type"] == "text":
         return chunk_text(cfg["text"], cfg["chunk_size"])
     if cfg["type"] == "file":
@@ -654,7 +672,7 @@ def load_text_chunks() -> Sequence[str]:
         if not text_path.exists():
             raise FileNotFoundError(f"未找到输入文件: {text_path}")
         return chunk_text(text_path.read_text(encoding="utf-8"), cfg["chunk_size"])
-    raise ValueError("input.type 仅支持 'sample'、'text' 或 'file'")
+    raise ValueError("input.type 仅支持 'sample'、'dataset'、'text' 或 'file'")
 
 
 def chunk_text(text: str, chunk_size: int) -> List[str]:
