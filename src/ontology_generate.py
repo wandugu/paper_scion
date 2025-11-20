@@ -485,12 +485,25 @@ class OutputPaths:
 # ----------------------------------------------------------------------------
 
 
-def ensure_output_paths() -> OutputPaths:
+def _normalize_dataset_name(dataset_name: str) -> str:
+    cleaned = dataset_name.strip()
+    normalized = re.sub(r"[^\w.-]+", "_", cleaned)
+    return normalized or "dataset"
+
+
+def _schema_filename_for_output(dataset_name: str | None) -> str:
+    if dataset_name:
+        normalized = _normalize_dataset_name(dataset_name)
+        return f"ontology_schema_{normalized}{LANGUAGE_SUFFIX}.json"
+    return _apply_language_suffix(Path(CONFIG["output"]["schema_filename"])).name
+
+
+def ensure_output_paths(dataset_name: str | None = None) -> OutputPaths:
     base_dir = resolve_project_path(CONFIG["output"]["dir"])
     base_dir.mkdir(parents=True, exist_ok=True)
     return OutputPaths(
         base_dir=base_dir,
-        schema=_apply_language_suffix(base_dir / CONFIG["output"]["schema_filename"]),
+        schema=base_dir / _schema_filename_for_output(dataset_name),
         nodes=_apply_language_suffix(base_dir / CONFIG["output"]["nodes_filename"]),
         edges=_apply_language_suffix(base_dir / CONFIG["output"]["edges_filename"]),
         neo4j_nodes_csv=_apply_language_suffix(base_dir / CONFIG["output"]["neo4j_nodes_csv"]),
@@ -1508,9 +1521,9 @@ def maybe_save_to_neo4j(edges: Sequence[Edge]):
 
 
 def main():
-    output_paths = ensure_output_paths()
-    existing_schema, _ = load_existing_ontology_schema()
     dataset_name = selected_dataset_name() if CONFIG.get("input", {}).get("type") == "dataset" else ""
+    output_paths = ensure_output_paths(dataset_name or None)
+    existing_schema, _ = load_existing_ontology_schema()
     golden_schema, _ = load_golden_schema_for_eval(dataset_name)
     relation_only_dataset = False
     if dataset_name:
