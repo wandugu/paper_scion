@@ -34,8 +34,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Collection, Dict, Iterable, List, Sequence, Set, Tuple
 
-import yaml
-
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
@@ -45,24 +43,7 @@ CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
 LOG_DIR = PROJECT_ROOT / "logs"
 BACKGROUND_SNIPPET_MAX_CHARS = 4000
 
-
-def resolve_project_path(path_str: str | Path) -> Path:
-    """将相对路径解析为相对于项目根目录的绝对路径。"""
-
-    path = Path(path_str).expanduser()
-    if path.is_absolute():
-        return path
-    return (PROJECT_ROOT / path).resolve()
-
-
-def load_config(path: Path = CONFIG_PATH) -> Dict[str, Any]:
-    if not path.exists():
-        raise FileNotFoundError(f"未找到配置文件: {path}")
-    with path.open("r", encoding="utf-8") as fp:
-        data = yaml.safe_load(fp) or {}
-    if not isinstance(data, dict):
-        raise ValueError("配置文件格式必须为字典")
-    return data
+from utils.common import load_yaml_config, resolve_project_path, save_json
 
 
 def setup_logger() -> logging.Logger:
@@ -77,8 +58,336 @@ def setup_logger() -> logging.Logger:
     return logger
 
 
-CONFIG: Dict = load_config()
+CONFIG: Dict = load_yaml_config(CONFIG_PATH)
 LOGGER = setup_logger()
+
+SUPPORTED_LANG_CODES: Dict[str, str] = {"cn": "中文", "en": "English"}
+
+
+def _configured_language_code() -> str:
+    lang_cfg = CONFIG.get("language")
+    if isinstance(lang_cfg, dict):
+        raw_code = lang_cfg.get("code")
+    else:
+        raw_code = lang_cfg
+    code = str(raw_code or "cn").lower()
+    if code not in SUPPORTED_LANG_CODES:
+        return "cn"
+    return code
+
+
+LANGUAGE_CODE: str = _configured_language_code()
+LANGUAGE_SUFFIX: str = f"_{LANGUAGE_CODE}"
+
+ONTOLOGY_SAMPLE_JSON_CN = (
+    '{\n'
+    '  "entities": ["概念A", {"概念B": "描述"}],\n'
+    '  "relationships": [\n'
+    '    {"head_entity": "Person", "tail_entity": "Organisation", "rel_type": "隶属于", "description": "可选说明"}\n'
+    '  ]\n'
+    '}'
+)
+
+ONTOLOGY_SAMPLE_JSON_EN = (
+    '{\n'
+    '  "entities": ["Concept A", {"Concept B": "description"}],\n'
+    '  "relationships": [\n'
+    '    {"head_entity": "Person", "tail_entity": "Organisation", "rel_type": "member_of", "description": "optional note"}\n'
+    '  ]\n'
+    '}'
+)
+
+EVENT_SAMPLE_JSON_CN = (
+    '{"events": [{"event_type": "行动", "trigger_words": ["发起", "部署"], '
+    '"arguments": [{"role": "发起方", "description": "主动推动事件的一方", "required": true}]}]}'
+)
+
+EVENT_SAMPLE_JSON_EN = (
+    '{"events": [{"event_type": "Action", "trigger_words": ["initiate", "deploy"], '
+    '"arguments": [{"role": "Initiator", "description": "Side that drives the event", "required": true}]}]}'
+)
+
+DEFAULT_PROMPT_TEMPLATES: Dict[str, Dict[str, Dict[str, str]]] = {
+    "ontology": {
+        "cn": {
+            "system": (
+                "你是一名资深本体工程师，负责根据输入背景语料设计知识图谱本体。"
+                "{entity_range_sentence}{relationship_range_sentence}最终只返回 JSON。"
+                "{language_instruction}"
+            ),
+            "user": (
+                "请参考以下背景语料，并以上述提示为灵感，生成最贴近内容的知识图谱本体。\n"
+                "- 允许微调实体类型或新增更贴近场景的实体描述。\n"
+                "- 关系需覆盖主要角色/事件之间的因果、隶属或互动。\n"
+                "- 严禁输出具体角色/组织名称，只描述抽象的实体类型（可附简短解释）。\n"
+                "- relationships 数组中的每一项必须包含 head_entity、tail_entity、rel_type 字段，可选填 description。\n"
+                "- 输出 JSON，字段只包含 entities 与 relationships。\n\n"
+                "【背景摘录】\n"
+                "{background_text}\n\n"
+                "【可参考的实体提示】\n"
+                "{entity_hint}\n\n"
+                "【可参考的关系提示】\n"
+                "{relation_hint}\n\n"
+                "示例输出格式：\n"
+                "{ontology_sample_json}\n"
+                "{language_instruction}"
+            ),
+        },
+        "en": {
+            "system": (
+                "You are a senior ontology engineer who must design a schema from the provided background text. "
+                "{entity_range_sentence}{relationship_range_sentence}Respond with JSON only. {language_instruction}"
+            ),
+            "user": (
+                "Use the following background excerpt and hints to craft an ontology.\n"
+                "- You may tweak entity types or add better aligned descriptions.\n"
+                "- Relationships should cover causality, affiliation or interaction between major roles/events.\n"
+                "- NEVER output concrete names of roles/organisations; only abstract entity types with short notes.\n"
+                "- Each item in the relationships array must include head_entity, tail_entity and rel_type, with optional description.\n"
+                "- Output JSON with only 'entities' and 'relationships'.\n\n"
+                "[Background Excerpt]\n"
+                "{background_text}\n\n"
+                "[Entity Hints]\n"
+                "{entity_hint}\n\n"
+                "[Relationship Hints]\n"
+                "{relation_hint}\n\n"
+                "Sample output:\n"
+                "{ontology_sample_json}\n"
+                "{language_instruction}"
+            ),
+        },
+    },
+    "events": {
+        "cn": {
+            "system": (
+                "你是事件抽取专家，需为知识图谱设计事件类型与论元。{event_range_sentence}输出包含可复用的 "
+                "event_type、触发词和论元。最终只返回 JSON，仅保留 events 数组。{language_instruction}"
+            ),
+            "user": (
+                "请基于以下背景语料，总结最重要的事件类型。\n"
+                "{event_limit_instruction}\n"
+                "- 每个事件需包含触发词 trigger_words（数组）与 arguments（论元列表）。\n"
+                "- 论元至少覆盖发起方、受影响方或其它关键角色。\n"
+                "- arguments 中的每一项需包含 role、description、required 字段。\n"
+                "- JSON 结构示例：{event_sample_json}\n\n"
+                "【背景摘录】\n"
+                "{background_text}\n\n"
+                "【可参考的事件类型提示】\n"
+                "{event_hint}\n\n"
+                "【论元角色提示】\n"
+                "{argument_hint}\n\n"
+                "【触发词撰写建议】\n"
+                "{trigger_guidelines}\n"
+                "{language_instruction}"
+            ),
+        },
+        "en": {
+            "system": (
+                "You are an event extraction expert who must design reusable event types and arguments for a knowledge graph. "
+                "{event_range_sentence}Provide event_type, trigger_words and arguments. Respond with JSON shaped as an 'events' "
+                "array only. {language_instruction}"
+            ),
+            "user": (
+                "Summarize the most important event types from the background excerpt.\n"
+                "{event_limit_instruction}\n"
+                "- Each event must include trigger_words (array) and arguments (list of roles).\n"
+                "- Arguments should at least cover initiators, impacted parties or other key roles.\n"
+                "- Every argument entry must contain role, description and required fields.\n"
+                "- JSON example: {event_sample_json}\n\n"
+                "[Background Excerpt]\n"
+                "{background_text}\n\n"
+                "[Event Type Hints]\n"
+                "{event_hint}\n\n"
+                "[Argument Role Hints]\n"
+                "{argument_hint}\n\n"
+                "[Trigger Word Guidelines]\n"
+                "{trigger_guidelines}\n"
+                "{language_instruction}"
+            ),
+        },
+    },
+}
+
+
+def _prompts_cfg() -> Dict[str, Any]:
+    prompts = CONFIG.get("prompts")
+    if isinstance(prompts, dict):
+        return prompts
+    return {}
+
+
+def _prompt_limits_cfg() -> Dict[str, Any]:
+    limits = _prompts_cfg().get("limits")
+    if isinstance(limits, dict):
+        return limits
+    return {}
+
+
+def _prompt_templates_cfg() -> Dict[str, Any]:
+    templates = _prompts_cfg().get("templates")
+    if isinstance(templates, dict):
+        return templates
+    return {}
+
+
+def _get_prompt_template(section: str, message_type: str) -> str | None:
+    templates = _prompt_templates_cfg().get(section)
+    if not isinstance(templates, dict):
+        return None
+    lang_templates = templates.get(LANGUAGE_CODE)
+    if not isinstance(lang_templates, dict):
+        return None
+    value = lang_templates.get(message_type)
+    if isinstance(value, str):
+        return value
+    return None
+
+
+def _default_prompt_template(section: str, message_type: str) -> str:
+    return (
+        DEFAULT_PROMPT_TEMPLATES.get(section, {})
+        .get(LANGUAGE_CODE, {})
+        .get(message_type, "")
+    )
+
+
+def _render_prompt(section: str, message_type: str, context: Dict[str, Any]) -> str:
+    template = _get_prompt_template(section, message_type) or _default_prompt_template(section, message_type)
+    if not template:
+        raise ValueError(f"缺少 {section}-{message_type} 的提示词模板")
+    try:
+        return template.format(**context)
+    except KeyError as exc:  # noqa: PERF203
+        raise KeyError(f"提示词模板缺少变量 {exc}") from exc
+
+
+def _coerce_int(value: Any) -> int | None:
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _count_range_tuple(limit_key: str) -> Tuple[int | None, int | None]:
+    cfg = _prompt_limits_cfg().get(limit_key)
+    if isinstance(cfg, dict):
+        min_val = _coerce_int(cfg.get("min"))
+        max_val = _coerce_int(cfg.get("max"))
+        return min_val, max_val
+    return None, None
+
+
+def _format_range_text(limit_key: str) -> str:
+    min_val, max_val = _count_range_tuple(limit_key)
+    lang_is_cn = LANGUAGE_CODE == "cn"
+    unit = "个" if lang_is_cn else " types"
+
+    if min_val is None and (max_val is None or max_val < 0):
+        return ""
+
+    if max_val is None or max_val < 0:
+        if min_val is None:
+            return ""
+        return (f"不少于 {min_val}{unit}" if lang_is_cn else f"at least {min_val}{unit}")
+
+    if min_val is None:
+        return (f"不超过 {max_val}{unit}" if lang_is_cn else f"up to {max_val}{unit}")
+
+    if min_val == max_val:
+        return f"{min_val}{unit}"
+
+    return f"{min_val}-{max_val}{unit}"
+
+
+def _count_range_sentence(limit_key: str, label_cn: str, label_en: str) -> str:
+    range_text = _format_range_text(limit_key)
+    if not range_text:
+        return ""
+    if LANGUAGE_CODE == "cn":
+        return f"{label_cn}{range_text}。"
+    return f"{label_en}{range_text}."
+
+
+def _ontology_sample_json_text() -> str:
+    return ONTOLOGY_SAMPLE_JSON_CN if LANGUAGE_CODE == "cn" else ONTOLOGY_SAMPLE_JSON_EN
+
+
+def _event_sample_json_text() -> str:
+    return EVENT_SAMPLE_JSON_CN if LANGUAGE_CODE == "cn" else EVENT_SAMPLE_JSON_EN
+
+
+def _event_limit_instruction_text(max_events: int | None) -> str:
+    if LANGUAGE_CODE == "cn":
+        if max_events is not None and max_events > 0:
+            return f"- 事件数量不超过 {max_events} 个，可根据内容增删。"
+        return "- 事件数量不设硬性上限，可结合语料自由确定。"
+
+    if max_events is not None and max_events > 0:
+        return f"- Limit the number of event types to {max_events}, adjusting as needed."
+    return "- There is no hard cap on event types; adjust freely based on the excerpt."
+
+
+def _language_label() -> str:
+    return SUPPORTED_LANG_CODES.get(LANGUAGE_CODE, "English")
+
+
+def _language_instruction_text() -> str:
+    if LANGUAGE_CODE == "cn":
+        return "请确保所有输出字段均使用简体中文。"
+    return "Please ensure every output field is in English."
+
+
+def _ontology_language_cfg() -> Dict[str, Any]:
+    ontology_cfg = CONFIG.get("ontology") or {}
+    languages = ontology_cfg.get("languages")
+    if isinstance(languages, dict):
+        lang_cfg = languages.get(LANGUAGE_CODE)
+        if isinstance(lang_cfg, dict):
+            return lang_cfg
+    return ontology_cfg
+
+
+def _localized_entities_config() -> List[Any]:
+    ontology_cfg = CONFIG.get("ontology") or {}
+    entities = _ontology_language_cfg().get("entities")
+    if isinstance(entities, list):
+        return entities
+    fallback = ontology_cfg.get("entities")
+    if isinstance(fallback, list):
+        return fallback
+    return []
+
+
+def _localized_relationships_config() -> List[Dict[str, Any]]:
+    ontology_cfg = CONFIG.get("ontology") or {}
+    relationships = _ontology_language_cfg().get("relationships")
+    if isinstance(relationships, list):
+        return relationships
+    fallback = ontology_cfg.get("relationships")
+    if isinstance(fallback, list):
+        return fallback
+    return []
+
+
+def _apply_language_suffix(path: Path) -> Path:
+    suffix = LANGUAGE_SUFFIX
+    name = path.name
+    ext = path.suffix
+    target_suffix = f"{suffix}{ext}" if ext else suffix
+    if name.endswith(target_suffix):
+        return path
+    if ext:
+        new_name = f"{path.stem}{suffix}{ext}"
+    else:
+        new_name = f"{name}{suffix}"
+    return path.with_name(new_name)
+
+
+def _input_path_with_language(raw_path: str | Path) -> Path:
+    resolved = resolve_project_path(raw_path)
+    return _apply_language_suffix(resolved)
 
 from knowledge_graph_maker.graph_maker import GraphMaker
 from knowledge_graph_maker.neo4j_graph_model import Neo4jGraphModel
@@ -188,17 +497,96 @@ def ensure_output_paths() -> OutputPaths:
     base_dir.mkdir(parents=True, exist_ok=True)
     return OutputPaths(
         base_dir=base_dir,
-        schema=base_dir / CONFIG["output"]["schema_filename"],
-        nodes=base_dir / CONFIG["output"]["nodes_filename"],
-        edges=base_dir / CONFIG["output"]["edges_filename"],
-        neo4j_nodes_csv=base_dir / CONFIG["output"]["neo4j_nodes_csv"],
-        neo4j_edges_csv=base_dir / CONFIG["output"]["neo4j_edges_csv"],
+        schema=_apply_language_suffix(base_dir / CONFIG["output"]["schema_filename"]),
+        nodes=_apply_language_suffix(base_dir / CONFIG["output"]["nodes_filename"]),
+        edges=_apply_language_suffix(base_dir / CONFIG["output"]["edges_filename"]),
+        neo4j_nodes_csv=_apply_language_suffix(base_dir / CONFIG["output"]["neo4j_nodes_csv"]),
+        neo4j_edges_csv=_apply_language_suffix(base_dir / CONFIG["output"]["neo4j_edges_csv"]),
     )
 
 
 def graph_extraction_enabled() -> bool:
     runtime_cfg = CONFIG.get("runtime", {})
     return bool(runtime_cfg.get("graph_extraction_enabled", True))
+
+
+def evaluation_config() -> Dict[str, Any]:
+    cfg = CONFIG.get("evaluation")
+    return cfg if isinstance(cfg, dict) else {}
+
+
+def evaluation_enabled() -> bool:
+    cfg = evaluation_config()
+    return bool(cfg.get("enabled"))
+
+
+def evaluation_output_path(base_dir: Path) -> Path:
+    cfg = evaluation_config()
+    raw_path = cfg.get("output_json")
+    if isinstance(raw_path, str) and raw_path.strip():
+        return resolve_project_path(raw_path)
+    filename = f"ontology_eval_metrics{LANGUAGE_SUFFIX}.json"
+    return base_dir / filename
+
+
+def maybe_run_schema_evaluation(
+    pred_schema: Dict[str, Any], existing_schema: Dict[str, Any] | None, output_paths: OutputPaths
+) -> None:
+    if not evaluation_enabled():
+        return
+    if not existing_schema:
+        LOGGER.warning("已启用本体评估，但缺少 existing_ontology_path，跳过比较。")
+        return
+    try:
+        from utils.ontology_eval import compute_ontology_metrics, schema_dict_to_graph
+    except Exception as exc:  # noqa: BLE001
+        LOGGER.warning("导入本体评估模块失败: %s", exc)
+        return
+
+    cfg = evaluation_config()
+    try:
+        threshold = float(cfg.get("threshold", 0.45))
+    except (TypeError, ValueError):
+        threshold = 0.45
+    try:
+        smoothing_rounds = int(cfg.get("graph_smoothing_rounds", 2))
+    except (TypeError, ValueError):
+        smoothing_rounds = 2
+    try:
+        smoothing_alpha = float(cfg.get("graph_smoothing_alpha", 0.5))
+    except (TypeError, ValueError):
+        smoothing_alpha = 0.5
+
+    try:
+        gold_graph = schema_dict_to_graph(existing_schema)
+        pred_graph = schema_dict_to_graph(pred_schema)
+        metrics = compute_ontology_metrics(
+            gold_graph=gold_graph,
+            pred_graph=pred_graph,
+            emb_model=str(cfg.get("emb_model") or "BAAI/bge-large-zh-v1.5"),
+            threshold=threshold,
+            graph_smoothing_rounds=smoothing_rounds,
+            graph_smoothing_alpha=smoothing_alpha,
+        )
+    except ImportError as exc:
+        LOGGER.warning("运行本体评测缺少依赖 (numpy/scipy/sentence-transformers): %s", exc)
+        return
+    except Exception as exc:  # noqa: BLE001
+        LOGGER.warning("运行本体评测失败: %s", exc)
+        return
+
+    for name, metric in metrics.items():
+        LOGGER.info(
+            "[ontology_eval][%s] P=%.4f R=%.4f F1=%.4f",
+            name,
+            metric.get("precision", 0.0),
+            metric.get("recall", 0.0),
+            metric.get("f1", 0.0),
+        )
+
+    metrics_path = evaluation_output_path(output_paths.base_dir)
+    save_json(metrics_path, metrics)
+    LOGGER.info("本体评测指标已写入: %s", metrics_path)
 
 
 SCHEMA_SECTION_ALIASES = {
@@ -262,7 +650,7 @@ def load_text_chunks() -> Sequence[str]:
     if cfg["type"] == "text":
         return chunk_text(cfg["text"], cfg["chunk_size"])
     if cfg["type"] == "file":
-        text_path = resolve_project_path(cfg["file_path"])
+        text_path = _input_path_with_language(cfg["file_path"])
         if not text_path.exists():
             raise FileNotFoundError(f"未找到输入文件: {text_path}")
         return chunk_text(text_path.read_text(encoding="utf-8"), cfg["chunk_size"])
@@ -304,6 +692,7 @@ def build_documents(chunks: Sequence[str]) -> List[Document]:
     metadata_base = {
         "source": CONFIG["input"]["source_label"],
         "total_chunks": len(chunks),
+        "language": LANGUAGE_CODE,
     }
     documents: List[Document] = []
     for idx, chunk in enumerate(chunks):
@@ -323,7 +712,7 @@ def load_existing_ontology_schema() -> Tuple[Dict[str, Any] | None, Path | None]
     raw_path = cfg.get("existing_ontology_path")
     if not raw_path:
         return None, None
-    path = resolve_project_path(raw_path)
+    path = _input_path_with_language(raw_path)
     if not path.exists():
         LOGGER.info("配置了 existing_ontology_path，但文件不存在: %s", path)
         return None, path
@@ -341,7 +730,7 @@ def load_existing_ontology_schema() -> Tuple[Dict[str, Any] | None, Path | None]
 
 def _format_entity_hints() -> str:
     hints: List[str] = []
-    for item in CONFIG["ontology"]["entities"]:
+    for item in _localized_entities_config():
         if isinstance(item, str):
             hints.append(f"- {item}")
         elif isinstance(item, dict):
@@ -352,7 +741,7 @@ def _format_entity_hints() -> str:
 
 def _format_relationship_hints() -> str:
     hints: List[str] = []
-    for relation in CONFIG["ontology"].get("relationships", []):
+    for relation in _localized_relationships_config():
         normalized = _normalize_relationship_entry(relation)
         if not normalized:
             continue
@@ -365,7 +754,16 @@ def _format_relationship_hints() -> str:
 
 
 def _event_cfg() -> Dict[str, Any]:
-    return CONFIG.get("event_extraction") or {}
+    base_cfg = CONFIG.get("event_extraction") or {}
+    languages = base_cfg.get("languages")
+    lang_cfg: Dict[str, Any] = {}
+    if isinstance(languages, dict):
+        candidate = languages.get(LANGUAGE_CODE)
+        if isinstance(candidate, dict):
+            lang_cfg = candidate
+    merged = {k: v for k, v in base_cfg.items() if k != "languages"}
+    merged.update(lang_cfg)
+    return merged
 
 
 def _format_event_type_hints() -> str:
@@ -512,8 +910,8 @@ def _normalize_relationships(raw_relationships: Any) -> List[Dict[str, Any]]:
 
 def _fallback_ontology() -> Ontology:
     return Ontology(
-        entities=CONFIG["ontology"]["entities"],
-        relationships=_normalize_relationships(CONFIG["ontology"]["relationships"]),
+        entities=_localized_entities_config(),
+        relationships=_normalize_relationships(_localized_relationships_config()),
     )
 
 
@@ -534,33 +932,27 @@ def build_ontology(llm_client: LLMClient, background_text: str) -> Ontology:
         LOGGER.warning("背景文本为空，退回使用配置中的本体。")
         return _fallback_ontology()
 
-    system_message = (
-        "你是一名资深本体工程师，负责根据输入背景语料设计知识图谱本体。"
-        "输出需聚焦核心实体，实体类型数量建议 6-10 个，并结合语料给出关键关系类型。"
-        "最终只返回 JSON。"
-    )
+    language_instruction = _language_instruction_text()
 
     entity_hint = _format_entity_hints()
     relation_hint = _format_relationship_hints()
-    user_message = (
-        "请参考以下背景语料，并以上述提示为灵感，生成最贴近内容的知识图谱本体。\n"
-        "- 允许微调实体类型或新增更贴近场景的实体描述。\n"
-        "- 关系需覆盖主要角色/事件之间的因果、隶属或互动。\n"
-        "- 严禁输出具体角色/组织名称，只描述抽象的实体类型（可附简短解释）。\n"
-        "- relationships 数组中的每一项必须包含 head_entity、tail_entity、rel_type 字段，可选填 description。\n"
-        "- 输出 JSON，字段只包含 entities 与 relationships。\n\n"
-        "【背景摘录】\n"
-        f"{background_text}\n\n"
-        "【可参考的实体提示】\n"
-        f"{entity_hint}\n\n"
-        "【可参考的关系提示】\n"
-        f"{relation_hint}\n\n"
-        "示例输出格式：\n"
-        "{\n  \"entities\": [\"概念A\", {\"概念B\": \"描述\"}],\n"
-        "  \"relationships\": [\n"
-        "    {\"head_entity\": \"Person\", \"tail_entity\": \"Organisation\", \"rel_type\": \"隶属于\", \"description\": \"可选说明\"}\n"
-        "  ]\n}"
-    )
+
+    context = {
+        "language_instruction": language_instruction,
+        "background_text": background_text,
+        "entity_hint": entity_hint,
+        "relation_hint": relation_hint,
+        "entity_range_sentence": _count_range_sentence("entity_types", "实体类型数量建议 ", "Recommended entity types: "),
+        "relationship_range_sentence": _count_range_sentence(
+            "relationship_types", "关系类型数量建议 ", "Recommended relationship types: "
+        ),
+        "entity_range_text": _format_range_text("entity_types"),
+        "relationship_range_text": _format_range_text("relationship_types"),
+        "ontology_sample_json": _ontology_sample_json_text(),
+    }
+
+    system_message = _render_prompt("ontology", "system", context)
+    user_message = _render_prompt("ontology", "user", context)
 
     try:
         response = llm_client.generate(user_message=user_message, system_message=system_message)
@@ -793,7 +1185,7 @@ def _preferred_schema_entities(
     existing_entities = _normalize_entities(existing_schema.get("entities")) if existing_schema else []
     if existing_entities:
         return _merge_entity_items(existing_entities, merged_entities)
-    config_entities = _normalize_entities(CONFIG["ontology"].get("entities", []))
+    config_entities = _normalize_entities(_localized_entities_config())
     if config_entities:
         return _merge_entity_items(config_entities, merged_entities)
     return list(merged_entities)
@@ -809,7 +1201,7 @@ def _preferred_schema_relationships(
     )
     if existing_relationships:
         return _merge_relationship_items(existing_relationships, merged_relationships)
-    config_relationships = _normalize_relationships(CONFIG["ontology"].get("relationships", []))
+    config_relationships = _normalize_relationships(_localized_relationships_config())
     if config_relationships:
         return _merge_relationship_items(config_relationships, merged_relationships)
     return list(merged_relationships)
@@ -859,33 +1251,31 @@ def build_event_schema(llm_client: LLMClient, background_text: str) -> List[Dict
         LOGGER.warning("背景文本为空，事件抽取提示退回使用 fallback 配置。")
         return _fallback_events()
 
-    system_message = (
-        "你是事件抽取专家，需为知识图谱设计事件类型与论元。"
-        "输出包含可复用的 event_type、触发词和论元。"
-        "最终只返回 JSON，结构为 {\"events\": [...]}。"
-    )
+    language_instruction = _language_instruction_text()
 
     event_hint = _format_event_type_hints()
     argument_hint = _format_argument_role_hints()
     trigger_guidelines = _format_trigger_guidelines()
 
-    max_events = cfg.get("max_event_types", 6)
-    user_message = (
-        "请基于以下背景语料，总结最重要的事件类型。\n"
-        f"- 事件数量不超过 {max_events} 个，可根据内容增删。\n"
-        "- 每个事件需包含触发词 trigger_words（数组）与 arguments（论元列表）。\n"
-        "- 论元至少覆盖发起方、受影响方或其它关键角色。\n"
-        "- arguments 中的每一项需包含 role、description、required 字段。\n"
-        "- JSON 结构示例：{\"events\": [{\"event_type\": \"行动\", \"trigger_words\": [..], \"arguments\": [{...}]}]}。\n\n"
-        "【背景摘录】\n"
-        f"{background_text}\n\n"
-        "【可参考的事件类型提示】\n"
-        f"{event_hint}\n\n"
-        "【论元角色提示】\n"
-        f"{argument_hint}\n\n"
-        "【触发词撰写建议】\n"
-        f"{trigger_guidelines}\n"
-    )
+    max_events_val = _coerce_int(cfg.get("max_event_types"))
+    if max_events_val is not None and max_events_val < 0:
+        max_events_val = None
+
+    context = {
+        "language_instruction": language_instruction,
+        "background_text": background_text,
+        "event_hint": event_hint,
+        "argument_hint": argument_hint,
+        "trigger_guidelines": trigger_guidelines,
+        "event_range_sentence": _count_range_sentence("event_types", "事件类型数量建议 ", "Recommended event types: "),
+        "event_range_text": _format_range_text("event_types"),
+        "event_limit_instruction": _event_limit_instruction_text(max_events_val),
+        "event_sample_json": _event_sample_json_text(),
+        "max_events": str(max_events_val) if max_events_val is not None else "",
+    }
+
+    system_message = _render_prompt("events", "system", context)
+    user_message = _render_prompt("events", "user", context)
 
     try:
         response = llm_client.generate(user_message=user_message, system_message=system_message)
@@ -946,12 +1336,6 @@ def instantiate_llm_client():
         )
 
     raise ValueError("llm.provider 仅支持 'deepseek'、'openai' 或 'groq'")
-
-
-
-def save_json(path: Path, payload: Dict | List):
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-
 
 def collect_nodes(edges: Iterable[Edge]) -> List[Node]:
     unique: Dict[Tuple[str, str], Node] = {}
@@ -1045,6 +1429,12 @@ def main():
     log_label = "新构建出的本体" if existing_schema else "构建出的本体"
     LOGGER.info("%s: %s", log_label, json.dumps(ontology.model_dump(), ensure_ascii=False, indent=2))
     event_schema = build_event_schema(llm_client=llm_client, background_text=background_excerpt)
+    schema_for_eval: Dict[str, Any] = {
+        "entities": _normalize_entities(ontology.entities),
+        "relationships": _normalize_relationships(ontology.relationships),
+    }
+    if event_schema:
+        schema_for_eval["events"] = event_schema
     merged_ontology, schema_payload = merge_schema_payload(
         existing_schema,
         ontology,
@@ -1053,12 +1443,18 @@ def main():
     )
 
     save_json(output_paths.schema, schema_payload)
+    maybe_run_schema_evaluation(schema_for_eval, existing_schema, output_paths)
 
     if not graph_extraction_enabled():
         LOGGER.info("已根据配置仅输出本体文件，跳过图谱抽取及 Neo4j 导出。输出目录: %s", output_paths.base_dir)
         return
 
-    graph_maker = GraphMaker(ontology=merged_ontology, llm_client=llm_client, verbose=CONFIG["runtime"]["verbose"])
+    graph_maker = GraphMaker(
+        ontology=merged_ontology,
+        llm_client=llm_client,
+        verbose=CONFIG["runtime"]["verbose"],
+        language=LANGUAGE_CODE,
+    )
     edges = graph_maker.from_documents(
         docs=documents,
         delay_s_between=CONFIG["runtime"]["delay_between_requests"],
