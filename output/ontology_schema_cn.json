@@ -1,131 +1,153 @@
 {
   "entities": [
+    "人物",
+    "组织",
     {
-      "Person": "参与事件的各类人物角色"
+      "重要器物": "在剧情中具有特殊意义的物品或技术"
+    },
+    "系统组件",
+    "文档",
+    "事件",
+    "地点",
+    {
+      "政府机构": "负责城市管理和政策制定的官方组织"
     },
     {
-      "Organisation": "参与的组织机构"
+      "科研机构": "从事技术研发和创新的研究组织"
     },
     {
-      "Artifact": "在剧情中具有特殊意义的物品或技术"
-    },
-    "SystemComponent",
-    {
-      "Document": "各类文档、报告或技术资料"
+      "企业组织": "提供商业服务或产品的公司实体"
     },
     {
-      "Event": "发生的事件或事故"
-    },
-    "Location",
-    {
-      "System": "智能系统或技术平台"
+      "学术机构": "从事教育和学术研究的高等院校"
     },
     {
-      "Place": "地理位置或部署区域"
+      "民间组织": "由民众自发组成的非官方团体"
     },
     {
-      "Action": "关键行为或操作"
+      "智能系统": "具备感知、决策能力的自动化系统"
     },
     {
-      "Component": "系统组件或技术模块"
+      "技术文档": "记录技术方案、评估结果的书面材料"
+    },
+    {
+      "事故事件": "因系统异常导致的安全事故"
+    },
+    {
+      "舆情事件": "在公众舆论中引发关注的事件"
+    },
+    {
+      "评估行动": "对系统进行风险分析和技术评估的活动"
+    },
+    {
+      "部署行动": "将系统投入实际使用的实施过程"
+    },
+    {
+      "报告行动": "通过正式渠道反馈问题或质疑的行为"
     }
   ],
   "relationships": [
     {
-      "head_entity": "Person",
-      "tail_entity": "Organisation",
+      "head_entity": "人物",
+      "tail_entity": "组织",
       "rel_type": "隶属于",
       "description": "角色加入或在组织体系内任职"
     },
     {
-      "head_entity": "Organisation",
-      "tail_entity": "Location",
+      "head_entity": "组织",
+      "tail_entity": "地点",
       "rel_type": "位于",
       "description": "组织的总部、基地或部署地点"
     },
     {
-      "head_entity": "Person",
-      "tail_entity": "SystemComponent",
+      "head_entity": "人物",
+      "tail_entity": "系统组件",
       "rel_type": "负责设计",
       "description": "个人主导关键系统或组件的设计"
     },
     {
-      "head_entity": "SystemComponent",
-      "tail_entity": "Location",
+      "head_entity": "系统组件",
+      "tail_entity": "地点",
       "rel_type": "部署于",
       "description": "组件或设备在具体场景中的落位"
     },
     {
-      "head_entity": "SystemComponent",
-      "tail_entity": "Event",
+      "head_entity": "系统组件",
+      "tail_entity": "事件",
       "rel_type": "引发事件",
       "description": "技术异常导致事故、调查或舆情"
     },
     {
-      "head_entity": "Person",
-      "tail_entity": "Document",
+      "head_entity": "人物",
+      "tail_entity": "文档",
       "rel_type": "报告问题",
       "description": "个人通过文档提出质疑或反馈"
     },
     {
-      "head_entity": "Person",
-      "tail_entity": "Event",
+      "head_entity": "人物",
+      "tail_entity": "事件",
       "rel_type": "参与评估",
       "description": "个人以专家或负责人身份介入事件评估"
     },
     {
-      "head_entity": "Person",
-      "tail_entity": "System",
+      "head_entity": "科研机构",
+      "tail_entity": "政府机构",
+      "rel_type": "合作开发",
+      "description": "联合研发智能系统"
+    },
+    {
+      "head_entity": "科研机构",
+      "tail_entity": "智能系统",
       "rel_type": "负责设计",
-      "description": "个人主导系统或技术方案的设计"
+      "description": "主导系统算法和架构设计"
     },
     {
-      "head_entity": "Person",
-      "tail_entity": "Action",
+      "head_entity": "政府机构",
+      "tail_entity": "部署行动",
       "rel_type": "负责推进",
-      "description": "个人主导执行或推动行动计划"
+      "description": "推动系统在实际场景中的部署实施"
     },
     {
-      "head_entity": "Organisation",
-      "tail_entity": "System",
-      "rel_type": "开发部署",
-      "description": "组织负责系统的开发或部署实施"
-    },
-    {
-      "head_entity": "System",
-      "tail_entity": "Place",
-      "rel_type": "部署于",
-      "description": "系统在特定地理区域或设施中部署"
-    },
-    {
-      "head_entity": "System",
-      "tail_entity": "Component",
-      "rel_type": "包含组件",
-      "description": "系统包含的子模块或技术组件"
-    },
-    {
-      "head_entity": "System",
-      "tail_entity": "Event",
+      "head_entity": "智能系统",
+      "tail_entity": "事故事件",
       "rel_type": "引发事件",
-      "description": "系统运行异常导致的事故或舆情"
+      "description": "系统异常导致安全事故发生"
     },
     {
-      "head_entity": "Organisation",
-      "tail_entity": "Document",
-      "rel_type": "发布报告",
-      "description": "组织发布技术文档或评估报告"
+      "head_entity": "企业组织",
+      "tail_entity": "技术文档",
+      "rel_type": "提交报告",
+      "description": "向官方提交技术问题备忘录"
     },
     {
-      "head_entity": "Event",
-      "tail_entity": "Document",
-      "rel_type": "触发调查",
-      "description": "事件触发相关调查和文档产生"
+      "head_entity": "民间组织",
+      "tail_entity": "技术文档",
+      "rel_type": "整理分析",
+      "description": "基于公开信息进行技术解析"
     },
     {
-      "head_entity": "Component",
-      "tail_entity": "Event",
-      "rel_type": "导致异常",
-      "description": "技术组件故障导致系统异常事件"
+      "head_entity": "学术机构",
+      "tail_entity": "评估行动",
+      "rel_type": "参与评估",
+      "description": "专家参与系统风险评估工作"
+    },
+    {
+      "head_entity": "事故事件",
+      "tail_entity": "舆情事件",
+      "rel_type": "触发关注",
+      "description": "安全事故引发公众舆论关注"
+    },
+    {
+      "head_entity": "政府机构",
+      "tail_entity": "评估行动",
+      "rel_type": "组织成立",
+      "description": "组建专项工作组进行风险评估"
+    },
+    {
+      "head_entity": "技术文档",
+      "tail_entity": "舆情事件",
+      "rel_type": "加剧讨论",
+      "description": "技术分析文档引发新一轮舆论讨论"
     }
   ],
   "events": [
@@ -150,95 +172,33 @@
       ]
     },
     {
-      "event_type": "系统发布",
+      "event_type": "系统部署",
       "description": "",
       "trigger_words": [
-        "发布",
         "部署",
-        "上线"
+        "上线",
+        "落地",
+        "推进"
       ],
       "arguments": [
         {
           "role": "发起方",
-          "description": "推动系统发布的主要组织或个人",
+          "description": "负责系统部署的组织或个人",
           "required": true
         },
         {
-          "role": "受影响方",
-          "description": "系统发布后影响到的群体或区域",
+          "role": "技术提供方",
+          "description": "提供系统技术支持的机构",
           "required": true
         },
         {
-          "role": "关键资源",
-          "description": "发布的系统或技术产品",
+          "role": "部署地点",
+          "description": "系统部署的具体位置",
           "required": true
         },
         {
-          "role": "地点",
-          "description": "系统发布或部署的具体位置",
-          "required": false
-        }
-      ]
-    },
-    {
-      "event_type": "技术宣讲",
-      "description": "",
-      "trigger_words": [
-        "宣讲",
-        "举办论坛",
-        "发布白皮书"
-      ],
-      "arguments": [
-        {
-          "role": "发起方",
-          "description": "组织技术宣讲活动的机构",
-          "required": true
-        },
-        {
-          "role": "受影响方",
-          "description": "接收技术信息的受众群体",
-          "required": false
-        },
-        {
-          "role": "关键资源",
-          "description": "宣讲的技术内容或文档",
-          "required": true
-        },
-        {
-          "role": "地点",
-          "description": "宣讲活动举办的地点",
-          "required": false
-        }
-      ]
-    },
-    {
-      "event_type": "系统故障",
-      "description": "",
-      "trigger_words": [
-        "异常切换",
-        "故障",
-        "失效",
-        "误触发"
-      ],
-      "arguments": [
-        {
-          "role": "发起方",
-          "description": "导致故障的系统或技术组件",
-          "required": true
-        },
-        {
-          "role": "受影响方",
-          "description": "受到故障影响的用户或车辆",
-          "required": true
-        },
-        {
-          "role": "关键资源",
-          "description": "发生故障的具体系统功能",
-          "required": true
-        },
-        {
-          "role": "地点",
-          "description": "故障发生的具体位置",
+          "role": "部署时间",
+          "description": "系统部署的时间节点",
           "required": false
         }
       ]
@@ -247,94 +207,63 @@
       "event_type": "事故报告",
       "description": "",
       "trigger_words": [
-        "发生事故",
-        "追尾",
+        "发生",
         "相撞",
-        "证实"
+        "追尾",
+        "异常",
+        "吐槽"
       ],
       "arguments": [
         {
-          "role": "发起方",
-          "description": "报告或确认事故的机构",
+          "role": "报告方",
+          "description": "报告事故的个人或组织",
           "required": true
         },
         {
           "role": "受影响方",
-          "description": "事故中受损的车辆或人员",
+          "description": "受到事故影响的个人或群体",
           "required": true
         },
         {
-          "role": "关键资源",
-          "description": "事故相关的证据或记录",
-          "required": false
-        },
-        {
-          "role": "地点",
-          "description": "事故发生的地点",
-          "required": true
-        }
-      ]
-    },
-    {
-      "event_type": "公众投诉",
-      "description": "",
-      "trigger_words": [
-        "吐槽",
-        "抱怨",
-        "报告",
-        "质疑"
-      ],
-      "arguments": [
-        {
-          "role": "发起方",
-          "description": "提出投诉的个人或组织",
+          "role": "事故地点",
+          "description": "事故发生的确切位置",
           "required": true
         },
         {
-          "role": "受影响方",
-          "description": "被投诉的对象或系统",
-          "required": true
-        },
-        {
-          "role": "关键资源",
-          "description": "投诉的具体内容或问题",
-          "required": true
-        },
-        {
-          "role": "地点",
-          "description": "投诉涉及的地点",
+          "role": "事故时间",
+          "description": "事故发生的时间",
           "required": false
         }
       ]
     },
     {
-      "event_type": "技术分析",
+      "event_type": "技术发布",
       "description": "",
       "trigger_words": [
-        "解析",
-        "推断",
-        "提出假设",
-        "整理"
+        "发布",
+        "宣讲",
+        "撰写",
+        "解析"
       ],
       "arguments": [
         {
-          "role": "发起方",
-          "description": "进行技术分析的个人或组织",
+          "role": "发布方",
+          "description": "发布技术内容的组织",
           "required": true
         },
         {
-          "role": "受影响方",
-          "description": "被分析的系统或技术",
+          "role": "发布内容",
+          "description": "发布的具体技术文档或系统",
           "required": true
         },
         {
-          "role": "关键资源",
-          "description": "分析报告或文档",
-          "required": true
+          "role": "发布地点",
+          "description": "发布活动举办的地点",
+          "required": false
         },
         {
-          "role": "地点",
-          "description": "分析发布或传播的平台",
+          "role": "发布时间",
+          "description": "发布活动的时间",
           "required": false
         }
       ]
@@ -344,29 +273,29 @@
       "description": "",
       "trigger_words": [
         "评估",
-        "风险报告",
-        "缺陷清单",
-        "记录"
+        "风险",
+        "缺陷",
+        "隐患"
       ],
       "arguments": [
         {
-          "role": "发起方",
-          "description": "进行风险评估的机构或个人",
+          "role": "评估方",
+          "description": "进行风险评估的组织或个人",
           "required": true
         },
         {
-          "role": "受影响方",
+          "role": "评估对象",
           "description": "被评估的系统或项目",
           "required": true
         },
         {
-          "role": "关键资源",
-          "description": "风险评估报告或文档",
+          "role": "风险内容",
+          "description": "评估发现的具体风险或缺陷",
           "required": true
         },
         {
-          "role": "地点",
-          "description": "评估涉及的具体位置",
+          "role": "评估时间",
+          "description": "风险评估的时间",
           "required": false
         }
       ]
@@ -375,92 +304,94 @@
       "event_type": "舆论传播",
       "description": "",
       "trigger_words": [
-        "登上热搜",
         "转发",
-        "误读",
-        "引发讨论"
+        "热议",
+        "登上热搜",
+        "讨论"
       ],
       "arguments": [
         {
-          "role": "发起方",
-          "description": "传播信息的源头",
+          "role": "传播平台",
+          "description": "舆论传播的主要平台",
           "required": true
         },
         {
-          "role": "受影响方",
-          "description": "受到舆论影响的组织或个人",
+          "role": "传播内容",
+          "description": "传播的具体话题或信息",
           "required": true
         },
         {
-          "role": "关键资源",
-          "description": "传播的具体内容或话题",
-          "required": true
+          "role": "传播发起方",
+          "description": "发起舆论传播的个人或组织",
+          "required": false
         },
         {
-          "role": "地点",
-          "description": "舆论传播的平台或渠道",
+          "role": "传播时间",
+          "description": "舆论传播的时间段",
           "required": false
         }
       ]
     },
     {
-      "event_type": "工作组成立",
+      "event_type": "会议召开",
       "description": "",
       "trigger_words": [
-        "成立工作组",
-        "牵头",
-        "邀请专家"
+        "举行",
+        "召开",
+        "说明会",
+        "论坛"
       ],
       "arguments": [
         {
-          "role": "发起方",
-          "description": "成立工作组的机构",
+          "role": "主办方",
+          "description": "会议的主办组织",
           "required": true
         },
         {
-          "role": "受影响方",
-          "description": "工作组要解决的问题或对象",
+          "role": "会议地点",
+          "description": "会议举办的具体地点",
           "required": true
         },
         {
-          "role": "关键资源",
-          "description": "工作组的目标或任务",
-          "required": true
+          "role": "参会人员",
+          "description": "参加会议的主要人员",
+          "required": false
         },
         {
-          "role": "地点",
-          "description": "工作组运作的地点",
+          "role": "会议时间",
+          "description": "会议召开的时间",
           "required": false
         }
       ]
     },
     {
-      "event_type": "公开说明",
+      "event_type": "技术质疑",
       "description": "",
       "trigger_words": [
-        "举行说明会",
-        "宣布",
-        "列为发言人"
+        "质疑",
+        "提问",
+        "挑战",
+        "批评"
       ],
       "arguments": [
         {
-          "role": "发起方",
-          "description": "组织说明会的机构",
+          "role": "质疑方",
+          "description": "提出质疑的个人或组织",
           "required": true
         },
         {
-          "role": "受影响方",
-          "description": "接收说明的公众或媒体",
+          "role": "被质疑方",
+          "description": "被质疑的对象",
           "required": true
         },
         {
-          "role": "关键资源",
-          "description": "说明的具体内容或议题",
+          "role": "质疑内容",
+          "description": "质疑的具体技术问题",
           "required": true
         },
         {
-          "role": "地点",
-          "description": "说明会举办的地点",
+          "role": "质疑时间",
+          "description": "质疑提出的时间",
           "required": false
         }
       ]
