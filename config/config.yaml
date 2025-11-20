@@ -349,6 +349,8 @@ runtime:
 evaluation:
   enabled: false
   dataset_name: duIE_zh
+  # 可填 auto / cpu / cuda:{index}；默认使用第二张卡 cuda:1
+  device: cuda:1
   emb_model: models/bge-m3
   threshold: 0.45
   graph_smoothing_rounds: 2
