@@ -26,7 +26,7 @@ This project is an example notebook that demonstrates the use of the knowledge g
 
 ## 项目结构与运行方式
 
-- 所有 Python 脚本均位于 `src/` 目录下，其中 `src/ontology_generate.py` 负责生成本体，`src/ontology_eval.py` 负责评估，`src/ontology_process.py` 可一键串联生成+评估全流程。
+- 所有 Python 脚本均位于 `src/` 目录下，其中 `src/demo.py` 是主要的演示脚本。
 - 运行脚本前请确保 `config/config.yaml` 中的参数已经根据自身环境调整完毕。
 - 示例素材（如封面图、样例文本等）也集中在 `src/assets/` 下，方便统一维护。
 - 如已拥有一份旧的本体定义，可将其放入 `input/ontology_schema_exist_<lang>.json`
@@ -44,24 +44,18 @@ This project is an example notebook that demonstrates the use of the knowledge g
   中的金标准 schema 做本体评测。开启后脚本会记录 Literal/Fuzzy/Continuous/Graph F1，
   并把指标写入 `evaluation.output_json`（默认 `output/ontology_eval_metrics.json`）。
 
-运行本体生成脚本：
+运行示例脚本：
 
 ```bash
-python src/ontology_generate.py
-```
-
-运行全流程管控脚本（可在 `config/config.yaml` 的 `process.mode` 中选择只生成、只评估或全流程）：
-
-```bash
-python src/ontology_process.py
+python src/demo.py
 ```
 
 ## 本体评测命令行工具
 
-若需要在离线环境或不同 schema 之间做对比，可直接运行 `ontology_eval.py`：
+若需要在离线环境或不同 schema 之间做对比，可直接运行 `eval_ontology.py`：
 
 ```bash
-python src/ontology_eval.py \
+python src/eval_ontology.py \
   --gold_onto input/ontology_schema_exist_cn.json \
   --pred_onto output/ontology_schema_cn.json \
   --emb_model BAAI/bge-large-zh-v1.5 \
@@ -72,7 +66,7 @@ python src/ontology_eval.py \
 脚本会加载两个 schema，构建图表示，并输出 Literal / Fuzzy / Continuous / Graph F1。
 运行前请先 `pip install sentence-transformers numpy scipy` 以满足依赖。
 
-如需自定义 PYTHONPATH 或以模块方式运行，也可以执行 `python -m src.ontology_generate`。
+如需自定义 PYTHONPATH 或以模块方式运行，也可以执行 `python -m src.demo`。
 
 > Note: 仓库自带的 `src/knowledge_graph_maker` 目录已经同步了官方实现，若只需运行本示例，
 > 无需通过网络安装 `knowledge-graph-maker`，断网环境下也可直接执行。
