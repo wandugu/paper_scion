@@ -42,7 +42,12 @@ CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
 BACKGROUND_SNIPPET_MAX_CHARS = 4000
 
 from utils.common import load_yaml_config, resolve_project_path, save_json
-from utils.dataset_paths import dataset_is_relation_only, load_dataset_background_text
+from utils.dataset_paths import (
+    dataset_is_relation_only,
+    load_dataset_background_text,
+    load_dataset_text,
+    resolve_dataset_paths,
+)
 from utils.logger import get_ot_logger
 
 
@@ -503,9 +508,22 @@ def evaluation_config() -> Dict[str, Any]:
     return cfg if isinstance(cfg, dict) else {}
 
 
+def _bool_from_cfg(cfg: Dict[str, Any], key: str, default: bool) -> bool:
+    value = cfg.get(key, default)
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "y", "on"}
+    return bool(value)
+
+
 def evaluation_enabled() -> bool:
     cfg = evaluation_config()
-    return bool(cfg.get("enabled"))
+    pipeline_cfg = CONFIG.get("pipeline") or {}
+    pipeline_flag = _bool_from_cfg(pipeline_cfg, "evaluation_enabled", True)
+
+    if "enabled" not in cfg:
+        return pipeline_flag
+
+    return pipeline_flag and _bool_from_cfg(cfg, "enabled", True)
 
 
 def selected_dataset_name() -> str:
@@ -536,12 +554,12 @@ def evaluation_device() -> str:
 
 
 def maybe_run_schema_evaluation(
-    pred_schema: Dict[str, Any], existing_schema: Dict[str, Any] | None, output_paths: OutputPaths
+    pred_schema: Dict[str, Any], golden_schema: Dict[str, Any] | None, output_paths: OutputPaths
 ) -> None:
     if not evaluation_enabled():
         return
-    if not existing_schema:
-        LOGGER.warning("已启用本体评估，但缺少 existing_ontology_path，跳过比较。")
+    if not golden_schema:
+        LOGGER.warning("已启用本体评估，但缺少评估用金标准本体，跳过比较。")
         return
     try:
         from ontology_eval import compute_ontology_metrics
@@ -565,7 +583,7 @@ def maybe_run_schema_evaluation(
         smoothing_alpha = 0.5
 
     try:
-        gold_graph = schema_dict_to_graph(existing_schema)
+        gold_graph = schema_dict_to_graph(golden_schema)
         pred_graph = schema_dict_to_graph(pred_schema)
         device = evaluation_device()
         LOGGER.info("[ontology_eval] 使用设备: %s", device)
@@ -661,7 +679,24 @@ def load_text_chunks() -> Sequence[str]:
         dataset_name = selected_dataset_name()
         if not dataset_name:
             raise ValueError("input.type 为 dataset 时需在 config 中提供 dataset_name")
-        dataset_text = load_dataset_background_text(CONFIG, dataset_name)
+        dataset_text = ""
+        golden_input_path = None
+        try:
+            _, golden_input_path = resolve_dataset_paths(CONFIG, dataset_name)
+        except Exception as exc:  # noqa: BLE001
+            LOGGER.warning("解析 golden_input 路径失败，将回退到 data_files：%s", exc)
+
+        if golden_input_path and golden_input_path.exists():
+            dataset_text = load_dataset_text(golden_input_path)
+            LOGGER.info(
+                "已拼接数据集 %s 的背景知识（%s）：\n%s",
+                dataset_name,
+                golden_input_path,
+                dataset_text,
+            )
+        else:
+            dataset_text = load_dataset_background_text(CONFIG, dataset_name)
+            LOGGER.info("未找到 golden_input 文件，改用 data_files 拼接背景文本。")
         return chunk_text(dataset_text, cfg["chunk_size"])
     if cfg["type"] == "text":
         return chunk_text(cfg["text"], cfg["chunk_size"])
@@ -721,14 +756,23 @@ def build_documents(chunks: Sequence[str]) -> List[Document]:
     return documents
 
 
+def _mergeable_schema_path(path: Path | None) -> bool:
+    if not path:
+        return False
+    return "_exist" in path.stem.lower()
+
+
 def load_existing_ontology_schema() -> Tuple[Dict[str, Any] | None, Path | None]:
-    """尝试加载已有本体定义，返回 (payload, path)。"""
+    """尝试加载可参与合并的本体定义，返回 (payload, path)。"""
 
     cfg = CONFIG.get("input", {})
     raw_path = cfg.get("existing_ontology_path")
     if not raw_path:
         return None, None
     path = _input_path_with_language(raw_path)
+    if not _mergeable_schema_path(path):
+        LOGGER.info("检测到 existing_ontology_path 指向金标准文件，不参与合并: %s", path)
+        return None, path
     if not path.exists():
         LOGGER.info("配置了 existing_ontology_path，但文件不存在: %s", path)
         return None, path
@@ -740,7 +784,38 @@ def load_existing_ontology_schema() -> Tuple[Dict[str, Any] | None, Path | None]
     if not isinstance(data, dict):
         LOGGER.warning("输入本体文件内容必须是 JSON 对象: %s", path)
         return None, path
-    LOGGER.info("检测到已有本体文件: %s", path)
+    LOGGER.info("检测到可合并的已有本体文件: %s", path)
+    return data, path
+
+
+def load_golden_schema_for_eval(dataset_name: str) -> Tuple[Dict[str, Any] | None, Path | None]:
+    eval_cfg = evaluation_config()
+    raw_path = eval_cfg.get("golden_schema_path")
+    if not raw_path and dataset_name:
+        try:
+            schema_path, _ = resolve_dataset_paths(CONFIG, dataset_name)
+            raw_path = str(schema_path)
+        except Exception as exc:  # noqa: BLE001
+            LOGGER.warning("推断金标准本体路径失败(%s): %s", dataset_name, exc)
+    if not raw_path:
+        return None, None
+
+    path = resolve_project_path(raw_path)
+    if not path.exists():
+        LOGGER.warning("未找到评估用金标准本体文件: %s", path)
+        return None, path
+
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:  # noqa: BLE001
+        LOGGER.warning("读取评估用金标准本体失败 (%s): %s", path, exc)
+        return None, path
+
+    if not isinstance(data, dict):
+        LOGGER.warning("评估用金标准本体内容必须是 JSON 对象: %s", path)
+        return None, path
+
+    LOGGER.info("检测到评估用金标准本体文件: %s", path)
     return data, path
 
 
@@ -1436,6 +1511,7 @@ def main():
     output_paths = ensure_output_paths()
     existing_schema, _ = load_existing_ontology_schema()
     dataset_name = selected_dataset_name() if CONFIG.get("input", {}).get("type") == "dataset" else ""
+    golden_schema, _ = load_golden_schema_for_eval(dataset_name)
     relation_only_dataset = False
     if dataset_name:
         try:
@@ -1475,7 +1551,8 @@ def main():
     )
 
     save_json(output_paths.schema, schema_payload)
-    maybe_run_schema_evaluation(schema_for_eval, existing_schema, output_paths)
+    LOGGER.info("已保存 Schema 文件: %s", output_paths.schema)
+    maybe_run_schema_evaluation(schema_for_eval, golden_schema, output_paths)
 
     if not graph_extraction_enabled():
         LOGGER.info("已根据配置仅输出本体文件，跳过图谱抽取及 Neo4j 导出。输出目录: %s", output_paths.base_dir)

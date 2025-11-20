@@ -352,7 +352,7 @@ pipeline:
   generation_enabled: true
   evaluation_enabled: true
 evaluation:
-  enabled: false
+  enabled: true
   dataset_name: duIE_zh
   # 可填 auto / cpu / cuda:{index}；默认使用第二张卡 cuda:1
   device: cuda:1
