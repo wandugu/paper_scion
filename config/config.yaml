@@ -335,11 +335,12 @@ event_extraction:
               description: "Key conditions or exchanges that enable the alliance"
               required: false
 input:
-  type: file
+  type: dataset
+  dataset_name: duIE_zh
   text: "这里可以直接放置自定义背景文本……"
   file_path: input/background.txt
-  existing_ontology_path: input/ontology_schema_exist.json
-  source_label: lotr_wikipedia
+  existing_ontology_path: input/golden_schema_duIE_zh.json
+  source_label: duIE
   chunk_size: 1200
 runtime:
   verbose: false
@@ -347,7 +348,8 @@ runtime:
   graph_extraction_enabled: false
 evaluation:
   enabled: false
-  emb_model: BAAI/bge-large-zh-v1.5
+  dataset_name: duIE_zh
+  emb_model: BAAI/bge-m3
   threshold: 0.45
   graph_smoothing_rounds: 2
   graph_smoothing_alpha: 0.5
