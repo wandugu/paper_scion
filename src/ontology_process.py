@@ -57,7 +57,9 @@ def evaluation_enabled() -> bool:
     mode = pipeline_mode()
     base_flag = _bool_from_cfg(cfg, "evaluation_enabled", mode in {"all", "evaluate"})
     eval_cfg = CONFIG.get("evaluation") or {}
-    return base_flag and bool(eval_cfg.get("enabled", False))
+    if "enabled" not in eval_cfg:
+        return base_flag
+    return base_flag and _bool_from_cfg(eval_cfg, "enabled", True)
 
 
 def run_generation() -> None:
