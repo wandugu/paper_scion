@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Iterable, List, Sequence, Tuple
 
 from .common import resolve_project_path
+
+
+RELATION_ONLY_DATASET_TYPES = {"duie", "instructie", "relation_extraction"}
 
 
 def _normalize_name(name: str | None) -> str:
@@ -17,6 +20,97 @@ def dataset_output_dir(config: Dict[str, Any]) -> Path:
     conv_cfg = config.get("dataset_conversion") or {}
     base_dir = conv_cfg.get("output_dir", "input")
     return resolve_project_path(base_dir)
+
+
+def dataset_config(config: Dict[str, Any], dataset_name: str) -> Dict[str, Any] | None:
+    conv_cfg = config.get("dataset_conversion") or {}
+    normalized_target = _normalize_name(dataset_name)
+    for ds_cfg in conv_cfg.get("datasets", []):
+        if _normalize_name(ds_cfg.get("name")) == normalized_target:
+            return ds_cfg
+    return None
+
+
+def dataset_is_relation_only(config: Dict[str, Any], dataset_name: str) -> bool:
+    ds_cfg = dataset_config(config, dataset_name)
+    if not ds_cfg:
+        return False
+    ds_type = str(ds_cfg.get("type", "")).strip().lower()
+    return ds_type in RELATION_ONLY_DATASET_TYPES
+
+
+def dataset_data_files(config: Dict[str, Any], dataset_name: str) -> List[Path]:
+    ds_cfg = dataset_config(config, dataset_name)
+    if not ds_cfg:
+        raise ValueError(f"dataset_conversion 中缺少名为 {dataset_name} 的配置")
+
+    files: List[Path] = []
+    for raw in ds_cfg.get("data_files", []):
+        path = resolve_project_path(raw)
+        if not path.exists():
+            raise FileNotFoundError(f"未找到数据集文件: {path}")
+        files.append(path)
+    if not files:
+        raise FileNotFoundError(f"数据集 {dataset_name} 未配置任何 data_files")
+    return files
+
+
+def _iter_json_records(paths: Sequence[Path]) -> Iterable[Dict[str, Any]]:
+    for path in paths:
+        content = path.read_text(encoding="utf-8")
+        try:
+            payload = json.loads(content)
+        except json.JSONDecodeError:
+            payload = None
+
+        if isinstance(payload, list):
+            for item in payload:
+                if isinstance(item, dict):
+                    yield item
+            continue
+        if isinstance(payload, dict):
+            yield payload
+            continue
+
+        for line in content.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(record, dict):
+                yield record
+
+
+def _dataset_text_field(dataset_type: str, ds_cfg: Dict[str, Any]) -> str:
+    if ds_cfg.get("text_field"):
+        return str(ds_cfg["text_field"])
+    ds_type = dataset_type.strip().lower()
+    if ds_type == "instructie":
+        return "input"
+    return "text"
+
+
+def load_dataset_background_text(config: Dict[str, Any], dataset_name: str) -> str:
+    ds_cfg = dataset_config(config, dataset_name)
+    if not ds_cfg:
+        raise ValueError(f"未找到数据集 {dataset_name} 的转换配置")
+
+    data_files = dataset_data_files(config, dataset_name)
+    text_field = _dataset_text_field(str(ds_cfg.get("type", "")), ds_cfg)
+
+    texts: List[str] = []
+    for record in _iter_json_records(data_files):
+        text = str(record.get(text_field, "")).strip()
+        if text:
+            texts.append(text)
+
+    if not texts:
+        raise ValueError(f"数据集 {dataset_name} 的文件中未找到任何文本字段 {text_field}")
+
+    return "\n\n".join(texts)
 
 
 def resolve_dataset_paths(config: Dict[str, Any], dataset_name: str) -> Tuple[Path, Path]:
@@ -68,4 +162,12 @@ def load_dataset_text(samples_path: Path) -> str:
     return "\n\n".join(texts)
 
 
-__all__ = ["dataset_output_dir", "load_dataset_text", "resolve_dataset_paths"]
+__all__ = [
+    "dataset_config",
+    "dataset_data_files",
+    "dataset_is_relation_only",
+    "dataset_output_dir",
+    "load_dataset_background_text",
+    "load_dataset_text",
+    "resolve_dataset_paths",
+]
