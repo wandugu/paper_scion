@@ -1,5 +1,5 @@
 language:
-  code: cn
+  code: zh
 
 llm:
   provider: deepseek
@@ -17,7 +17,7 @@ llm:
     model: mixtral-8x7b-32768
 ontology:
   languages:
-    cn:
+    zh:
       entities:
         - 人物: "人物姓名，避免形容词"
         - 物体: "有形物体，名称中不含冠词"
@@ -137,7 +137,7 @@ prompts:
       max: 8
   templates:
     ontology:
-      cn:
+      zh:
         system: |
           你是一名资深本体工程师，负责根据输入背景语料设计知识图谱本体。{entity_range_sentence}{relationship_range_sentence}最终只返回 JSON。{language_instruction}
         user: |
@@ -184,7 +184,7 @@ prompts:
           {ontology_sample_json}
           {language_instruction}
     events:
-      cn:
+      zh:
         system: |
           你是事件抽取专家，需为知识图谱设计事件类型与论元。{event_range_sentence}输出包含可复用的 event_type、触发词和论元。最终只返回 JSON，仅保留 events 数组。{language_instruction}
         user: |
@@ -234,7 +234,7 @@ event_extraction:
   enabled: true
   max_event_types: 10
   languages:
-    cn:
+    zh:
       event_type_hints:
         - 战争: "长期或规模化的军事冲突"
         - 冲突: "规模较小，但包含明显对抗的事件"
@@ -352,6 +352,34 @@ evaluation:
   graph_smoothing_rounds: 2
   graph_smoothing_alpha: 0.5
   output_json: output/ontology_eval_metrics.json
+dataset_conversion:
+  output_dir: input
+  samples_per_relation: 5
+  datasets:
+    - name: instrctIE_en
+      type: instructie
+      language: en
+      schema_path: data/dataset_public/InstructIE/schema_en.json
+      data_files:
+        - data/dataset_public/InstructIE/valid_en.json
+      schema_output: golden_schema_instrctIE_en.json
+      samples_output: golden_input_instrctIE_en.json
+    - name: instrctIE_zh
+      type: instructie
+      language: zh
+      schema_path: data/dataset_public/InstructIE/schema_zh.json
+      data_files:
+        - data/dataset_public/InstructIE/valid_zh.json
+      schema_output: golden_schema_instrctIE_zh.json
+      samples_output: golden_input_instrctIE_zh.json
+    - name: duIE_zh
+      type: duie
+      language: zh
+      schema_path: data/dataset_public/duIE/schema.json
+      data_files:
+        - data/dataset_public/duIE/dev.json
+      schema_output: golden_schema_duIE_zh.json
+      samples_output: golden_input_duIE_zh.json
 output:
   dir: output
   schema_filename: ontology_schema.json

@@ -51,7 +51,7 @@ class GraphMaker:
         self._llm_client = llm_client
         self._verbose = verbose
         normalized_language = (language or "en").lower()
-        self._language = normalized_language if normalized_language in {"cn", "en"} else "en"
+        self._language = normalized_language if normalized_language in {"zh", "en"} else "en"
         if self._verbose:
             verbose_logger.setLevel("INFO")
         else:
@@ -61,7 +61,7 @@ class GraphMaker:
         return f"input text: ```\n{text}\n```"
 
     def _language_instruction(self) -> str:
-        if self._language == "cn":
+        if self._language == "zh":
             return "Respond only in Simplified Chinese for every entity, relationship, and description."
         return "Respond only in English for every entity, relationship, and description."
 
