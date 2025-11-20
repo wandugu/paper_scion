@@ -26,7 +26,6 @@
 from __future__ import annotations
 
 import json
-import logging
 import os
 import re
 import sys
@@ -40,27 +39,15 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
-LOG_DIR = PROJECT_ROOT / "logs"
 BACKGROUND_SNIPPET_MAX_CHARS = 4000
 
 from utils.common import load_yaml_config, resolve_project_path, save_json
 from utils.dataset_paths import load_dataset_text, resolve_dataset_paths
-
-
-def setup_logger() -> logging.Logger:
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
-    logger = logging.getLogger("graph_maker")
-    logger.setLevel(logging.INFO)
-    if not logger.handlers:
-        file_handler = logging.FileHandler(LOG_DIR / "ot.log", encoding="utf-8")
-        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-    return logger
+from utils.logger import get_ot_logger
 
 
 CONFIG: Dict = load_yaml_config(CONFIG_PATH)
-LOGGER = setup_logger()
+LOGGER = get_ot_logger()
 
 SUPPORTED_LANG_CODES: Dict[str, str] = {"zh": "中文", "en": "English"}
 
