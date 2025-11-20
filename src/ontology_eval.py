@@ -94,6 +94,12 @@ def _resolve_pred_schema_path() -> Path:
     return _apply_language_suffix(base_dir / schema_name)
 
 
+def resolve_pred_schema_path() -> Path:
+    """公开的预测本体路径解析函数，便于流程控制脚本复用。"""
+
+    return _resolve_pred_schema_path()
+
+
 def _eval_device(eval_cfg: Dict) -> str:
     raw_device = eval_cfg.get("device")
     if isinstance(raw_device, str) and raw_device.strip():
@@ -197,6 +203,15 @@ def _resolve_golden_schema_path(dataset_name: str) -> Path:
     return schema_path
 
 
+def resolve_golden_schema_path(dataset_name: str | None = None) -> Path:
+    """公开的金标准本体路径解析函数。"""
+
+    resolved_name = dataset_name or _selected_dataset_name()
+    if not resolved_name:
+        raise ValueError("未提供 dataset_name，无法解析金标准路径。")
+    return _resolve_golden_schema_path(resolved_name)
+
+
 def evaluation_output_path(base_dir: Path) -> Path:
     cfg = evaluation_config()
     raw_path = cfg.get("output_json")
@@ -285,8 +300,9 @@ def fuzzy_f1_edges(
         s2 = best_scores.get(edge.tgt, 0.0)
         if min(s1, s2) >= threshold:
             tp += 1
-    prec = tp / (len(pred.edges) + 1e-9)
-    rec = tp / (len(gold.edges) + 1e-9)
+    capped_tp = min(tp, len(gold.edges))
+    prec = capped_tp / (len(pred.edges) + 1e-9)
+    rec = capped_tp / (len(gold.edges) + 1e-9)
     f1 = 2 * prec * rec / (prec + rec + 1e-9)
     return prec, rec, f1
 
