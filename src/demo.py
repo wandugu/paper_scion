@@ -61,7 +61,7 @@ def setup_logger() -> logging.Logger:
 CONFIG: Dict = load_yaml_config(CONFIG_PATH)
 LOGGER = setup_logger()
 
-SUPPORTED_LANG_CODES: Dict[str, str] = {"cn": "中文", "en": "English"}
+SUPPORTED_LANG_CODES: Dict[str, str] = {"zh": "中文", "en": "English"}
 
 
 def _configured_language_code() -> str:
@@ -70,16 +70,16 @@ def _configured_language_code() -> str:
         raw_code = lang_cfg.get("code")
     else:
         raw_code = lang_cfg
-    code = str(raw_code or "cn").lower()
+    code = str(raw_code or "zh").lower()
     if code not in SUPPORTED_LANG_CODES:
-        return "cn"
+        return "zh"
     return code
 
 
 LANGUAGE_CODE: str = _configured_language_code()
 LANGUAGE_SUFFIX: str = f"_{LANGUAGE_CODE}"
 
-ONTOLOGY_SAMPLE_JSON_CN = (
+ONTOLOGY_SAMPLE_JSON_ZH = (
     '{\n'
     '  "entities": ["概念A", {"概念B": "描述"}],\n'
     '  "relationships": [\n'
@@ -97,7 +97,7 @@ ONTOLOGY_SAMPLE_JSON_EN = (
     '}'
 )
 
-EVENT_SAMPLE_JSON_CN = (
+EVENT_SAMPLE_JSON_ZH = (
     '{"events": [{"event_type": "行动", "trigger_words": ["发起", "部署"], '
     '"arguments": [{"role": "发起方", "description": "主动推动事件的一方", "required": true}]}]}'
 )
@@ -109,7 +109,7 @@ EVENT_SAMPLE_JSON_EN = (
 
 DEFAULT_PROMPT_TEMPLATES: Dict[str, Dict[str, Dict[str, str]]] = {
     "ontology": {
-        "cn": {
+        "zh": {
             "system": (
                 "你是一名资深本体工程师，负责根据输入背景语料设计知识图谱本体。"
                 "{entity_range_sentence}{relationship_range_sentence}最终只返回 JSON。"
@@ -158,7 +158,7 @@ DEFAULT_PROMPT_TEMPLATES: Dict[str, Dict[str, Dict[str, str]]] = {
         },
     },
     "events": {
-        "cn": {
+        "zh": {
             "system": (
                 "你是事件抽取专家，需为知识图谱设计事件类型与论元。{event_range_sentence}输出包含可复用的 "
                 "event_type、触发词和论元。最终只返回 JSON，仅保留 events 数组。{language_instruction}"
@@ -281,8 +281,8 @@ def _count_range_tuple(limit_key: str) -> Tuple[int | None, int | None]:
 
 def _format_range_text(limit_key: str) -> str:
     min_val, max_val = _count_range_tuple(limit_key)
-    lang_is_cn = LANGUAGE_CODE == "cn"
-    unit = "个" if lang_is_cn else " types"
+    lang_is_zh = LANGUAGE_CODE == "zh"
+    unit = "个" if lang_is_zh else " types"
 
     if min_val is None and (max_val is None or max_val < 0):
         return ""
@@ -290,10 +290,10 @@ def _format_range_text(limit_key: str) -> str:
     if max_val is None or max_val < 0:
         if min_val is None:
             return ""
-        return (f"不少于 {min_val}{unit}" if lang_is_cn else f"at least {min_val}{unit}")
+        return (f"不少于 {min_val}{unit}" if lang_is_zh else f"at least {min_val}{unit}")
 
     if min_val is None:
-        return (f"不超过 {max_val}{unit}" if lang_is_cn else f"up to {max_val}{unit}")
+        return (f"不超过 {max_val}{unit}" if lang_is_zh else f"up to {max_val}{unit}")
 
     if min_val == max_val:
         return f"{min_val}{unit}"
@@ -301,25 +301,25 @@ def _format_range_text(limit_key: str) -> str:
     return f"{min_val}-{max_val}{unit}"
 
 
-def _count_range_sentence(limit_key: str, label_cn: str, label_en: str) -> str:
+def _count_range_sentence(limit_key: str, label_zh: str, label_en: str) -> str:
     range_text = _format_range_text(limit_key)
     if not range_text:
         return ""
-    if LANGUAGE_CODE == "cn":
-        return f"{label_cn}{range_text}。"
+    if LANGUAGE_CODE == "zh":
+        return f"{label_zh}{range_text}。"
     return f"{label_en}{range_text}."
 
 
 def _ontology_sample_json_text() -> str:
-    return ONTOLOGY_SAMPLE_JSON_CN if LANGUAGE_CODE == "cn" else ONTOLOGY_SAMPLE_JSON_EN
+    return ONTOLOGY_SAMPLE_JSON_ZH if LANGUAGE_CODE == "zh" else ONTOLOGY_SAMPLE_JSON_EN
 
 
 def _event_sample_json_text() -> str:
-    return EVENT_SAMPLE_JSON_CN if LANGUAGE_CODE == "cn" else EVENT_SAMPLE_JSON_EN
+    return EVENT_SAMPLE_JSON_ZH if LANGUAGE_CODE == "zh" else EVENT_SAMPLE_JSON_EN
 
 
 def _event_limit_instruction_text(max_events: int | None) -> str:
-    if LANGUAGE_CODE == "cn":
+    if LANGUAGE_CODE == "zh":
         if max_events is not None and max_events > 0:
             return f"- 事件数量不超过 {max_events} 个，可根据内容增删。"
         return "- 事件数量不设硬性上限，可结合语料自由确定。"
@@ -334,7 +334,7 @@ def _language_label() -> str:
 
 
 def _language_instruction_text() -> str:
-    if LANGUAGE_CODE == "cn":
+    if LANGUAGE_CODE == "zh":
         return "请确保所有输出字段均使用简体中文。"
     return "Please ensure every output field is in English."
 
