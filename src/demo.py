@@ -527,6 +527,14 @@ def evaluation_output_path(base_dir: Path) -> Path:
     return base_dir / filename
 
 
+def evaluation_device() -> str:
+    cfg = evaluation_config()
+    raw_device = cfg.get("device")
+    if isinstance(raw_device, str) and raw_device.strip():
+        return raw_device.strip()
+    return "cuda:1"
+
+
 def maybe_run_schema_evaluation(
     pred_schema: Dict[str, Any], existing_schema: Dict[str, Any] | None, output_paths: OutputPaths
 ) -> None:
@@ -536,7 +544,8 @@ def maybe_run_schema_evaluation(
         LOGGER.warning("已启用本体评估，但缺少 existing_ontology_path，跳过比较。")
         return
     try:
-        from utils.ontology_eval import compute_ontology_metrics, schema_dict_to_graph
+        from eval_ontology import compute_ontology_metrics
+        from utils.ontology_graph import schema_dict_to_graph
     except Exception as exc:  # noqa: BLE001
         LOGGER.warning("导入本体评估模块失败: %s", exc)
         return
@@ -558,6 +567,8 @@ def maybe_run_schema_evaluation(
     try:
         gold_graph = schema_dict_to_graph(existing_schema)
         pred_graph = schema_dict_to_graph(pred_schema)
+        device = evaluation_device()
+        LOGGER.info("[ontology_eval] 使用设备: %s", device)
         metrics = compute_ontology_metrics(
             gold_graph=gold_graph,
             pred_graph=pred_graph,
@@ -565,6 +576,7 @@ def maybe_run_schema_evaluation(
             threshold=threshold,
             graph_smoothing_rounds=smoothing_rounds,
             graph_smoothing_alpha=smoothing_alpha,
+            device=device,
         )
     except ImportError as exc:
         LOGGER.warning("运行本体评测缺少依赖 (numpy/scipy/sentence-transformers): %s", exc)
