@@ -101,6 +101,11 @@ def evaluation_config() -> Dict:
 
 
 def _selected_dataset_name() -> str:
+    dataset_cfg = CONFIG.get("dataset") or {}
+    dataset = dataset_cfg.get("name") or dataset_cfg.get("dataset_name")
+    if dataset:
+        return str(dataset).strip()
+
     cfg = evaluation_config()
     dataset = cfg.get("dataset_name") or cfg.get("dataset")
     if dataset:
