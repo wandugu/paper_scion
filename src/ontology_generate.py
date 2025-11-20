@@ -1,5 +1,5 @@
-"""Graph Maker 演示脚本
-=========================
+"""Graph Maker 本体生成脚本
+=============================
 
 此脚本展示如何使用仓库内置的 ``knowledge_graph_maker`` 包从任意文本生成知识图谱，
 并把结果保存到 ``output/`` 目录下的多种文件格式中。所有运行配置均集中在
@@ -18,7 +18,7 @@
 3. 如需自动写入 Neo4j，请确保本地或远端 Neo4j 实例已启动，且账号、密码、URI
    与 ``config/config.yaml`` 的 ``neo4j`` 配置保持一致。
 
-执行：``python src/demo.py``
+执行：``python src/ontology_generate.py``
 """
 
 
@@ -544,7 +544,7 @@ def maybe_run_schema_evaluation(
         LOGGER.warning("已启用本体评估，但缺少 existing_ontology_path，跳过比较。")
         return
     try:
-        from eval_ontology import compute_ontology_metrics
+        from ontology_eval import compute_ontology_metrics
         from utils.ontology_graph import schema_dict_to_graph
     except Exception as exc:  # noqa: BLE001
         LOGGER.warning("导入本体评估模块失败: %s", exc)

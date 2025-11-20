@@ -342,6 +342,9 @@ input:
   existing_ontology_path: input/golden_schema_duIE_zh.json
   source_label: duIE
   chunk_size: 1200
+process:
+  # 可选值：all（生成+评估全流程）、generate_only、evaluate_only
+  mode: all
 runtime:
   verbose: false
   delay_between_requests: 8
