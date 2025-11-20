@@ -26,7 +26,7 @@ This project is an example notebook that demonstrates the use of the knowledge g
 
 ## 项目结构与运行方式
 
-- 所有 Python 脚本均位于 `src/` 目录下，其中 `src/demo.py` 是主要的演示脚本。
+- 所有 Python 脚本均位于 `src/` 目录下，其中 `src/ontology_generate.py` 是主要的生成脚本。
 - 运行脚本前请确保 `config/config.yaml` 中的参数已经根据自身环境调整完毕。
 - 示例素材（如封面图、样例文本等）也集中在 `src/assets/` 下，方便统一维护。
 - 如已拥有一份旧的本体定义，可将其放入 `input/ontology_schema_exist_<lang>.json`
@@ -34,6 +34,8 @@ This project is an example notebook that demonstrates the use of the knowledge g
   先构建新的本体，再与旧版本进行去重合并，最终输出合并后的 `ontology_schema_<lang>.json`。
 - 若只需生成本体文件，可在 `runtime.graph_extraction_enabled` 中设置为 `false`，
   此时脚本只会输出合并后的本体 JSON，跳过节点/边文件及 Neo4j 相关流程。
+- `pipeline.mode` 可选 `all` / `generate_only` / `eval_only`，用于控制是否走完整流程，
+  以及是否跳过单独的生成或评测环节（评测仍需 `evaluation.enabled=true`）。
 - `ontology.output_sections` 可以是 `entities`、`relationships`、`events` 的任意组合，
   仅保留列表中指定的板块；如需输出所有信息，配置 `all`（默认值）即可。
 - `language.code`（目前支持 `cn`、`en`）用于控制 LLM 的输出语言。
@@ -47,15 +49,21 @@ This project is an example notebook that demonstrates the use of the knowledge g
 运行示例脚本：
 
 ```bash
-python src/demo.py
+python src/ontology_generate.py
+```
+
+若希望根据配置一键完成“生成 -> 评测”或选择性跳过某些阶段，可运行流程控制脚本：
+
+```bash
+python src/ontology_process.py
 ```
 
 ## 本体评测命令行工具
 
-若需要在离线环境或不同 schema 之间做对比，可直接运行 `eval_ontology.py`：
+若需要在离线环境或不同 schema 之间做对比，可直接运行 `ontology_eval.py`：
 
 ```bash
-python src/eval_ontology.py \
+python src/ontology_eval.py \
   --gold_onto input/ontology_schema_exist_cn.json \
   --pred_onto output/ontology_schema_cn.json \
   --emb_model BAAI/bge-large-zh-v1.5 \
@@ -66,7 +74,7 @@ python src/eval_ontology.py \
 脚本会加载两个 schema，构建图表示，并输出 Literal / Fuzzy / Continuous / Graph F1。
 运行前请先 `pip install sentence-transformers numpy scipy` 以满足依赖。
 
-如需自定义 PYTHONPATH 或以模块方式运行，也可以执行 `python -m src.demo`。
+如需自定义 PYTHONPATH 或以模块方式运行，也可以执行 `python -m src.ontology_generate`。
 
 > Note: 仓库自带的 `src/knowledge_graph_maker` 目录已经同步了官方实现，若只需运行本示例，
 > 无需通过网络安装 `knowledge-graph-maker`，断网环境下也可直接执行。
@@ -115,7 +123,7 @@ ontology = Ontology(
 
 #### Event extraction add-on in this repo
 
-The demo script in this repository extends the ontology configuration with an optional `event_extraction` block (see
+The generation script in this repository extends the ontology configuration with an optional `event_extraction` block (see
 `config/config.yaml`). When enabled, the script will ask the LLM to propose high-level event types along with:
 
 - `trigger_words`: verbs or short phrases that can be used to anchor the event in the text corpus.
