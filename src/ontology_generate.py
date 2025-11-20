@@ -546,11 +546,29 @@ def evaluation_enabled() -> bool:
     return pipeline_flag and _bool_from_cfg(cfg, "enabled", True)
 
 
+def _normalized_input_type(cfg: Dict[str, Any]) -> str:
+    raw_type = str(cfg.get("type", "")).strip().lower()
+    alias_mapping = {
+        "duie": "dataset",
+        "instrctie": "dataset",
+        "instructie": "dataset",
+    }
+    if not raw_type and cfg.get("dataset_name"):
+        return "dataset"
+    return alias_mapping.get(raw_type, raw_type)
+
+
 def selected_dataset_name() -> str:
+    dataset_cfg = CONFIG.get("dataset") or {}
+    dataset = dataset_cfg.get("name") or dataset_cfg.get("dataset_name")
+    if dataset:
+        return str(dataset).strip()
+
     cfg = evaluation_config()
     dataset = cfg.get("dataset_name") or cfg.get("dataset")
     if dataset:
         return str(dataset).strip()
+
     input_cfg = CONFIG.get("input") or {}
     dataset = input_cfg.get("dataset_name")
     return str(dataset).strip() if dataset else ""
@@ -691,11 +709,12 @@ def _section_enabled(section: str, enabled_sections: Collection[str] | None) -> 
 
 def load_text_chunks() -> Sequence[str]:
     cfg = CONFIG["input"]
-    if cfg["type"] == "sample":
+    input_type = _normalized_input_type(cfg)
+    if input_type == "sample":
         from lotr_wikipedia_summary import lord_of_the_rings_wikipedia_summary
 
         return [chunk.strip() for chunk in lord_of_the_rings_wikipedia_summary if chunk.strip()]
-    if cfg["type"] == "dataset":
+    if input_type == "dataset":
         dataset_name = selected_dataset_name()
         if not dataset_name:
             raise ValueError("input.type 为 dataset 时需在 config 中提供 dataset_name")
@@ -718,14 +737,17 @@ def load_text_chunks() -> Sequence[str]:
             dataset_text = load_dataset_background_text(CONFIG, dataset_name)
             LOGGER.info("未找到 golden_input 文件，改用 data_files 拼接背景文本。")
         return chunk_text(dataset_text, cfg["chunk_size"])
-    if cfg["type"] == "text":
+    if input_type == "text":
         return chunk_text(cfg["text"], cfg["chunk_size"])
-    if cfg["type"] == "file":
+    if input_type == "file":
         text_path = _input_path_with_language(cfg["file_path"])
         if not text_path.exists():
             raise FileNotFoundError(f"未找到输入文件: {text_path}")
         return chunk_text(text_path.read_text(encoding="utf-8"), cfg["chunk_size"])
-    raise ValueError("input.type 仅支持 'sample'、'dataset'、'text' 或 'file'")
+    raise ValueError(
+        "input.type 仅支持 'sample'、'dataset'、'text' 或 'file'，"
+        "也可使用 duIE / instructIE 作为 dataset 别名"
+    )
 
 
 def chunk_text(text: str, chunk_size: int) -> List[str]:
@@ -1528,7 +1550,8 @@ def maybe_save_to_neo4j(edges: Sequence[Edge]):
 
 
 def main():
-    dataset_name = selected_dataset_name() if CONFIG.get("input", {}).get("type") == "dataset" else ""
+    input_cfg = CONFIG.get("input", {})
+    dataset_name = selected_dataset_name() if _normalized_input_type(input_cfg) == "dataset" else ""
     output_paths = ensure_output_paths(dataset_name or None)
     existing_schema, _ = load_existing_ontology_schema()
     golden_schema, _ = load_golden_schema_for_eval(dataset_name)
