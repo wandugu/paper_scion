@@ -135,6 +135,31 @@ def _eval_device(eval_cfg: Dict) -> str:
     return "cuda:1"
 
 
+def _embedding_backend(eval_cfg: Dict) -> str:
+    backend = eval_cfg.get("embedding_backend") or "local"
+    normalized = str(backend).strip().lower()
+    return normalized or "local"
+
+
+def _ollama_cfg(eval_cfg: Dict) -> Dict:
+    cfg = eval_cfg.get("ollama")
+    return cfg if isinstance(cfg, dict) else {}
+
+
+def _embedding_model_name(eval_cfg: Dict, for_backend: str | None = None) -> str:
+    backend = for_backend or _embedding_backend(eval_cfg)
+    if backend == "ollama":
+        ollama_cfg = _ollama_cfg(eval_cfg)
+        return str(ollama_cfg.get("model") or eval_cfg.get("emb_model") or "bge-m3")
+    return str(eval_cfg.get("emb_model") or "models/bge-m3")
+
+
+def _ollama_base_url(eval_cfg: Dict) -> str:
+    ollama_cfg = _ollama_cfg(eval_cfg)
+    base_url = ollama_cfg.get("base_url") or ollama_cfg.get("url") or ollama_cfg.get("host")
+    return str(base_url or "http://0.0.0.0:11434")
+
+
 def _ensure_numpy():  # type: ignore[return-value]
     if np is None:
         raise ImportError("运行本体评测需要 numpy，请先安装 numpy")
@@ -272,10 +297,61 @@ def _resolve_local_model(model_name: str) -> Path:
 
 
 def _embedding_model_path(eval_cfg: Dict) -> Path:
-    raw_model = eval_cfg.get("emb_model") or "models/bge-m3"
+    if _embedding_backend(eval_cfg) != "local":
+        raise ValueError("仅在 embedding_backend=local 时才能解析本地向量模型路径")
+
+    raw_model = _embedding_model_name(eval_cfg, for_backend="local")
     model_path = _resolve_local_model(str(raw_model))
     LOGGER.info("将使用本地向量模型: %s", model_path)
     return model_path
+
+
+class OllamaEmbeddingModel:
+    """通过 Ollama Embeddings API 构建与 SentenceTransformer 类似的 encode 接口。"""
+
+    def __init__(self, model_name: str, base_url: str):
+        from ollama import Client
+
+        self._model = model_name
+        self._base_url = base_url
+        self._client = Client(host=base_url)
+
+    def encode(
+        self,
+        sentences: Any,
+        normalize_embeddings: bool = True,
+        convert_to_numpy: bool = True,
+        show_progress_bar: bool = False,
+    ):
+        np_mod = _ensure_numpy()
+        vectors = []
+        for text in sentences:
+            response = self._client.embeddings(model=self._model, prompt=str(text))
+            emb = np_mod.array(response.get("embedding") or [], dtype=np_mod.float32)
+            if normalize_embeddings:
+                norm = float(np_mod.linalg.norm(emb))
+                if norm > 0:
+                    emb = emb / norm
+            vectors.append(emb)
+
+        if convert_to_numpy:
+            return np_mod.stack(vectors, axis=0)
+        return vectors
+
+
+def prepare_embedding_model(eval_cfg: Dict, device: str | None = None):
+    """根据配置选择本地或 Ollama 嵌入模型，返回 (model, backend, name, base_url)。"""
+
+    backend = _embedding_backend(eval_cfg)
+    if backend == "ollama":
+        model_name = _embedding_model_name(eval_cfg, for_backend=backend)
+        base_url = _ollama_base_url(eval_cfg)
+        LOGGER.info("使用 Ollama 嵌入服务: %s (模型=%s)", base_url, model_name)
+        return OllamaEmbeddingModel(model_name=model_name, base_url=base_url), backend, model_name, base_url
+
+    model_path = _embedding_model_path(eval_cfg)
+    model = _load_sentence_model(str(model_path), device=device)
+    return model, backend, str(model_path), None
 
 
 def build_embeddings(onto: OntologyGraph, model: Any) -> Dict[str, "np.ndarray"]:
@@ -463,8 +539,17 @@ def compute_ontology_metrics(
     graph_smoothing_rounds: int = 2,
     graph_smoothing_alpha: float = 0.5,
     device: str | None = None,
+    embedding_backend: str = "local",
+    embedding_model: Any | None = None,
+    ollama_base_url: str | None = None,
 ) -> Dict[str, Dict[str, float]]:
-    model = _load_sentence_model(emb_model, device=device)
+    backend = (embedding_backend or "local").lower()
+    model = embedding_model
+    if model is None:
+        if backend == "ollama":
+            model = OllamaEmbeddingModel(model_name=emb_model, base_url=ollama_base_url or "http://0.0.0.0:11434")
+        else:
+            model = _load_sentence_model(emb_model, device=device)
     gold_base_vecs = build_embeddings(gold_graph, model)
     pred_base_vecs = build_embeddings(pred_graph, model)
 
@@ -510,16 +595,18 @@ def main() -> None:
     gold_graph = schema_dict_to_graph(gold_schema)
     pred_graph = schema_dict_to_graph(pred_schema)
 
-    emb_model_path = _embedding_model_path(eval_cfg)
     device = _eval_device(eval_cfg)
     threshold = _coerce_float(eval_cfg.get("threshold"), 0.45)
     smoothing_rounds = _coerce_int(eval_cfg.get("graph_smoothing_rounds"), 2)
     smoothing_alpha = _coerce_float(eval_cfg.get("graph_smoothing_alpha"), 0.5)
+    embedding_model, backend, emb_model_name, base_url = prepare_embedding_model(eval_cfg, device=device)
 
     LOGGER.info(
-        "开始计算本体评估指标 | 向量模型=%s | 设备=%s | 阈值=%.2f | 平滑轮数=%d | 平滑因子=%.2f",
-        emb_model_path,
-        device,
+        "开始计算本体评估指标 | 向量后端=%s | 模型=%s | 服务=%s | 设备=%s | 阈值=%.2f | 平滑轮数=%d | 平滑因子=%.2f",
+        backend,
+        emb_model_name,
+        base_url or "local",
+        device if backend == "local" else "remote",
         threshold,
         smoothing_rounds,
         smoothing_alpha,
@@ -528,11 +615,14 @@ def main() -> None:
     metrics = compute_ontology_metrics(
         gold_graph=gold_graph,
         pred_graph=pred_graph,
-        emb_model=str(emb_model_path),
+        emb_model=str(emb_model_name),
         threshold=threshold,
         graph_smoothing_rounds=smoothing_rounds,
         graph_smoothing_alpha=smoothing_alpha,
-        device=device,
+        device=device if backend == "local" else None,
+        embedding_backend=backend,
+        embedding_model=embedding_model,
+        ollama_base_url=base_url,
     )
 
     for name, result in metrics.items():

@@ -600,7 +600,7 @@ def maybe_run_schema_evaluation(
         LOGGER.warning("已启用本体评估，但缺少评估用金标准本体，跳过比较。")
         return
     try:
-        from ontology_eval import compute_ontology_metrics
+        from ontology_eval import compute_ontology_metrics, prepare_embedding_model
         from utils.ontology_graph import schema_dict_to_graph
     except Exception as exc:  # noqa: BLE001
         LOGGER.warning("导入本体评估模块失败: %s", exc)
@@ -624,15 +624,25 @@ def maybe_run_schema_evaluation(
         gold_graph = schema_dict_to_graph(golden_schema)
         pred_graph = schema_dict_to_graph(pred_schema)
         device = evaluation_device()
-        LOGGER.info("[ontology_eval] 使用设备: %s", device)
+        embedding_model, backend, emb_model_name, base_url = prepare_embedding_model(cfg, device=device)
+        LOGGER.info(
+            "[ontology_eval] 嵌入后端=%s | 模型=%s | 服务=%s | 设备=%s",
+            backend,
+            emb_model_name,
+            base_url or "local",
+            device if backend == "local" else "remote",
+        )
         metrics = compute_ontology_metrics(
             gold_graph=gold_graph,
             pred_graph=pred_graph,
-            emb_model=str(cfg.get("emb_model") or "BAAI/bge-large-zh-v1.5"),
+            emb_model=str(emb_model_name),
             threshold=threshold,
             graph_smoothing_rounds=smoothing_rounds,
             graph_smoothing_alpha=smoothing_alpha,
-            device=device,
+            device=device if backend == "local" else None,
+            embedding_backend=backend,
+            embedding_model=embedding_model,
+            ollama_base_url=base_url,
         )
     except ImportError as exc:
         LOGGER.warning("运行本体评测缺少依赖 (numpy/scipy/sentence-transformers): %s", exc)
@@ -1468,7 +1478,18 @@ def instantiate_llm_client():
             top_p=llm_cfg["top_p"],
         )
 
-    raise ValueError("llm.provider 仅支持 'deepseek'、'openai' 或 'groq'")
+    if provider == "ollama":
+        from knowledge_graph_maker.llm_clients.ollama_client import OllamaClient
+
+        ollama_cfg = llm_cfg.get("ollama", {})
+        return OllamaClient(
+            model=ollama_cfg.get("model", "bge-m3"),
+            temperature=llm_cfg["temperature"],
+            top_p=llm_cfg["top_p"],
+            url=ollama_cfg.get("base_url", "http://0.0.0.0:11434"),
+        )
+
+    raise ValueError("llm.provider 仅支持 'deepseek'、'openai'、'groq' 或 'ollama'")
 
 def collect_nodes(edges: Iterable[Edge]) -> List[Node]:
     unique: Dict[Tuple[str, str], Node] = {}
