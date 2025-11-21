@@ -127,14 +127,14 @@ ontology:
 prompts:
   limits:
     entity_types:
-      min: 6
-      max: 10
+      min: 10
+      max: 50
     relationship_types:
-      min: 6
-      max: 10
+      min: 10
+      max: 50
     event_types:
-      min: 4
-      max: 8
+      min: 10
+      max: 50
   templates:
     ontology:
       zh:
@@ -335,11 +335,11 @@ event_extraction:
               description: "Key conditions or exchanges that enable the alliance"
               required: false
 input:
-  type: dataset
-  dataset_name: duIE_zh
+  type: instrctIE
+  dataset_name: instrctIE_zh
   text: "这里可以直接放置自定义背景文本……"
   file_path: input/background.txt
-  existing_ontology_path: input/golden_schema_duIE_zh.json
+  existing_ontology_path: input/golden_schema_instrctIE_zh.json
   source_label: duIE
   chunk_size: 1200
 runtime:
@@ -353,14 +353,14 @@ pipeline:
   evaluation_enabled: true
 evaluation:
   enabled: true
-  dataset_name: duIE_zh
+  dataset_name: instrctIE_zh
   # 可填 auto / cpu / cuda:{index}；默认使用第二张卡 cuda:1
   device: cuda:1
   emb_model: models/bge-m3
   threshold: 0.45
   graph_smoothing_rounds: 2
   graph_smoothing_alpha: 0.5
-  output_json: output/ontology_eval_metrics.json
+  output_json: output/ontology_eval_metrics_2.json
 dataset_conversion:
   output_dir: input
   samples_per_relation: 5
