@@ -146,6 +146,27 @@ def _ollama_cfg(eval_cfg: Dict) -> Dict:
     return cfg if isinstance(cfg, dict) else {}
 
 
+def _disable_proxy_for_ollama():
+    """在导入 Ollama 客户端前清理代理变量，确保本地连接。"""
+
+    proxy_vars = [
+        "ALL_PROXY",
+        "all_proxy",
+        "HTTPS_PROXY",
+        "https_proxy",
+        "HTTP_PROXY",
+        "http_proxy",
+    ]
+    removed = [key for key in proxy_vars if os.environ.pop(key, None)]
+
+    no_proxy = os.environ.get("NO_PROXY") or os.environ.get("no_proxy")
+    if not no_proxy:
+        os.environ["NO_PROXY"] = "localhost,127.0.0.1,::1"
+
+    if removed:
+        LOGGER.info("已禁用以下代理环境变量以连接本地 Ollama: %s", ", ".join(removed))
+
+
 def _embedding_model_name(eval_cfg: Dict, for_backend: str | None = None) -> str:
     backend = for_backend or _embedding_backend(eval_cfg)
     if backend == "ollama":
@@ -310,6 +331,7 @@ class OllamaEmbeddingModel:
     """通过 Ollama Embeddings API 构建与 SentenceTransformer 类似的 encode 接口。"""
 
     def __init__(self, model_name: str, base_url: str):
+        _disable_proxy_for_ollama()
         from ollama import Client
 
         self._model = model_name
