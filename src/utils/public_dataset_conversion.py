@@ -83,6 +83,10 @@ def _infer_instructie_types(rel_type: str, category: str | None, mapping: Instru
     return "", ""
 
 
+def _new_sample_bucket() -> Dict[str, Any]:
+    return {"items": [], "texts": set()}
+
+
 def convert_instructie_inputs(
     data_paths: Sequence[Path],
     mapping: InstructIERelationMap,
@@ -90,7 +94,7 @@ def convert_instructie_inputs(
     language: str,
     sample_limit: int,
 ) -> List[Dict[str, Any]]:
-    samples: Dict[Tuple[str, str, str], List[Dict[str, Any]]] = defaultdict(list)
+    samples: Dict[Tuple[str, str, str], Dict[str, Any]] = defaultdict(_new_sample_bucket)
 
     for record in _iter_json_lines(data_paths):
         text = str(record.get("input", "")).strip()
@@ -113,9 +117,12 @@ def convert_instructie_inputs(
                 continue
 
             key = (head_type, rel_type, tail_type)
-            if len(samples[key]) >= sample_limit:
+            bucket = samples[key]
+            if text in bucket["texts"]:
                 continue
-            samples[key].append(
+            if len(bucket["items"]) >= sample_limit:
+                continue
+            bucket["items"].append(
                 {
                     "id": record.get("id", ""),
                     "category": category or "",
@@ -126,15 +133,17 @@ def convert_instructie_inputs(
                     "language": language,
                 }
             )
+            bucket["texts"].add(text)
 
     results: List[Dict[str, Any]] = []
     for head_type, rel_type, tail_type in sorted(samples.keys(), key=lambda x: (x[0], x[1], x[2])):
+        bucket = samples[(head_type, rel_type, tail_type)]
         results.append(
             {
                 "head_entity_type": head_type,
                 "rel_type": rel_type,
                 "tail_type": tail_type,
-                "samples": samples[(head_type, rel_type, tail_type)],
+                "samples": bucket["items"],
             }
         )
     return results
@@ -174,7 +183,7 @@ def convert_duie_schema(schema_path: Path, dataset_name: str, language: str) -> 
 def convert_duie_inputs(
     data_paths: Sequence[Path], dataset_name: str, language: str, sample_limit: int
 ) -> List[Dict[str, Any]]:
-    samples: Dict[Tuple[str, str, str], List[Dict[str, Any]]] = defaultdict(list)
+    samples: Dict[Tuple[str, str, str], Dict[str, Any]] = defaultdict(_new_sample_bucket)
 
     for record in _iter_json_lines(data_paths):
         text = str(record.get("text", "")).strip()
@@ -203,9 +212,12 @@ def convert_duie_inputs(
                 continue
 
             key = (head_type, rel_type, tail_type)
-            if len(samples[key]) >= sample_limit:
+            bucket = samples[key]
+            if text in bucket["texts"]:
                 continue
-            samples[key].append(
+            if len(bucket["items"]) >= sample_limit:
+                continue
+            bucket["items"].append(
                 {
                     "id": record.get("id", ""),
                     "category": record.get("category", ""),
@@ -216,15 +228,17 @@ def convert_duie_inputs(
                     "language": language,
                 }
             )
+            bucket["texts"].add(text)
 
     results: List[Dict[str, Any]] = []
     for head_type, rel_type, tail_type in sorted(samples.keys(), key=lambda x: (x[0], x[1], x[2])):
+        bucket = samples[(head_type, rel_type, tail_type)]
         results.append(
             {
                 "head_entity_type": head_type,
                 "rel_type": rel_type,
                 "tail_type": tail_type,
-                "samples": samples[(head_type, rel_type, tail_type)],
+                "samples": bucket["items"],
             }
         )
     return results
