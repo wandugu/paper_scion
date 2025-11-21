@@ -15,6 +15,9 @@ llm:
     max_tokens: 2048
   groq:
     model: mixtral-8x7b-32768
+  ollama:
+    model: bge-m3
+    base_url: http://0.0.0.0:11434
 
 dataset:
   name: &dataset_name instrctIE_zh
@@ -359,7 +362,11 @@ evaluation:
   dataset_name: *dataset_name
   # 可填 auto / cpu / cuda:{index}；默认使用第二张卡 cuda:1
   device: cuda:1
+  embedding_backend: local  # local：本地向量模型；ollama：通过 Ollama 服务调用
   emb_model: models/bge-m3
+  ollama:
+    base_url: http://0.0.0.0:11434
+    model: bge-m3
   threshold: 0.45
   graph_smoothing_rounds: 2
   graph_smoothing_alpha: 0.5

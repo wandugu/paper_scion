@@ -105,6 +105,8 @@ python src/ontology_process.py
   - **Continuous F1**：在连续得分空间上衡量匹配质量，兼顾召回与精度。
   - **Graph F1**：对齐节点与边后整体计算，反映结构性差异。
 - 可指定嵌入模型（如 `BAAI/bge-large-zh-v1.5`）及匹配阈值，结果写入 `evaluation.output_json`。
+- 如需调用 Ollama 服务（例如通过 `0.0.0.0:11434` 暴露的 `bge-m3`），可在 `config/config.yaml` 的 `evaluation.embedding_backend` 填写
+  `ollama`，并在 `evaluation.ollama` 中配置 `base_url` 与 `model`；保留 `local` 则直接从本地路径加载模型。
 - 评测前请安装 `sentence-transformers`、`numpy`、`scipy`。
 
 ## 本体评测命令行工具
