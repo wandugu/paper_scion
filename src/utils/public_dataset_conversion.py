@@ -246,7 +246,7 @@ def convert_duie_inputs(
 
 def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
     conv_cfg = config.get("dataset_conversion") or {}
-    output_dir = resolve_project_path(conv_cfg.get("output_dir", "input"))
+    output_dir = resolve_project_path(conv_cfg.get("output_dir", "data/input"))
     sample_limit = int(conv_cfg.get("samples_per_relation", 5))
 
     results: Dict[str, List[Path]] = {"schemas": [], "samples": []}
