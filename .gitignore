@@ -11,3 +11,4 @@ src/assets/evolution_gif
 src/assets/*.psd
 */__pycache__/*
 *.pyc
+models/
