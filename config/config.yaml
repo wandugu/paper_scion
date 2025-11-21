@@ -1,6 +1,8 @@
 language:
   code: zh
 
+dataset_name: instrctIE_zh
+
 llm:
   provider: deepseek
   temperature: 0.1
@@ -335,8 +337,7 @@ event_extraction:
               description: "Key conditions or exchanges that enable the alliance"
               required: false
 input:
-  type: instrctIE
-  dataset_name: instrctIE_zh
+  type: dataset
   text: "这里可以直接放置自定义背景文本……"
   file_path: input/background.txt
   existing_ontology_path: input/golden_schema_instrctIE_zh.json
@@ -353,7 +354,6 @@ pipeline:
   evaluation_enabled: true
 evaluation:
   enabled: true
-  dataset_name: instrctIE_zh
   # 可填 auto / cpu / cuda:{index}；默认使用第二张卡 cuda:1
   device: cuda:1
   emb_model: models/bge-m3
