@@ -1,0 +1,229 @@
+{
+  "entities": [
+    {
+      "人物": "人物姓名，避免形容词"
+    },
+    {
+      "物体": "有形物体，名称中不含冠词"
+    },
+    {
+      "事件": "事件或情节，保持中立描述"
+    },
+    {
+      "地点": "地理位置或场所"
+    },
+    {
+      "组织": "公司、机构或团体"
+    },
+    "文档",
+    {
+      "行动": "关键动作或行为"
+    },
+    {
+      "其它": "其它重要概念"
+    },
+    {
+      "时间": "具体时间点或时间段"
+    },
+    {
+      "作品": "文学、艺术或音乐创作"
+    },
+    {
+      "职位": "在组织中的职务或身份"
+    },
+    {
+      "产品": "生产或销售的商品"
+    },
+    {
+      "交易": "经济或商业活动"
+    },
+    {
+      "家庭关系": "亲属或婚姻关系"
+    },
+    {
+      "教育背景": "学历或学习经历"
+    },
+    {
+      "职业经历": "工作或职业发展"
+    },
+    {
+      "创作行为": "艺术或文学创作活动"
+    },
+    {
+      "投资行为": "金融投资活动"
+    },
+    {
+      "医疗行为": "医疗健康相关活动"
+    }
+  ],
+  "relationships": [
+    {
+      "head_entity": "人物",
+      "tail_entity": "组织",
+      "rel_type": "隶属于",
+      "description": "角色在某个组织或阵营中任职、受训或接受指挥"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "地点",
+      "rel_type": "位于",
+      "description": "组织的总部、设施或主要部署区域"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "组织",
+      "rel_type": "对抗",
+      "description": "两个组织在战略、舆论或资源层面发生直接冲突"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "物体",
+      "rel_type": "负责设计",
+      "description": "个人主导或负责关键系统、装备或技术方案的设计"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "行动",
+      "rel_type": "负责推进",
+      "description": "个人主导执行或推动一项行动、计划或改革"
+    },
+    {
+      "head_entity": "物体",
+      "tail_entity": "地点",
+      "rel_type": "部署于",
+      "description": "系统、装备或技术在特定地理区域或设施中的部署"
+    },
+    {
+      "head_entity": "物体",
+      "tail_entity": "物体",
+      "rel_type": "包含组件",
+      "description": "上层系统所包含的子模块、传感器或软件组件"
+    },
+    {
+      "head_entity": "物体",
+      "tail_entity": "事件",
+      "rel_type": "引发事件",
+      "description": "系统或技术变化导致的事故、舆情或调查"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "文档",
+      "rel_type": "报告问题",
+      "description": "个人通过备忘录、报告或公告形式提出质疑与反馈"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "事件",
+      "rel_type": "参与评估",
+      "description": "个人以专家、负责人或调查成员身份参与事件评估"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "职位",
+      "rel_type": "担任",
+      "description": "个人担任特定职务"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "家庭关系",
+      "rel_type": "具有",
+      "description": "个人拥有的亲属关系"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "教育背景",
+      "rel_type": "拥有",
+      "description": "个人的学历背景"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "职业经历",
+      "rel_type": "经历",
+      "description": "个人的工作经历"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "作品",
+      "rel_type": "创作",
+      "description": "个人创作的作品"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "事件",
+      "rel_type": "参与",
+      "description": "个人参与的事件"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "交易",
+      "rel_type": "执行",
+      "description": "个人执行的交易活动"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "产品",
+      "rel_type": "生产",
+      "description": "组织生产的产品"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "事件",
+      "rel_type": "举办",
+      "description": "组织举办的活动"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "时间",
+      "rel_type": "发生于",
+      "description": "事件发生的时间"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "地点",
+      "rel_type": "发生于",
+      "description": "事件发生的地点"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "组织",
+      "rel_type": "属于",
+      "description": "产品所属的组织"
+    },
+    {
+      "head_entity": "交易",
+      "tail_entity": "人物",
+      "rel_type": "涉及",
+      "description": "交易涉及的个人"
+    },
+    {
+      "head_entity": "交易",
+      "tail_entity": "产品",
+      "rel_type": "涉及",
+      "description": "交易涉及的产品"
+    },
+    {
+      "head_entity": "创作行为",
+      "tail_entity": "作品",
+      "rel_type": "产生",
+      "description": "创作行为产生的作品"
+    },
+    {
+      "head_entity": "投资行为",
+      "tail_entity": "组织",
+      "rel_type": "投资于",
+      "description": "投资行为指向的组织"
+    },
+    {
+      "head_entity": "医疗行为",
+      "tail_entity": "人物",
+      "rel_type": "服务于",
+      "description": "医疗服务对象"
+    },
+    {
+      "head_entity": "家庭关系",
+      "tail_entity": "人物",
+      "rel_type": "关联",
+      "description": "家庭关系关联的个人"
+    }
+  ]
+}
