@@ -1,0 +1,545 @@
+{
+  "entities": [
+    {
+      "人物": "人物姓名，避免形容词"
+    },
+    {
+      "物体": "有形物体，名称中不含冠词"
+    },
+    {
+      "事件": "事件或情节，保持中立描述"
+    },
+    {
+      "地点": "地理空间位置"
+    },
+    "组织",
+    "文档",
+    {
+      "行动": "关键动作或行为"
+    },
+    {
+      "其它": "其它重要概念"
+    },
+    {
+      "体育赛事": "各类体育竞技比赛活动"
+    },
+    {
+      "国际组织": "跨国界的官方或非官方组织"
+    },
+    {
+      "交通工具": "用于运输人员或货物的设备"
+    },
+    {
+      "事故": "意外发生的负面事件"
+    },
+    {
+      "基础设施": "公共或私人建造的固定设施"
+    },
+    {
+      "技术设备": "具有特定功能的机械或电子设备"
+    },
+    {
+      "文化资产": "具有文化价值的遗产或作品"
+    },
+    {
+      "宗教制度": "宗教领域的传统规范体系"
+    },
+    {
+      "军事行动": "涉及武装力量的行动"
+    },
+    {
+      "奖项": "表彰成就的荣誉"
+    },
+    {
+      "教育机构": "提供教学服务的组织"
+    },
+    {
+      "能源项目": "与能源生产相关的工程"
+    },
+    {
+      "娱乐活动": "文化娱乐性质的集会"
+    },
+    {
+      "政治事件": "涉及政府或国际关系的活动"
+    },
+    {
+      "职业变动": "个人职业生涯的状态变化"
+    }
+  ],
+  "relationships": [
+    {
+      "head_entity": "人物",
+      "tail_entity": "组织",
+      "rel_type": "隶属于",
+      "description": "角色在某个组织或阵营中任职、受训或接受指挥"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "地点",
+      "rel_type": "位于",
+      "description": "组织的总部、设施或主要部署区域"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "组织",
+      "rel_type": "对抗",
+      "description": "两个组织在战略、舆论或资源层面发生直接冲突"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "物体",
+      "rel_type": "负责设计",
+      "description": "个人主导或负责关键系统、装备或技术方案的设计"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "行动",
+      "rel_type": "负责推进",
+      "description": "个人主导执行或推动一项行动、计划或改革"
+    },
+    {
+      "head_entity": "物体",
+      "tail_entity": "地点",
+      "rel_type": "部署于",
+      "description": "系统、装备或技术在特定地理区域或设施中的部署"
+    },
+    {
+      "head_entity": "物体",
+      "tail_entity": "物体",
+      "rel_type": "包含组件",
+      "description": "上层系统所包含的子模块、传感器或软件组件"
+    },
+    {
+      "head_entity": "物体",
+      "tail_entity": "事件",
+      "rel_type": "引发事件",
+      "description": "系统或技术变化导致的事故、舆情或调查"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "文档",
+      "rel_type": "报告问题",
+      "description": "个人通过备忘录、报告或公告形式提出质疑与反馈"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "事件",
+      "rel_type": "参与评估",
+      "description": "个人以专家、负责人或调查成员身份参与事件评估"
+    },
+    {
+      "head_entity": "国际组织",
+      "tail_entity": "体育赛事",
+      "rel_type": "主办",
+      "description": "组织负责举办赛事"
+    },
+    {
+      "head_entity": "体育赛事",
+      "tail_entity": "地点",
+      "rel_type": "举办于",
+      "description": "赛事在特定地点举行"
+    },
+    {
+      "head_entity": "交通工具",
+      "tail_entity": "事故",
+      "rel_type": "涉及",
+      "description": "交通工具成为事故主体"
+    },
+    {
+      "head_entity": "事故",
+      "tail_entity": "人物",
+      "rel_type": "影响",
+      "description": "事故对人员造成伤害"
+    },
+    {
+      "head_entity": "基础设施",
+      "tail_entity": "地点",
+      "rel_type": "位于",
+      "description": "设施建设在特定位置"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "体育赛事",
+      "rel_type": "参与",
+      "description": "个人参加比赛活动"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "职业变动",
+      "rel_type": "经历",
+      "description": "个人职业生涯发生变化"
+    },
+    {
+      "head_entity": "技术设备",
+      "tail_entity": "交通工具",
+      "rel_type": "装配于",
+      "description": "设备安装在交通工具上"
+    },
+    {
+      "head_entity": "文化资产",
+      "tail_entity": "地点",
+      "rel_type": "坐落于",
+      "description": "文化遗产位于特定地点"
+    },
+    {
+      "head_entity": "宗教制度",
+      "tail_entity": "人物",
+      "rel_type": "涉及继承",
+      "description": "制度规定人物继承方式"
+    },
+    {
+      "head_entity": "国际组织",
+      "tail_entity": "军事行动",
+      "rel_type": "执行",
+      "description": "组织进行军事活动"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "奖项",
+      "rel_type": "获得",
+      "description": "个人获得荣誉表彰"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "教育机构",
+      "rel_type": "就读于",
+      "description": "个人在教育机构学习"
+    },
+    {
+      "head_entity": "能源项目",
+      "tail_entity": "地点",
+      "rel_type": "建设于",
+      "description": "能源工程在特定地点实施"
+    },
+    {
+      "head_entity": "娱乐活动",
+      "tail_entity": "地点",
+      "rel_type": "举行于",
+      "description": "娱乐活动在特定场所举办"
+    },
+    {
+      "head_entity": "政治事件",
+      "tail_entity": "国际组织",
+      "rel_type": "涉及",
+      "description": "事件牵涉国际组织"
+    },
+    {
+      "head_entity": "体育赛事",
+      "tail_entity": "奖项",
+      "rel_type": "颁发",
+      "description": "赛事中颁发荣誉奖项"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "国际组织",
+      "rel_type": "代表",
+      "description": "个人代表组织参与活动"
+    },
+    {
+      "head_entity": "技术设备",
+      "tail_entity": "技术设备",
+      "rel_type": "升级替换",
+      "description": "新设备替代旧设备"
+    },
+    {
+      "head_entity": "事故",
+      "tail_entity": "地点",
+      "rel_type": "发生于",
+      "description": "事故在特定地点发生"
+    },
+    {
+      "head_entity": "基础设施",
+      "tail_entity": "基础设施",
+      "rel_type": "取代",
+      "description": "新设施替代旧设施"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "文化资产",
+      "rel_type": "参与创作",
+      "description": "个人参与文化遗产创作"
+    },
+    {
+      "head_entity": "军事行动",
+      "tail_entity": "事故",
+      "rel_type": "引发",
+      "description": "军事行动导致事故发生"
+    },
+    {
+      "head_entity": "教育机构",
+      "tail_entity": "人物",
+      "rel_type": "授予资格",
+      "description": "机构授予个人学习资格"
+    },
+    {
+      "head_entity": "能源项目",
+      "tail_entity": "奖项",
+      "rel_type": "获得表彰",
+      "description": "能源项目获得荣誉认可"
+    },
+    {
+      "head_entity": "娱乐活动",
+      "tail_entity": "技术设备",
+      "rel_type": "使用",
+      "description": "活动使用特定技术设备"
+    },
+    {
+      "head_entity": "政治事件",
+      "tail_entity": "地点",
+      "rel_type": "影响",
+      "description": "事件对地区产生影响"
+    },
+    {
+      "head_entity": "宗教制度",
+      "tail_entity": "文化资产",
+      "rel_type": "关联",
+      "description": "制度与文化遗产相关联"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "军事行动",
+      "rel_type": "参与",
+      "description": "个人参与军事活动"
+    },
+    {
+      "head_entity": "体育赛事",
+      "tail_entity": "职业变动",
+      "rel_type": "导致",
+      "description": "赛事结果影响职业生涯"
+    },
+    {
+      "head_entity": "国际组织",
+      "tail_entity": "政治事件",
+      "rel_type": "发起",
+      "description": "组织发起政治活动"
+    },
+    {
+      "head_entity": "交通工具",
+      "tail_entity": "技术设备",
+      "rel_type": "配备",
+      "description": "交通工具装备技术设备"
+    },
+    {
+      "head_entity": "事故",
+      "tail_entity": "基础设施",
+      "rel_type": "损坏",
+      "description": "事故造成设施破坏"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "娱乐活动",
+      "rel_type": "表演于",
+      "description": "个人在活动中表演"
+    },
+    {
+      "head_entity": "能源项目",
+      "tail_entity": "国际组织",
+      "rel_type": "获得支持",
+      "description": "项目得到组织支持"
+    },
+    {
+      "head_entity": "教育机构",
+      "tail_entity": "地点",
+      "rel_type": "位于",
+      "description": "机构设在特定地点"
+    },
+    {
+      "head_entity": "文化资产",
+      "tail_entity": "宗教制度",
+      "rel_type": "体现",
+      "description": "文化遗产反映宗教制度"
+    },
+    {
+      "head_entity": "军事行动",
+      "tail_entity": "国际组织",
+      "rel_type": "由...指挥",
+      "description": "行动受组织指挥"
+    },
+    {
+      "head_entity": "奖项",
+      "tail_entity": "娱乐活动",
+      "rel_type": "在...颁发",
+      "description": "奖项在活动中颁发"
+    },
+    {
+      "head_entity": "职业变动",
+      "tail_entity": "人物",
+      "rel_type": "影响",
+      "description": "职业变化影响个人发展"
+    },
+    {
+      "head_entity": "技术设备",
+      "tail_entity": "能源项目",
+      "rel_type": "应用于",
+      "description": "设备在能源项目中使用"
+    },
+    {
+      "head_entity": "政治事件",
+      "tail_entity": "军事行动",
+      "rel_type": "导致",
+      "description": "政治事件引发军事行动"
+    },
+    {
+      "head_entity": "体育赛事",
+      "tail_entity": "国际组织",
+      "rel_type": "隶属于",
+      "description": "赛事属于组织管理范围"
+    },
+    {
+      "head_entity": "交通工具",
+      "tail_entity": "地点",
+      "rel_type": "航行至",
+      "description": "交通工具前往特定地点"
+    },
+    {
+      "head_entity": "事故",
+      "tail_entity": "技术设备",
+      "rel_type": "由...引起",
+      "description": "设备故障导致事故发生"
+    },
+    {
+      "head_entity": "基础设施",
+      "tail_entity": "能源项目",
+      "rel_type": "支持",
+      "description": "设施支持能源项目实施"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "教育机构",
+      "rel_type": "毕业于",
+      "description": "个人从机构完成学业"
+    },
+    {
+      "head_entity": "文化资产",
+      "tail_entity": "娱乐活动",
+      "rel_type": "作为场地",
+      "description": "文化遗产作为活动场地"
+    },
+    {
+      "head_entity": "宗教制度",
+      "tail_entity": "人物",
+      "rel_type": "约束",
+      "description": "制度对人员行为规范"
+    },
+    {
+      "head_entity": "军事行动",
+      "tail_entity": "地点",
+      "rel_type": "发生于",
+      "description": "行动在特定地区进行"
+    },
+    {
+      "head_entity": "奖项",
+      "tail_entity": "人物",
+      "rel_type": "表彰",
+      "description": "奖项认可个人成就"
+    },
+    {
+      "head_entity": "职业变动",
+      "tail_entity": "体育赛事",
+      "rel_type": "因...发生",
+      "description": "赛事结果导致职业变化"
+    },
+    {
+      "head_entity": "技术设备",
+      "tail_entity": "国际组织",
+      "rel_type": "由...开发",
+      "description": "组织负责设备研发"
+    },
+    {
+      "head_entity": "政治事件",
+      "tail_entity": "事故",
+      "rel_type": "引发",
+      "description": "政治事件导致事故发生"
+    },
+    {
+      "head_entity": "能源项目",
+      "tail_entity": "奖项",
+      "rel_type": "荣获",
+      "description": "项目获得奖项认可"
+    },
+    {
+      "head_entity": "娱乐活动",
+      "tail_entity": "人物",
+      "rel_type": "邀请",
+      "description": "活动邀请个人参与"
+    },
+    {
+      "head_entity": "教育机构",
+      "tail_entity": "国际组织",
+      "rel_type": "合作",
+      "description": "机构与组织开展合作"
+    },
+    {
+      "head_entity": "文化资产",
+      "tail_entity": "宗教制度",
+      "rel_type": "传承",
+      "description": "文化遗产传承宗教传统"
+    },
+    {
+      "head_entity": "军事行动",
+      "tail_entity": "政治事件",
+      "rel_type": "响应",
+      "description": "军事行动响应政治事件"
+    },
+    {
+      "head_entity": "体育赛事",
+      "tail_entity": "技术设备",
+      "rel_type": "使用",
+      "description": "赛事使用特定设备"
+    },
+    {
+      "head_entity": "交通工具",
+      "tail_entity": "国际组织",
+      "rel_type": "归属于",
+      "description": "交通工具属于组织所有"
+    },
+    {
+      "head_entity": "事故",
+      "tail_entity": "军事行动",
+      "rel_type": "关联",
+      "description": "事故与军事行动相关"
+    },
+    {
+      "head_entity": "基础设施",
+      "tail_entity": "文化资产",
+      "rel_type": "被认定为",
+      "description": "设施被认定为文化遗产"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "宗教制度",
+      "rel_type": "遵循",
+      "description": "个人遵守宗教规范"
+    },
+    {
+      "head_entity": "能源项目",
+      "tail_entity": "技术设备",
+      "rel_type": "采用",
+      "description": "项目采用特定技术"
+    },
+    {
+      "head_entity": "娱乐活动",
+      "tail_entity": "奖项",
+      "rel_type": "设立",
+      "description": "活动设立荣誉奖项"
+    },
+    {
+      "head_entity": "教育机构",
+      "tail_entity": "人物",
+      "rel_type": "培养",
+      "description": "机构培养人才"
+    },
+    {
+      "head_entity": "政治事件",
+      "tail_entity": "国际组织",
+      "rel_type": "影响",
+      "description": "事件对组织产生影响"
+    },
+    {
+      "head_entity": "职业变动",
+      "tail_entity": "教育机构",
+      "rel_type": "通过...实现",
+      "description": "通过教育实现职业发展"
+    }
+  ]
+}

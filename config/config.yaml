@@ -133,8 +133,8 @@ prompts:
       min: 10
       max: 50
     relationship_types:
-      min: 10
-      max: 50
+      min: 50
+      max: 150
     event_types:
       min: 10
       max: 50
