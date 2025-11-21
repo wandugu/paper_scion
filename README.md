@@ -1,50 +1,47 @@
-# The Graph Maker
+# Graph Maker 项目说明
 
-A Python library that can convert any text into a graph of knowedge given an ontology.
+本仓库提供一套中文优先的知识图谱本体构建与评测流程，核心脚本包括 `ontology_process.py`、`ontology_generate.py`、`ontology_eval.py` 以及公共数据集转换工具 `convert_public_datasets.py`。所有功能均基于 `config/config.yaml` 的配置自动加载，无需联网即可运行内置的 `knowledge_graph_maker` 实现。
 
-[![The Graph Maker](./src/assets/GraphMaker.png)](https://github.com/rahulnyk/knowledge_graph_maker)
-_Image generated using Adobe Firefly and Photoshop_
+## 快速开始
 
-## What is a knowledge graph?
+1. 安装依赖：
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. 按需修改 `config/config.yaml`（模型、提示词、输入/输出路径等）。
+3. 一键运行完整流程：
+   ```bash
+   python src/ontology_process.py
+   ```
+4. 单独执行阶段：
+   ```bash
+   # 仅生成本体
+   python src/ontology_generate.py
 
-A knowledge graph, also known as a semantic network, represents a network of real-world entities—i.e. objects, events, situations, or concepts—and illustrates the relationship between them. This information is usually stored in a graph database and visualized as a graph structure, prompting the term knowledge “graph.”
-
-Source: https://www.ibm.com/topics/knowledge-graph
-
-## Why Graph?
-
-KG can be used for a multitude of purposes. We can run graph algorithms and calculate centralities of any node, to understand how important a concept (node) is to this body of work. We can calculate communities to bunch the concepts together to better analyse the text. We can understand the connectedness between seemingly disconnected concepts.
-
-The best of all, we can achieve **Graph Retrieval Augmented Generation (GRAG)** and chat with our text in a much more profound way using Graph as a retriever. This is a new and improved version of **Retrieval Augmented Generation (RAG)** where we use a vectory db as a retriever to chat with our documents.
-
----
-
-## This project
-
-This project is an example notebook that demonstrates the use of the knowledge graph maker library。仓库现已自带
-`knowledge_graph_maker` 源码，默认会优先加载本地实现，无需联网下载。
+   # 仅评测本体
+   python src/ontology_eval.py \
+     --gold_onto input/ontology_schema_exist_cn.json \
+     --pred_onto output/ontology_schema_cn.json \
+     --emb_model BAAI/bge-large-zh-v1.5 \
+     --threshold 0.45 \
+     --output_json output/ontology_eval_metrics.json
+   ```
+5. 需要转换公开数据集时：
+   ```bash
+   python src/convert_public_datasets.py
+   ```
 
 ## 项目结构与运行方式
 
-- 所有 Python 脚本均位于 `src/` 目录下，其中 `src/ontology_generate.py` 是主要的生成脚本。
+- 所有 Python 脚本均位于 `src/` 目录下，其中 `src/ontology_generate.py` 是主要的本体生成脚本。
 - 运行脚本前请确保 `config/config.yaml` 中的参数已经根据自身环境调整完毕。
-- 示例素材（如封面图、样例文本等）也集中在 `src/assets/` 下，方便统一维护。
-- 如已拥有一份旧的本体定义，可将其放入 `input/ontology_schema_exist_<lang>.json`
-  （或在 `config/config.yaml` 的 `input.existing_ontology_path` 中指定其它路径）。脚本会
-  先构建新的本体，再与旧版本进行去重合并，最终输出合并后的 `ontology_schema_<lang>.json`。
-- 若只需生成本体文件，可在 `runtime.graph_extraction_enabled` 中设置为 `false`，
-  此时脚本只会输出合并后的本体 JSON，跳过节点/边文件及 Neo4j 相关流程。
-- `pipeline.mode` 可选 `all` / `generate_only` / `eval_only`，用于控制是否走完整流程，
-  以及是否跳过单独的生成或评测环节（评测仍需 `evaluation.enabled=true`）。
-- `ontology.output_sections` 可以是 `entities`、`relationships`、`events` 的任意组合，
-  仅保留列表中指定的板块；如需输出所有信息，配置 `all`（默认值）即可。
-- `language.code`（目前支持 `cn`、`en`）用于控制 LLM 的输出语言。
-- 所有输入/输出文件都会根据语言自动追加 `_cn` 或 `_en` 后缀。例如
-  `input/background.txt` 在中文模式下会读取 `input/background_cn.txt`，输出文件也会
-  命名为 `graph_nodes_cn.json`、`ontology_schema_cn.json` 等。
-- `evaluation.enabled` 控制是否在生成新 schema 后，与 `input.existing_ontology_path`
-  中的金标准 schema 做本体评测。开启后脚本会记录 Literal/Fuzzy/Continuous/Graph F1，
-  并把指标写入 `evaluation.output_json`（默认 `output/ontology_eval_metrics.json`）。
+- 示例素材与配置集中在 `src/assets/`、`config/`，便于统一维护。
+- 如已拥有旧的本体定义，可放入 `input/ontology_schema_exist_<lang>.json`（或在 `config/config.yaml` 的 `input.existing_ontology_path` 中指定其它路径）。脚本会先构建新本体，再与旧版本去重合并，最终输出合并后的 `ontology_schema_<lang>.json`。
+- 若只需生成本体文件，可在 `runtime.graph_extraction_enabled` 中设置为 `false`，此时脚本只会输出合并后的本体 JSON，跳过节点/边文件及 Neo4j 相关流程。
+- `pipeline.mode` 可选 `all` / `generate_only` / `eval_only`，用于控制是否走完整流程，以及是否跳过生成或评测环节（评测仍需 `evaluation.enabled=true`）。
+- `ontology.output_sections` 可以是 `entities`、`relationships`、`events` 的任意组合，仅保留列表中指定的板块；如需输出所有信息，配置 `all`（默认值）即可。
+- `language.code`（目前支持 `cn`、`en`）用于控制 LLM 的输出语言。所有输入/输出文件都会根据语言自动追加 `_cn` 或 `_en` 后缀，例如背景语料 `input/background_cn.txt`、输出 `graph_nodes_cn.json`、`ontology_schema_cn.json` 等。
+- `evaluation.enabled` 控制是否在生成新 schema 后，与金标准 schema 做本体评测。开启后会记录 Literal / Fuzzy / Continuous / Graph F1，并把指标写入 `evaluation.output_json`（默认 `output/ontology_eval_metrics.json`）。
 
 运行示例脚本：
 
@@ -57,6 +54,39 @@ python src/ontology_generate.py
 ```bash
 python src/ontology_process.py
 ```
+
+## 核心脚本与流程说明
+
+### ontology_generate.py —— 本体构建
+- 输入：`input/background_<lang>.txt` 等背景语料，提示词由 `config/config.yaml` 的 `prompt`、`ontology` 块提供。
+- 输出：本体文件 `output/ontology_schema_<lang>.json`，可选节点/边文件 `graph_nodes_<lang>.json`、`graph_edges_<lang>.json`。
+- 关键特性：
+  - 支持事件抽取扩展（`ontology.event_extraction.enabled`），自动生成事件类型、触发词与参数角色。
+  - 支持分块处理长文本、温度与 top_p 等采样策略配置。
+  - 先生成候选实体/关系/事件，再按提示词进行语义去重与结构化，确保输出字段完整一致。
+
+### ontology_process.py —— 本体融合与流程编排
+- 根据 `pipeline.mode` 选择只生成、只评测或先生成后评测。
+- 在生成后会自动与已有本体（若存在）做语义匹配与去重融合，保留唯一实体、关系、事件定义，并按语言命名规则写回 `output/`。
+- 可通过 `runtime.graph_extraction_enabled` 决定是否额外抽取节点/边并导出 Neo4j CSV；流程日志输出至 `logs/` 便于排查。
+
+### convert_public_datasets.py —— 数据集转换与挖掘
+- 依据 `config/config.yaml` 中的 `public_datasets` 设置，批量将公开数据集的 schema、样例转换为统一格式，方便直接复用到生成或评测流程。
+- 支持对输入字段、标签的清洗与重命名，输出到 `output/public_datasets/`，便于后续挖掘与对齐。
+
+### Graph 抽取与导出
+- 若开启图谱抽取，生成脚本会在合并本体后调用内置的 `knowledge_graph_maker`，按照本体 schema 将语料转为节点/边 JSON，并可选导出 Neo4j CSV。
+- 抽取流程包含：文本分块 → 文档封装 → 图谱生成 → 节点/边合并与去重；可配置分块大小、延迟、最大并发等运行参数。
+- 输出文件带语言后缀，便于区分，同时保留源文本片段或元数据，方便溯源与挖掘。
+
+### ontology_eval.py —— 评测指标
+- 提供命令行工具对比金标准与生成本体，支持 Literal / Fuzzy / Continuous / Graph F1 四类指标：
+  - **Literal F1**：严格字符串匹配，检验字段一致性。
+  - **Fuzzy F1**：基于相似度的宽松匹配，适合同义或近义的实体/关系名。
+  - **Continuous F1**：在连续得分空间上衡量匹配质量，兼顾召回与精度。
+  - **Graph F1**：对齐节点与边后整体计算，反映结构性差异。
+- 可指定嵌入模型（如 `BAAI/bge-large-zh-v1.5`）及匹配阈值，结果写入 `evaluation.output_json`。
+- 评测前请安装 `sentence-transformers`、`numpy`、`scipy`。
 
 ## 本体评测命令行工具
 
@@ -71,155 +101,26 @@ python src/ontology_eval.py \
   --output_json results/metrics.json
 ```
 
-脚本会加载两个 schema，构建图表示，并输出 Literal / Fuzzy / Continuous / Graph F1。
-运行前请先 `pip install sentence-transformers numpy scipy` 以满足依赖。
+脚本会加载两个 schema，构建图表示，并输出 Literal / Fuzzy / Continuous / Graph F1。运行前请先 `pip install sentence-transformers numpy scipy` 以满足依赖。
 
 如需自定义 PYTHONPATH 或以模块方式运行，也可以执行 `python -m src.ontology_generate`。
 
-> Note: 仓库自带的 `src/knowledge_graph_maker` 目录已经同步了官方实现，若只需运行本示例，
-> 无需通过网络安装 `knowledge-graph-maker`，断网环境下也可直接执行。
+> Note: 仓库自带的 `src/knowledge_graph_maker` 目录已经同步了官方实现，若只需运行本示例，无需通过网络安装 `knowledge-graph-maker`，断网环境下也可直接执行。
 
 如果希望使用官方 pip 版本，可根据需要执行 `pip install knowledge-graph-maker`。
 
-To set up this project you can use [Poetry](https://python-poetry.org/docs/configuration/).
-If you use poetry, please dont install the graph maker library manually. The poetry environment will manage that for you.
-
-```shall
-$ poetry config --local virtualenvs.in-project true
-$ poetry install
-```
-
----
-
-## [Here is the python notebook that demonstrates how to extract graph from text cospus. ](https://github.com/rahulnyk/graph_maker/blob/main/graph_maker_example.ipynb)
-
-Summary of the notebook
-
-### 1. Define the Ontology of your Graph
-
-The library understands the following schema for the Ontology. Behind the scene, ontology is a pydantic model.
-
-```python
-ontology = Ontology(
-    # entities to be extracted. Can be a string or an object, like the following.
-    entities=[
-        {"Person": "Person name without any adjectives, Remember a person may be references by their name or using a pronoun"},
-        {"Object": "Do not add the definite article 'the' in the object name"},
-        {"Event": "Event event involving multiple people. Do not include qualifiers or verbs like gives, leaves, works etc."},
-        "Place",
-        "Document",
-        "Organisation",
-        "Action",
-        {"Miscellanous": "Any important concept can not be categorised with any other given entity type"},
-    ],
-    # Relationships that are important for your application.
-    # These are more like instructions for the LLM to nudge it to focus on specific relationships.
-    # There is no guarentee that only these relationships will be extracted, but some models do a good job overall at sticking to these relations.
-    relationships=[
-        "Relation between any pair of Entities",
-        ],
-)
-```
-
-#### Event extraction add-on in this repo
-
-The generation script in this repository extends the ontology configuration with an optional `event_extraction` block (see
-`config/config.yaml`). When enabled, the script will ask the LLM to propose high-level event types along with:
-
-- `trigger_words`: verbs or short phrases that can be used to anchor the event in the text corpus.
-- `arguments`: a list of roles, each containing `role`, `description`, and whether the role is `required`.
-
-The generated list is merged into `output/ontology_schema_<lang>.json` under the `events` field so that downstream consumers have a
-ready-made schema for event/argument extraction without interfering with the base `Ontology` model.
-
-### 2. Split the text into chunks.
-
-We can use as large a corpus of text as we want to create large knowledge graphs. However, LLMs have a finite context window right now. So we need to chunk the text appropriately and create the graph one chunk at a time. The chunk size that we should use depends on the model context window. The prompts that are used in this project eat up around 500 tokens. The rest of the context can be divided into input text and output graph. In my experience, 800 to 1200 token chunks are well suited.
-
-### 3. Convert these chunks into Documents.
-
-Documents is a pydantic model with the following schema
-
-```python
-## Pydantic document model
-class Document(BaseModel):
-    text: str
-    metadata: dict
-```
-
-The metadata we add to the document here is tagged to every relation that is extracted out of the document.
-We can add the context of the relation, for example the page number, chapter, the name of the article, etc. into the metadata. More often than not, Each node pairs have multiple relation with each other across multiple documents. The metadata helps contextualise these relationships.
-
-### 4. Select an LLM Client
-
-```python
-## Groq models
-model = "mixtral-8x7b-32768"
-# model ="llama3-8b-8192"
-# model = "llama3-70b-8192"
-# model="gemma-7b-it"
-
-## Open AI models
-oai_model="gpt-3.5-turbo"
-
-## Use Groq
-# llm = GroqClient(model=model, temperature=0.1, top_p=0.5)
-## OR Use OpenAI
-llm = OpenAIClient(model=oai_model, temperature=0.1, top_p=0.5)
-```
-
-You can also define your own LLM client and pass it on to the graph maker. check out the [Knowledge Graph Maker](https://github.com/rahulnyk/knowledge_graph_maker) for more info.
-
-### 5. Run the Graph Maker.
-
-The [Knowledge Graph Maker](https://github.com/rahulnyk/knowledge_graph_maker) directly takes a list of documents and iterates over each of them to create one subgraph per document. The final output is the complete graph of all the documents.
-
-Here is the simple example code
-
-```python
-from knowledge_graph_maker import GraphMaker, Ontology, Document
-from knowledge_graph_maker.llm_clients.groq_client import GroqClient
-
-
-graph_maker = GraphMaker(ontology=ontology, llm_client=llm, verbose=False)
-
-## create a graph out of a list of Documents.
-graph = graph_maker.from_documents(
-    list(docs),
-    delay_s_between=10 ## delay_s_between because otherwise groq api maxes out pretty fast.
-    )
-## result -> a list of Edges.
-print("Total number of Edges", len(graph))
-## 1503
-```
-
-The output is the final graph as a list of edges, where every edge is a pydantic model like the following.
-
-```python
-class Node(BaseModel):
-    entity: str
-    name: str
-
-class Edge(BaseModel):
-    node_1: Node
-    node_2: Node
-    relationship: str
-    metadata: dict = {}
-    order: Union[int, None] = None
-```
-
-The [Knowledge Graph Maker](https://github.com/rahulnyk/knowledge_graph_maker) runs each document through the model and parses the response into graph edges.
-
-### 6. Save to Neo4j (optional step)
-
-We can save the model to Neo4j either to create an RAG application, run Network algorithms, or maybe just visualise the graph using the Bloom
-
-```python
-from graph_maker import Neo4jGraphModel
-
-create_indices = False
-neo4j_graph = Neo4jGraphModel(edges=graph, create_indices=create_indices)
-
-neo4j_graph.save()
+## 文件布局
 
 ```
+config/                 # 核心配置（模型、提示词、流程控制）
+input/                  # 背景语料、已有本体或样例数据
+output/                 # 生成的本体、节点/边与评测指标
+src/                    # 主程序与工具脚本
+  ├── ontology_process.py
+  ├── ontology_generate.py
+  ├── ontology_eval.py
+  ├── convert_public_datasets.py
+  └── knowledge_graph_maker/  # 内置库实现
+```
+
+如需进一步定制，请直接修改配置或对应脚本逻辑。
