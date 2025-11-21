@@ -341,8 +341,8 @@ input:
   type: dataset
   dataset_name: *dataset_name
   text: "这里可以直接放置自定义背景文本……"
-  file_path: input/background.txt
-  existing_ontology_path: input/golden_schema_instrctIE_zh.json
+  file_path: data/input/background.txt
+  existing_ontology_path: data/input/golden_schema_instrctIE_zh.json
   source_label: duIE
   chunk_size: 1200
 runtime:
@@ -363,9 +363,9 @@ evaluation:
   threshold: 0.45
   graph_smoothing_rounds: 2
   graph_smoothing_alpha: 0.5
-  output_json: output/ontology_eval_metrics_2.json
+  output_json: data/output/ontology_eval_metrics_2.json
 dataset_conversion:
-  output_dir: input
+  output_dir: data/input
   samples_per_relation: 5
   datasets:
     - name: instrctIE_en
@@ -393,7 +393,7 @@ dataset_conversion:
       schema_output: golden_schema_duIE_zh.json
       samples_output: golden_input_duIE_zh.json
 output:
-  dir: output
+  dir: data/output
   schema_filename: ontology_schema.json
   nodes_filename: graph_nodes.json
   edges_filename: graph_edges.json

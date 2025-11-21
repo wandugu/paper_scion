@@ -122,7 +122,7 @@ def _resolve_pred_schema_path() -> Path:
         return resolve_project_path(raw_pred)
 
     output_cfg = CONFIG.get("output", {})
-    base_dir = resolve_project_path(output_cfg.get("dir", "output"))
+    base_dir = resolve_project_path(output_cfg.get("dir", "data/output"))
     dataset_name = _selected_dataset_name()
     schema_name = _schema_filename(output_cfg, dataset_name)
     return base_dir / schema_name
@@ -544,7 +544,7 @@ def main() -> None:
             result["f1"],
         )
 
-    output_dir = resolve_project_path(CONFIG.get("output", {}).get("dir", "output"))
+    output_dir = resolve_project_path(CONFIG.get("output", {}).get("dir", "data/output"))
     output_path = evaluation_output_path(output_dir)
     save_json(output_path, metrics)
     LOGGER.info("评测指标已写入: %s", output_path)
