@@ -18,7 +18,7 @@ def _normalize_name(name: str | None) -> str:
 
 def dataset_output_dir(config: Dict[str, Any]) -> Path:
     conv_cfg = config.get("dataset_conversion") or {}
-    base_dir = conv_cfg.get("output_dir", "input")
+    base_dir = conv_cfg.get("output_dir", "data/input")
     return resolve_project_path(base_dir)
 
 
