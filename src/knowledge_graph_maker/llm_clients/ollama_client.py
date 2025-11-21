@@ -18,7 +18,8 @@ class OllamaClient(LLMClient):
         self._temperature = temperature
         self._top_p = top_p
         self._url = url
-        self._client = Client(host=url)
+        # 关闭环境变量代理，确保调用本地 Ollama 服务不被代理配置干扰。
+        self._client = Client(host=url, trust_env=False)
         LOGGER.info("使用 Ollama 服务: %s | 模型=%s", url, model)
 
     def generate(self, user_message: str, system_message: str) -> str:

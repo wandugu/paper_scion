@@ -314,7 +314,8 @@ class OllamaEmbeddingModel:
 
         self._model = model_name
         self._base_url = base_url
-        self._client = Client(host=base_url)
+        # 显式关闭环境代理，避免在本地服务场景下被 socks 代理劫持。
+        self._client = Client(host=base_url, trust_env=False)
 
     def encode(
         self,
