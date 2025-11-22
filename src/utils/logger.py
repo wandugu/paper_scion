@@ -26,6 +26,11 @@ def get_ot_logger(log_dir: Optional[Path] = None) -> logging.Logger:
     logger = logging.getLogger(LOGGER_NAME)
     logger.setLevel(logging.INFO)
 
+    httpx_logger = logging.getLogger("httpx")
+    httpcore_logger = logging.getLogger("httpcore")
+    httpx_logger.setLevel(logging.WARNING)
+    httpcore_logger.setLevel(logging.WARNING)
+
     if not logger.handlers:
         log_path = target_dir / LOG_FILENAME
         formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
