@@ -20,7 +20,7 @@ llm:
     base_url: http://0.0.0.0:11434
 
 dataset:
-  name: &dataset_name instrctIE_zh
+  name: &dataset_name duIE_zh
 ontology:
   languages:
     zh:
@@ -370,7 +370,7 @@ evaluation:
   threshold: 0.45
   graph_smoothing_rounds: 2
   graph_smoothing_alpha: 0.5
-  output_json: data/output/ontology_eval_metrics_2.json
+  output_json: data/output/ontology_eval_metrics.json
 dataset_conversion:
   output_dir: data/input
   samples_per_relation: 5
