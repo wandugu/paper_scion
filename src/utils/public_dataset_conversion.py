@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Sequence, Tuple
 
-from .common import resolve_project_path, save_json
+from .common import load_yaml_config, resolve_project_path, save_json
 from .logger import get_ot_logger
 
 
@@ -1250,7 +1250,9 @@ def _collect_schema_paths(dataset_cfg: Dict[str, Any]) -> List[Path]:
     schema_dirs = dataset_cfg.get("schema_dirs", []) or []
     schema_glob = dataset_cfg.get("schema_glob") or "**/schema.json"
     schema_paths.extend(_collect_files_from_dirs(schema_dirs, schema_glob))
-    return [path for path in schema_paths if path.exists()]
+    resolved = [path for path in schema_paths if path.exists()]
+    LOGGER.debug("已收集 schema 路径: %s", [str(path) for path in resolved])
+    return resolved
 
 
 def _collect_data_files(dataset_cfg: Dict[str, Any]) -> List[Path]:
@@ -1258,7 +1260,9 @@ def _collect_data_files(dataset_cfg: Dict[str, Any]) -> List[Path]:
     data_dirs = dataset_cfg.get("data_dirs", []) or []
     data_glob = dataset_cfg.get("data_glob") or "**/*.json"
     data_files.extend(_collect_files_from_dirs(data_dirs, data_glob))
-    return [path for path in data_files if path.exists()]
+    resolved = [path for path in data_files if path.exists()]
+    LOGGER.debug("已收集 data 文件: %s", [str(path) for path in resolved])
+    return resolved
 
 
 def _resolve_output_paths(
@@ -1302,6 +1306,7 @@ def _run_re_dataset_conversion(
     language = dataset_cfg.get("language", "").lower() or "zh"
     format_key = _normalize_dataset_name(dataset_cfg.get("format") or dataset_cfg.get("type"))
     dataset_name = str(name)
+    LOGGER.debug("准备处理关系抽取数据集: %s (format=%s, language=%s)", dataset_name, format_key, language)
 
     handlers = {
         "instructie": (convert_instructie_schema, convert_instructie_inputs),
@@ -1337,6 +1342,12 @@ def _run_re_dataset_conversion(
 
     schema_paths = _collect_schema_paths(dataset_cfg)
     data_files = _collect_data_files(dataset_cfg)
+    LOGGER.debug(
+        "关系抽取数据集 %s schema_paths=%s data_files=%s",
+        dataset_name,
+        [str(path) for path in schema_paths],
+        [str(path) for path in data_files],
+    )
     if not schema_paths:
         LOGGER.warning("关系抽取数据集 %s 未配置 schema_path", dataset_name)
         return
@@ -1379,6 +1390,7 @@ def _run_ee_dataset_conversion(
     language = dataset_cfg.get("language", "").lower() or "zh"
     format_key = _normalize_dataset_name(dataset_cfg.get("format") or dataset_cfg.get("type"))
     dataset_name = str(name)
+    LOGGER.debug("准备处理事件抽取数据集: %s (format=%s, language=%s)", dataset_name, format_key, language)
 
     handlers = {
         "casie": (convert_casie_schema, convert_casie_inputs),
@@ -1398,6 +1410,12 @@ def _run_ee_dataset_conversion(
 
     schema_paths = _collect_schema_paths(dataset_cfg)
     data_files = _collect_data_files(dataset_cfg)
+    LOGGER.debug(
+        "事件抽取数据集 %s schema_paths=%s data_files=%s",
+        dataset_name,
+        [str(path) for path in schema_paths],
+        [str(path) for path in data_files],
+    )
     if not schema_paths:
         LOGGER.warning("事件抽取数据集 %s 未配置 schema_path", dataset_name)
         return
@@ -1434,11 +1452,13 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
     re_cfg = conv_cfg.get("re")
     ee_cfg = conv_cfg.get("ee")
     if re_cfg or ee_cfg:
+        LOGGER.debug("使用新版 dataset_conversion 配置。")
         if re_cfg:
             re_output_dir = resolve_project_path(re_cfg.get("output_dir", conv_cfg.get("output_dir", "data/input/re")))
             re_sample_limit = int(re_cfg.get("samples_per_relation", conv_cfg.get("samples_per_relation", 5)))
             re_entries = re_cfg.get("dataset_configs", []) or []
             re_map = {_normalize_dataset_name(entry.get("name")): entry for entry in re_entries if entry.get("name")}
+            LOGGER.debug("关系抽取配置: output_dir=%s sample_limit=%s datasets=%s", re_output_dir, re_sample_limit, re_cfg.get("datasets"))
             for name in _resolve_selected_datasets(re_cfg.get("datasets", "all"), re_map):
                 ds_cfg = re_map.get(name)
                 if not ds_cfg:
@@ -1451,6 +1471,7 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
             ee_sample_limit = int(ee_cfg.get("samples_per_event", conv_cfg.get("samples_per_event", 5)))
             ee_entries = ee_cfg.get("dataset_configs", []) or []
             ee_map = {_normalize_dataset_name(entry.get("name")): entry for entry in ee_entries if entry.get("name")}
+            LOGGER.debug("事件抽取配置: output_dir=%s sample_limit=%s datasets=%s", ee_output_dir, ee_sample_limit, ee_cfg.get("datasets"))
             for name in _resolve_selected_datasets(ee_cfg.get("datasets", "all"), ee_map):
                 ds_cfg = ee_map.get(name)
                 if not ds_cfg:
@@ -1462,6 +1483,7 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
 
     output_dir = resolve_project_path(conv_cfg.get("output_dir", "data/input"))
     sample_limit = int(conv_cfg.get("samples_per_relation", 5))
+    LOGGER.debug("使用旧版 dataset_conversion 配置: output_dir=%s sample_limit=%s", output_dir, sample_limit)
 
     for dataset_cfg in conv_cfg.get("datasets", []):
         name = dataset_cfg.get("name")
@@ -1509,6 +1531,23 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
         results["samples"].append(samples_path_out)
 
     return results
+
+
+def main() -> None:
+    config = load_yaml_config()
+    results = convert_from_config(config)
+    if results["schemas"] or results["samples"]:
+        LOGGER.info("转换完成：")
+        for path in results["schemas"]:
+            LOGGER.info("  schema -> %s", path)
+        for path in results["samples"]:
+            LOGGER.info("  samples -> %s", path)
+    else:
+        LOGGER.info("未找到可转换的数据集配置。")
+
+
+if __name__ == "__main__":
+    main()
 
 
 __all__ = [
