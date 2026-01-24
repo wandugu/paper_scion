@@ -22,12 +22,35 @@ def dataset_output_dir(config: Dict[str, Any]) -> Path:
     return resolve_project_path(base_dir)
 
 
-def dataset_config(config: Dict[str, Any], dataset_name: str) -> Dict[str, Any] | None:
+def _iter_dataset_entries(config: Dict[str, Any]) -> Iterable[Tuple[Dict[str, Any], str]]:
     conv_cfg = config.get("dataset_conversion") or {}
-    normalized_target = _normalize_name(dataset_name)
+    base_output = conv_cfg.get("output_dir", "data/input")
+
     for ds_cfg in conv_cfg.get("datasets", []):
+        yield ds_cfg, base_output
+
+    for group_key in ("re", "ee"):
+        group_cfg = conv_cfg.get(group_key) or {}
+        group_output = group_cfg.get("output_dir", base_output)
+        for ds_cfg in group_cfg.get("dataset_configs", []) or []:
+            yield ds_cfg, group_output
+
+
+def _dataset_output_dir_for_name(config: Dict[str, Any], dataset_name: str) -> Path:
+    normalized_target = _normalize_name(dataset_name)
+    for ds_cfg, output_dir in _iter_dataset_entries(config):
         if _normalize_name(ds_cfg.get("name")) == normalized_target:
-            return ds_cfg
+            return resolve_project_path(output_dir)
+    return dataset_output_dir(config)
+
+
+def dataset_config(config: Dict[str, Any], dataset_name: str) -> Dict[str, Any] | None:
+    normalized_target = _normalize_name(dataset_name)
+    for ds_cfg, output_dir in _iter_dataset_entries(config):
+        if _normalize_name(ds_cfg.get("name")) == normalized_target:
+            merged = dict(ds_cfg)
+            merged.setdefault("output_dir", output_dir)
+            return merged
     return None
 
 
@@ -35,8 +58,14 @@ def dataset_is_relation_only(config: Dict[str, Any], dataset_name: str) -> bool:
     ds_cfg = dataset_config(config, dataset_name)
     if not ds_cfg:
         return False
+    task = str(ds_cfg.get("task", "")).strip().lower()
+    if task == "re":
+        return True
     ds_type = str(ds_cfg.get("type", "")).strip().lower()
-    return ds_type in RELATION_ONLY_DATASET_TYPES
+    if ds_type in RELATION_ONLY_DATASET_TYPES:
+        return True
+    format_key = str(ds_cfg.get("format", "")).strip().lower()
+    return format_key in RELATION_ONLY_DATASET_TYPES
 
 
 def dataset_data_files(config: Dict[str, Any], dataset_name: str) -> List[Path]:
@@ -50,6 +79,18 @@ def dataset_data_files(config: Dict[str, Any], dataset_name: str) -> List[Path]:
         if not path.exists():
             raise FileNotFoundError(f"未找到数据集文件: {path}")
         files.append(path)
+    if not files:
+        data_dirs = ds_cfg.get("data_dirs", []) or []
+        data_glob = ds_cfg.get("data_glob") or "**/*.json"
+        for raw_dir in data_dirs:
+            base_dir = resolve_project_path(raw_dir)
+            if not base_dir.exists():
+                raise FileNotFoundError(f"未找到数据集目录: {base_dir}")
+            for path in base_dir.glob(data_glob):
+                if path.name == "schema.json":
+                    continue
+                if path.is_file():
+                    files.append(path)
     if not files:
         raise FileNotFoundError(f"数据集 {dataset_name} 未配置任何 data_files")
     return files
@@ -88,7 +129,8 @@ def _dataset_text_field(dataset_type: str, ds_cfg: Dict[str, Any]) -> str:
     if ds_cfg.get("text_field"):
         return str(ds_cfg["text_field"])
     ds_type = dataset_type.strip().lower()
-    if ds_type == "instructie":
+    format_key = str(ds_cfg.get("format", "")).strip().lower()
+    if ds_type == "instructie" or format_key == "instructie":
         return "input"
     return "text"
 
@@ -117,10 +159,9 @@ def resolve_dataset_paths(config: Dict[str, Any], dataset_name: str) -> Tuple[Pa
     """根据 config 中的 dataset_conversion 配置推断金标准文件路径。"""
 
     normalized_target = _normalize_name(dataset_name)
-    conv_cfg = config.get("dataset_conversion") or {}
-    output_dir = dataset_output_dir(config)
+    output_dir = _dataset_output_dir_for_name(config, dataset_name)
 
-    for ds_cfg in conv_cfg.get("datasets", []):
+    for ds_cfg, _ in _iter_dataset_entries(config):
         if _normalize_name(ds_cfg.get("name")) != normalized_target:
             continue
 
