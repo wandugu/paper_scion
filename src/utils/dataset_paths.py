@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Sequence, Tuple
 
-from .common import resolve_project_path
+from .common import apply_language_suffix, resolve_project_path
 
 
 RELATION_ONLY_DATASET_TYPES = {"duie", "instructie", "relation_extraction"}
@@ -165,11 +165,12 @@ def resolve_dataset_paths(config: Dict[str, Any], dataset_name: str) -> Tuple[Pa
         if _normalize_name(ds_cfg.get("name")) != normalized_target:
             continue
 
+        language = str(ds_cfg.get("language", "")).lower() or "zh"
         schema_out = ds_cfg.get("schema_output") or f"golden_schema_{dataset_name}.json"
         samples_out = ds_cfg.get("samples_output") or f"golden_input_{dataset_name}.json"
 
-        schema_path = Path(schema_out)
-        samples_path = Path(samples_out)
+        schema_path = apply_language_suffix(Path(schema_out), language)
+        samples_path = apply_language_suffix(Path(samples_out), language)
         if not schema_path.is_absolute():
             schema_path = output_dir / schema_path
         if not samples_path.is_absolute():
@@ -177,8 +178,9 @@ def resolve_dataset_paths(config: Dict[str, Any], dataset_name: str) -> Tuple[Pa
 
         return resolve_project_path(schema_path), resolve_project_path(samples_path)
 
-    default_schema = output_dir / f"golden_schema_{dataset_name}.json"
-    default_samples = output_dir / f"golden_input_{dataset_name}.json"
+    language = str((dataset_config(config, dataset_name) or {}).get("language", "")).lower() or "zh"
+    default_schema = apply_language_suffix(output_dir / f"golden_schema_{dataset_name}.json", language)
+    default_samples = apply_language_suffix(output_dir / f"golden_input_{dataset_name}.json", language)
     return resolve_project_path(default_schema), resolve_project_path(default_samples)
 
 
@@ -197,7 +199,7 @@ def load_dataset_text(samples_path: Path) -> str:
             for sample in item.get("samples", []):
                 if not isinstance(sample, dict):
                     continue
-                text = str(sample.get("text", "")).strip()
+                text = str(sample.get("text") or sample.get("input", "")).strip()
                 if text:
                     texts.append(text)
     return "\n\n".join(texts)

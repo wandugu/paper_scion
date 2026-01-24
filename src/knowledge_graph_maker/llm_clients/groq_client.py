@@ -1,7 +1,9 @@
 from groq import Groq, GroqError
 from ..types import LLMClient
+from ...utils.logger import get_ot_logger
 
 
+LOGGER = get_ot_logger()
 
 class GroqClient(LLMClient):
     _model: str
@@ -15,14 +17,14 @@ class GroqClient(LLMClient):
         self._top_p = top_p
         try:
             self._client = Groq()
-        except GroqError as e: 
-            print(e)
+        except GroqError as exc:
+            LOGGER.warning("Groq client 初始化失败: %s", exc)
             self._client = None
 
     def generate(self, user_message: str, system_message: str) -> str:
-        print("Using Model: ", self._model)
+        LOGGER.debug("Using Model: %s", self._model)
         if not self._client:
-            print("Cannot use a client without API_KEY")
+            LOGGER.error("Cannot use a client without API_KEY")
         result = self._client.chat.completions.create(
             messages=[
                 {"role": "system", "content": system_message},

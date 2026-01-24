@@ -1,5 +1,9 @@
 from openai import OpenAI
 from ..types import LLMClient
+from ...utils.logger import get_ot_logger
+
+
+LOGGER = get_ot_logger()
 
 
 class OpenAIClient(LLMClient):
@@ -18,7 +22,7 @@ class OpenAIClient(LLMClient):
         self.client = OpenAI()
 
     def generate(self, user_message: str, system_message: str) -> str:
-        print("Using Model: ", self._model)
+        LOGGER.debug("Using Model: %s", self._model)
 
         response = self.client.chat.completions.create(
             messages=[
