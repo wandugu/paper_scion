@@ -1416,6 +1416,7 @@ def convert_semeval2010_inputs(
     iter_stats = stats if stats is not None else {}
     files = _wrap_tqdm(data_paths, desc=f"{dataset_name} SemEval 样本", unit="file", total=len(data_paths))
     for data_path in files:
+        file_count = 0
         lines = data_path.read_text(encoding="utf-8").splitlines()
         idx = 0
         while idx < len(lines):
@@ -2605,11 +2606,23 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
         LOGGER.debug("使用新版 dataset_conversion 配置。")
         if re_cfg:
             re_output_dir = resolve_project_path(re_cfg.get("output_dir", conv_cfg.get("output_dir", "data/input/re")))
-            re_sample_limit = int(re_cfg.get("samples_per_relation", conv_cfg.get("samples_per_relation", 0)))
+            re_sample_limit = int(conv_cfg.get("samples_per_relation", 0))
             re_entries = re_cfg.get("dataset_configs", []) or []
             re_map = {_normalize_dataset_name(entry.get("name")): entry for entry in re_entries if entry.get("name")}
-            LOGGER.debug("关系抽取配置: output_dir=%s sample_limit=%s datasets=%s", re_output_dir, re_sample_limit, re_cfg.get("datasets"))
-            for name in _resolve_selected_datasets(re_cfg.get("datasets", "all"), re_map):
+            selected_names = list(_resolve_selected_datasets(re_cfg.get("datasets", "all"), re_map))
+            LOGGER.debug(
+                "关系抽取配置: output_dir=%s sample_limit=%s datasets=%s total=%s",
+                re_output_dir,
+                re_sample_limit,
+                re_cfg.get("datasets"),
+                len(selected_names),
+            )
+            for name in _wrap_tqdm(
+                selected_names,
+                desc="关系抽取数据集",
+                unit="dataset",
+                total=len(selected_names),
+            ):
                 ds_cfg = re_map.get(name)
                 if not ds_cfg:
                     LOGGER.warning("未找到关系抽取数据集配置: %s", name)
@@ -2618,11 +2631,23 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
 
         if ee_cfg:
             ee_output_dir = resolve_project_path(ee_cfg.get("output_dir", conv_cfg.get("output_dir", "data/input/ee")))
-            ee_sample_limit = int(ee_cfg.get("samples_per_event", conv_cfg.get("samples_per_event", 0)))
+            ee_sample_limit = int(conv_cfg.get("samples_per_event", 0))
             ee_entries = ee_cfg.get("dataset_configs", []) or []
             ee_map = {_normalize_dataset_name(entry.get("name")): entry for entry in ee_entries if entry.get("name")}
-            LOGGER.debug("事件抽取配置: output_dir=%s sample_limit=%s datasets=%s", ee_output_dir, ee_sample_limit, ee_cfg.get("datasets"))
-            for name in _resolve_selected_datasets(ee_cfg.get("datasets", "all"), ee_map):
+            selected_names = list(_resolve_selected_datasets(ee_cfg.get("datasets", "all"), ee_map))
+            LOGGER.debug(
+                "事件抽取配置: output_dir=%s sample_limit=%s datasets=%s total=%s",
+                ee_output_dir,
+                ee_sample_limit,
+                ee_cfg.get("datasets"),
+                len(selected_names),
+            )
+            for name in _wrap_tqdm(
+                selected_names,
+                desc="事件抽取数据集",
+                unit="dataset",
+                total=len(selected_names),
+            ):
                 ds_cfg = ee_map.get(name)
                 if not ds_cfg:
                     LOGGER.warning("未找到事件抽取数据集配置: %s", name)
@@ -2651,13 +2676,22 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
     output_dir = resolve_project_path(conv_cfg.get("output_dir", "data/input"))
     sample_limit = int(conv_cfg.get("samples_per_relation", 0))
     LOGGER.debug("使用旧版 dataset_conversion 配置: output_dir=%s sample_limit=%s", output_dir, sample_limit)
+    legacy_datasets = [
+        dataset_cfg
+        for dataset_cfg in conv_cfg.get("datasets", [])
+        if dataset_cfg.get("name") and str(dataset_cfg.get("type", "")).lower() in {"instructie", "duie"}
+    ]
+    LOGGER.debug("旧版配置待处理数据集数量: %s", len(legacy_datasets))
 
-    for dataset_cfg in conv_cfg.get("datasets", []):
+    for dataset_cfg in _wrap_tqdm(
+        legacy_datasets,
+        desc="旧版数据集",
+        unit="dataset",
+        total=len(legacy_datasets),
+    ):
         name = dataset_cfg.get("name")
         ds_type = str(dataset_cfg.get("type", "")).lower()
         language = dataset_cfg.get("language", "").lower() or "zh"
-        if not name or ds_type not in {"instructie", "duie"}:
-            continue
 
         schema_path = resolve_project_path(dataset_cfg.get("schema_path", ""))
         data_files = [resolve_project_path(p) for p in dataset_cfg.get("data_files", [])]
