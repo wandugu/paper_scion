@@ -1,6 +1,9 @@
 language:
   code: zh
 
+logging:
+  log_dir: logs
+
 llm:
   provider: deepseek
   temperature: 0.1
@@ -375,6 +378,26 @@ dataset_conversion:
   output_dir: data/input
   samples_per_relation: 5
   samples_per_event: 5
+  relation_schema_generation:
+    enabled: true
+    samples_per_relation: 3
+    prompts:
+      zh:
+        system: |
+          你是关系抽取领域专家，需要根据样例文本推断关系的头尾实体类型。
+        user: |
+          数据集：{dataset_name}
+          请根据以下关系样例（JSON 列表）推断关系 schema。
+          {relation_examples}
+          输出 JSON，字段为 relationships，每项包含 rel_type、head_entity、tail_entity、description（可选）。
+      en:
+        system: |
+          You are a relation extraction schema expert.
+        user: |
+          Dataset: {dataset_name}
+          Infer relation schema from the samples (JSON list) below:
+          {relation_examples}
+          Return JSON with key "relationships", each item includes rel_type, head_entity, tail_entity, description (optional).
   re:
     output_dir: data/input/re
     samples_per_relation: 5
@@ -498,6 +521,13 @@ dataset_conversion:
           - data/dataset_public/re/re-en/fewrel_4/train.json
           - data/dataset_public/re/re-en/fewrel_4/dev.json
           - data/dataset_public/re/re-en/fewrel_4/test.json
+      - name: FewRel
+        task: re
+        format: fewrel
+        language: en
+        data_dirs:
+          - data/dataset_public/re/re-en/FewRel
+        data_glob: "*.json"
       - name: GIDS
         task: re
         format: gids
@@ -561,6 +591,22 @@ dataset_conversion:
           - data/dataset_public/re/re-en/semval-RE/train.json
           - data/dataset_public/re/re-en/semval-RE/dev.json
           - data/dataset_public/re/re-en/semval-RE/test.json
+      - name: SemEval2010_task8
+        task: re
+        format: semeval2010
+        language: en
+        data_files:
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_training/TRAIN_FILE.TXT
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_testing/TEST_FILE.txt
+        label_files:
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_testing_keys/TEST_FILE_KEY.TXT
+      - name: traced
+        task: re
+        format: traced
+        language: en
+        data_dirs:
+          - data/dataset_public/re/re-en/traced
+        data_glob: "*.json"
       - name: wiki_0
         task: re
         format: wiki_0

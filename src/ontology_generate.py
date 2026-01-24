@@ -26,7 +26,6 @@
 from __future__ import annotations
 
 import json
-import os
 import re
 import sys
 from dataclasses import dataclass
@@ -48,6 +47,7 @@ from .utils.dataset_paths import (
     load_dataset_text,
     resolve_dataset_paths,
 )
+from .utils.llm_factory import instantiate_llm_client
 from .utils.logger import get_ot_logger
 
 
@@ -392,78 +392,6 @@ from knowledge_graph_maker.types import (
     Ontology,
     RelationshipSchema,
 )
-
-
-
-import requests  # 放在文件头部 import 区域也可以
-
-class DeepSeekClient(LLMClient):
-    """DeepSeek LLM Client：直接调用 DeepSeek /chat/completions API，可显式设置代理。"""
-
-    _model: str
-    _temperature: float
-    _top_p: float
-    _max_tokens: int
-
-    def __init__(
-        self,
-        model: str,
-        temperature: float,
-        top_p: float,
-        max_tokens: int,
-        api_key: str,
-        proxy: str | None = None,
-    ):
-        if not api_key or api_key == "123":
-            raise EnvironmentError(
-                "请设置有效的 DeepSeek API Key（DEEPSEEK_API_KEY 或 config/config.yaml 中的 llm.default_api_key)"
-            )
-
-        self._model = model
-        self._temperature = float(temperature)
-        self._top_p = float(top_p)
-        self._max_tokens = int(max_tokens)
-        self._api_key = api_key
-
-        # 自己管理一个 Session，显式挂代理
-        self._session = requests.Session()
-        if proxy:
-            # 这里 proxy 可以是 http://... 或 socks5h://...
-            self._session.proxies.update(
-                {
-                    "http": proxy,
-                    "https": proxy,
-                }
-            )
-
-        # DeepSeek 官方推荐 base_url = https://api.deepseek.com
-        self._base_url = "https://api.deepseek.com"
-
-    def generate(self, user_message: str, system_message: str) -> str:
-        """按照 knowledge_graph_maker 的预期返回一个纯文本字符串。"""
-        url = f"{self._base_url}/chat/completions"
-        payload = {
-            "model": self._model,
-            "messages": [
-                {"role": "system", "content": system_message},
-                {"role": "user", "content": user_message},
-            ],
-            "temperature": self._temperature,
-            "top_p": self._top_p,
-            "max_tokens": self._max_tokens,
-            "stream": False,
-        }
-        headers = {
-            "Authorization": f"Bearer {self._api_key}",
-            "Content-Type": "application/json",
-        }
-
-        resp = self._session.post(url, json=payload, headers=headers, timeout=60)
-        resp.raise_for_status()
-        data = resp.json()
-
-        # DeepSeek 兼容 OpenAI ChatCompletion 格式
-        return data["choices"][0]["message"]["content"]
 
 
 # NOTE: 只有在真正需要各自的 LLM 客户端时才做延迟导入，避免因为未设置相关环境
@@ -1432,65 +1360,6 @@ def build_event_schema(llm_client: LLMClient, background_text: str) -> List[Dict
         return _fallback_events()
 
 
-def instantiate_llm_client():
-    llm_cfg = CONFIG["llm"]
-    provider = llm_cfg["provider"].lower()
-
-    if provider == "deepseek":
-        # 1) 优先用环境变量，其次用 CONFIG 里的 default_api_key
-        api_key = os.environ.get("DEEPSEEK_API_KEY") or llm_cfg.get("default_api_key")
-        if not api_key:
-            raise EnvironmentError(
-                "请先设置 DEEPSEEK_API_KEY 或在 config/config.yaml 的 llm.default_api_key 中提供 Key"
-            )
-
-        proxy = llm_cfg.get("proxy")  # 例如 socks5h://192.168.134.165:1010
-
-        return DeepSeekClient(
-            model=llm_cfg["deepseek"]["model"],
-            temperature=llm_cfg["temperature"],
-            top_p=llm_cfg["top_p"],
-            max_tokens=llm_cfg["deepseek"]["max_tokens"],
-            api_key=api_key,
-            proxy=proxy,
-        )
-
-    if provider == "openai":
-        if not os.environ.get("OPENAI_API_KEY"):
-            raise EnvironmentError("请先设置 OPENAI_API_KEY 环境变量")
-        from knowledge_graph_maker.llm_clients.openai_client import OpenAIClient
-
-        return OpenAIClient(
-            model=llm_cfg["openai"]["model"],
-            temperature=llm_cfg["temperature"],
-            top_p=llm_cfg["top_p"],
-            max_tokens=llm_cfg["openai"]["max_tokens"],
-        )
-
-    if provider == "groq":
-        if not os.environ.get("GROQ_API_KEY") or os.environ["GROQ_API_KEY"] == "placeholder-key":
-            raise EnvironmentError("请先设置有效的 GROQ_API_KEY 环境变量")
-        from knowledge_graph_maker.llm_clients.groq_client import GroqClient
-
-        return GroqClient(
-            model=llm_cfg["groq"]["model"],
-            temperature=llm_cfg["temperature"],
-            top_p=llm_cfg["top_p"],
-        )
-
-    if provider == "ollama":
-        from knowledge_graph_maker.llm_clients.ollama_client import OllamaClient
-
-        ollama_cfg = llm_cfg.get("ollama", {})
-        return OllamaClient(
-            model=ollama_cfg.get("model", "bge-m3"),
-            temperature=llm_cfg["temperature"],
-            top_p=llm_cfg["top_p"],
-            url=ollama_cfg.get("base_url", "http://0.0.0.0:11434"),
-        )
-
-    raise ValueError("llm.provider 仅支持 'deepseek'、'openai'、'groq' 或 'ollama'")
-
 def collect_nodes(edges: Iterable[Edge]) -> List[Node]:
     unique: Dict[Tuple[str, str], Node] = {}
     for edge in edges:
@@ -1587,7 +1456,7 @@ def main():
     if not chunks:
         raise RuntimeError("未获取到任何文本块，请检查 input 配置")
     documents = build_documents(chunks)
-    llm_client = instantiate_llm_client()
+    llm_client = instantiate_llm_client(CONFIG)
     background_excerpt = build_background_excerpt(chunks)
     ontology = build_ontology(llm_client=llm_client, background_text=background_excerpt)
     log_label = "新构建出的本体" if existing_schema else "构建出的本体"
