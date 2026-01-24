@@ -6,7 +6,7 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from utils.common import PROJECT_ROOT
+from .common import PROJECT_ROOT
 
 
 LOGGER_NAME = "ot_logger"
@@ -24,7 +24,7 @@ def get_ot_logger(log_dir: Optional[Path] = None) -> logging.Logger:
     target_dir.mkdir(parents=True, exist_ok=True)
 
     logger = logging.getLogger(LOGGER_NAME)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 
     httpx_logger = logging.getLogger("httpx")
     httpcore_logger = logging.getLogger("httpcore")
@@ -36,10 +36,12 @@ def get_ot_logger(log_dir: Optional[Path] = None) -> logging.Logger:
         formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 
         file_handler = logging.FileHandler(log_path, encoding="utf-8")
+        file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
         stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(logging.DEBUG)
         stream_handler.setFormatter(formatter)
         logger.addHandler(stream_handler)
 
