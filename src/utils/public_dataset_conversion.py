@@ -5,10 +5,13 @@ from __future__ import annotations
 import json
 import logging
 import re
+import sys
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Sequence, Tuple
+
+from tqdm import tqdm
 
 from .common import (
     apply_language_suffix,
@@ -80,6 +83,21 @@ class RelationTypeMap:
     """关系类型到实体类型的映射。"""
 
     by_relation: Dict[str, Tuple[str, str]]
+
+
+@dataclass(frozen=True)
+class DatasetStats:
+    name: str
+    task: str
+    language: str
+    schema_count: int
+    data_records: int
+    output_samples: int
+    schema_path: str
+    samples_path: str
+    include_input: bool
+    sample_limit: int
+    data_files: List[str]
 
 
 def _extract_json_payload(response: str) -> Any:
@@ -180,7 +198,8 @@ def _load_json(path: Path) -> Any:
 
 
 def _iter_json_lines(paths: Sequence[Path]) -> Iterable[Dict[str, Any]]:
-    for path in paths:
+    path_list = list(paths)
+    for path in tqdm(path_list, desc="读取数据文件", unit="file", disable=not sys.stderr.isatty()):
         text = path.read_text(encoding="utf-8")
         try:
             payload = json.loads(text)
@@ -443,7 +462,8 @@ def _collect_relation_examples_from_json(
 
 
 def _iter_fewrel_records(data_paths: Sequence[Path]) -> Iterable[Dict[str, Any]]:
-    for path in data_paths:
+    path_list = list(data_paths)
+    for path in tqdm(path_list, desc="读取 FewRel 数据", unit="file", disable=not sys.stderr.isatty()):
         payload = _load_json(path)
         if isinstance(payload, dict):
             for rel_type, items in payload.items():
@@ -632,6 +652,8 @@ def _convert_relation_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     text_field: str = "text",
     relation_field: str = "relation",
     category_field: str | None = None,
@@ -680,7 +702,7 @@ def _convert_relation_inputs(
                 {
                     "id": record.get("id", ""),
                     "category": category or record.get("category", ""),
-                    "input": text,
+                    "input": text if include_input else "",
                     "text": text,
                     "head_entity": head,
                     "head_entity_type": head_type,
@@ -691,7 +713,7 @@ def _convert_relation_inputs(
                     "relation": rel_type,
                     "dataset": dataset_name,
                     "language": language,
-                    "task": record.get("task", ""),
+                    "task": task,
                 },
             )
 
@@ -717,6 +739,8 @@ def convert_instructie_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: InstructIERelationMap | None = None,
 ) -> List[Dict[str, Any]]:
     if mapping is None:
@@ -726,6 +750,8 @@ def convert_instructie_inputs(
         dataset_name=dataset_name,
         language=language,
         sample_limit=sample_limit,
+        task=task,
+        include_input=include_input,
         text_field="input",
         relation_field="relation",
         category_field="cate",
@@ -774,6 +800,8 @@ def convert_duie_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
     samples: Dict[Tuple[str, str, str], Dict[str, Any]] = defaultdict(_new_sample_bucket)
@@ -816,6 +844,7 @@ def convert_duie_inputs(
                 {
                     "id": record.get("id", ""),
                     "category": record.get("category", ""),
+                    "input": text if include_input else "",
                     "text": text,
                     "head_entity": head_entity,
                     "head_entity_type": head_type,
@@ -826,7 +855,7 @@ def convert_duie_inputs(
                     "relation": rel_type,
                     "dataset": dataset_name,
                     "language": language,
-                    "task": record.get("task", ""),
+                    "task": task,
                 },
             )
 
@@ -859,6 +888,8 @@ def convert_cmeie_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -866,6 +897,8 @@ def convert_cmeie_inputs(
         dataset_name=dataset_name,
         language=language,
         sample_limit=sample_limit,
+        task=task,
+        include_input=include_input,
         text_field="text",
         relation_field="relation",
         mapping=mapping,
@@ -884,6 +917,8 @@ def convert_coae2016_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -891,6 +926,8 @@ def convert_coae2016_inputs(
         dataset_name=dataset_name,
         language=language,
         sample_limit=sample_limit,
+        task=task,
+        include_input=include_input,
         text_field="text",
         relation_field="relation",
         mapping=mapping,
@@ -909,6 +946,8 @@ def convert_duie2_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -916,6 +955,8 @@ def convert_duie2_inputs(
         dataset_name=dataset_name,
         language=language,
         sample_limit=sample_limit,
+        task=task,
+        include_input=include_input,
         text_field="text",
         relation_field="relation",
         mapping=mapping,
@@ -934,6 +975,8 @@ def convert_ipre_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -941,6 +984,8 @@ def convert_ipre_inputs(
         dataset_name=dataset_name,
         language=language,
         sample_limit=sample_limit,
+        task=task,
+        include_input=include_input,
         text_field="text",
         relation_field="relation",
         mapping=mapping,
@@ -959,6 +1004,8 @@ def convert_ske2020_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -966,6 +1013,8 @@ def convert_ske2020_inputs(
         dataset_name=dataset_name,
         language=language,
         sample_limit=sample_limit,
+        task=task,
+        include_input=include_input,
         text_field="text",
         relation_field="relation",
         mapping=mapping,
@@ -984,6 +1033,8 @@ def convert_ade_corpus_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -991,6 +1042,8 @@ def convert_ade_corpus_inputs(
         dataset_name=dataset_name,
         language=language,
         sample_limit=sample_limit,
+        task=task,
+        include_input=include_input,
         text_field="text",
         relation_field="relation",
         mapping=mapping,
@@ -1009,6 +1062,8 @@ def convert_fewrel_0_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1016,6 +1071,8 @@ def convert_fewrel_0_inputs(
         dataset_name=dataset_name,
         language=language,
         sample_limit=sample_limit,
+        task=task,
+        include_input=include_input,
         text_field="text",
         relation_field="relation",
         mapping=mapping,
@@ -1031,9 +1088,19 @@ def convert_fewrel_1_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
-    return convert_fewrel_0_inputs(data_paths, dataset_name, language, sample_limit, mapping=mapping)
+    return convert_fewrel_0_inputs(
+        data_paths,
+        dataset_name,
+        language,
+        sample_limit,
+        task=task,
+        include_input=include_input,
+        mapping=mapping,
+    )
 
 
 def convert_fewrel_2_schema(schema_path: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
@@ -1045,9 +1112,19 @@ def convert_fewrel_2_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
-    return convert_fewrel_0_inputs(data_paths, dataset_name, language, sample_limit, mapping=mapping)
+    return convert_fewrel_0_inputs(
+        data_paths,
+        dataset_name,
+        language,
+        sample_limit,
+        task=task,
+        include_input=include_input,
+        mapping=mapping,
+    )
 
 
 def convert_fewrel_3_schema(schema_path: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
@@ -1059,9 +1136,19 @@ def convert_fewrel_3_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
-    return convert_fewrel_0_inputs(data_paths, dataset_name, language, sample_limit, mapping=mapping)
+    return convert_fewrel_0_inputs(
+        data_paths,
+        dataset_name,
+        language,
+        sample_limit,
+        task=task,
+        include_input=include_input,
+        mapping=mapping,
+    )
 
 
 def convert_fewrel_4_schema(schema_path: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
@@ -1073,9 +1160,19 @@ def convert_fewrel_4_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
-    return convert_fewrel_0_inputs(data_paths, dataset_name, language, sample_limit, mapping=mapping)
+    return convert_fewrel_0_inputs(
+        data_paths,
+        dataset_name,
+        language,
+        sample_limit,
+        task=task,
+        include_input=include_input,
+        mapping=mapping,
+    )
 
 
 def convert_fewrel_inputs(
@@ -1083,6 +1180,8 @@ def convert_fewrel_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
     samples: Dict[Tuple[str, str, str], Dict[str, Any]] = defaultdict(_new_sample_bucket)
@@ -1118,7 +1217,7 @@ def convert_fewrel_inputs(
             {
                 "id": record.get("id", ""),
                 "category": record.get("category", ""),
-                "input": text,
+                "input": text if include_input else "",
                 "text": text,
                 "head_entity": head,
                 "head_entity_type": head_type,
@@ -1129,7 +1228,7 @@ def convert_fewrel_inputs(
                 "relation": rel_type,
                 "dataset": dataset_name,
                 "language": language,
-                "task": record.get("task", ""),
+                "task": task,
             },
         )
         bucket["items"].append(sample)
@@ -1154,6 +1253,8 @@ def convert_semeval2010_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
     label_paths: Sequence[Path] | None = None,
 ) -> List[Dict[str, Any]]:
@@ -1168,7 +1269,7 @@ def convert_semeval2010_inputs(
             if len(parts) >= 2:
                 label_map[parts[0].strip()] = parts[1].strip()
 
-    for data_path in data_paths:
+    for data_path in tqdm(data_paths, desc="读取 SemEval2010 数据", unit="file", disable=not sys.stderr.isatty()):
         lines = data_path.read_text(encoding="utf-8").splitlines()
         idx = 0
         while idx < len(lines):
@@ -1205,7 +1306,7 @@ def convert_semeval2010_inputs(
                 {
                     "id": sample_id,
                     "category": "",
-                    "input": text,
+                    "input": text if include_input else "",
                     "text": text,
                     "head_entity": head_entity,
                     "head_entity_type": head_type,
@@ -1216,7 +1317,7 @@ def convert_semeval2010_inputs(
                     "relation": rel_type,
                     "dataset": dataset_name,
                     "language": language,
-                    "task": "RE",
+                    "task": task,
                 },
             )
             bucket["items"].append(sample)
@@ -1242,6 +1343,8 @@ def convert_traced_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
     samples: Dict[Tuple[str, str, str], Dict[str, Any]] = defaultdict(_new_sample_bucket)
@@ -1284,7 +1387,7 @@ def convert_traced_inputs(
             {
                 "id": record.get("id", ""),
                 "category": record.get("category", ""),
-                "input": text,
+                "input": text if include_input else "",
                 "text": text,
                 "head_entity": head,
                 "head_entity_type": head_type,
@@ -1295,7 +1398,7 @@ def convert_traced_inputs(
                 "relation": rel_type,
                 "dataset": dataset_name,
                 "language": language,
-                "task": record.get("task", "RE"),
+                "task": task,
             },
         )
         bucket["items"].append(sample)
@@ -1327,6 +1430,8 @@ def convert_gids_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1334,6 +1439,8 @@ def convert_gids_inputs(
         dataset_name=dataset_name,
         language=language,
         sample_limit=sample_limit,
+        task=task,
+        include_input=include_input,
         text_field="text",
         relation_field="relation",
         mapping=mapping,
@@ -1352,6 +1459,8 @@ def convert_nyt11_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1359,6 +1468,8 @@ def convert_nyt11_inputs(
         dataset_name=dataset_name,
         language=language,
         sample_limit=sample_limit,
+        task=task,
+        include_input=include_input,
         text_field="text",
         relation_field="relation",
         mapping=mapping,
@@ -1377,6 +1488,8 @@ def convert_new_york_times_re_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1384,6 +1497,8 @@ def convert_new_york_times_re_inputs(
         dataset_name=dataset_name,
         language=language,
         sample_limit=sample_limit,
+        task=task,
+        include_input=include_input,
         text_field="text",
         relation_field="relation",
         mapping=mapping,
@@ -1402,6 +1517,8 @@ def convert_scierc_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1409,6 +1526,8 @@ def convert_scierc_inputs(
         dataset_name=dataset_name,
         language=language,
         sample_limit=sample_limit,
+        task=task,
+        include_input=include_input,
         text_field="text",
         relation_field="relation",
         mapping=mapping,
@@ -1427,6 +1546,8 @@ def convert_conll04_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1434,6 +1555,8 @@ def convert_conll04_inputs(
         dataset_name=dataset_name,
         language=language,
         sample_limit=sample_limit,
+        task=task,
+        include_input=include_input,
         text_field="text",
         relation_field="relation",
         mapping=mapping,
@@ -1452,6 +1575,8 @@ def convert_kbp37_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1459,6 +1584,8 @@ def convert_kbp37_inputs(
         dataset_name=dataset_name,
         language=language,
         sample_limit=sample_limit,
+        task=task,
+        include_input=include_input,
         text_field="text",
         relation_field="relation",
         mapping=mapping,
@@ -1477,6 +1604,8 @@ def convert_semval_re_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1484,6 +1613,8 @@ def convert_semval_re_inputs(
         dataset_name=dataset_name,
         language=language,
         sample_limit=sample_limit,
+        task=task,
+        include_input=include_input,
         text_field="text",
         relation_field="relation",
         mapping=mapping,
@@ -1502,6 +1633,8 @@ def convert_wiki_0_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1509,6 +1642,8 @@ def convert_wiki_0_inputs(
         dataset_name=dataset_name,
         language=language,
         sample_limit=sample_limit,
+        task=task,
+        include_input=include_input,
         text_field="text",
         relation_field="relation",
         mapping=mapping,
@@ -1524,9 +1659,19 @@ def convert_wiki_1_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
-    return convert_wiki_0_inputs(data_paths, dataset_name, language, sample_limit, mapping=mapping)
+    return convert_wiki_0_inputs(
+        data_paths,
+        dataset_name,
+        language,
+        sample_limit,
+        task=task,
+        include_input=include_input,
+        mapping=mapping,
+    )
 
 
 def convert_wiki_2_schema(schema_path: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
@@ -1538,9 +1683,19 @@ def convert_wiki_2_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
-    return convert_wiki_0_inputs(data_paths, dataset_name, language, sample_limit, mapping=mapping)
+    return convert_wiki_0_inputs(
+        data_paths,
+        dataset_name,
+        language,
+        sample_limit,
+        task=task,
+        include_input=include_input,
+        mapping=mapping,
+    )
 
 
 def convert_wiki_3_schema(schema_path: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
@@ -1552,9 +1707,19 @@ def convert_wiki_3_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
-    return convert_wiki_0_inputs(data_paths, dataset_name, language, sample_limit, mapping=mapping)
+    return convert_wiki_0_inputs(
+        data_paths,
+        dataset_name,
+        language,
+        sample_limit,
+        task=task,
+        include_input=include_input,
+        mapping=mapping,
+    )
 
 
 def convert_wiki_4_schema(schema_path: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
@@ -1566,9 +1731,19 @@ def convert_wiki_4_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
     mapping: RelationTypeMap | None = None,
 ) -> List[Dict[str, Any]]:
-    return convert_wiki_0_inputs(data_paths, dataset_name, language, sample_limit, mapping=mapping)
+    return convert_wiki_0_inputs(
+        data_paths,
+        dataset_name,
+        language,
+        sample_limit,
+        task=task,
+        include_input=include_input,
+        mapping=mapping,
+    )
 
 
 def _build_event_schema(schema_paths: Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
@@ -1595,6 +1770,8 @@ def _convert_event_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
 ) -> List[Dict[str, Any]]:
     samples: Dict[str, Dict[str, Any]] = defaultdict(_new_sample_bucket)
 
@@ -1628,7 +1805,7 @@ def _convert_event_inputs(
                 EE_SAMPLE_FIELDS,
                 {
                     "id": record.get("id", ""),
-                    "input": text,
+                    "input": text if include_input else "",
                     "text": text,
                     "event_type": event_type,
                     "event_trigger": event_trigger,
@@ -1637,7 +1814,7 @@ def _convert_event_inputs(
                     "entity": entities,
                     "dataset": dataset_name,
                     "language": language,
-                    "task": record.get("task", ""),
+                    "task": task,
                 },
             )
 
@@ -1666,8 +1843,10 @@ def convert_casie_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
 ) -> List[Dict[str, Any]]:
-    return _convert_event_inputs(data_paths, dataset_name, language, sample_limit)
+    return _convert_event_inputs(data_paths, dataset_name, language, sample_limit, task, include_input)
 
 
 def convert_crude_oil_news_schema(schema_paths: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
@@ -1680,8 +1859,10 @@ def convert_crude_oil_news_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
 ) -> List[Dict[str, Any]]:
-    return _convert_event_inputs(data_paths, dataset_name, language, sample_limit)
+    return _convert_event_inputs(data_paths, dataset_name, language, sample_limit, task, include_input)
 
 
 def convert_phee_schema(schema_paths: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
@@ -1694,8 +1875,10 @@ def convert_phee_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
 ) -> List[Dict[str, Any]]:
-    return _convert_event_inputs(data_paths, dataset_name, language, sample_limit)
+    return _convert_event_inputs(data_paths, dataset_name, language, sample_limit, task, include_input)
 
 
 def convert_rams_schema(schema_paths: Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
@@ -1707,8 +1890,10 @@ def convert_rams_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
 ) -> List[Dict[str, Any]]:
-    return _convert_event_inputs(data_paths, dataset_name, language, sample_limit)
+    return _convert_event_inputs(data_paths, dataset_name, language, sample_limit, task, include_input)
 
 
 def convert_wiki_events_schema(schema_paths: Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
@@ -1720,8 +1905,10 @@ def convert_wiki_events_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
 ) -> List[Dict[str, Any]]:
-    return _convert_event_inputs(data_paths, dataset_name, language, sample_limit)
+    return _convert_event_inputs(data_paths, dataset_name, language, sample_limit, task, include_input)
 
 
 def convert_ccf_law_schema(schema_paths: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
@@ -1734,8 +1921,10 @@ def convert_ccf_law_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
 ) -> List[Dict[str, Any]]:
-    return _convert_event_inputs(data_paths, dataset_name, language, sample_limit)
+    return _convert_event_inputs(data_paths, dataset_name, language, sample_limit, task, include_input)
 
 
 def convert_duee_schema(schema_paths: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
@@ -1748,8 +1937,10 @@ def convert_duee_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
 ) -> List[Dict[str, Any]]:
-    return _convert_event_inputs(data_paths, dataset_name, language, sample_limit)
+    return _convert_event_inputs(data_paths, dataset_name, language, sample_limit, task, include_input)
 
 
 def convert_duee_fin_schema(schema_paths: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
@@ -1762,8 +1953,10 @@ def convert_duee_fin_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
 ) -> List[Dict[str, Any]]:
-    return _convert_event_inputs(data_paths, dataset_name, language, sample_limit)
+    return _convert_event_inputs(data_paths, dataset_name, language, sample_limit, task, include_input)
 
 
 def convert_fewfc_schema(schema_paths: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
@@ -1776,12 +1969,23 @@ def convert_fewfc_inputs(
     dataset_name: str,
     language: str,
     sample_limit: int,
+    task: str,
+    include_input: bool = True,
 ) -> List[Dict[str, Any]]:
-    return _convert_event_inputs(data_paths, dataset_name, language, sample_limit)
+    return _convert_event_inputs(data_paths, dataset_name, language, sample_limit, task, include_input)
 
 
 def _normalize_dataset_name(name: str | None) -> str:
     return str(name or "").strip().replace("-", "_").lower()
+
+
+def _normalize_task(task: str | None, default: str) -> str:
+    normalized = str(task or "").strip().lower()
+    if not normalized:
+        return default
+    if normalized not in {"re", "ee"}:
+        return default
+    return normalized
 
 
 def _resolve_selected_datasets(targets: Any, available: Dict[str, Dict[str, Any]]) -> List[str]:
@@ -1856,6 +2060,79 @@ def _collect_label_files(dataset_cfg: Dict[str, Any]) -> List[Path]:
     return resolved
 
 
+def _count_json_records(data_paths: Sequence[Path]) -> int:
+    total = 0
+    for path in tqdm(data_paths, desc="统计 JSON 数据", unit="file", disable=not sys.stderr.isatty()):
+        text = path.read_text(encoding="utf-8")
+        file_count = 0
+        try:
+            payload = json.loads(text)
+        except json.JSONDecodeError:
+            payload = None
+        if isinstance(payload, list):
+            file_count = sum(1 for item in payload if isinstance(item, dict))
+        elif isinstance(payload, dict):
+            file_count = 1
+        else:
+            for line in text.splitlines():
+                line = line.strip()
+                if not line or not line.startswith("{"):
+                    continue
+                try:
+                    payload = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if isinstance(payload, dict):
+                    file_count += 1
+        LOGGER.debug("统计数据文件 %s 记录数=%s", path, file_count)
+        total += file_count
+    return total
+
+
+def _count_fewrel_records(data_paths: Sequence[Path]) -> int:
+    total = 0
+    for path in tqdm(data_paths, desc="统计 FewRel 数据", unit="file", disable=not sys.stderr.isatty()):
+        payload = _load_json(path)
+        file_count = 0
+        if isinstance(payload, dict):
+            for items in payload.values():
+                if isinstance(items, list):
+                    file_count += sum(1 for item in items if isinstance(item, dict))
+        LOGGER.debug("统计 FewRel 数据文件 %s 记录数=%s", path, file_count)
+        total += file_count
+    return total
+
+
+def _count_semeval_records(data_paths: Sequence[Path]) -> int:
+    count = 0
+    for data_path in tqdm(data_paths, desc="统计 SemEval2010 样本", unit="file", disable=not sys.stderr.isatty()):
+        lines = data_path.read_text(encoding="utf-8").splitlines()
+        idx = 0
+        file_count = 0
+        while idx < len(lines):
+            line = lines[idx].strip()
+            if not line or "\t" not in line:
+                idx += 1
+                continue
+            count += 1
+            file_count += 1
+            idx += 4
+        LOGGER.debug("统计 SemEval2010 数据文件 %s 记录数=%s", data_path, file_count)
+    return count
+
+
+def _count_relation_records(format_key: str, data_files: Sequence[Path], dataset_cfg: Dict[str, Any]) -> int:
+    if format_key == "fewrel":
+        return _count_fewrel_records(data_files)
+    if format_key == "semeval2010":
+        return _count_semeval_records(data_files)
+    return _count_json_records(data_files)
+
+
+def _count_event_records(data_files: Sequence[Path]) -> int:
+    return _count_json_records(data_files)
+
+
 def _resolve_output_paths(
     output_dir: Path,
     dataset_cfg: Dict[str, Any],
@@ -1896,11 +2173,14 @@ def _run_re_dataset_conversion(
     output_dir: Path,
     sample_limit: int,
     results: Dict[str, List[Path]],
+    stats: List[DatasetStats],
 ) -> None:
     name = dataset_cfg.get("name")
     language = dataset_cfg.get("language", "").lower() or "zh"
     format_key = _normalize_dataset_name(dataset_cfg.get("format") or dataset_cfg.get("type"))
     dataset_name = str(name)
+    task = _normalize_task(dataset_cfg.get("task"), "re")
+    include_input = bool(dataset_cfg.get("include_input", True))
     LOGGER.debug("准备处理关系抽取数据集: %s (format=%s, language=%s)", dataset_name, format_key, language)
 
     handlers = {
@@ -1947,6 +2227,12 @@ def _run_re_dataset_conversion(
         [str(path) for path in schema_paths],
         [str(path) for path in data_files],
     )
+    LOGGER.debug(
+        "关系抽取数据集 %s include_input=%s sample_limit=%s",
+        dataset_name,
+        include_input,
+        sample_limit,
+    )
     if not data_files:
         LOGGER.warning("关系抽取数据集 %s 未配置 data_files", dataset_name)
         return
@@ -1980,6 +2266,8 @@ def _run_re_dataset_conversion(
             dataset_name,
             language,
             sample_limit,
+            task=task,
+            include_input=include_input,
             mapping=mapping,
             label_paths=label_files,
         )
@@ -1989,6 +2277,8 @@ def _run_re_dataset_conversion(
             dataset_name,
             language,
             sample_limit,
+            task=task,
+            include_input=include_input,
             mapping=mapping,
         )
 
@@ -1997,9 +2287,30 @@ def _run_re_dataset_conversion(
     results["samples"].append(samples_out)
 
     total_samples = sum(len(item.get("samples", [])) for item in samples_payload)
+    data_records = _count_relation_records(format_key, data_files, dataset_cfg)
+    schema_count = len(schema_payload.get("relationships", []))
+    stats.append(
+        DatasetStats(
+            name=dataset_name,
+            task=task,
+            language=language,
+            schema_count=schema_count,
+            data_records=data_records,
+            output_samples=total_samples,
+            schema_path=str(schema_out),
+            samples_path=str(samples_out),
+            include_input=include_input,
+            sample_limit=sample_limit,
+            data_files=[str(path) for path in data_files],
+        )
+    )
     LOGGER.debug(
         "关系抽取数据集 %s 关系数=%s 样本数=%s", dataset_name, len(samples_payload), total_samples
     )
+    if data_records == 0:
+        LOGGER.warning("关系抽取数据集 %s 未统计到输入数据，请检查数据文件。", dataset_name)
+    if total_samples == 0:
+        LOGGER.warning("关系抽取数据集 %s 未生成样本，请检查输入格式或样本限制。", dataset_name)
     LOGGER.debug(
         "完成关系抽取数据集 %s -> schema: %s, samples: %s", dataset_name, schema_out, samples_out
     )
@@ -2010,11 +2321,14 @@ def _run_ee_dataset_conversion(
     output_dir: Path,
     sample_limit: int,
     results: Dict[str, List[Path]],
+    stats: List[DatasetStats],
 ) -> None:
     name = dataset_cfg.get("name")
     language = dataset_cfg.get("language", "").lower() or "zh"
     format_key = _normalize_dataset_name(dataset_cfg.get("format") or dataset_cfg.get("type"))
     dataset_name = str(name)
+    task = _normalize_task(dataset_cfg.get("task"), "ee")
+    include_input = bool(dataset_cfg.get("include_input", True))
     LOGGER.debug("准备处理事件抽取数据集: %s (format=%s, language=%s)", dataset_name, format_key, language)
 
     handlers = {
@@ -2041,6 +2355,12 @@ def _run_ee_dataset_conversion(
         [str(path) for path in schema_paths],
         [str(path) for path in data_files],
     )
+    LOGGER.debug(
+        "事件抽取数据集 %s include_input=%s sample_limit=%s",
+        dataset_name,
+        include_input,
+        sample_limit,
+    )
     if not schema_paths:
         LOGGER.warning("事件抽取数据集 %s 未配置 schema_path", dataset_name)
         return
@@ -2057,6 +2377,8 @@ def _run_ee_dataset_conversion(
         dataset_name,
         language,
         sample_limit,
+        task=task,
+        include_input=include_input,
     )
 
     save_json(samples_out, samples_payload)
@@ -2064,15 +2386,95 @@ def _run_ee_dataset_conversion(
     results["samples"].append(samples_out)
 
     total_samples = sum(len(item.get("samples", [])) for item in samples_payload)
+    data_records = _count_event_records(data_files)
+    schema_count = len(schema_payload.get("event_types", []))
+    stats.append(
+        DatasetStats(
+            name=dataset_name,
+            task=task,
+            language=language,
+            schema_count=schema_count,
+            data_records=data_records,
+            output_samples=total_samples,
+            schema_path=str(schema_out),
+            samples_path=str(samples_out),
+            include_input=include_input,
+            sample_limit=sample_limit,
+            data_files=[str(path) for path in data_files],
+        )
+    )
     LOGGER.debug("事件抽取数据集 %s 事件类型数=%s 样本数=%s", dataset_name, len(samples_payload), total_samples)
+    if data_records == 0:
+        LOGGER.warning("事件抽取数据集 %s 未统计到输入数据，请检查数据文件。", dataset_name)
+    if total_samples == 0:
+        LOGGER.warning("事件抽取数据集 %s 未生成样本，请检查输入格式或样本限制。", dataset_name)
     LOGGER.debug(
         "完成事件抽取数据集 %s -> schema: %s, samples: %s", dataset_name, schema_out, samples_out
     )
 
 
+def _build_summary_lines(stats: Sequence[DatasetStats]) -> List[str]:
+    total_datasets = len(stats)
+    re_stats = [item for item in stats if item.task == "re"]
+    ee_stats = [item for item in stats if item.task == "ee"]
+    re_zh = [item for item in re_stats if item.language == "zh"]
+    re_en = [item for item in re_stats if item.language == "en"]
+    ee_zh = [item for item in ee_stats if item.language == "zh"]
+    ee_en = [item for item in ee_stats if item.language == "en"]
+
+    total_data_records = sum(item.data_records for item in stats)
+    total_schema_count = sum(item.schema_count for item in stats)
+    total_output_samples = sum(item.output_samples for item in stats)
+
+    lines = [
+        "# 公共数据集转换统计",
+        f"总数据集数: {total_datasets}",
+        f"RE 数据集数: {len(re_stats)} (RE-zh: {len(re_zh)}, RE-en: {len(re_en)})",
+        f"EE 数据集数: {len(ee_stats)} (EE-zh: {len(ee_zh)}, EE-en: {len(ee_en)})",
+        f"总 schema 数: {total_schema_count}",
+        f"总输入数据量: {total_data_records}",
+        f"总输出样本数: {total_output_samples}",
+        "",
+        "## 数据集明细",
+    ]
+
+    for item in stats:
+        lines.extend(
+            [
+                f"- 数据集: {item.name}",
+                f"  - 任务: {item.task}",
+                f"  - 语言: {item.language}",
+                f"  - schema 数: {item.schema_count}",
+                f"  - 输入数据量: {item.data_records}",
+                f"  - 输出样本数: {item.output_samples}",
+                f"  - 样本限制: {item.sample_limit}",
+                f"  - include_input: {item.include_input}",
+                f"  - 数据文件数: {len(item.data_files)}",
+                f"  - schema 输出: {item.schema_path}",
+                f"  - samples 输出: {item.samples_path}",
+            ]
+        )
+        for data_file in item.data_files:
+            lines.append(f"    - 数据文件: {data_file}")
+        lines.append("")
+
+    return lines
+
+
+def _write_dataset_summary(stats: Sequence[DatasetStats], info_path: Path) -> None:
+    if not stats:
+        LOGGER.info("未生成任何数据集统计信息，跳过写入 data_info。")
+        return
+    lines = _build_summary_lines(stats)
+    info_path.parent.mkdir(parents=True, exist_ok=True)
+    info_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    LOGGER.info("已写入数据集统计信息: %s", info_path)
+
+
 def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
     conv_cfg = config.get("dataset_conversion") or {}
     results: Dict[str, List[Path]] = {"schemas": [], "samples": []}
+    stats: List[DatasetStats] = []
 
     re_cfg = conv_cfg.get("re")
     ee_cfg = conv_cfg.get("ee")
@@ -2084,12 +2486,17 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
             re_entries = re_cfg.get("dataset_configs", []) or []
             re_map = {_normalize_dataset_name(entry.get("name")): entry for entry in re_entries if entry.get("name")}
             LOGGER.debug("关系抽取配置: output_dir=%s sample_limit=%s datasets=%s", re_output_dir, re_sample_limit, re_cfg.get("datasets"))
-            for name in _resolve_selected_datasets(re_cfg.get("datasets", "all"), re_map):
+            for name in tqdm(
+                _resolve_selected_datasets(re_cfg.get("datasets", "all"), re_map),
+                desc="转换 RE 数据集",
+                unit="dataset",
+                disable=not sys.stderr.isatty(),
+            ):
                 ds_cfg = re_map.get(name)
                 if not ds_cfg:
                     LOGGER.warning("未找到关系抽取数据集配置: %s", name)
                     continue
-                _run_re_dataset_conversion(config, ds_cfg, re_output_dir, re_sample_limit, results)
+                _run_re_dataset_conversion(config, ds_cfg, re_output_dir, re_sample_limit, results, stats)
 
         if ee_cfg:
             ee_output_dir = resolve_project_path(ee_cfg.get("output_dir", conv_cfg.get("output_dir", "data/input/ee")))
@@ -2097,13 +2504,21 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
             ee_entries = ee_cfg.get("dataset_configs", []) or []
             ee_map = {_normalize_dataset_name(entry.get("name")): entry for entry in ee_entries if entry.get("name")}
             LOGGER.debug("事件抽取配置: output_dir=%s sample_limit=%s datasets=%s", ee_output_dir, ee_sample_limit, ee_cfg.get("datasets"))
-            for name in _resolve_selected_datasets(ee_cfg.get("datasets", "all"), ee_map):
+            for name in tqdm(
+                _resolve_selected_datasets(ee_cfg.get("datasets", "all"), ee_map),
+                desc="转换 EE 数据集",
+                unit="dataset",
+                disable=not sys.stderr.isatty(),
+            ):
                 ds_cfg = ee_map.get(name)
                 if not ds_cfg:
                     LOGGER.warning("未找到事件抽取数据集配置: %s", name)
                     continue
-                _run_ee_dataset_conversion(ds_cfg, ee_output_dir, ee_sample_limit, results)
+                _run_ee_dataset_conversion(ds_cfg, ee_output_dir, ee_sample_limit, results, stats)
 
+        info_path = resolve_project_path(conv_cfg.get("data_info_path", "data/input/data_info.txt"))
+        _write_dataset_summary(stats, info_path)
+        LOGGER.info("数据集汇总信息:\n%s", "\n".join(_build_summary_lines(stats)))
         return results
 
     output_dir = resolve_project_path(conv_cfg.get("output_dir", "data/input"))
@@ -2145,6 +2560,8 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
                 dataset_name=name,
                 language=language,
                 sample_limit=sample_limit,
+                task=_normalize_task(dataset_cfg.get("task"), "re"),
+                include_input=bool(dataset_cfg.get("include_input", True)),
                 mapping=mapping,
             )
         else:
@@ -2155,12 +2572,33 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
                 dataset_name=name,
                 language=language,
                 sample_limit=sample_limit,
+                task=_normalize_task(dataset_cfg.get("task"), "re"),
+                include_input=bool(dataset_cfg.get("include_input", True)),
             )
 
         save_json(samples_path_out, samples_payload)
         results["schemas"].append(schema_path_out)
         results["samples"].append(samples_path_out)
 
+        stats.append(
+            DatasetStats(
+                name=str(name),
+                task=_normalize_task(dataset_cfg.get("task"), "re"),
+                language=language,
+                schema_count=len(schema_payload.get("relationships", [])),
+                data_records=_count_json_records(data_files),
+                output_samples=sum(len(item.get("samples", [])) for item in samples_payload),
+                schema_path=str(schema_path_out),
+                samples_path=str(samples_path_out),
+                include_input=bool(dataset_cfg.get("include_input", True)),
+                sample_limit=sample_limit,
+                data_files=[str(path) for path in data_files],
+            )
+        )
+
+    info_path = resolve_project_path(conv_cfg.get("data_info_path", "data/input/data_info.txt"))
+    _write_dataset_summary(stats, info_path)
+    LOGGER.info("数据集汇总信息:\n%s", "\n".join(_build_summary_lines(stats)))
     return results
 
 

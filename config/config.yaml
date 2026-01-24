@@ -376,6 +376,7 @@ evaluation:
   output_json: data/output/ontology_eval_metrics.json
 dataset_conversion:
   output_dir: data/input
+  data_info_path: data/input/data_info.txt
   samples_per_relation: 5
   samples_per_event: 5
   relation_schema_generation:
@@ -568,6 +569,7 @@ dataset_conversion:
         task: re
         format: conll04
         language: en
+        include_input: false
         schema_path: data/dataset_public/re/re-en/conll04/schema.json
         data_files:
           - data/dataset_public/re/re-en/conll04/train.json
