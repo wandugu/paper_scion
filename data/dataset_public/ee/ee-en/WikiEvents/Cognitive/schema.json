@@ -1,0 +1,3 @@
+["Identifying or categorizing", "Research", "Observing through sensory perception"]
+["ObservedEntity", "Place", "IdentifiedObject", "Researcher", "Observer", "Identifier"]
+{"Identifying or categorizing": ["Identifier", "IdentifiedObject", "Place"], "Observing through sensory perception": ["Observer", "ObservedEntity"], "Research": ["Researcher"]}

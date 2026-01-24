@@ -1,0 +1,3 @@
+["Firing or laying off from a position", "Hiring for a position", "Quitting or retiring from a position", "Winning an election"]
+["voter", "employee", "place", "placeofemployment", "candidate"]
+{"Firing or laying off from a position": ["employee", "placeofemployment", "place"], "Hiring for a position": ["employee", "placeofemployment", "place"], "Quitting or retiring from a position": ["employee", "placeofemployment", "place"], "Winning an election": ["voter", "candidate", "place"]}

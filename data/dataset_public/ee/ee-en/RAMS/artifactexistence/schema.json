@@ -1,0 +1,3 @@
+["destroy", "damage"]
+["damager", "place", "instrument", "destroyer", "artifact"]
+{"destroy": ["destroyer", "instrument", "artifact", "place"], "damage": ["damager", "instrument", "artifact", "place"]}

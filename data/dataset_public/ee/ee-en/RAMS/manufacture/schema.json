@@ -1,0 +1,3 @@
+["Construction of a structure or artifact", "Creation or manufacturing of goods", "Creation of intellectual property"]
+["instrument", "manufacturer", "place", "artifact"]
+{"Construction of a structure or artifact": ["instrument", "manufacturer", "artifact", "place"], "Creation or manufacturing of goods": ["instrument", "manufacturer", "artifact", "place"], "Creation of intellectual property": ["instrument", "manufacturer", "artifact", "place"]}

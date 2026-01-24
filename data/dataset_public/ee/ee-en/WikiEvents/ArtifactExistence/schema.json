@@ -1,0 +1,3 @@
+["Manufacturing or assembling", "Dismantle", "Damage", "Destroy", "Disabling or defusing"]
+["Place", "Artifact", "Disabler", "Damager", "Dismantler", "Instrument", "Destroyer", "ManufacturerAssembler"]
+{"Damage": ["Damager", "Artifact", "Place"], "Destroy": ["Destroyer", "Artifact", "Place"], "Manufacturing or assembling": ["ManufacturerAssembler", "Artifact", "Place"], "Dismantle": ["Instrument", "Artifact", "Dismantler"], "Disabling or defusing": ["Disabler", "Artifact"]}

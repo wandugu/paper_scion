@@ -1,0 +1,3 @@
+["Broadcast", "Contact", "Meet", "Correspondence", "RequestCommand", "ThreatenCoerce"]
+["Place", "Communicator", "Topic", "Recipient", "Participant"]
+{"Correspondence": ["Communicator", "Recipient", "Topic"], "Meet": ["Topic", "Participant", "Place"], "Contact": ["Topic", "Participant", "Place"], "Broadcast": ["Communicator"], "ThreatenCoerce": ["Communicator", "Recipient"], "RequestCommand": ["Communicator", "Recipient"]}

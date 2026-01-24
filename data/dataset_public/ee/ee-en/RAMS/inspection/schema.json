@@ -1,0 +1,3 @@
+["Physical investigation or inspection", "Inspection of people or organizations", "Monitoring of elections"]
+["monitoredentity", "inspectedentity", "monitor", "inspector", "place"]
+{"Physical investigation or inspection": ["inspector", "place", "inspectedentity"], "Inspection of people or organizations": ["inspector", "place", "inspectedentity"], "Monitoring of elections": ["monitoredentity", "place", "monitor"]}

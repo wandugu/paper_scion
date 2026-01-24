@@ -1,0 +1,3 @@
+["Death caused by violent events", "Physical illness or degradation", "Injury caused by violent events", "Illness or degradation due to hunger or thirst", "Non-violent death"]
+["victim", "injurer", "place", "instrument", "killer"]
+{"Death caused by violent events": ["instrument", "killer", "place", "victim"], "Physical illness or degradation": ["victim"], "Injury caused by violent events": ["place", "instrument", "injurer", "victim"], "Illness or degradation due to hunger or thirst": ["place", "victim"], "Non-violent death": ["place", "victim"]}

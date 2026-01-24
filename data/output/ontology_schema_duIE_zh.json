@@ -1,0 +1,415 @@
+{
+  "entities": [
+    {
+      "人物": "人物姓名，避免形容词"
+    },
+    {
+      "物体": "有形物体，名称中不含冠词"
+    },
+    {
+      "事件": "事件或情节，保持中立描述"
+    },
+    {
+      "地点": "指代地理位置、场所、区域等"
+    },
+    {
+      "组织": "指代公司、机构、团体、国家等集体实体"
+    },
+    "文档",
+    {
+      "行动": "关键动作或行为"
+    },
+    {
+      "其它": "其它重要概念"
+    },
+    {
+      "作品": "指代文学、艺术、音乐、影视等创作产物"
+    },
+    {
+      "职位/角色": "指代个人在组织或社会关系中的身份或职务"
+    },
+    {
+      "时间": "指代具体的日期、年份或时间段"
+    },
+    {
+      "行动/行为": "指代个人或组织执行的具体动作或操作"
+    },
+    {
+      "概念/抽象事物": "指代头衔、荣誉、技术、关系等抽象概念"
+    }
+  ],
+  "relationships": [
+    {
+      "head_entity": "人物",
+      "tail_entity": "组织",
+      "rel_type": "隶属于",
+      "description": "角色在某个组织或阵营中任职、受训或接受指挥"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "地点",
+      "rel_type": "位于",
+      "description": "组织的总部、设施或主要部署区域"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "组织",
+      "rel_type": "对抗",
+      "description": "两个组织在战略、舆论或资源层面发生直接冲突"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "物体",
+      "rel_type": "负责设计",
+      "description": "个人主导或负责关键系统、装备或技术方案的设计"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "行动",
+      "rel_type": "负责推进",
+      "description": "个人主导执行或推动一项行动、计划或改革"
+    },
+    {
+      "head_entity": "物体",
+      "tail_entity": "地点",
+      "rel_type": "部署于",
+      "description": "系统、装备或技术在特定地理区域或设施中的部署"
+    },
+    {
+      "head_entity": "物体",
+      "tail_entity": "物体",
+      "rel_type": "包含组件",
+      "description": "上层系统所包含的子模块、传感器或软件组件"
+    },
+    {
+      "head_entity": "物体",
+      "tail_entity": "事件",
+      "rel_type": "引发事件",
+      "description": "系统或技术变化导致的事故、舆情或调查"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "文档",
+      "rel_type": "报告问题",
+      "description": "个人通过备忘录、报告或公告形式提出质疑与反馈"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "事件",
+      "rel_type": "参与评估",
+      "description": "个人以专家、负责人或调查成员身份参与事件评估"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "人物",
+      "rel_type": "配偶",
+      "description": "两人之间存在婚姻关系"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "人物",
+      "rel_type": "子女",
+      "description": "两人之间存在直系亲子关系"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "人物",
+      "rel_type": "父母",
+      "description": "两人之间存在直系亲子关系（反向）"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "人物",
+      "rel_type": "兄弟姐妹",
+      "description": "两人之间存在兄弟姐妹关系"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "人物",
+      "rel_type": "祖孙",
+      "description": "两人之间存在祖父母与孙辈的关系"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "人物",
+      "rel_type": "伴侣（非婚）",
+      "description": "两人之间存在非婚姻的伴侣关系"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "组织",
+      "rel_type": "创立",
+      "description": "人物创建了该组织"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "组织",
+      "rel_type": "任职于",
+      "description": "人物在该组织担任职务或工作"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "职位/角色",
+      "rel_type": "担任",
+      "description": "人物拥有特定的职位或社会角色"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "作品",
+      "rel_type": "创作",
+      "description": "人物创作了该作品"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "作品",
+      "rel_type": "出演",
+      "description": "人物在该作品中表演或出现"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "作品",
+      "rel_type": "角色来源",
+      "description": "该作品中的虚构角色以该人物为原型"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "事件",
+      "rel_type": "参与",
+      "description": "人物参与了该事件"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "事件",
+      "rel_type": "引发",
+      "description": "人物的行为导致了该事件发生"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "事件",
+      "rel_type": "宣布",
+      "description": "人物公开宣布了该事件"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "行动/行为",
+      "rel_type": "执行",
+      "description": "人物执行了该具体行动"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "物体",
+      "rel_type": "持有",
+      "description": "人物拥有或持有该物体"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "物体",
+      "rel_type": "设计",
+      "description": "人物设计了该物体"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "概念/抽象事物",
+      "rel_type": "获得",
+      "description": "人物获得了某种头衔、荣誉或身份"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "地点",
+      "rel_type": "出生于",
+      "description": "人物的出生地"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "地点",
+      "rel_type": "祖籍",
+      "description": "人物的家族原籍所在地"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "组织",
+      "rel_type": "子公司",
+      "description": "该组织是另一组织的下属公司"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "组织",
+      "rel_type": "母公司",
+      "description": "该组织是另一组织的上级公司"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "组织",
+      "rel_type": "投资",
+      "description": "该组织向另一组织提供了资金"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "地点",
+      "rel_type": "总部位于",
+      "description": "组织的总部设在该地点"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "地点",
+      "rel_type": "坐落于",
+      "description": "组织的主要设施或办公地点位于该地"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "人物",
+      "rel_type": "由...领导",
+      "description": "该组织由特定人物领导（如董事长、CEO）"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "事件",
+      "rel_type": "举办",
+      "description": "组织举办了该事件"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "作品",
+      "rel_type": "出品",
+      "description": "组织制作或发行了该作品"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "物体",
+      "rel_type": "生产",
+      "description": "组织生产该产品或物体"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "概念/抽象事物",
+      "rel_type": "从事...业务",
+      "description": "组织的主要经营领域"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "时间",
+      "rel_type": "发生于",
+      "description": "事件发生的具体时间点或时间段"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "地点",
+      "rel_type": "发生于",
+      "description": "事件发生的地理位置"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "人物",
+      "rel_type": "涉及",
+      "description": "事件与该人物相关"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "组织",
+      "rel_type": "涉及",
+      "description": "事件与该组织相关"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "物体",
+      "rel_type": "涉及",
+      "description": "事件中涉及该物体"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "事件",
+      "rel_type": "导致",
+      "description": "该事件引发了另一事件"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "行动/行为",
+      "rel_type": "包含",
+      "description": "该事件包含特定的行动"
+    },
+    {
+      "head_entity": "作品",
+      "tail_entity": "人物",
+      "rel_type": "作者",
+      "description": "该作品的创作者"
+    },
+    {
+      "head_entity": "作品",
+      "tail_entity": "人物",
+      "rel_type": "主角",
+      "description": "该作品中的主要角色"
+    },
+    {
+      "head_entity": "作品",
+      "tail_entity": "人物",
+      "rel_type": "演唱者",
+      "description": "演唱该音乐作品的人物"
+    },
+    {
+      "head_entity": "作品",
+      "tail_entity": "组织",
+      "rel_type": "创作单位",
+      "description": "创作该作品的组织"
+    },
+    {
+      "head_entity": "作品",
+      "tail_entity": "作品",
+      "rel_type": "改编自",
+      "description": "该作品由另一作品改编而来"
+    },
+    {
+      "head_entity": "物体",
+      "tail_entity": "组织",
+      "rel_type": "品牌属于",
+      "description": "该物体（产品）的品牌归属于某组织"
+    },
+    {
+      "head_entity": "物体",
+      "tail_entity": "人物",
+      "rel_type": "代言人",
+      "description": "该人物为该物体（产品）进行商业代言"
+    },
+    {
+      "head_entity": "物体",
+      "tail_entity": "概念/抽象事物",
+      "rel_type": "属于...类别",
+      "description": "该物体属于某产品类别或类型"
+    },
+    {
+      "head_entity": "物体",
+      "tail_entity": "事件",
+      "rel_type": "在...中使用",
+      "description": "该物体在某事件中被使用"
+    },
+    {
+      "head_entity": "行动/行为",
+      "tail_entity": "物体",
+      "rel_type": "操作对象",
+      "description": "该行动作用于某物体"
+    },
+    {
+      "head_entity": "行动/行为",
+      "tail_entity": "概念/抽象事物",
+      "rel_type": "目的",
+      "description": "执行该行动的目的"
+    },
+    {
+      "head_entity": "概念/抽象事物",
+      "tail_entity": "人物",
+      "rel_type": "授予",
+      "description": "该头衔或荣誉授予了该人物"
+    },
+    {
+      "head_entity": "概念/抽象事物",
+      "tail_entity": "组织",
+      "rel_type": "授予",
+      "description": "该资质或认证授予了该组织"
+    },
+    {
+      "head_entity": "时间",
+      "tail_entity": "事件",
+      "rel_type": "标记",
+      "description": "该时间点标记了某事件的发生"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+["Injure", "Die"]
+["Place", "Injurer", "Killer", "Instrument", "Victim"]
+{"Die": ["Killer", "Place", "Victim"], "Injure": ["Injurer", "Instrument", "Victim"]}

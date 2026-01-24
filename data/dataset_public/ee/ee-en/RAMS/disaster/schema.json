@@ -1,0 +1,3 @@
+["Fire or explosion incident", "Accident or crash"]
+["vehicle", "fireexplosionobject", "driverpassenger", "crashobject", "place", "instrument"]
+{"Fire or explosion incident": ["fireexplosionobject", "instrument", "place"], "Accident or crash": ["place", "driverpassenger", "vehicle", "crashobject"]}

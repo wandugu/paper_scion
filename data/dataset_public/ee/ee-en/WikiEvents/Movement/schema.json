@@ -1,0 +1,3 @@
+["Legal transportation", "Illegal transportation"]
+["Transporter", "Destination", "PassengerArtifact", "Origin", "Vehicle"]
+{"Legal transportation": ["Origin", "PassengerArtifact", "Transporter", "Destination"], "Illegal transportation": ["Vehicle", "Destination", "PassengerArtifact", "Transporter"]}

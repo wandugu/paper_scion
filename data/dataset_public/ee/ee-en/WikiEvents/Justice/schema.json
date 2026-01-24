@@ -1,0 +1,3 @@
+["Conducting a trial or hearing", "Arresting, jailing, or detaining", "Charging or indicting", "Sentence", "Investigating a crime"]
+["Prosecutor", "Defendant", "Place", "Detainee", "Jailer", "Investigator", "JudgeCourt"]
+{"Sentence": ["Defendant", "JudgeCourt"], "Charging or indicting": ["Defendant", "Prosecutor"], "Arresting, jailing, or detaining": ["Detainee", "Jailer", "Place"], "Conducting a trial or hearing": ["Defendant", "JudgeCourt", "Place"], "Investigating a crime": ["Investigator"]}

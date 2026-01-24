@@ -1,0 +1,3 @@
+["Detonating or causing an explosion", "Attack", "Demonstrate"]
+["Target", "Place", "ExplosiveDevice", "Demonstrator", "Instrument", "Attacker"]
+{"Detonating or causing an explosion": ["Attacker", "Instrument", "ExplosiveDevice", "Target", "Place"], "Attack": ["Attacker", "Instrument", "Place", "Target"], "Demonstrate": ["Demonstrator"]}

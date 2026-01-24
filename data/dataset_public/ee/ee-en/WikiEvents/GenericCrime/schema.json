@@ -1,0 +1,3 @@
+["Generic crime"]
+["Perpetrator", "Victim", "Place"]
+{"Generic crime": ["Place", "Perpetrator", "Victim"]}
