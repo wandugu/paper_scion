@@ -10,10 +10,10 @@ import re
 from pathlib import Path
 from typing import Any, Dict, Set, Tuple
 
-from utils.common import load_yaml_config, resolve_project_path, save_json
-from utils.dataset_paths import resolve_dataset_paths
-from utils.logger import get_ot_logger
-from utils.ontology_graph import Edge, OntologyGraph, load_schema_file, schema_dict_to_graph
+from .utils.common import load_yaml_config, resolve_project_path, save_json
+from .utils.dataset_paths import resolve_dataset_paths
+from .utils.logger import get_ot_logger
+from .utils.ontology_graph import Edge, OntologyGraph, load_schema_file, schema_dict_to_graph
 
 try:  # optional heavy deps
     import numpy as np

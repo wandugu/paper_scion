@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import logging
 
-from utils.common import load_yaml_config
-from utils.logger import get_ot_logger
-from utils.public_dataset_conversion import convert_from_config
+from .utils.common import load_yaml_config
+from .utils.logger import get_ot_logger
+from .utils.public_dataset_conversion import convert_from_config
 
 
 LOGGER = get_ot_logger()

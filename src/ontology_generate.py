@@ -41,14 +41,14 @@ if str(SRC_DIR) not in sys.path:
 CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
 BACKGROUND_SNIPPET_MAX_CHARS = 4000
 
-from utils.common import load_yaml_config, resolve_project_path, save_json
-from utils.dataset_paths import (
+from .utils.common import load_yaml_config, resolve_project_path, save_json
+from .utils.dataset_paths import (
     dataset_is_relation_only,
     load_dataset_background_text,
     load_dataset_text,
     resolve_dataset_paths,
 )
-from utils.logger import get_ot_logger
+from .utils.logger import get_ot_logger
 
 
 CONFIG: Dict = load_yaml_config(CONFIG_PATH)
@@ -600,8 +600,8 @@ def maybe_run_schema_evaluation(
         LOGGER.warning("已启用本体评估，但缺少评估用金标准本体，跳过比较。")
         return
     try:
-        from ontology_eval import compute_ontology_metrics, prepare_embedding_model
-        from utils.ontology_graph import schema_dict_to_graph
+        from .ontology_eval import compute_ontology_metrics, prepare_embedding_model
+        from .utils.ontology_graph import schema_dict_to_graph
     except Exception as exc:  # noqa: BLE001
         LOGGER.warning("导入本体评估模块失败: %s", exc)
         return

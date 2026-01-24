@@ -10,8 +10,8 @@ from __future__ import annotations
 
 from typing import Literal
 
-from utils.common import load_yaml_config
-from utils.logger import get_ot_logger
+from .utils.common import load_yaml_config
+from .utils.logger import get_ot_logger
 
 CONFIG = load_yaml_config()
 LOGGER = get_ot_logger()
@@ -63,14 +63,14 @@ def evaluation_enabled() -> bool:
 
 
 def run_generation() -> None:
-    from ontology_generate import main as generate_main
+    from .ontology_generate import main as generate_main
 
     LOGGER.info("[pipeline] 启动本体生成阶段…")
     generate_main()
 
 
 def run_evaluation() -> None:
-    from ontology_eval import main as eval_main
+    from .ontology_eval import main as eval_main
 
     LOGGER.info("[pipeline] 启动本体评测阶段…")
     eval_main()
