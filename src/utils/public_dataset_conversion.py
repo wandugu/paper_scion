@@ -756,12 +756,14 @@ def _convert_relation_inputs(
     category_field: str | None = None,
     mapping: RelationTypeMap | InstructIERelationMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     samples: Dict[Tuple[str, str, str], Dict[str, Any]] = defaultdict(_new_sample_bucket)
     task_value = _normalize_task(task, "re")
     limit = sample_limit if sample_limit > 0 else None
+    if limit is None:
+        LOGGER.debug("数据集 %s 关系样本限制为全量输出。", dataset_name)
 
     iter_stats = stats if stats is not None else {}
     for record in _iter_json_lines(data_paths, desc=f"{dataset_name} 样本抽取", stats=iter_stats):
@@ -844,7 +846,7 @@ def convert_instructie_inputs(
     sample_limit: int,
     mapping: InstructIERelationMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     if mapping is None:
@@ -907,7 +909,7 @@ def convert_duie_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     samples: Dict[Tuple[str, str, str], Dict[str, Any]] = defaultdict(_new_sample_bucket)
@@ -999,7 +1001,7 @@ def convert_cmeie_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1030,7 +1032,7 @@ def convert_coae2016_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1061,7 +1063,7 @@ def convert_duie2_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1092,7 +1094,7 @@ def convert_ipre_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1123,7 +1125,7 @@ def convert_ske2020_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1154,7 +1156,7 @@ def convert_ade_corpus_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1185,7 +1187,7 @@ def convert_fewrel_0_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1213,7 +1215,7 @@ def convert_fewrel_1_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return convert_fewrel_0_inputs(
@@ -1239,7 +1241,7 @@ def convert_fewrel_2_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return convert_fewrel_0_inputs(
@@ -1265,7 +1267,7 @@ def convert_fewrel_3_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return convert_fewrel_0_inputs(
@@ -1291,7 +1293,7 @@ def convert_fewrel_4_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return convert_fewrel_0_inputs(
@@ -1313,7 +1315,7 @@ def convert_fewrel_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     samples: Dict[Tuple[str, str, str], Dict[str, Any]] = defaultdict(_new_sample_bucket)
@@ -1395,7 +1397,7 @@ def convert_semeval2010_inputs(
     mapping: RelationTypeMap | None = None,
     label_paths: Sequence[Path] | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     samples: Dict[Tuple[str, str, str], Dict[str, Any]] = defaultdict(_new_sample_bucket)
@@ -1492,7 +1494,7 @@ def convert_traced_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     samples: Dict[Tuple[str, str, str], Dict[str, Any]] = defaultdict(_new_sample_bucket)
@@ -1583,7 +1585,7 @@ def convert_gids_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1614,7 +1616,7 @@ def convert_nyt11_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1645,7 +1647,7 @@ def convert_new_york_times_re_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1676,7 +1678,7 @@ def convert_scierc_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1707,7 +1709,7 @@ def convert_conll04_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1738,7 +1740,7 @@ def convert_kbp37_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1769,7 +1771,7 @@ def convert_semval_re_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1800,7 +1802,7 @@ def convert_wiki_0_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return _convert_relation_inputs(
@@ -1828,7 +1830,7 @@ def convert_wiki_1_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return convert_wiki_0_inputs(
@@ -1854,7 +1856,7 @@ def convert_wiki_2_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return convert_wiki_0_inputs(
@@ -1880,7 +1882,7 @@ def convert_wiki_3_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return convert_wiki_0_inputs(
@@ -1906,7 +1908,7 @@ def convert_wiki_4_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     return convert_wiki_0_inputs(
@@ -1946,13 +1948,15 @@ def _convert_event_inputs(
     language: str,
     sample_limit: int,
     task: str | None = None,
-    include_input: bool = True,
+    include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     samples: Dict[str, Dict[str, Any]] = defaultdict(_new_sample_bucket)
     task_value = _normalize_task(task, "ee")
     iter_stats = stats if stats is not None else {}
     limit = sample_limit if sample_limit > 0 else None
+    if limit is None:
+        LOGGER.debug("数据集 %s 事件样本限制为全量输出。", dataset_name)
 
     for record in _iter_json_lines(data_paths, desc=f"{dataset_name} 事件样本", stats=iter_stats):
         text = str(record.get("text", "")).strip()
@@ -2239,6 +2243,10 @@ def _resolve_sample_limit(dataset_cfg: Dict[str, Any], default_limit: int, key: 
         return default_limit
 
 
+def _describe_sample_limit(sample_limit: int) -> str:
+    return "全量" if sample_limit <= 0 else str(sample_limit)
+
+
 def _run_schema_converter(
     converter,
     schema_paths: Sequence[Path],
@@ -2269,7 +2277,8 @@ def _run_re_dataset_conversion(
     format_key = _normalize_dataset_name(dataset_cfg.get("format") or dataset_cfg.get("type"))
     task_value = _normalize_task(dataset_cfg.get("task"), "re")
     dataset_name = str(name)
-    include_input = bool(dataset_cfg.get("include_input", True))
+    conv_cfg = config.get("dataset_conversion") or {}
+    include_input = bool(dataset_cfg.get("include_input", conv_cfg.get("include_input", False)))
     resolved_limit = _resolve_sample_limit(dataset_cfg, sample_limit, "samples_per_relation")
     LOGGER.debug(
         "准备处理关系抽取数据集: %s (format=%s, language=%s, task=%s, include_input=%s, limit=%s)",
@@ -2278,7 +2287,7 @@ def _run_re_dataset_conversion(
         language,
         task_value,
         include_input,
-        resolved_limit,
+        _describe_sample_limit(resolved_limit),
     )
 
     handlers = {
@@ -2423,6 +2432,7 @@ def _run_ee_dataset_conversion(
     dataset_cfg: Dict[str, Any],
     output_dir: Path,
     sample_limit: int,
+    default_include_input: bool,
     results: Dict[str, List[Path]],
     stats: List[DatasetConversionStats],
 ) -> None:
@@ -2431,7 +2441,7 @@ def _run_ee_dataset_conversion(
     format_key = _normalize_dataset_name(dataset_cfg.get("format") or dataset_cfg.get("type"))
     task_value = _normalize_task(dataset_cfg.get("task"), "ee")
     dataset_name = str(name)
-    include_input = bool(dataset_cfg.get("include_input", True))
+    include_input = bool(dataset_cfg.get("include_input", default_include_input))
     resolved_limit = _resolve_sample_limit(dataset_cfg, sample_limit, "samples_per_event")
     LOGGER.debug(
         "准备处理事件抽取数据集: %s (format=%s, language=%s, task=%s, include_input=%s, limit=%s)",
@@ -2440,7 +2450,7 @@ def _run_ee_dataset_conversion(
         language,
         task_value,
         include_input,
-        resolved_limit,
+        _describe_sample_limit(resolved_limit),
     )
 
     handlers = {
@@ -2595,7 +2605,7 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
         LOGGER.debug("使用新版 dataset_conversion 配置。")
         if re_cfg:
             re_output_dir = resolve_project_path(re_cfg.get("output_dir", conv_cfg.get("output_dir", "data/input/re")))
-            re_sample_limit = int(re_cfg.get("samples_per_relation", conv_cfg.get("samples_per_relation", 5)))
+            re_sample_limit = int(re_cfg.get("samples_per_relation", conv_cfg.get("samples_per_relation", 0)))
             re_entries = re_cfg.get("dataset_configs", []) or []
             re_map = {_normalize_dataset_name(entry.get("name")): entry for entry in re_entries if entry.get("name")}
             LOGGER.debug("关系抽取配置: output_dir=%s sample_limit=%s datasets=%s", re_output_dir, re_sample_limit, re_cfg.get("datasets"))
@@ -2608,7 +2618,7 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
 
         if ee_cfg:
             ee_output_dir = resolve_project_path(ee_cfg.get("output_dir", conv_cfg.get("output_dir", "data/input/ee")))
-            ee_sample_limit = int(ee_cfg.get("samples_per_event", conv_cfg.get("samples_per_event", 5)))
+            ee_sample_limit = int(ee_cfg.get("samples_per_event", conv_cfg.get("samples_per_event", 0)))
             ee_entries = ee_cfg.get("dataset_configs", []) or []
             ee_map = {_normalize_dataset_name(entry.get("name")): entry for entry in ee_entries if entry.get("name")}
             LOGGER.debug("事件抽取配置: output_dir=%s sample_limit=%s datasets=%s", ee_output_dir, ee_sample_limit, ee_cfg.get("datasets"))
@@ -2617,7 +2627,14 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
                 if not ds_cfg:
                     LOGGER.warning("未找到事件抽取数据集配置: %s", name)
                     continue
-                _run_ee_dataset_conversion(ds_cfg, ee_output_dir, ee_sample_limit, results, stats)
+                _run_ee_dataset_conversion(
+                    ds_cfg,
+                    ee_output_dir,
+                    ee_sample_limit,
+                    bool(conv_cfg.get("include_input", False)),
+                    results,
+                    stats,
+                )
 
         results["stats"] = stats
         summary_path = resolve_project_path(
@@ -2632,7 +2649,7 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
         return results
 
     output_dir = resolve_project_path(conv_cfg.get("output_dir", "data/input"))
-    sample_limit = int(conv_cfg.get("samples_per_relation", 5))
+    sample_limit = int(conv_cfg.get("samples_per_relation", 0))
     LOGGER.debug("使用旧版 dataset_conversion 配置: output_dir=%s sample_limit=%s", output_dir, sample_limit)
 
     for dataset_cfg in conv_cfg.get("datasets", []):
@@ -2672,7 +2689,7 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
                 sample_limit=sample_limit,
                 mapping=mapping,
                 task=dataset_cfg.get("task"),
-                include_input=bool(dataset_cfg.get("include_input", True)),
+                include_input=bool(dataset_cfg.get("include_input", conv_cfg.get("include_input", False))),
             )
         else:
             schema_payload = convert_duie_schema(schema_path, name, language)
@@ -2683,7 +2700,7 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
                 language=language,
                 sample_limit=sample_limit,
                 task=dataset_cfg.get("task"),
-                include_input=bool(dataset_cfg.get("include_input", True)),
+                include_input=bool(dataset_cfg.get("include_input", conv_cfg.get("include_input", False))),
             )
 
         save_json(samples_path_out, samples_payload)

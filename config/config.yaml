@@ -376,8 +376,9 @@ evaluation:
   output_json: data/output/ontology_eval_metrics.json
 dataset_conversion:
   output_dir: data/input
-  samples_per_relation: 5
-  samples_per_event: 5
+  include_input: false
+  samples_per_relation: 0
+  samples_per_event: 0
   data_info_path: data/input/data_info.txt
   tqdm:
     enabled: true
@@ -406,7 +407,7 @@ dataset_conversion:
           Return JSON with key "relationships", each item includes rel_type, head_entity, tail_entity, description (optional).
   re:
     output_dir: data/input/re
-    samples_per_relation: 5
+    samples_per_relation: 0
     datasets: all
     dataset_configs:
       - name: instructIE_en
@@ -662,7 +663,7 @@ dataset_conversion:
           - data/dataset_public/re/re-en/wiki_4/test.json
   ee:
     output_dir: data/input/ee
-    samples_per_event: 5
+    samples_per_event: 0
     datasets: all
     dataset_configs:
       - name: CASIE
