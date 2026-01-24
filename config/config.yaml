@@ -378,6 +378,12 @@ dataset_conversion:
   output_dir: data/input
   samples_per_relation: 5
   samples_per_event: 5
+  data_info_path: data/input/data_info.txt
+  tqdm:
+    enabled: true
+    show_records: true
+    mininterval: 0.1
+    leave: false
   relation_schema_generation:
     enabled: true
     samples_per_relation: 3
@@ -471,6 +477,7 @@ dataset_conversion:
         task: re
         format: ade_corpus
         language: en
+        samples_per_relation: 0
         schema_path: data/dataset_public/re/re-en/ADE_corpus/schema.json
         data_files:
           - data/dataset_public/re/re-en/ADE_corpus/train.json
@@ -568,6 +575,7 @@ dataset_conversion:
         task: re
         format: conll04
         language: en
+        include_input: false
         schema_path: data/dataset_public/re/re-en/conll04/schema.json
         data_files:
           - data/dataset_public/re/re-en/conll04/train.json
