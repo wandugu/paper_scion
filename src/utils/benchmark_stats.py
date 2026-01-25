@@ -190,7 +190,9 @@ def run_benchmark_stats(config: Dict[str, Any]) -> Dict[str, Any]:
         all_text_lengths.extend(corpus_text_lengths)
         anomalies.extend(corpus_anomalies)
 
-        coverage_info, coverage_anomalies = _analyze_coverage(entry, schema_info, benchmark_cfg)
+        coverage_info, coverage_anomalies = _analyze_coverage(
+            entry, schema_info, corpus_info, benchmark_cfg
+        )
         coverage_stats.append(coverage_info)
         anomalies.extend(coverage_anomalies)
 
@@ -732,6 +734,7 @@ def _analyze_corpus(
     text_fields = cfg.get("text_fields", ["text", "sentence", "contents", "content"])
     anomalies: List[Dict[str, Any]] = []
     split_counts = {"train": "NA", "dev": "NA", "test": "NA"}
+    expected_splits: set[str] = set()
     split_text_hashes: Dict[str, set[str]] = {"train": set(), "dev": set(), "test": set()}
     doc_texts: List[str] = []
     doc_texts_hash: set[str] = set()
@@ -744,6 +747,8 @@ def _analyze_corpus(
 
     for data_path in data_files:
         split = _infer_split(data_path, split_aliases)
+        if split:
+            expected_splits.add(split)
         file_records = 0
         if not data_path.exists():
             anomalies.append(
@@ -845,15 +850,26 @@ def _analyze_corpus(
             }
         )
 
-    if split_counts["dev"] == "NA" or split_counts["test"] == "NA":
+    missing_splits = [
+        split
+        for split in ("dev", "test")
+        if split in expected_splits and split_counts[split] == "NA"
+    ]
+    if missing_splits:
         anomalies.append(
             {
                 "dataset": entry.get("dataset_name", ""),
                 "issue": "split_missing",
-                "detail": f"split_counts={split_counts}",
-                "suggestion": "检查是否缺少 dev/test 文件。",
+                "detail": f"split_counts={split_counts}, expected_splits={sorted(expected_splits)}",
+                "suggestion": "检查是否缺少 dev/test 文件或 split 命名不规范。",
             }
         )
+    LOGGER.debug(
+        "split 统计: dataset=%s expected=%s counts=%s",
+        entry.get("dataset_name"),
+        sorted(expected_splits),
+        split_counts,
+    )
 
     overlap_threshold = float(cfg.get("split_overlap_high_threshold", 0.05))
     if isinstance(train_dev_overlap, float) and train_dev_overlap >= overlap_threshold:
@@ -1137,6 +1153,7 @@ def _extract_ee_edges(record: Dict[str, Any]) -> List[Tuple[str, str, str]]:
 def _analyze_coverage(
     entry: Dict[str, Any],
     schema_info: Dict[str, Any],
+    corpus_info: Dict[str, Any],
     cfg: Dict[str, Any],
 ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
     placeholder = cfg.get("coverage_placeholder", "Entity")
@@ -1150,7 +1167,9 @@ def _analyze_coverage(
     schema_edges_count = schema_info.get("schema_edges") or 0
     reachable_edges = set()
     has_train_split = any(_infer_split(path, split_aliases) == "train" for path in data_files)
-    use_all_splits = not has_train_split
+    train_records = corpus_info.get("split_train")
+    train_has_records = isinstance(train_records, int) and train_records > 0
+    use_all_splits = not (has_train_split and train_has_records)
 
     for data_path in data_files:
         split = _infer_split(data_path, split_aliases)
@@ -1192,7 +1211,12 @@ def _analyze_coverage(
         )
 
     if use_all_splits:
-        LOGGER.debug("覆盖率统计未找到 train split，已使用全部 split: %s", entry.get("dataset_name"))
+        LOGGER.debug(
+            "覆盖率统计未使用 train-only: dataset=%s has_train_split=%s train_records=%s",
+            entry.get("dataset_name"),
+            has_train_split,
+            train_records,
+        )
 
     schema_paths = entry.get("schema_paths", [])
     if not schema_paths and schema_edges_count > int(cfg.get("schema_edge_large_threshold", 200)):
