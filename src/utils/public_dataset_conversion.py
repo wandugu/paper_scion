@@ -2765,7 +2765,7 @@ def _run_re_dataset_conversion(
     task_value = _normalize_task(dataset_cfg.get("task"), "re")
     dataset_name = str(name)
     conv_cfg = config.get("dataset_conversion") or {}
-    schema_gen_cfg = _relation_schema_generation_settings(config)
+    schema_gen_cfg = _relation_generation_config(config)
     require_entity_types = bool(schema_gen_cfg.get("require_entity_types", False))
     include_input = bool(dataset_cfg.get("include_input", conv_cfg.get("include_input", False)))
     resolved_limit = _resolve_sample_limit(dataset_cfg, sample_limit, "samples_per_relation")
