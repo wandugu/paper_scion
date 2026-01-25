@@ -838,6 +838,73 @@ def _build_relation_schema_from_labels(schema_path: Path, dataset_name: str, lan
     }
 
 
+def _merge_relation_schema_payloads(
+    payloads: Sequence[Dict[str, Any]],
+    dataset_name: str,
+    language: str,
+) -> Dict[str, Any]:
+    relationships: List[Dict[str, str]] = []
+    entities: set[str] = set()
+    seen: set[Tuple[str, str, str]] = set()
+
+    for payload in payloads:
+        for rel in payload.get("relationships", []) or []:
+            rel_type = str(rel.get("rel_type", "")).strip()
+            head_type = str(rel.get("head_entity", "")).strip()
+            tail_type = str(rel.get("tail_entity", "")).strip()
+            if not rel_type:
+                continue
+            key = (head_type, rel_type, tail_type)
+            if key in seen:
+                continue
+            seen.add(key)
+            relationships.append(
+                {
+                    "head_entity": head_type,
+                    "tail_entity": tail_type,
+                    "rel_type": rel_type,
+                }
+            )
+            if head_type:
+                entities.add(head_type)
+            if tail_type:
+                entities.add(tail_type)
+
+    LOGGER.debug(
+        "合并 schema 结果: dataset=%s schemas=%s relationships=%s entities=%s",
+        dataset_name,
+        len(payloads),
+        len(relationships),
+        len(entities),
+    )
+    return {
+        "dataset": dataset_name,
+        "language": language,
+        "entities": sorted(entities),
+        "relationships": relationships,
+    }
+
+
+def _build_relation_schema_from_label_paths(
+    schema_paths: Sequence[Path],
+    dataset_name: str,
+    language: str,
+) -> Dict[str, Any]:
+    if not schema_paths:
+        raise ValueError("schema_paths 不能为空")
+    payloads: List[Dict[str, Any]] = []
+    for schema_path in schema_paths:
+        payloads.append(_build_relation_schema_from_labels(schema_path, dataset_name, language))
+    if len(payloads) == 1:
+        return payloads[0]
+    LOGGER.debug(
+        "开始合并关系 schema: dataset=%s files=%s",
+        dataset_name,
+        [path.name for path in schema_paths],
+    )
+    return _merge_relation_schema_payloads(payloads, dataset_name, language)
+
+
 def convert_instructie_schema(schema_path: Path | Sequence[Path], dataset_name: str, language: str) -> Tuple[Dict[str, Any], InstructIERelationMap]:
     if not isinstance(schema_path, Path):
         schema_path = next(iter(schema_path), None)
@@ -2141,10 +2208,8 @@ def convert_ade_corpus_inputs(
 
 
 def convert_fewrel_0_schema(schema_path: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
-    schema_path = schema_path if isinstance(schema_path, Path) else next(iter(schema_path), None)
-    if schema_path is None:
-        raise ValueError("schema_path 不能为空")
-    return _build_relation_schema_from_labels(schema_path, dataset_name, language)
+    schema_paths = [schema_path] if isinstance(schema_path, Path) else list(schema_path)
+    return _build_relation_schema_from_label_paths(schema_paths, dataset_name, language)
 
 
 def convert_fewrel_0_inputs(
@@ -2782,10 +2847,8 @@ def convert_semval_re_inputs(
 
 
 def convert_wiki_0_schema(schema_path: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
-    schema_path = schema_path if isinstance(schema_path, Path) else next(iter(schema_path), None)
-    if schema_path is None:
-        raise ValueError("schema_path 不能为空")
-    return _build_relation_schema_from_labels(schema_path, dataset_name, language)
+    schema_paths = [schema_path] if isinstance(schema_path, Path) else list(schema_path)
+    return _build_relation_schema_from_label_paths(schema_paths, dataset_name, language)
 
 
 def convert_wiki_0_inputs(

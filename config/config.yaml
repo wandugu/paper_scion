@@ -462,7 +462,27 @@ dataset_conversion:
       - relation_name_map
   re:
     output_dir: data/input/re
-    datasets: all
+    datasets:
+      - instructIE_en
+      - instructIE_zh
+      - duIE_zh
+      - CMeIE
+      - COAE2016
+      - DuIE2.0
+      - IPRE
+      - SKE2020
+      - ADE_corpus
+      - fewrel_0-4
+      - GIDS
+      - NYT11
+      - New-York-Times-RE
+      - SciERC
+      - conll04
+      - kbp37
+      - SemEval2010_task8
+      - wiki_0-4
+      # - semval-RE  # 暂不处理，待补充配置
+      # - FewRel  # FewRel 数据集暂不处理
     dataset_configs:
       - name: instructIE_en
         task: re
@@ -543,6 +563,8 @@ dataset_conversion:
         task: re
         format: fewrel_0
         language: en
+        enabled: false
+        # fewrel_0-4 合并后统一处理
         schema_path: data/dataset_public/re/re-en/fewrel_0/schema.json
         data_files:
           - data/dataset_public/re/re-en/fewrel_0/train.json
@@ -552,6 +574,8 @@ dataset_conversion:
         task: re
         format: fewrel_1
         language: en
+        enabled: false
+        # fewrel_0-4 合并后统一处理
         schema_path: data/dataset_public/re/re-en/fewrel_1/schema.json
         data_files:
           - data/dataset_public/re/re-en/fewrel_1/train.json
@@ -561,6 +585,8 @@ dataset_conversion:
         task: re
         format: fewrel_2
         language: en
+        enabled: false
+        # fewrel_0-4 合并后统一处理
         schema_path: data/dataset_public/re/re-en/fewrel_2/schema.json
         data_files:
           - data/dataset_public/re/re-en/fewrel_2/train.json
@@ -570,6 +596,8 @@ dataset_conversion:
         task: re
         format: fewrel_3
         language: en
+        enabled: false
+        # fewrel_0-4 合并后统一处理
         schema_path: data/dataset_public/re/re-en/fewrel_3/schema.json
         data_files:
           - data/dataset_public/re/re-en/fewrel_3/train.json
@@ -579,15 +607,47 @@ dataset_conversion:
         task: re
         format: fewrel_4
         language: en
+        enabled: false
+        # fewrel_0-4 合并后统一处理
         schema_path: data/dataset_public/re/re-en/fewrel_4/schema.json
         data_files:
           - data/dataset_public/re/re-en/fewrel_4/train.json
           - data/dataset_public/re/re-en/fewrel_4/dev.json
           - data/dataset_public/re/re-en/fewrel_4/test.json
+      - name: fewrel_0-4
+        task: re
+        format: fewrel_0
+        language: en
+        schema_paths:
+          - data/dataset_public/re/re-en/fewrel_0/schema.json
+          - data/dataset_public/re/re-en/fewrel_1/schema.json
+          - data/dataset_public/re/re-en/fewrel_2/schema.json
+          - data/dataset_public/re/re-en/fewrel_3/schema.json
+          - data/dataset_public/re/re-en/fewrel_4/schema.json
+        data_files:
+          - data/dataset_public/re/re-en/fewrel_0/train.json
+          - data/dataset_public/re/re-en/fewrel_0/dev.json
+          - data/dataset_public/re/re-en/fewrel_0/test.json
+          - data/dataset_public/re/re-en/fewrel_1/train.json
+          - data/dataset_public/re/re-en/fewrel_1/dev.json
+          - data/dataset_public/re/re-en/fewrel_1/test.json
+          - data/dataset_public/re/re-en/fewrel_2/train.json
+          - data/dataset_public/re/re-en/fewrel_2/dev.json
+          - data/dataset_public/re/re-en/fewrel_2/test.json
+          - data/dataset_public/re/re-en/fewrel_3/train.json
+          - data/dataset_public/re/re-en/fewrel_3/dev.json
+          - data/dataset_public/re/re-en/fewrel_3/test.json
+          - data/dataset_public/re/re-en/fewrel_4/train.json
+          - data/dataset_public/re/re-en/fewrel_4/dev.json
+          - data/dataset_public/re/re-en/fewrel_4/test.json
+        schema_output: fewrel_0-4/golden_schema_fewrel_0-4.json
+        samples_output: fewrel_0-4/golden_input_fewrel_0-4.json
       - name: FewRel
         task: re
         format: fewrel
         language: en
+        enabled: false
+        # FewRel 数据集暂不处理
         data_dirs:
           - data/dataset_public/re/re-en/FewRel
         data_glob: "*.json"
@@ -653,6 +713,8 @@ dataset_conversion:
         task: re
         format: semval_re
         language: en
+        enabled: false
+        # semval-RE 数据集暂不处理
         schema_path: data/dataset_public/re/re-en/semval-RE/schema.json
         data_files:
           - data/dataset_public/re/re-en/semval-RE/train.json
@@ -720,6 +782,8 @@ dataset_conversion:
         task: re
         format: wiki_0
         language: en
+        enabled: false
+        # wiki_0-4 合并后统一处理
         schema_path: data/dataset_public/re/re-en/wiki_0/schema.json
         data_files:
           - data/dataset_public/re/re-en/wiki_0/train.json
@@ -729,6 +793,8 @@ dataset_conversion:
         task: re
         format: wiki_1
         language: en
+        enabled: false
+        # wiki_0-4 合并后统一处理
         schema_path: data/dataset_public/re/re-en/wiki_1/schema.json
         data_files:
           - data/dataset_public/re/re-en/wiki_1/train.json
@@ -738,6 +804,8 @@ dataset_conversion:
         task: re
         format: wiki_2
         language: en
+        enabled: false
+        # wiki_0-4 合并后统一处理
         schema_path: data/dataset_public/re/re-en/wiki_2/schema.json
         data_files:
           - data/dataset_public/re/re-en/wiki_2/train.json
@@ -747,6 +815,8 @@ dataset_conversion:
         task: re
         format: wiki_3
         language: en
+        enabled: false
+        # wiki_0-4 合并后统一处理
         schema_path: data/dataset_public/re/re-en/wiki_3/schema.json
         data_files:
           - data/dataset_public/re/re-en/wiki_3/train.json
@@ -756,14 +826,53 @@ dataset_conversion:
         task: re
         format: wiki_4
         language: en
+        enabled: false
+        # wiki_0-4 合并后统一处理
         schema_path: data/dataset_public/re/re-en/wiki_4/schema.json
         data_files:
           - data/dataset_public/re/re-en/wiki_4/train.json
           - data/dataset_public/re/re-en/wiki_4/dev.json
           - data/dataset_public/re/re-en/wiki_4/test.json
+      - name: wiki_0-4
+        task: re
+        format: wiki_0
+        language: en
+        schema_paths:
+          - data/dataset_public/re/re-en/wiki_0/schema.json
+          - data/dataset_public/re/re-en/wiki_1/schema.json
+          - data/dataset_public/re/re-en/wiki_2/schema.json
+          - data/dataset_public/re/re-en/wiki_3/schema.json
+          - data/dataset_public/re/re-en/wiki_4/schema.json
+        data_files:
+          - data/dataset_public/re/re-en/wiki_0/train.json
+          - data/dataset_public/re/re-en/wiki_0/dev.json
+          - data/dataset_public/re/re-en/wiki_0/test.json
+          - data/dataset_public/re/re-en/wiki_1/train.json
+          - data/dataset_public/re/re-en/wiki_1/dev.json
+          - data/dataset_public/re/re-en/wiki_1/test.json
+          - data/dataset_public/re/re-en/wiki_2/train.json
+          - data/dataset_public/re/re-en/wiki_2/dev.json
+          - data/dataset_public/re/re-en/wiki_2/test.json
+          - data/dataset_public/re/re-en/wiki_3/train.json
+          - data/dataset_public/re/re-en/wiki_3/dev.json
+          - data/dataset_public/re/re-en/wiki_3/test.json
+          - data/dataset_public/re/re-en/wiki_4/train.json
+          - data/dataset_public/re/re-en/wiki_4/dev.json
+          - data/dataset_public/re/re-en/wiki_4/test.json
+        schema_output: wiki_0-4/golden_schema_wiki_0-4.json
+        samples_output: wiki_0-4/golden_input_wiki_0-4.json
   ee:
     output_dir: data/input/ee
-    datasets: all
+    datasets:
+      - CASIE
+      - CrudeOilNews
+      - PHEE
+      - RAMS
+      - WikiEvents
+      - ccf_law
+      - DuEE1.0
+      - DuEE-fin
+      - FewFC
     dataset_configs:
       - name: CASIE
         task: ee
