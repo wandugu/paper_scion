@@ -388,6 +388,7 @@ dataset_conversion:
   relation_schema_generation:
     enabled: true
     samples_per_relation: 3
+    require_entity_types: false
     prompts:
       zh:
         system: |

@@ -351,6 +351,95 @@ def _extract_relation_labels(schema_lines: List[Any]) -> List[str]:
     return []
 
 
+def _dedupe_preserve_order(items: Sequence[str]) -> List[str]:
+    seen: set[str] = set()
+    deduped: List[str] = []
+    for item in items:
+        if item in seen:
+            continue
+        seen.add(item)
+        deduped.append(item)
+    return deduped
+
+
+def _extract_relation_labels_from_payload(payload: Any) -> List[str]:
+    if payload is None:
+        return []
+    if isinstance(payload, str):
+        label = payload.strip()
+        return [label] if label else []
+    if isinstance(payload, list):
+        labels: List[str] = []
+        for item in payload:
+            labels.extend(_extract_relation_labels_from_payload(item))
+        return _dedupe_preserve_order([label for label in labels if label])
+    if isinstance(payload, dict):
+        for key in ("relations", "relation_types", "relation_labels", "labels", "relation_list", "schema", "relationships"):
+            if key in payload:
+                return _extract_relation_labels_from_payload(payload.get(key))
+        for key in ("relation", "rel_type", "predicate", "label", "name"):
+            value = payload.get(key)
+            if isinstance(value, str) and value.strip():
+                return [value.strip()]
+    return []
+
+
+def _extract_relations_from_schema_payload(payload: Any) -> List[Dict[str, str]]:
+    relationships: List[Dict[str, str]] = []
+    if payload is None:
+        return relationships
+    if isinstance(payload, list):
+        for item in payload:
+            relationships.extend(_extract_relations_from_schema_payload(item))
+        return relationships
+    if isinstance(payload, dict):
+        for key in ("relations", "relation_schema", "schema", "relationships"):
+            if key in payload:
+                relationships.extend(_extract_relations_from_schema_payload(payload.get(key)))
+                return relationships
+        subject_type = str(payload.get("subject_type", "")).strip()
+        predicate = str(payload.get("predicate", "")).strip()
+        obj_type_raw = payload.get("object_type", "")
+        if isinstance(obj_type_raw, dict):
+            obj_type = str(obj_type_raw.get("@value", "")).strip()
+        else:
+            obj_type = str(obj_type_raw).strip()
+        if subject_type or predicate or obj_type:
+            rel_type = predicate or str(payload.get("relation", "") or payload.get("rel_type", "")).strip()
+            head_type = subject_type or str(payload.get("head_type", "") or payload.get("head_entity", "")).strip()
+            tail_type = obj_type or str(payload.get("tail_type", "") or payload.get("tail_entity", "")).strip()
+            if rel_type:
+                relationships.append(
+                    {
+                        "head_entity": head_type,
+                        "tail_entity": tail_type,
+                        "rel_type": rel_type,
+                    }
+                )
+            return relationships
+        rel_type = str(
+            payload.get("relation", "")
+            or payload.get("rel_type", "")
+            or payload.get("predicate", "")
+            or payload.get("name", "")
+        ).strip()
+        if rel_type:
+            relationships.append(
+                {
+                    "head_entity": str(payload.get("head_type", "") or payload.get("subject_type", "")).strip(),
+                    "tail_entity": str(payload.get("tail_type", "") or payload.get("object_type", "")).strip(),
+                    "rel_type": rel_type,
+                }
+            )
+    return relationships
+
+
+def _parse_relation_schema_payload(payload: Any) -> Tuple[List[Dict[str, str]], List[str]]:
+    relationships = _extract_relations_from_schema_payload(payload)
+    labels = _extract_relation_labels_from_payload(payload)
+    return relationships, labels
+
+
 def _build_relation_schema_from_typed(schema_path: Path, dataset_name: str, language: str) -> Tuple[Dict[str, Any], RelationTypeMap]:
     schema_lines = _load_schema_lines(schema_path)
     typed_relations = schema_lines[0] if schema_lines else []
@@ -388,14 +477,76 @@ def _build_relation_schema_from_typed(schema_path: Path, dataset_name: str, lang
 
 def _build_relation_schema_from_labels(schema_path: Path, dataset_name: str, language: str) -> Dict[str, Any]:
     schema_lines = _load_schema_lines(schema_path)
-    relations = _extract_relation_labels(schema_lines)
+    LOGGER.debug(
+        "解析 schema 标签文件: path=%s line_payloads=%s",
+        schema_path,
+        len(schema_lines),
+    )
+    relationships, labels = _parse_relation_schema_payload(schema_lines)
+    raw_text = schema_path.read_text(encoding="utf-8").strip()
+    try:
+        payload = json.loads(raw_text) if raw_text else None
+    except json.JSONDecodeError as exc:
+        LOGGER.debug("schema 文件整体 JSON 解析失败: path=%s error=%s", schema_path, exc)
+        payload = None
+    if payload is not None:
+        extra_relationships, extra_labels = _parse_relation_schema_payload(payload)
+        if extra_relationships or extra_labels:
+            LOGGER.debug(
+                "schema 整体 JSON 解析结果: path=%s relations=%s labels=%s",
+                schema_path,
+                len(extra_relationships),
+                len(extra_labels),
+            )
+        relationships.extend(extra_relationships)
+        labels = _dedupe_preserve_order(labels + extra_labels)
+    if relationships:
+        entities: set[str] = set()
+        normalized_relationships: List[Dict[str, str]] = []
+        seen: set[Tuple[str, str, str]] = set()
+        for rel in relationships:
+            rel_type = str(rel.get("rel_type", "")).strip()
+            head_type = str(rel.get("head_entity", "")).strip()
+            tail_type = str(rel.get("tail_entity", "")).strip()
+            if not rel_type:
+                continue
+            key = (head_type, rel_type, tail_type)
+            if key in seen:
+                continue
+            seen.add(key)
+            normalized_relationships.append(
+                {
+                    "head_entity": head_type,
+                    "tail_entity": tail_type,
+                    "rel_type": rel_type,
+                }
+            )
+            if head_type:
+                entities.add(head_type)
+            if tail_type:
+                entities.add(tail_type)
+        LOGGER.debug(
+            "schema 关系解析完成: path=%s relationships=%s entities=%s",
+            schema_path,
+            len(normalized_relationships),
+            len(entities),
+        )
+        return {
+            "dataset": dataset_name,
+            "language": language,
+            "entities": sorted(entities),
+            "relationships": normalized_relationships,
+        }
+    if labels:
+        labels = _dedupe_preserve_order([label for label in labels if label])
+        LOGGER.debug("schema 标签解析完成: path=%s labels=%s", schema_path, len(labels))
     relationships = [
         {
             "head_entity": "",
             "tail_entity": "",
             "rel_type": rel_type,
         }
-        for rel_type in relations
+        for rel_type in labels
     ]
     return {
         "dataset": dataset_name,
@@ -982,14 +1133,17 @@ def _relation_examples_for_format(
     )
 
 
-def _needs_relation_type_generation(schema_payload: Dict[str, Any]) -> bool:
+def _needs_relation_type_generation(schema_payload: Dict[str, Any], require_entity_types: bool) -> bool:
     relationships = schema_payload.get("relationships", [])
     if not relationships:
         return True
     for rel in relationships:
         if not isinstance(rel, dict):
             continue
-        if not rel.get("head_entity") or not rel.get("tail_entity"):
+        rel_type = str(rel.get("rel_type", "")).strip()
+        if not rel_type:
+            return True
+        if require_entity_types and (not rel.get("head_entity") or not rel.get("tail_entity")):
             return True
     return False
 
@@ -2611,6 +2765,8 @@ def _run_re_dataset_conversion(
     task_value = _normalize_task(dataset_cfg.get("task"), "re")
     dataset_name = str(name)
     conv_cfg = config.get("dataset_conversion") or {}
+    schema_gen_cfg = _relation_schema_generation_settings(config)
+    require_entity_types = bool(schema_gen_cfg.get("require_entity_types", False))
     include_input = bool(dataset_cfg.get("include_input", conv_cfg.get("include_input", False)))
     resolved_limit = _resolve_sample_limit(dataset_cfg, sample_limit, "samples_per_relation")
     LOGGER.debug(
@@ -2702,8 +2858,12 @@ def _run_re_dataset_conversion(
         schema_payload = _build_relation_schema_from_examples(dataset_name, language, relation_examples, llm_mapping)
         mapping = RelationTypeMap(by_relation=llm_mapping)
 
-    if _needs_relation_type_generation(schema_payload) and not llm_attempted:
-        LOGGER.info("数据集 %s 缺少关系类型，启用 LLM 补全。", dataset_name)
+    if _needs_relation_type_generation(schema_payload, require_entity_types) and not llm_attempted:
+        LOGGER.info(
+            "数据集 %s 需要补全关系 schema: require_entity_types=%s, 启用 LLM 补全。",
+            dataset_name,
+            require_entity_types,
+        )
         relation_examples = _relation_examples_for_format(format_key, data_files, dataset_cfg, dataset_name)
         llm_mapping = _generate_relation_types_with_llm(config, dataset_name, language, relation_examples)
         if llm_mapping:
@@ -2711,6 +2871,12 @@ def _run_re_dataset_conversion(
             llm_generated_items = sorted(llm_mapping.keys())
             schema_payload = _apply_relation_type_mapping(schema_payload, llm_mapping)
             mapping = RelationTypeMap(by_relation=llm_mapping)
+    elif not llm_attempted:
+        LOGGER.debug(
+            "数据集 %s schema 已满足要求: require_entity_types=%s, 跳过 LLM 补全。",
+            dataset_name,
+            require_entity_types,
+        )
     if llm_used and llm_generated_items:
         LOGGER.debug("数据集 %s LLM 补全关系类型: %s", dataset_name, ", ".join(llm_generated_items))
 
