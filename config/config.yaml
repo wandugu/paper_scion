@@ -406,6 +406,44 @@ dataset_conversion:
           Infer relation schema from the samples (JSON list) below:
           {relation_examples}
           Return JSON with key "relationships", each item includes rel_type, head_entity, tail_entity, description (optional).
+  fewrel:
+    episode_keys:
+      - meta_train
+      - meta_test
+      - meta_dev
+      - train
+      - test
+      - dev
+      - support
+      - query
+    relation_keys:
+      - relation
+      - rel_type
+      - label
+      - predicate
+      - rel
+    relation_name_keys:
+      - relation_name
+      - relation_text
+      - relation_label
+      - label_name
+      - name
+    text_keys:
+      - text
+      - sentence
+      - sent
+    head_keys:
+      - h
+      - head
+      - subj
+      - subject
+      - head_entity
+    tail_keys:
+      - t
+      - tail
+      - obj
+      - object
+      - tail_entity
   re:
     output_dir: data/input/re
     datasets: all
@@ -604,6 +642,16 @@ dataset_conversion:
         task: re
         format: semeval2010
         language: en
+        schema_paths:
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/answer_key1.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/answer_key2.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/answer_key3.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/answer_key5.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer1.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer2.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer3.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer4.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer5.txt
         data_files:
           - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_training/TRAIN_FILE.TXT
           - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_testing/TEST_FILE.txt
@@ -639,6 +687,7 @@ dataset_conversion:
         task: re
         format: traced
         language: en
+        schema_path: data/dataset_public/re/re-en/traced/traced.py
         data_files:
           - data/dataset_public/re/re-en/traced/dev_patch.json
           - data/dataset_public/re/re-en/traced/test_patch.json

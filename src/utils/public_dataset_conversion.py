@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import json
 import logging
 import math
@@ -33,6 +34,15 @@ TQDM_SETTINGS: Dict[str, Any] = {
     "show_records": True,
     "mininterval": 0.1,
     "leave": False,
+}
+
+FEWREL_DEFAULT_CONFIG: Dict[str, Any] = {
+    "episode_keys": ["meta_train", "meta_test", "meta_dev", "train", "test", "dev", "support", "query"],
+    "relation_keys": ["relation", "rel_type", "label", "predicate", "rel"],
+    "relation_name_keys": ["relation_name", "relation_text", "relation_label", "label_name", "name"],
+    "text_keys": ["text", "sentence", "sent"],
+    "head_keys": ["h", "head", "subj", "subject", "head_entity"],
+    "tail_keys": ["t", "tail", "obj", "object", "tail_entity"],
 }
 
 
@@ -149,6 +159,95 @@ def _apply_tqdm_settings(config: Dict[str, Any]) -> None:
             "leave": bool(settings.get("leave", TQDM_SETTINGS["leave"])),
         }
     )
+
+
+def _resolve_fewrel_config(config: Dict[str, Any], dataset_cfg: Dict[str, Any] | None = None) -> Dict[str, Any]:
+    base_cfg = (config.get("dataset_conversion") or {}).get("fewrel") or {}
+    dataset_cfg = dataset_cfg or {}
+    override_cfg = dataset_cfg.get("fewrel") or {}
+    merged = {
+        **FEWREL_DEFAULT_CONFIG,
+        **base_cfg,
+        **override_cfg,
+    }
+    for key in ("episode_keys", "relation_keys", "relation_name_keys", "text_keys", "head_keys", "tail_keys"):
+        if key in base_cfg or key in override_cfg:
+            merged[key] = list(
+                dict.fromkeys(
+                    (override_cfg.get(key) or [])
+                    + (base_cfg.get(key) or [])
+                    + (FEWREL_DEFAULT_CONFIG.get(key) or [])
+                )
+            )
+    return merged
+
+
+def _extract_fewrel_rel_type(record: Dict[str, Any], fallback: str, cfg: Dict[str, Any]) -> str:
+    relation_keys = cfg.get("relation_keys") or []
+    rel_type = ""
+    for key in relation_keys:
+        if key in record:
+            rel_type = str(record.get(key, "")).strip()
+            if rel_type:
+                break
+    if not rel_type:
+        rel_type = str(fallback or "").strip()
+    return rel_type
+
+
+def _normalize_fewrel_rel_type(rel_type: str, record: Dict[str, Any], cfg: Dict[str, Any]) -> str:
+    rel_type = str(rel_type or "").strip()
+    if not rel_type:
+        return ""
+    relation_name_keys = cfg.get("relation_name_keys") or []
+    if re.fullmatch(r"P\d+", rel_type):
+        for key in relation_name_keys:
+            candidate = str(record.get(key, "")).strip()
+            if candidate:
+                LOGGER.debug("FewRel 关系类型使用名称替换: pid=%s name=%s", rel_type, candidate)
+                return candidate
+    return rel_type
+
+
+def _extract_fewrel_text(record: Dict[str, Any], cfg: Dict[str, Any]) -> str:
+    tokens = record.get("tokens")
+    if isinstance(tokens, list):
+        text = _join_tokens(tokens)
+        if text:
+            return text
+    for key in cfg.get("text_keys") or []:
+        value = str(record.get(key, "")).strip()
+        if value:
+            return value
+    return ""
+
+
+def _extract_fewrel_entity_payload(payload: Any) -> Tuple[str, Any]:
+    if isinstance(payload, list):
+        entity = str(payload[0]).strip() if payload else ""
+        pos = payload[2] if len(payload) > 2 else ""
+        return entity, pos
+    if isinstance(payload, dict):
+        entity = str(payload.get("name") or payload.get("entity") or payload.get("text") or "").strip()
+        pos = payload.get("pos") or payload.get("positions") or payload.get("span") or ""
+        return entity, pos
+    return str(payload or "").strip(), ""
+
+
+def _extract_fewrel_head_tail(record: Dict[str, Any], cfg: Dict[str, Any]) -> Tuple[str, Any, str, Any]:
+    head_payload = None
+    for key in cfg.get("head_keys") or []:
+        if key in record:
+            head_payload = record.get(key)
+            break
+    tail_payload = None
+    for key in cfg.get("tail_keys") or []:
+        if key in record:
+            tail_payload = record.get(key)
+            break
+    head, head_pos = _extract_fewrel_entity_payload(head_payload)
+    tail, tail_pos = _extract_fewrel_entity_payload(tail_payload)
+    return head, head_pos, tail, tail_pos
 
 
 def _wrap_tqdm(iterable: Iterable[Any], desc: str, unit: str, total: int | None = None) -> Iterable[Any]:
@@ -668,14 +767,60 @@ def _collect_relation_examples_from_json(
     return relation_examples
 
 
+def _is_fewrel_episode_payload(payload: Any, cfg: Dict[str, Any]) -> bool:
+    if not isinstance(payload, dict):
+        return False
+    episode_keys = cfg.get("episode_keys") or []
+    return any(key in payload for key in episode_keys)
+
+
+def _iter_fewrel_collection(
+    payload: Any,
+    rel_type: str,
+    cfg: Dict[str, Any],
+    path: Path,
+) -> Iterable[Dict[str, Any]]:
+    if isinstance(payload, list):
+        for item in payload:
+            yield from _iter_fewrel_collection(item, rel_type, cfg, path)
+        return
+    if not isinstance(payload, dict):
+        return
+    if _is_fewrel_episode_payload(payload, cfg):
+        yield from _iter_fewrel_episode(payload, cfg, path)
+        return
+    resolved_rel = _extract_fewrel_rel_type(payload, rel_type, cfg)
+    has_text = bool(_extract_fewrel_text(payload, cfg))
+    has_entity = any(key in payload for key in (cfg.get("head_keys") or []) + (cfg.get("tail_keys") or []))
+    if resolved_rel and (has_text or has_entity):
+        yield {"rel_type": resolved_rel, **payload}
+        return
+    for key, value in payload.items():
+        if key in (cfg.get("episode_keys") or []):
+            yield from _iter_fewrel_collection(value, rel_type, cfg, path)
+        else:
+            yield from _iter_fewrel_collection(value, key, cfg, path)
+
+
+def _iter_fewrel_episode(payload: Dict[str, Any], cfg: Dict[str, Any], path: Path) -> Iterable[Dict[str, Any]]:
+    episode_keys = cfg.get("episode_keys") or []
+    for key in episode_keys:
+        if key not in payload:
+            continue
+        LOGGER.debug("FewRel episode 解析: file=%s key=%s", path.name, key)
+        yield from _iter_fewrel_collection(payload[key], "", cfg, path)
+
+
 def _iter_fewrel_records(
     data_paths: Sequence[Path],
+    fewrel_cfg: Dict[str, Any],
     desc: str | None = None,
     stats: Dict[str, Any] | None = None,
 ) -> Iterable[Dict[str, Any]]:
     files = _wrap_tqdm(data_paths, desc=desc or "读取 FewRel 文件", unit="file", total=len(data_paths))
     for path in files:
         file_count = 0
+        relation_types: set[str] = set()
         try:
             payload = _load_json(path)
         except json.JSONDecodeError as exc:
@@ -683,37 +828,63 @@ def _iter_fewrel_records(
             if stats is not None:
                 stats.setdefault("file_counts", {})[str(path)] = file_count
             continue
+        LOGGER.debug("FewRel 文件载入: path=%s type=%s", path, type(payload).__name__)
         if isinstance(payload, dict):
-            for rel_type, items in payload.items():
-                if not isinstance(items, list):
-                    continue
-                iterable = items
-                if TQDM_SETTINGS.get("show_records", True):
-                    iterable = _wrap_tqdm(items, desc=f"{path.name} 记录", unit="item", total=len(items))
-                for item in iterable:
-                    if isinstance(item, dict):
-                        file_count += 1
-                        yield {"rel_type": rel_type, **item}
+            if _is_fewrel_episode_payload(payload, fewrel_cfg):
+                iterable = _iter_fewrel_episode(payload, fewrel_cfg, path)
+            else:
+                iterable = (
+                    {"rel_type": rel_type, **item}
+                    for rel_type, items in payload.items()
+                    if isinstance(items, list)
+                    for item in items
+                    if isinstance(item, dict)
+                )
+        elif isinstance(payload, list):
+            iterable = _iter_fewrel_collection(payload, "", fewrel_cfg, path)
+        else:
+            iterable = []
+        if TQDM_SETTINGS.get("show_records", True) and isinstance(iterable, list):
+            iterable = _wrap_tqdm(iterable, desc=f"{path.name} 记录", unit="item", total=len(iterable))
+        for item in iterable:
+            if not isinstance(item, dict):
+                continue
+            rel_type = _extract_fewrel_rel_type(item, item.get("rel_type", ""), fewrel_cfg)
+            rel_type = _normalize_fewrel_rel_type(rel_type, item, fewrel_cfg)
+            if not rel_type:
+                continue
+            file_count += 1
+            relation_types.add(rel_type)
+            yield {"rel_type": rel_type, **item}
+        LOGGER.debug(
+            "FewRel 文件解析完成: path=%s records=%s rel_types=%s",
+            path.name,
+            file_count,
+            sorted(relation_types),
+        )
         if stats is not None:
             stats.setdefault("file_counts", {})[str(path)] = file_count
             stats["raw_records"] = stats.get("raw_records", 0) + file_count
 
 
-def _collect_relation_examples_from_fewrel(data_paths: Sequence[Path], desc: str | None = None) -> Dict[str, List[Dict[str, Any]]]:
+def _collect_relation_examples_from_fewrel(
+    data_paths: Sequence[Path],
+    fewrel_cfg: Dict[str, Any],
+    desc: str | None = None,
+) -> Dict[str, List[Dict[str, Any]]]:
     relation_examples: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
-    for record in _iter_fewrel_records(data_paths, desc=desc):
+    for record in _iter_fewrel_records(data_paths, fewrel_cfg, desc=desc):
         rel_type = str(record.get("rel_type", "")).strip()
-        tokens = record.get("tokens", [])
-        text = _join_tokens(tokens if isinstance(tokens, list) else [])
+        text = _extract_fewrel_text(record, fewrel_cfg)
         if not (rel_type and text):
             continue
-        head = ""
-        tail = ""
-        if isinstance(record.get("h"), list):
-            head = str(record["h"][0]).strip()
-        if isinstance(record.get("t"), list):
-            tail = str(record["t"][0]).strip()
+        head, _, tail, _ = _extract_fewrel_head_tail(record, fewrel_cfg)
         relation_examples[rel_type].append({"text": text, "head": head, "tail": tail})
+    LOGGER.debug(
+        "FewRel 样例汇总: relations=%s non_empty=%s",
+        len(relation_examples),
+        sum(1 for items in relation_examples.values() if items),
+    )
     return relation_examples
 
 
@@ -903,6 +1074,60 @@ def _load_semeval_full_labels(
     return label_map, sentence_map
 
 
+def _extract_semeval_relation_types_from_files(paths: Sequence[Path], dataset_name: str) -> List[str]:
+    relation_types: set[str] = set()
+    for path in paths:
+        if not path.exists():
+            continue
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except OSError as exc:
+            LOGGER.warning("SemEval schema 文件读取失败: %s (%s)", path, exc)
+            continue
+        for raw in lines:
+            line = raw.strip()
+            if not line:
+                continue
+            if "\t" in line:
+                line = line.split("\t")[-1].strip()
+            if _is_semeval_comment_line(line):
+                continue
+            if not _is_semeval_relation_line(line):
+                continue
+            rel_type, _ = _parse_semeval_relation(line)
+            if rel_type:
+                relation_types.add(rel_type)
+    sorted_types = sorted(relation_types)
+    LOGGER.debug(
+        "SemEval schema 关系类型统计: dataset=%s count=%s types=%s",
+        dataset_name,
+        len(sorted_types),
+        sorted_types,
+    )
+    return sorted_types
+
+
+def convert_semeval2010_schema(schema_path: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
+    schema_paths = [schema_path] if isinstance(schema_path, Path) else list(schema_path or [])
+    relation_types = _extract_semeval_relation_types_from_files(schema_paths, dataset_name)
+    if not relation_types:
+        LOGGER.warning("SemEval schema 未解析到关系类型: dataset=%s paths=%s", dataset_name, schema_paths)
+    relationships = [
+        {
+            "head_entity": "",
+            "tail_entity": "",
+            "rel_type": rel_type,
+        }
+        for rel_type in relation_types
+    ]
+    return {
+        "dataset": dataset_name,
+        "language": language,
+        "entities": [],
+        "relationships": relationships,
+    }
+
+
 def _parse_semeval_distribution(path: Path) -> Dict[str, Dict[str, int]]:
     distributions: Dict[str, Dict[str, int]] = {}
     current_section: str | None = None
@@ -1049,6 +1274,61 @@ def _collect_relation_examples_from_tacred(data_paths: Sequence[Path], desc: str
     return relation_examples
 
 
+def _iter_ast_string_literals(node: ast.AST) -> Iterable[str]:
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        yield node.value
+        return
+    if isinstance(node, (ast.List, ast.Tuple, ast.Set)):
+        for item in node.elts:
+            yield from _iter_ast_string_literals(item)
+        return
+    if isinstance(node, ast.Dict):
+        for key in node.keys:
+            if key is not None:
+                yield from _iter_ast_string_literals(key)
+        for value in node.values:
+            if value is not None:
+                yield from _iter_ast_string_literals(value)
+        return
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.args:
+        if node.func.id in {"set", "list", "tuple"}:
+            for arg in node.args:
+                yield from _iter_ast_string_literals(arg)
+
+
+def _extract_traced_relation_types_from_py(schema_path: Path) -> List[str]:
+    relation_types: set[str] = set()
+    try:
+        tree = ast.parse(schema_path.read_text(encoding="utf-8"))
+    except (SyntaxError, OSError) as exc:
+        LOGGER.warning("traced.py 解析失败: %s (%s)", schema_path, exc)
+        return []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            target_names = [
+                target.id
+                for target in node.targets
+                if isinstance(target, ast.Name)
+            ]
+            if not target_names:
+                continue
+            target_hint = ",".join(target_names)
+            if not re.search(r"(rel|relation|label)", target_hint, re.IGNORECASE):
+                continue
+            for value in _iter_ast_string_literals(node.value):
+                value = value.strip()
+                if value:
+                    relation_types.add(value)
+    sorted_types = sorted(relation_types)
+    LOGGER.debug(
+        "traced.py 关系类型统计: path=%s count=%s types=%s",
+        schema_path,
+        len(sorted_types),
+        sorted_types,
+    )
+    return sorted_types
+
+
 def _extract_traced_relation_types(label_paths: Sequence[Path]) -> List[str]:
     relation_types: set[str] = set()
     for path in label_paths:
@@ -1100,13 +1380,19 @@ def _collect_relation_examples_from_traced(
 
 
 def _relation_examples_for_format(
+    config: Dict[str, Any],
     format_key: str,
     data_files: Sequence[Path],
     dataset_cfg: Dict[str, Any],
     dataset_name: str,
 ) -> Dict[str, List[Dict[str, Any]]]:
     if format_key == "fewrel":
-        return _collect_relation_examples_from_fewrel(data_files, desc=f"{dataset_name} FewRel 样例")
+        fewrel_cfg = _resolve_fewrel_config(config, dataset_cfg)
+        return _collect_relation_examples_from_fewrel(
+            data_files,
+            fewrel_cfg,
+            desc=f"{dataset_name} FewRel 样例",
+        )
     if format_key == "semeval2010":
         label_files = _collect_paths(dataset_cfg.get("label_files", []) or [])
         full_label_files = _collect_paths(dataset_cfg.get("semeval_full_files", []) or [])
@@ -1799,6 +2085,7 @@ def convert_fewrel_inputs(
     mapping: RelationTypeMap | None = None,
     task: str | None = None,
     include_input: bool = False,
+    fewrel_cfg: Dict[str, Any] | None = None,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     samples: Dict[Tuple[str, str, str], Dict[str, Any]] = defaultdict(_new_sample_bucket)
@@ -1806,27 +2093,19 @@ def convert_fewrel_inputs(
     task_value = _normalize_task(task, "re")
     iter_stats = stats if stats is not None else {}
     limit = sample_limit if sample_limit > 0 else None
+    fewrel_cfg = {**FEWREL_DEFAULT_CONFIG, **(fewrel_cfg or {})}
 
     for record in _iter_fewrel_records(
         data_paths,
+        fewrel_cfg,
         desc=f"{dataset_name} FewRel 样本",
         stats=iter_stats,
     ):
         rel_type = str(record.get("rel_type", "")).strip()
-        tokens = record.get("tokens", [])
-        text = _join_tokens(tokens if isinstance(tokens, list) else [])
+        text = _extract_fewrel_text(record, fewrel_cfg)
         if not (rel_type and text):
             continue
-        head = ""
-        tail = ""
-        head_pos = ""
-        tail_pos = ""
-        if isinstance(record.get("h"), list):
-            head = str(record["h"][0]).strip()
-            head_pos = record["h"][2] if len(record["h"]) > 2 else ""
-        if isinstance(record.get("t"), list):
-            tail = str(record["t"][0]).strip()
-            tail_pos = record["t"][2] if len(record["t"]) > 2 else ""
+        head, head_pos, tail, tail_pos = _extract_fewrel_head_tail(record, fewrel_cfg)
         if not (head and tail):
             continue
         head_type, tail_type = _infer_relation_types(rel_type, mapping)
@@ -1972,6 +2251,33 @@ def convert_semeval2010_inputs(
             }
         )
     return results
+
+
+def convert_traced_schema(schema_path: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
+    schema_paths = [schema_path] if isinstance(schema_path, Path) else list(schema_path or [])
+    relation_types: List[str] = []
+    for path in schema_paths:
+        if path.suffix.lower() == ".py":
+            relation_types.extend(_extract_traced_relation_types_from_py(path))
+        else:
+            relation_types.extend(_extract_traced_relation_types([path]))
+    relation_types = _dedupe_preserve_order([item for item in relation_types if item])
+    if not relation_types:
+        LOGGER.warning("traced schema 未解析到关系类型: dataset=%s paths=%s", dataset_name, schema_paths)
+    relationships = [
+        {
+            "head_entity": "",
+            "tail_entity": "",
+            "rel_type": rel_type,
+        }
+        for rel_type in relation_types
+    ]
+    return {
+        "dataset": dataset_name,
+        "language": language,
+        "entities": [],
+        "relationships": relationships,
+    }
 
 
 def convert_traced_inputs(
@@ -2794,8 +3100,8 @@ def _run_re_dataset_conversion(
         "fewrel_3": (convert_fewrel_3_schema, convert_fewrel_3_inputs),
         "fewrel_4": (convert_fewrel_4_schema, convert_fewrel_4_inputs),
         "fewrel": (None, convert_fewrel_inputs),
-        "semeval2010": (None, convert_semeval2010_inputs),
-        "traced": (None, convert_traced_inputs),
+        "semeval2010": (convert_semeval2010_schema, convert_semeval2010_inputs),
+        "traced": (convert_traced_schema, convert_traced_inputs),
         "gids": (convert_gids_schema, convert_gids_inputs),
         "nyt11": (convert_nyt11_schema, convert_nyt11_inputs),
         "new_york_times_re": (convert_new_york_times_re_schema, convert_new_york_times_re_inputs),
@@ -2849,7 +3155,7 @@ def _run_re_dataset_conversion(
         schema_payload, mapping = _run_schema_converter(handlers[format_key][0], schema_paths, dataset_name, language)
     else:
         LOGGER.info("数据集 %s 未提供 schema，尝试从数据生成。", dataset_name)
-        relation_examples = _relation_examples_for_format(format_key, data_files, dataset_cfg, dataset_name)
+        relation_examples = _relation_examples_for_format(config, format_key, data_files, dataset_cfg, dataset_name)
         llm_mapping = _generate_relation_types_with_llm(config, dataset_name, language, relation_examples)
         llm_attempted = True
         if llm_mapping:
@@ -2864,7 +3170,7 @@ def _run_re_dataset_conversion(
             dataset_name,
             require_entity_types,
         )
-        relation_examples = _relation_examples_for_format(format_key, data_files, dataset_cfg, dataset_name)
+        relation_examples = _relation_examples_for_format(config, format_key, data_files, dataset_cfg, dataset_name)
         llm_mapping = _generate_relation_types_with_llm(config, dataset_name, language, relation_examples)
         if llm_mapping:
             llm_used = True
@@ -2908,6 +3214,9 @@ def _run_re_dataset_conversion(
         )
     else:
         sample_stats = {"file_counts": {}}
+        extra_kwargs: Dict[str, Any] = {}
+        if format_key == "fewrel":
+            extra_kwargs["fewrel_cfg"] = _resolve_fewrel_config(config, dataset_cfg)
         samples_payload = handlers[format_key][1](
             data_files,
             dataset_name,
@@ -2917,6 +3226,7 @@ def _run_re_dataset_conversion(
             task=task_value,
             include_input=include_input,
             stats=sample_stats,
+            **extra_kwargs,
         )
 
     save_json(samples_out, samples_payload)
