@@ -1670,7 +1670,7 @@ def _relation_examples_for_format(
             desc=f"{dataset_name} SemEval 样例",
         )
     if format_key == "tacred":
-        label_files = _collect_label_files(dataset_cfg)
+        label_files = _collect_label_files(dataset_cfg, config)
         return _collect_relation_examples_from_tacred_with_labels(
             data_files,
             label_files,
@@ -3404,49 +3404,74 @@ def _collect_paths(items: Sequence[str]) -> List[Path]:
     return paths
 
 
-def _collect_files_from_dirs(dirs: Sequence[str], pattern: str) -> List[Path]:
+def _collect_files_from_dirs(
+    dirs: Sequence[str],
+    pattern: str,
+    exclude_names: Sequence[str] | None = None,
+) -> List[Path]:
     files: List[Path] = []
+    exclude_set = {name for name in (exclude_names or []) if name}
+    if exclude_set:
+        LOGGER.debug("目录扫描排除文件名: %s", sorted(exclude_set))
     for dir_path in dirs:
         base = resolve_project_path(dir_path)
         if not base.exists():
             LOGGER.debug("路径不存在，跳过: %s", base)
             continue
         for path in base.glob(pattern):
-            if path.name == "schema.json":
+            if exclude_set and path.name in exclude_set:
                 continue
             if path.is_file():
                 files.append(path)
     return files
 
 
-def _collect_schema_paths(dataset_cfg: Dict[str, Any]) -> List[Path]:
+def _resolve_exclude_names(
+    config: Dict[str, Any],
+    dataset_cfg: Dict[str, Any],
+    category: str,
+) -> List[str]:
+    overrides = dataset_cfg.get(f"{category}_exclude_names")
+    if overrides is not None:
+        return [str(item) for item in overrides if str(item)]
+    defaults = (config.get("dataset_conversion") or {}).get("file_exclude_names") or {}
+    return [str(item) for item in defaults.get(category, []) if str(item)]
+
+
+def _collect_schema_paths(dataset_cfg: Dict[str, Any], config: Dict[str, Any]) -> List[Path]:
     schema_paths = _collect_paths(dataset_cfg.get("schema_paths", []) or [])
     schema_path = dataset_cfg.get("schema_path")
     if schema_path:
         schema_paths.append(resolve_project_path(schema_path))
     schema_dirs = dataset_cfg.get("schema_dirs", []) or []
     schema_glob = dataset_cfg.get("schema_glob") or "**/schema.json"
-    schema_paths.extend(_collect_files_from_dirs(schema_dirs, schema_glob))
+    schema_excludes = _resolve_exclude_names(config, dataset_cfg, "schema")
+    LOGGER.debug("schema 排除文件名: %s", schema_excludes)
+    schema_paths.extend(_collect_files_from_dirs(schema_dirs, schema_glob, exclude_names=schema_excludes))
     resolved = [path for path in schema_paths if path.exists()]
     LOGGER.debug("已收集 schema 路径: %s", [str(path) for path in resolved])
     return resolved
 
 
-def _collect_data_files(dataset_cfg: Dict[str, Any]) -> List[Path]:
+def _collect_data_files(dataset_cfg: Dict[str, Any], config: Dict[str, Any]) -> List[Path]:
     data_files = _collect_paths(dataset_cfg.get("data_files", []) or [])
     data_dirs = dataset_cfg.get("data_dirs", []) or []
     data_glob = dataset_cfg.get("data_glob") or "**/*.json"
-    data_files.extend(_collect_files_from_dirs(data_dirs, data_glob))
+    data_excludes = _resolve_exclude_names(config, dataset_cfg, "data")
+    LOGGER.debug("data 排除文件名: %s", data_excludes)
+    data_files.extend(_collect_files_from_dirs(data_dirs, data_glob, exclude_names=data_excludes))
     resolved = [path for path in data_files if path.exists()]
     LOGGER.debug("已收集 data 文件: %s", [str(path) for path in resolved])
     return resolved
 
 
-def _collect_label_files(dataset_cfg: Dict[str, Any]) -> List[Path]:
+def _collect_label_files(dataset_cfg: Dict[str, Any], config: Dict[str, Any]) -> List[Path]:
     label_files = _collect_paths(dataset_cfg.get("label_files", []) or [])
     label_dirs = dataset_cfg.get("label_dirs", []) or []
     label_glob = dataset_cfg.get("label_glob") or "**/*.txt"
-    label_files.extend(_collect_files_from_dirs(label_dirs, label_glob))
+    label_excludes = _resolve_exclude_names(config, dataset_cfg, "label")
+    LOGGER.debug("label 排除文件名: %s", label_excludes)
+    label_files.extend(_collect_files_from_dirs(label_dirs, label_glob, exclude_names=label_excludes))
     resolved = [path for path in label_files if path.exists()]
     LOGGER.debug("已收集 label 文件: %s", [str(path) for path in resolved])
     return resolved
@@ -3566,9 +3591,9 @@ def _run_re_dataset_conversion(
         LOGGER.warning("未找到关系抽取数据集 %s 的处理函数", dataset_name)
         return
 
-    schema_paths = _collect_schema_paths(dataset_cfg)
-    data_files = _collect_data_files(dataset_cfg)
-    label_files = _collect_label_files(dataset_cfg)
+    schema_paths = _collect_schema_paths(dataset_cfg, config)
+    data_files = _collect_data_files(dataset_cfg, config)
+    label_files = _collect_label_files(dataset_cfg, config)
     semeval_full_files = _collect_paths(dataset_cfg.get("semeval_full_files", []) or [])
     semeval_clean_files = _collect_paths(dataset_cfg.get("semeval_clean_files", []) or [])
     semeval_aux_files = _collect_paths(dataset_cfg.get("semeval_aux_files", []) or [])
@@ -3740,6 +3765,7 @@ def _run_re_dataset_conversion(
 
 
 def _run_ee_dataset_conversion(
+    config: Dict[str, Any],
     dataset_cfg: Dict[str, Any],
     output_dir: Path,
     sample_limit: int,
@@ -3780,8 +3806,8 @@ def _run_ee_dataset_conversion(
         LOGGER.warning("未找到事件抽取数据集 %s 的处理函数", dataset_name)
         return
 
-    schema_paths = _collect_schema_paths(dataset_cfg)
-    data_files = _collect_data_files(dataset_cfg)
+    schema_paths = _collect_schema_paths(dataset_cfg, config)
+    data_files = _collect_data_files(dataset_cfg, config)
     LOGGER.debug(
         "事件抽取数据集 %s schema_paths=%s data_files=%s",
         dataset_name,
@@ -3921,6 +3947,7 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
                     LOGGER.warning("未找到事件抽取数据集配置: %s", name)
                     continue
                 _run_ee_dataset_conversion(
+                    config,
                     ds_cfg,
                     ee_output_dir,
                     ee_sample_limit,

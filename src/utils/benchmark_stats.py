@@ -696,13 +696,9 @@ def _extract_first_value(payload: Dict[str, Any], keys: Sequence[str]) -> Any:
 
 
 def _load_schema_payload(schema_output: Path | None, schema_paths: Sequence[Path]) -> Any:
-    candidates = [path for path in [schema_output, *schema_paths] if path]
-    for path in candidates:
-        if not path.exists():
-            LOGGER.debug("schema 文件不存在: %s", path)
-            continue
+    def _read_schema_file(path: Path) -> Any:
+        text = path.read_text(encoding="utf-8")
         try:
-            text = path.read_text(encoding="utf-8")
             return json.loads(text)
         except json.JSONDecodeError:
             lines = []
@@ -714,11 +710,37 @@ def _load_schema_payload(schema_output: Path | None, schema_paths: Sequence[Path
                     lines.append(json.loads(line))
                 except json.JSONDecodeError:
                     continue
-            if lines:
-                return lines
+            return lines
+
+    if schema_output and schema_output.exists():
+        try:
+            payload = _read_schema_file(schema_output)
+            if payload:
+                LOGGER.debug("加载 schema 输出文件: %s", schema_output)
+                return payload
+        except OSError as exc:
+            LOGGER.warning("读取 schema 输出失败: %s (%s)", schema_output, exc)
+
+    payloads: List[Any] = []
+    for path in schema_paths:
+        if not path.exists():
+            LOGGER.debug("schema 文件不存在: %s", path)
+            continue
+        try:
+            payload = _read_schema_file(path)
         except OSError as exc:
             LOGGER.warning("读取 schema 失败: %s (%s)", path, exc)
             continue
+        if isinstance(payload, list):
+            payloads.extend(payload)
+        elif payload:
+            payloads.append(payload)
+
+    if payloads:
+        LOGGER.debug("加载 schema 多文件合并完成: %s", len(payloads))
+        if len(payloads) == 1 and isinstance(payloads[0], dict):
+            return payloads[0]
+        return payloads
     return {}
 
 

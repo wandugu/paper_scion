@@ -379,6 +379,11 @@ dataset_conversion:
   include_input: false
   samples_per_relation: 0
   samples_per_event: 0
+  file_exclude_names:
+    schema: []
+    data:
+      - schema.json
+    label: []
   data_info_path: data/input/data_info.txt
   tqdm:
     enabled: true
