@@ -747,6 +747,22 @@ def _apply_relation_type_mapping(
     return schema_payload
 
 
+def _extract_relation_types(schema_payload: Dict[str, Any]) -> List[str]:
+    relations = schema_payload.get("relationships", [])
+    types: List[str] = []
+    if isinstance(relations, list):
+        for rel in relations:
+            if isinstance(rel, dict):
+                rel_type = str(rel.get("rel_type", "")).strip()
+                if rel_type:
+                    types.append(rel_type)
+            elif isinstance(rel, str):
+                rel_type = rel.strip()
+                if rel_type:
+                    types.append(rel_type)
+    return sorted(set(types))
+
+
 def _convert_relation_inputs(
     data_paths: Sequence[Path],
     dataset_name: str,
@@ -2359,6 +2375,8 @@ def _run_re_dataset_conversion(
     schema_payload: Dict[str, Any]
     mapping: RelationTypeMap | None = None
     llm_attempted = False
+    llm_generated_items: List[str] = []
+    llm_used = False
     if handlers[format_key][0] and schema_paths:
         schema_payload, mapping = _run_schema_converter(handlers[format_key][0], schema_paths, dataset_name, language)
     else:
@@ -2366,6 +2384,9 @@ def _run_re_dataset_conversion(
         relation_examples = _relation_examples_for_format(format_key, data_files, dataset_cfg, dataset_name)
         llm_mapping = _generate_relation_types_with_llm(config, dataset_name, language, relation_examples)
         llm_attempted = True
+        if llm_mapping:
+            llm_used = True
+            llm_generated_items = sorted(llm_mapping.keys())
         schema_payload = _build_relation_schema_from_examples(dataset_name, language, relation_examples, llm_mapping)
         mapping = RelationTypeMap(by_relation=llm_mapping)
 
@@ -2374,6 +2395,8 @@ def _run_re_dataset_conversion(
         relation_examples = _relation_examples_for_format(format_key, data_files, dataset_cfg, dataset_name)
         llm_mapping = _generate_relation_types_with_llm(config, dataset_name, language, relation_examples)
         if llm_mapping:
+            llm_used = True
+            llm_generated_items = sorted(llm_mapping.keys())
             schema_payload = _apply_relation_type_mapping(schema_payload, llm_mapping)
             mapping = RelationTypeMap(by_relation=llm_mapping)
     save_json(schema_out, schema_payload)
@@ -2424,6 +2447,8 @@ def _run_re_dataset_conversion(
         "完成关系抽取数据集 %s -> schema: %s, samples: %s", dataset_name, schema_out, samples_out
     )
     schema_count = len(schema_payload.get("relationships", []))
+    relation_types = _extract_relation_types(schema_payload)
+    relation_types_source = "schema_file" if schema_paths else "generated"
     stats.append(
         DatasetConversionStats(
             name=dataset_name,
@@ -2440,6 +2465,11 @@ def _run_re_dataset_conversion(
             samples_output=str(samples_out),
             data_files=[str(path) for path in data_files],
             schema_paths=[str(path) for path in schema_paths],
+            schema_has_file=bool(schema_paths),
+            relation_types=relation_types,
+            relation_types_source=relation_types_source,
+            relation_types_llm_generated=llm_used,
+            relation_types_llm_items=llm_generated_items,
         )
     )
 
@@ -2552,6 +2582,11 @@ def _run_ee_dataset_conversion(
             samples_output=str(samples_out),
             data_files=[str(path) for path in data_files],
             schema_paths=[str(path) for path in schema_paths],
+            schema_has_file=bool(schema_paths),
+            relation_types=[],
+            relation_types_source="na",
+            relation_types_llm_generated=False,
+            relation_types_llm_items=[],
         )
     )
 

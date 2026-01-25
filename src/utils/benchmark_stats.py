@@ -40,6 +40,11 @@ class DatasetConversionStats:
     samples_output: str
     data_files: List[str]
     schema_paths: List[str]
+    schema_has_file: bool
+    relation_types: List[str]
+    relation_types_source: str
+    relation_types_llm_generated: bool
+    relation_types_llm_items: List[str]
 
 
 def build_conversion_summary(stats: Sequence[DatasetConversionStats]) -> str:
@@ -74,10 +79,17 @@ def build_conversion_summary(stats: Sequence[DatasetConversionStats]) -> str:
                 f"- 数据集: {item.name}",
                 f"  任务/语言/格式: {item.task}/{item.language}/{item.format_key}",
                 f"  schema 条目: {item.schema_count} (roles: {item.schema_roles})",
+                f"  schema 来源: {'external' if item.schema_has_file else 'generated'}",
                 f"  输出样本数: {item.sample_count}",
                 f"  原始记录数: {item.raw_records}",
                 f"  samples_limit: {item.sample_limit}",
                 f"  include_input: {item.include_input}",
+                f"  relation_types({len(item.relation_types)}): {', '.join(item.relation_types) if item.relation_types else 'None'}",
+                f"  relation_types_source: {item.relation_types_source}",
+                (
+                    "  relation_types_llm_generated:"
+                    f" {item.relation_types_llm_generated} ({', '.join(item.relation_types_llm_items) if item.relation_types_llm_items else 'None'})"
+                ),
                 f"  schema 输出: {item.schema_output}",
                 f"  samples 输出: {item.samples_output}",
                 f"  data_files({len(item.data_files)}): {', '.join(item.data_files)}",
@@ -85,7 +97,33 @@ def build_conversion_summary(stats: Sequence[DatasetConversionStats]) -> str:
                 "",
             ]
         )
+    lines.extend(_build_schema_summary(stats))
     return "\n".join(lines)
+
+
+def _build_schema_summary(stats: Sequence[DatasetConversionStats]) -> List[str]:
+    with_schema = [item.name for item in stats if item.schema_has_file]
+    without_schema = [item.name for item in stats if not item.schema_has_file]
+    with_relation_types = [item.name for item in stats if item.relation_types]
+    without_relation_types = [item.name for item in stats if not item.relation_types]
+    llm_generated = [
+        f"{item.name}({', '.join(item.relation_types_llm_items) if item.relation_types_llm_items else 'None'})"
+        for item in stats
+        if item.relation_types_llm_generated
+    ]
+
+    return [
+        "Schema/关系类型汇总:",
+        f"  有 schema({len(with_schema)}): {', '.join(with_schema) if with_schema else 'None'}",
+        f"  无 schema({len(without_schema)}): {', '.join(without_schema) if without_schema else 'None'}",
+        f"  有关系类型({len(with_relation_types)}): {', '.join(with_relation_types) if with_relation_types else 'None'}",
+        f"  无关系类型({len(without_relation_types)}): {', '.join(without_relation_types) if without_relation_types else 'None'}",
+        (
+            "  模型生成关系类型("
+            f"{len(llm_generated)}): {', '.join(llm_generated) if llm_generated else 'None'}"
+        ),
+        "",
+    ]
 
 
 def write_conversion_summary(summary_path: Path, stats: Sequence[DatasetConversionStats]) -> None:
