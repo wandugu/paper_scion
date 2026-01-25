@@ -592,12 +592,23 @@ def _parse_semeval_sentence(raw: str) -> Tuple[str, str, str, List[int], List[in
     return text.strip(), head_entity, tail_entity, head_pos, tail_pos
 
 
+def _clean_semeval_relation_label(raw: str) -> str:
+    raw = raw.strip().strip('"')
+    if not raw:
+        return ""
+    if ":" in raw:
+        raw = raw.split(":")[-1]
+    if "=" in raw:
+        raw = raw.split("=")[-1]
+    return raw.strip()
+
+
 def _parse_semeval_relation(raw: str) -> Tuple[str, str]:
     raw = raw.strip()
-    match = re.match(r"(.+?)\((e1|e2),(e1|e2)\)", raw)
+    match = re.search(r"(.+?)\((e1|e2),(e1|e2)\)", raw)
     if not match:
-        return raw, ""
-    rel_type = match.group(1).strip()
+        return _clean_semeval_relation_label(raw), ""
+    rel_type = _clean_semeval_relation_label(match.group(1))
     direction = f"{match.group(2)},{match.group(3)}"
     return rel_type, direction
 
@@ -606,23 +617,246 @@ def _is_semeval_relation_line(raw: str) -> bool:
     raw = raw.strip()
     if not raw:
         return False
-    return bool(re.match(r".+\((e1|e2),(e1|e2)\)$", raw))
+    if raw.lower() == "other":
+        return True
+    return bool(re.search(r".+\((e1|e2),(e1|e2)\)", raw))
 
 
-def _collect_relation_examples_from_semeval(
-    data_paths: Sequence[Path],
-    label_paths: Sequence[Path],
-    desc: str | None = None,
-) -> Dict[str, List[Dict[str, Any]]]:
-    relation_examples: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+def _is_semeval_comment_line(raw: str) -> bool:
+    return raw.strip().lower().startswith("comment")
+
+
+def _advance_semeval_index(lines: Sequence[str], idx: int) -> int:
+    while idx < len(lines):
+        peek = lines[idx].strip()
+        if peek and "\t" in peek:
+            break
+        idx += 1
+    return idx
+
+
+def _read_semeval_record(
+    lines: Sequence[str],
+    idx: int,
+    label_map: Dict[str, str],
+    label_sources: Dict[str, str] | None = None,
+) -> Tuple[Dict[str, Any] | None, int]:
+    line = lines[idx].strip()
+    if not line or "\t" not in line:
+        return None, idx + 1
+
+    parts = line.split("\t")
+    sample_id = parts[0].strip()
+    sentence = parts[1].strip().strip('"') if len(parts) > 1 else ""
+    rel_line = ""
+    rel_source = "missing"
+    rel_line_from_file = False
+
+    if len(parts) > 2:
+        rel_line = "\t".join(parts[2:]).strip()
+        rel_line_from_file = True
+        rel_source = "inline"
+        LOGGER.debug("SemEval 行 %s 发现行内关系标签: %s", idx + 1, rel_line)
+        next_idx = idx + 1
+    else:
+        next_idx = idx + 1
+        if idx + 1 < len(lines):
+            candidate = lines[idx + 1].strip()
+            if candidate:
+                if _is_semeval_comment_line(candidate):
+                    LOGGER.debug("SemEval 行 %s 识别为备注行，跳过: %s", idx + 2, candidate)
+                elif _is_semeval_relation_line(candidate):
+                    rel_line = candidate
+                    rel_line_from_file = True
+                    rel_source = "next_line"
+                    LOGGER.debug("SemEval 行 %s 读取关系标签: %s", idx + 2, candidate)
+                    next_idx = idx + 2
+                elif "\t" in candidate:
+                    LOGGER.debug("SemEval 行 %s 识别为下一条样本行，等待 label_map 补全。", idx + 2)
+                else:
+                    LOGGER.debug("SemEval 行 %s 关系标签格式异常，改用 label_map: %s", idx + 2, candidate)
+
+    if not rel_line and sample_id in label_map:
+        rel_line = label_map[sample_id]
+        rel_source = "label_map"
+        source_hint = label_sources.get(sample_id) if label_sources else None
+        if source_hint:
+            rel_source = source_hint
+            LOGGER.debug("SemEval 样本 %s 使用 %s 关系标签: %s", sample_id, source_hint, rel_line)
+        else:
+            LOGGER.debug("SemEval 样本 %s 使用 label_map 关系标签: %s", sample_id, rel_line)
+
+    if not rel_line:
+        rel_line = "Other"
+        rel_source = "default"
+        LOGGER.debug("SemEval 样本 %s 未找到关系标签，回退为 Other", sample_id)
+
+    next_idx = _advance_semeval_index(lines, next_idx)
+    return (
+        {
+            "id": sample_id,
+            "sentence": sentence,
+            "relation_line": rel_line,
+            "relation_source": rel_source,
+            "relation_from_file": rel_line_from_file,
+        },
+        next_idx,
+    )
+
+
+def _load_semeval_key_labels(label_paths: Sequence[Path]) -> Dict[str, str]:
     label_map: Dict[str, str] = {}
     for label_path in label_paths:
         for line in label_path.read_text(encoding="utf-8").splitlines():
             if not line.strip():
                 continue
-            parts = line.split("\t")
+            parts = line.split("\t", 1)
             if len(parts) >= 2:
                 label_map[parts[0].strip()] = parts[1].strip()
+    return label_map
+
+
+def _read_semeval_sentence_map(lines: Sequence[str]) -> Dict[str, str]:
+    sentence_map: Dict[str, str] = {}
+    for raw in lines:
+        raw = raw.strip()
+        if not raw or "\t" not in raw:
+            continue
+        parts = raw.split("\t", 1)
+        sample_id = parts[0].strip()
+        sentence = parts[1].strip().strip('"')
+        if sample_id:
+            sentence_map[sample_id] = sentence
+    return sentence_map
+
+
+def _load_semeval_full_labels(
+    full_paths: Sequence[Path],
+) -> Tuple[Dict[str, str], Dict[str, str]]:
+    label_map: Dict[str, str] = {}
+    sentence_map: Dict[str, str] = {}
+    for full_path in full_paths:
+        lines = full_path.read_text(encoding="utf-8").splitlines()
+        idx = 0
+        while idx < len(lines):
+            record, next_idx = _read_semeval_record(lines, idx, {})
+            if record is not None:
+                label_map[record["id"]] = record["relation_line"]
+                sentence_map[record["id"]] = record["sentence"]
+            idx = next_idx
+    return label_map, sentence_map
+
+
+def _parse_semeval_distribution(path: Path) -> Dict[str, Dict[str, int]]:
+    distributions: Dict[str, Dict[str, int]] = {}
+    current_section: str | None = None
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith("<<<") and line.endswith(">>>"):
+            current_section = line.strip("<>").strip()
+            distributions[current_section] = {}
+            continue
+        if ":" in line and current_section:
+            left, right = line.split(":", 1)
+            label = left.strip()
+            count_text = right.strip().split()[0]
+            try:
+                distributions[current_section][label] = int(count_text)
+            except ValueError:
+                continue
+    return distributions
+
+
+def _summarize_semeval_aux_files(dataset_name: str, aux_files: Sequence[Path]) -> None:
+    for path in aux_files:
+        if not path.exists():
+            continue
+        content = path.read_text(encoding="utf-8", errors="ignore")
+        lines = content.splitlines()
+        filename = path.name
+        if filename.endswith("_DISTRIB.TXT") or "DISTRIB" in filename.upper():
+            distributions = _parse_semeval_distribution(path)
+            LOGGER.debug(
+                "SemEval 附加文件 %s 分布统计: %s",
+                filename,
+                {section: list(values.items())[:5] for section, values in distributions.items()},
+            )
+        elif "readme" in filename.lower():
+            first_line = next((line.strip() for line in lines if line.strip()), "")
+            LOGGER.debug(
+                "SemEval 附加文件 %s README 摘要: 行数=%s 首行=%s",
+                filename,
+                len(lines),
+                first_line,
+            )
+        else:
+            LOGGER.debug(
+                "SemEval 附加文件 %s 已读取: 行数=%s 字符数=%s",
+                filename,
+                len(lines),
+                len(content),
+            )
+    LOGGER.debug("SemEval 数据集 %s 附加文件处理完成。", dataset_name)
+
+
+def _log_semeval_sentence_consistency(
+    dataset_name: str,
+    base_sentences: Dict[str, str],
+    compare_sentences: Dict[str, str],
+    compare_label: str,
+) -> None:
+    mismatches = 0
+    for sample_id, sentence in base_sentences.items():
+        other = compare_sentences.get(sample_id)
+        if other is None:
+            continue
+        if sentence != other:
+            mismatches += 1
+            if mismatches <= 3:
+                LOGGER.debug(
+                    "SemEval %s 句子不一致: id=%s base=%s compare=%s",
+                    compare_label,
+                    sample_id,
+                    sentence,
+                    other,
+                )
+    LOGGER.debug(
+        "SemEval %s 句子一致性检查: base=%s compare=%s 不一致=%s",
+        dataset_name,
+        len(base_sentences),
+        len(compare_sentences),
+        mismatches,
+    )
+
+
+def _collect_relation_examples_from_semeval(
+    data_paths: Sequence[Path],
+    label_paths: Sequence[Path],
+    full_label_paths: Sequence[Path] | None = None,
+    clean_paths: Sequence[Path] | None = None,
+    desc: str | None = None,
+) -> Dict[str, List[Dict[str, Any]]]:
+    relation_examples: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    label_sources: Dict[str, str] = {}
+    label_map = _load_semeval_key_labels(label_paths)
+    for sample_id in label_map:
+        label_sources[sample_id] = "label_key"
+    full_label_map: Dict[str, str] = {}
+    full_sentences: Dict[str, str] = {}
+    if full_label_paths:
+        full_label_map, full_sentences = _load_semeval_full_labels(full_label_paths)
+        for sample_id in full_label_map:
+            label_sources[sample_id] = "label_full"
+        label_map = {**label_map, **full_label_map}
+
+    if clean_paths:
+        clean_sentences: Dict[str, str] = {}
+        for clean_path in clean_paths:
+            clean_sentences.update(_read_semeval_sentence_map(clean_path.read_text(encoding="utf-8").splitlines()))
+        if clean_sentences and full_sentences:
+            _log_semeval_sentence_consistency(desc or "SemEval", full_sentences, clean_sentences, "full_vs_clean")
 
     files = _wrap_tqdm(data_paths, desc=desc or "读取 SemEval 数据", unit="file", total=len(data_paths))
     for data_path in files:
@@ -630,40 +864,16 @@ def _collect_relation_examples_from_semeval(
         lines = data_path.read_text(encoding="utf-8").splitlines()
         idx = 0
         while idx < len(lines):
-            line = lines[idx].strip()
-            if not line:
-                idx += 1
+            record, next_idx = _read_semeval_record(lines, idx, label_map, label_sources)
+            if record is None:
+                idx = next_idx
                 continue
-            if "\t" not in line:
-                idx += 1
-                continue
-            sample_id, sentence = line.split("\t", 1)
-            sentence = sentence.strip().strip('"')
-            rel_line = ""
-            rel_line_from_file = False
-            if idx + 1 < len(lines):
-                candidate = lines[idx + 1].strip()
-                if _is_semeval_relation_line(candidate):
-                    rel_line = candidate
-                    rel_line_from_file = True
-                else:
-                    LOGGER.debug("SemEval 行 %s 关系标签格式异常，改用 label_map: %s", idx + 1, candidate)
-            if not rel_line and sample_id in label_map:
-                rel_line = label_map[sample_id]
-            rel_type, direction = _parse_semeval_relation(rel_line or "Other")
-            text, head_entity, tail_entity, _, _ = _parse_semeval_sentence(sentence)
+            rel_type, direction = _parse_semeval_relation(record["relation_line"])
+            text, head_entity, tail_entity, _, _ = _parse_semeval_sentence(record["sentence"])
             if direction == "e2,e1":
                 head_entity, tail_entity = tail_entity, head_entity
             relation_examples[rel_type].append({"text": text, "head": head_entity, "tail": tail_entity})
-            if rel_line_from_file:
-                idx += 2
-                while idx < len(lines):
-                    peek = lines[idx].strip()
-                    if peek and "\t" in peek:
-                        break
-                    idx += 1
-            else:
-                idx += 1
+            idx = next_idx
     return relation_examples
 
 
@@ -693,7 +903,15 @@ def _relation_examples_for_format(
         return _collect_relation_examples_from_fewrel(data_files, desc=f"{dataset_name} FewRel 样例")
     if format_key == "semeval2010":
         label_files = _collect_paths(dataset_cfg.get("label_files", []) or [])
-        return _collect_relation_examples_from_semeval(data_files, label_files, desc=f"{dataset_name} SemEval 样例")
+        full_label_files = _collect_paths(dataset_cfg.get("semeval_full_files", []) or [])
+        clean_files = _collect_paths(dataset_cfg.get("semeval_clean_files", []) or [])
+        return _collect_relation_examples_from_semeval(
+            data_files,
+            label_files,
+            full_label_paths=full_label_files,
+            clean_paths=clean_files,
+            desc=f"{dataset_name} SemEval 样例",
+        )
     if format_key == "traced":
         return _collect_relation_examples_from_tacred(data_files, desc=f"{dataset_name} TACRED 样例")
     return _collect_relation_examples_from_json(
@@ -1413,6 +1631,8 @@ def convert_semeval2010_inputs(
     sample_limit: int,
     mapping: RelationTypeMap | None = None,
     label_paths: Sequence[Path] | None = None,
+    full_label_paths: Sequence[Path] | None = None,
+    clean_paths: Sequence[Path] | None = None,
     task: str | None = None,
     include_input: bool = False,
     stats: Dict[str, Any] | None = None,
@@ -1420,15 +1640,26 @@ def convert_semeval2010_inputs(
     samples: Dict[Tuple[str, str, str], Dict[str, Any]] = defaultdict(_new_sample_bucket)
     mapping = mapping or RelationTypeMap(by_relation={})
     task_value = _normalize_task(task, "re")
+    label_sources: Dict[str, str] = {}
     label_map: Dict[str, str] = {}
     limit = sample_limit if sample_limit > 0 else None
-    for label_path in label_paths or []:
-        for line in label_path.read_text(encoding="utf-8").splitlines():
-            if not line.strip():
-                continue
-            parts = line.split("\t")
-            if len(parts) >= 2:
-                label_map[parts[0].strip()] = parts[1].strip()
+    label_map = _load_semeval_key_labels(label_paths or [])
+    for sample_id in label_map:
+        label_sources[sample_id] = "label_key"
+    full_label_map: Dict[str, str] = {}
+    full_sentences: Dict[str, str] = {}
+    if full_label_paths:
+        full_label_map, full_sentences = _load_semeval_full_labels(full_label_paths)
+        for sample_id in full_label_map:
+            label_sources[sample_id] = "label_full"
+        label_map = {**label_map, **full_label_map}
+
+    if clean_paths:
+        clean_sentences: Dict[str, str] = {}
+        for clean_path in clean_paths:
+            clean_sentences.update(_read_semeval_sentence_map(clean_path.read_text(encoding="utf-8").splitlines()))
+        if clean_sentences and full_sentences:
+            _log_semeval_sentence_consistency(dataset_name, full_sentences, clean_sentences, "full_vs_clean")
 
     iter_stats = stats if stats is not None else {}
     files = _wrap_tqdm(data_paths, desc=f"{dataset_name} SemEval 样本", unit="file", total=len(data_paths))
@@ -1437,28 +1668,12 @@ def convert_semeval2010_inputs(
         lines = data_path.read_text(encoding="utf-8").splitlines()
         idx = 0
         while idx < len(lines):
-            line = lines[idx].strip()
-            if not line:
-                idx += 1
+            record, next_idx = _read_semeval_record(lines, idx, label_map, label_sources)
+            if record is None:
+                idx = next_idx
                 continue
-            if "\t" not in line:
-                idx += 1
-                continue
-            sample_id, sentence = line.split("\t", 1)
-            sentence = sentence.strip().strip('"')
-            rel_line = ""
-            rel_line_from_file = False
-            if idx + 1 < len(lines):
-                candidate = lines[idx + 1].strip()
-                if _is_semeval_relation_line(candidate):
-                    rel_line = candidate
-                    rel_line_from_file = True
-                else:
-                    LOGGER.debug("SemEval 行 %s 关系标签格式异常，改用 label_map: %s", idx + 1, candidate)
-            if not rel_line and sample_id in label_map:
-                rel_line = label_map[sample_id]
-            rel_type, direction = _parse_semeval_relation(rel_line or "Other")
-            text, head_entity, tail_entity, head_pos, tail_pos = _parse_semeval_sentence(sentence)
+            rel_type, direction = _parse_semeval_relation(record["relation_line"])
+            text, head_entity, tail_entity, head_pos, tail_pos = _parse_semeval_sentence(record["sentence"])
             iter_stats["raw_records"] = iter_stats.get("raw_records", 0) + 1
             file_count += 1
             if direction == "e2,e1":
@@ -1468,15 +1683,15 @@ def convert_semeval2010_inputs(
             key = (head_type, rel_type, tail_type)
             bucket = samples[key]
             if text in bucket["texts"]:
-                idx += 4
+                idx = next_idx
                 continue
             if limit is not None and len(bucket["items"]) >= limit:
-                idx += 4
+                idx = next_idx
                 continue
             sample = _normalize_sample(
                 RE_SAMPLE_FIELDS,
                 {
-                    "id": sample_id,
+                    "id": record["id"],
                     "category": "",
                     "input": text if include_input else "",
                     "text": text,
@@ -1494,15 +1709,7 @@ def convert_semeval2010_inputs(
             )
             bucket["items"].append(sample)
             bucket["texts"].add(text)
-            if rel_line_from_file:
-                idx += 2
-                while idx < len(lines):
-                    peek = lines[idx].strip()
-                    if peek and "\t" in peek:
-                        break
-                    idx += 1
-            else:
-                idx += 1
+            idx = next_idx
         iter_stats.setdefault("file_counts", {})[str(data_path)] = file_count
 
     results: List[Dict[str, Any]] = []
@@ -2360,6 +2567,9 @@ def _run_re_dataset_conversion(
     schema_paths = _collect_schema_paths(dataset_cfg)
     data_files = _collect_data_files(dataset_cfg)
     label_files = _collect_label_files(dataset_cfg)
+    semeval_full_files = _collect_paths(dataset_cfg.get("semeval_full_files", []) or [])
+    semeval_clean_files = _collect_paths(dataset_cfg.get("semeval_clean_files", []) or [])
+    semeval_aux_files = _collect_paths(dataset_cfg.get("semeval_aux_files", []) or [])
     LOGGER.debug(
         "关系抽取数据集 %s schema_paths=%s data_files=%s label_files=%s",
         dataset_name,
@@ -2367,6 +2577,14 @@ def _run_re_dataset_conversion(
         [str(path) for path in data_files],
         [str(path) for path in label_files],
     )
+    if format_key == "semeval2010":
+        LOGGER.debug(
+            "SemEval 附加文件: full=%s clean=%s aux=%s",
+            [str(path) for path in semeval_full_files],
+            [str(path) for path in semeval_clean_files],
+            [str(path) for path in semeval_aux_files],
+        )
+        _summarize_semeval_aux_files(dataset_name, semeval_aux_files)
     if not data_files:
         LOGGER.warning("关系抽取数据集 %s 未配置 data_files", dataset_name)
         return
@@ -2399,6 +2617,18 @@ def _run_re_dataset_conversion(
             llm_generated_items = sorted(llm_mapping.keys())
             schema_payload = _apply_relation_type_mapping(schema_payload, llm_mapping)
             mapping = RelationTypeMap(by_relation=llm_mapping)
+    if llm_used and llm_generated_items:
+        LOGGER.debug("数据集 %s LLM 补全关系类型: %s", dataset_name, ", ".join(llm_generated_items))
+
+    relation_types = _extract_relation_types(schema_payload)
+    unique_relation_types = sorted(set(relation_types))
+    LOGGER.debug(
+        "数据集 %s 关系类型统计: 总数=%s 去重数=%s 列表=%s",
+        dataset_name,
+        len(relation_types),
+        len(unique_relation_types),
+        unique_relation_types,
+    )
     save_json(schema_out, schema_payload)
 
     if format_key == "semeval2010":
@@ -2410,6 +2640,8 @@ def _run_re_dataset_conversion(
             resolved_limit,
             mapping=mapping,
             label_paths=label_files,
+            full_label_paths=semeval_full_files,
+            clean_paths=semeval_clean_files,
             task=task_value,
             include_input=include_input,
             stats=sample_stats,

@@ -608,6 +608,32 @@ dataset_conversion:
           - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_testing/TEST_FILE.txt
         label_files:
           - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_testing_keys/TEST_FILE_KEY.TXT
+        semeval_full_files:
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_testing_keys/TEST_FILE_FULL.TXT
+        semeval_clean_files:
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_testing_keys/TEST_FILE_CLEAN.TXT
+        semeval_aux_files:
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SEMEVAL_TASK8_FULL_RELEASE_README.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_training/README.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_training/TRAIN_DISTRIB.TXT
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_training/TRAIN_TEST_DISTRIB.TXT
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_testing/README.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/README.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/answer_key1.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/answer_key2.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/answer_key3.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/answer_key5.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer1.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer2.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer3.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer4.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer5.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/result_scores1.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/result_scores2.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/result_scores3.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/result_scores5.txt
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/semeval2010_task8_format_checker.pl
+          - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/semeval2010_task8_scorer-v1.2.pl
       - name: traced
         task: re
         format: traced
