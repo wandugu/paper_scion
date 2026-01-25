@@ -955,14 +955,21 @@ def _infer_split(path: Path, split_aliases: Dict[str, List[str]]) -> str | None:
 
 def _extract_text(record: Dict[str, Any], text_fields: Sequence[str]) -> str:
     for field in text_fields:
-        if field in record and isinstance(record[field], str):
-            return record[field].strip()
+        if field not in record:
+            continue
+        value = record[field]
+        if isinstance(value, str):
+            return value.strip()
+        if isinstance(value, list) and value and all(isinstance(item, str) for item in value):
+            return " ".join(value).strip()
     return ""
 
 
 def _count_re_triples(record: Dict[str, Any]) -> int:
     if isinstance(record.get("relation"), list):
         return len(record["relation"])
+    if isinstance(record.get("relation"), str):
+        return 1 if record["relation"].strip() else 0
     if isinstance(record.get("relations"), list):
         return len(record["relations"])
     if isinstance(record.get("spo_list"), list):
@@ -975,6 +982,13 @@ def _count_re_triples(record: Dict[str, Any]) -> int:
 def _extract_re_edges(record: Dict[str, Any], placeholder: str) -> List[Tuple[str, str, str]]:
     edges: List[Tuple[str, str, str]] = []
     relations = record.get("relation")
+    if isinstance(relations, str):
+        predicate = relations.strip()
+        domain = str(record.get("subj_type") or record.get("head_entity_type") or placeholder).strip()
+        range_ = str(record.get("obj_type") or record.get("tail_entity_type") or placeholder).strip()
+        if predicate:
+            edges.append((domain or placeholder, predicate, range_ or placeholder))
+        return edges
     if isinstance(relations, list):
         for rel in relations:
             if not isinstance(rel, dict):

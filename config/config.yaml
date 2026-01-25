@@ -638,9 +638,13 @@ dataset_conversion:
         task: re
         format: traced
         language: en
-        data_dirs:
-          - data/dataset_public/re/re-en/traced
-        data_glob: "*.json"
+        data_files:
+          - data/dataset_public/re/re-en/traced/dev_patch.json
+          - data/dataset_public/re/re-en/traced/test_patch.json
+        label_files:
+          - data/dataset_public/re/re-en/traced/train_id2label.json
+          - data/dataset_public/re/re-en/traced/dev_id2label.json
+          - data/dataset_public/re/re-en/traced/test_id2label.json
       - name: wiki_0
         task: re
         format: wiki_0
@@ -781,6 +785,7 @@ benchmark_stats:
     - sentence
     - contents
     - content
+    - tokens
   output_text_fallback: true
   split_aliases:
     train:
