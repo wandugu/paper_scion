@@ -448,6 +448,9 @@ dataset_conversion:
       - object
       - tail_entity
     relation_id_pattern: "^P\\d+$"
+    relation_name_map_files: []
+    relation_name_map_dirs: []
+    relation_name_map_glob: ""
     relation_map_keys:
       - pid2name
       - id2rel
@@ -587,6 +590,9 @@ dataset_conversion:
         data_dirs:
           - data/dataset_public/re/re-en/FewRel
         data_glob: "*.json"
+        fewrel:
+          relation_name_map_files:
+            - data/dataset_public/re/re-en/FewRel/pid2name.json
       - name: GIDS
         task: re
         format: gids
@@ -696,18 +702,18 @@ dataset_conversion:
           - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/result_scores5.txt
           - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/semeval2010_task8_format_checker.pl
           - data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/semeval2010_task8_scorer-v1.2.pl
-      - name: traced
+      - name: tacred
         task: re
-        format: traced
+        format: tacred
         language: en
-        schema_path: data/dataset_public/re/re-en/traced/tacred.py
+        schema_path: data/dataset_public/re/re-en/tacred/tacred.py
         data_files:
-          - data/dataset_public/re/re-en/traced/dev_patch.json
-          - data/dataset_public/re/re-en/traced/test_patch.json
+          - data/dataset_public/re/re-en/tacred/dev_patch.json
+          - data/dataset_public/re/re-en/tacred/test_patch.json
         label_files:
-          - data/dataset_public/re/re-en/traced/train_id2label.json
-          - data/dataset_public/re/re-en/traced/dev_id2label.json
-          - data/dataset_public/re/re-en/traced/test_id2label.json
+          - data/dataset_public/re/re-en/tacred/train_id2label.json
+          - data/dataset_public/re/re-en/tacred/dev_id2label.json
+          - data/dataset_public/re/re-en/tacred/test_id2label.json
       - name: wiki_0
         task: re
         format: wiki_0

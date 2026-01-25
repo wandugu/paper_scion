@@ -45,6 +45,9 @@ FEWREL_DEFAULT_CONFIG: Dict[str, Any] = {
     "head_keys": ["h", "head", "subj", "subject", "head_entity"],
     "tail_keys": ["t", "tail", "obj", "object", "tail_entity"],
     "relation_id_pattern": r"^P\d+$",
+    "relation_name_map_files": [],
+    "relation_name_map_dirs": [],
+    "relation_name_map_glob": "",
     "relation_map_keys": [
         "pid2name",
         "id2rel",
@@ -189,6 +192,8 @@ def _resolve_fewrel_config(config: Dict[str, Any], dataset_cfg: Dict[str, Any] |
         "text_keys",
         "head_keys",
         "tail_keys",
+        "relation_name_map_files",
+        "relation_name_map_dirs",
         "relation_map_keys",
     ):
         if key in base_cfg or key in override_cfg:
@@ -218,6 +223,34 @@ def _extract_fewrel_rel_type(record: Dict[str, Any], fallback: str, cfg: Dict[st
 def _is_fewrel_relation_id(rel_type: str, cfg: Dict[str, Any]) -> bool:
     pattern = str(cfg.get("relation_id_pattern") or r"^P\d+$")
     return bool(re.fullmatch(pattern, str(rel_type or "").strip()))
+
+
+def _collect_fewrel_relation_name_map_paths(
+    data_paths: Sequence[Path],
+    cfg: Dict[str, Any],
+) -> List[Path]:
+    extra_paths = _collect_paths(cfg.get("relation_name_map_files", []) or [])
+    map_dirs = cfg.get("relation_name_map_dirs", []) or []
+    map_glob = cfg.get("relation_name_map_glob") or ""
+    map_globs = map_glob if isinstance(map_glob, list) else [map_glob]
+    for dir_path in map_dirs:
+        base = resolve_project_path(dir_path)
+        if not base.exists():
+            LOGGER.debug("FewRel 关系名称映射目录不存在: %s", base)
+            continue
+        for pattern in map_globs:
+            if not pattern:
+                continue
+            for path in base.glob(pattern):
+                if path.is_file():
+                    extra_paths.append(path)
+    combined = list(dict.fromkeys([*data_paths, *extra_paths]))
+    LOGGER.debug(
+        "FewRel 关系名称映射候选文件: total=%s extra=%s",
+        len(combined),
+        len(extra_paths),
+    )
+    return combined
 
 
 def _extract_fewrel_relation_name_map(
@@ -262,8 +295,10 @@ def _collect_fewrel_relation_name_map(
     cfg: Dict[str, Any],
 ) -> Dict[str, str]:
     relation_name_map: Dict[str, str] = {}
-    for path in data_paths:
+    map_paths = _collect_fewrel_relation_name_map_paths(data_paths, cfg)
+    for path in map_paths:
         if not path.exists():
+            LOGGER.debug("FewRel 关系名称映射文件不存在，跳过: %s", path)
             continue
         try:
             payload = _load_json(path)
@@ -305,6 +340,7 @@ def _normalize_fewrel_rel_type(
             mapped = relation_name_map[rel_type]
             LOGGER.debug("FewRel 关系类型使用映射替换: pid=%s name=%s", rel_type, mapped)
             return mapped
+        LOGGER.debug("FewRel 关系类型未找到映射: pid=%s", rel_type)
     return rel_type
 
 
@@ -1407,12 +1443,12 @@ def _iter_ast_string_literals(node: ast.AST) -> Iterable[str]:
                 yield from _iter_ast_string_literals(arg)
 
 
-def _extract_traced_relation_types_from_py(schema_path: Path) -> List[str]:
+def _extract_tacred_relation_types_from_py(schema_path: Path) -> List[str]:
     relation_types: set[str] = set()
     try:
         tree = ast.parse(schema_path.read_text(encoding="utf-8"))
     except (SyntaxError, OSError) as exc:
-        LOGGER.warning("traced schema Python 解析失败: %s (%s)", schema_path, exc)
+        LOGGER.warning("tacred schema Python 解析失败: %s (%s)", schema_path, exc)
         return []
     for node in ast.walk(tree):
         if isinstance(node, ast.Assign):
@@ -1435,7 +1471,7 @@ def _extract_traced_relation_types_from_py(schema_path: Path) -> List[str]:
                     relation_types.add(value)
     sorted_types = sorted(relation_types)
     LOGGER.debug(
-        "traced schema Python 关系类型统计: path=%s count=%s types=%s",
+        "tacred schema Python 关系类型统计: path=%s count=%s types=%s",
         schema_path,
         len(sorted_types),
         sorted_types,
@@ -1443,7 +1479,7 @@ def _extract_traced_relation_types_from_py(schema_path: Path) -> List[str]:
     return sorted_types
 
 
-def _extract_traced_relation_types(label_paths: Sequence[Path]) -> List[str]:
+def _extract_tacred_relation_types(label_paths: Sequence[Path]) -> List[str]:
     relation_types: set[str] = set()
     for path in label_paths:
         if not path.exists():
@@ -1451,7 +1487,7 @@ def _extract_traced_relation_types(label_paths: Sequence[Path]) -> List[str]:
         try:
             payload = _load_json(path)
         except json.JSONDecodeError as exc:
-            LOGGER.warning("traced 标签文件解析失败，跳过: %s (%s)", path, exc)
+            LOGGER.warning("tacred 标签文件解析失败，跳过: %s (%s)", path, exc)
             continue
         if isinstance(payload, dict):
             for value in payload.values():
@@ -1470,22 +1506,22 @@ def _extract_traced_relation_types(label_paths: Sequence[Path]) -> List[str]:
                     if rel_type:
                         relation_types.add(rel_type)
     sorted_types = sorted(relation_types)
-    LOGGER.debug("traced 标签文件关系类型统计: count=%s types=%s", len(sorted_types), sorted_types)
+    LOGGER.debug("tacred 标签文件关系类型统计: count=%s types=%s", len(sorted_types), sorted_types)
     return sorted_types
 
 
-def _collect_relation_examples_from_traced(
+def _collect_relation_examples_from_tacred_with_labels(
     data_paths: Sequence[Path],
     label_paths: Sequence[Path],
     desc: str | None = None,
 ) -> Dict[str, List[Dict[str, Any]]]:
     relation_examples = _collect_relation_examples_from_tacred(data_paths, desc=desc)
-    label_types = _extract_traced_relation_types(label_paths)
+    label_types = _extract_tacred_relation_types(label_paths)
     for rel_type in label_types:
         relation_examples.setdefault(rel_type, [])
     non_empty = sum(1 for examples in relation_examples.values() if examples)
     LOGGER.debug(
-        "traced 样例汇总: relations=%s non_empty=%s label_only=%s",
+        "tacred 样例汇总: relations=%s non_empty=%s label_only=%s",
         len(relation_examples),
         non_empty,
         len(relation_examples) - non_empty,
@@ -1518,9 +1554,9 @@ def _relation_examples_for_format(
             clean_paths=clean_files,
             desc=f"{dataset_name} SemEval 样例",
         )
-    if format_key == "traced":
+    if format_key == "tacred":
         label_files = _collect_label_files(dataset_cfg)
-        return _collect_relation_examples_from_traced(
+        return _collect_relation_examples_from_tacred_with_labels(
             data_files,
             label_files,
             desc=f"{dataset_name} TACRED 样例",
@@ -2369,17 +2405,17 @@ def convert_semeval2010_inputs(
     return results
 
 
-def convert_traced_schema(schema_path: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
+def convert_tacred_schema(schema_path: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
     schema_paths = [schema_path] if isinstance(schema_path, Path) else list(schema_path or [])
     relation_types: List[str] = []
     for path in schema_paths:
         if path.suffix.lower() == ".py":
-            relation_types.extend(_extract_traced_relation_types_from_py(path))
+            relation_types.extend(_extract_tacred_relation_types_from_py(path))
         else:
-            relation_types.extend(_extract_traced_relation_types([path]))
+            relation_types.extend(_extract_tacred_relation_types([path]))
     relation_types = _dedupe_preserve_order([item for item in relation_types if item])
     if not relation_types:
-        LOGGER.warning("traced schema 未解析到关系类型: dataset=%s paths=%s", dataset_name, schema_paths)
+        LOGGER.warning("tacred schema 未解析到关系类型: dataset=%s paths=%s", dataset_name, schema_paths)
     relationships = [
         {
             "head_entity": "",
@@ -2396,7 +2432,7 @@ def convert_traced_schema(schema_path: Path | Sequence[Path], dataset_name: str,
     }
 
 
-def convert_traced_inputs(
+def convert_tacred_inputs(
     data_paths: Sequence[Path],
     dataset_name: str,
     language: str,
@@ -2412,7 +2448,7 @@ def convert_traced_inputs(
     iter_stats = stats if stats is not None else {}
     limit = sample_limit if sample_limit > 0 else None
 
-    for record in _iter_json_lines(data_paths, desc=f"{dataset_name} Traced 样本", stats=iter_stats):
+    for record in _iter_json_lines(data_paths, desc=f"{dataset_name} TACRED 样本", stats=iter_stats):
         tokens = record.get("tokens", [])
         if not isinstance(tokens, list):
             continue
@@ -3217,7 +3253,7 @@ def _run_re_dataset_conversion(
         "fewrel_4": (convert_fewrel_4_schema, convert_fewrel_4_inputs),
         "fewrel": (None, convert_fewrel_inputs),
         "semeval2010": (convert_semeval2010_schema, convert_semeval2010_inputs),
-        "traced": (convert_traced_schema, convert_traced_inputs),
+        "tacred": (convert_tacred_schema, convert_tacred_inputs),
         "gids": (convert_gids_schema, convert_gids_inputs),
         "nyt11": (convert_nyt11_schema, convert_nyt11_inputs),
         "new_york_times_re": (convert_new_york_times_re_schema, convert_new_york_times_re_inputs),
@@ -3254,10 +3290,10 @@ def _run_re_dataset_conversion(
         [str(path) for path in data_files],
         [str(path) for path in label_files],
     )
-    if format_key == "traced" and not schema_paths and label_files:
+    if format_key == "tacred" and not schema_paths and label_files:
         schema_paths = label_files
         LOGGER.debug(
-            "traced 未找到 schema_path，使用 label_files 作为 schema 来源: %s",
+            "tacred 未找到 schema_path，使用 label_files 作为 schema 来源: %s",
             [str(path) for path in schema_paths],
         )
     if format_key == "semeval2010":
