@@ -1,0 +1,636 @@
+{
+  "dataset": "instructIE_zh",
+  "language": "zh",
+  "entities": [
+    "专业",
+    "事件",
+    "产品",
+    "人物",
+    "人物/组织",
+    "医学",
+    "地理地区",
+    "天文对象类型",
+    "度量",
+    "建筑结构",
+    "建筑结构/地理地区",
+    "文本",
+    "时间",
+    "生物",
+    "组织",
+    "组织/地理地区",
+    "运输",
+    "运输/地理地区"
+  ],
+  "relationships": [
+    {
+      "head_entity": "事件",
+      "tail_entity": "人物/组织",
+      "rel_type": "参与者"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "地理地区",
+      "rel_type": "发生地点"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "时间",
+      "rel_type": "发生时间"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "事件",
+      "rel_type": "别名"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "人物/组织",
+      "rel_type": "赞助者"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "度量",
+      "rel_type": "伤亡人数"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "文本",
+      "rel_type": "起因"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "文本",
+      "rel_type": "导致"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "组织",
+      "rel_type": "主办方"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "专业",
+      "rel_type": "所获奖项"
+    },
+    {
+      "head_entity": "事件",
+      "tail_entity": "人物/组织",
+      "rel_type": "获胜者"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "产品",
+      "rel_type": "别名"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "产品",
+      "rel_type": "组成"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "产品",
+      "rel_type": "生成物"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "地理地区",
+      "rel_type": "产地"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "人物/组织",
+      "rel_type": "发现者或发明者"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "文本",
+      "rel_type": "名称由来"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "文本",
+      "rel_type": "用途"
+    },
+    {
+      "head_entity": "建筑结构/地理地区",
+      "tail_entity": "地理地区",
+      "rel_type": "位于"
+    },
+    {
+      "head_entity": "建筑结构",
+      "tail_entity": "建筑结构",
+      "rel_type": "别名"
+    },
+    {
+      "head_entity": "建筑结构",
+      "tail_entity": "时间",
+      "rel_type": "创建时间"
+    },
+    {
+      "head_entity": "建筑结构",
+      "tail_entity": "度量",
+      "rel_type": "宽度"
+    },
+    {
+      "head_entity": "建筑结构",
+      "tail_entity": "度量",
+      "rel_type": "长度"
+    },
+    {
+      "head_entity": "建筑结构",
+      "tail_entity": "人物/组织",
+      "rel_type": "创建者"
+    },
+    {
+      "head_entity": "建筑结构",
+      "tail_entity": "度量",
+      "rel_type": "高度"
+    },
+    {
+      "head_entity": "建筑结构",
+      "tail_entity": "度量",
+      "rel_type": "面积"
+    },
+    {
+      "head_entity": "建筑结构",
+      "tail_entity": "专业",
+      "rel_type": "成就"
+    },
+    {
+      "head_entity": "建筑结构",
+      "tail_entity": "文本",
+      "rel_type": "名称由来"
+    },
+    {
+      "head_entity": "地理地区",
+      "tail_entity": "地理地区",
+      "rel_type": "位于"
+    },
+    {
+      "head_entity": "地理地区",
+      "tail_entity": "地理地区",
+      "rel_type": "别名"
+    },
+    {
+      "head_entity": "地理地区",
+      "tail_entity": "度量",
+      "rel_type": "人口"
+    },
+    {
+      "head_entity": "地理地区",
+      "tail_entity": "地理地区",
+      "rel_type": "行政中心"
+    },
+    {
+      "head_entity": "地理地区",
+      "tail_entity": "度量",
+      "rel_type": "面积"
+    },
+    {
+      "head_entity": "地理地区",
+      "tail_entity": "度量",
+      "rel_type": "长度"
+    },
+    {
+      "head_entity": "地理地区",
+      "tail_entity": "度量",
+      "rel_type": "宽度"
+    },
+    {
+      "head_entity": "地理地区",
+      "tail_entity": "度量",
+      "rel_type": "海拔"
+    },
+    {
+      "head_entity": "组织/地理地区",
+      "tail_entity": "地理地区",
+      "rel_type": "位于"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "组织",
+      "rel_type": "别名"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "组织",
+      "rel_type": "子组织"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "组织",
+      "rel_type": "成立时间"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "组织",
+      "rel_type": "产品"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "组织",
+      "rel_type": "成员"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "组织",
+      "rel_type": "创办者"
+    },
+    {
+      "head_entity": "组织",
+      "tail_entity": "组织",
+      "rel_type": "解散时间"
+    },
+    {
+      "head_entity": "医学",
+      "tail_entity": "医学",
+      "rel_type": "症状"
+    },
+    {
+      "head_entity": "医学",
+      "tail_entity": "医学",
+      "rel_type": "别名"
+    },
+    {
+      "head_entity": "医学",
+      "tail_entity": "文本",
+      "rel_type": "发病部位"
+    },
+    {
+      "head_entity": "医学",
+      "tail_entity": "文本",
+      "rel_type": "可能后果"
+    },
+    {
+      "head_entity": "医学",
+      "tail_entity": "文本",
+      "rel_type": "病因"
+    },
+    {
+      "head_entity": "医学",
+      "tail_entity": "医学",
+      "rel_type": "用药"
+    },
+    {
+      "head_entity": "医学",
+      "tail_entity": "医学",
+      "rel_type": "疗法"
+    },
+    {
+      "head_entity": "医学",
+      "tail_entity": "文本",
+      "rel_type": "传播方式"
+    },
+    {
+      "head_entity": "天文对象类型",
+      "tail_entity": "天文对象类型",
+      "rel_type": "别名"
+    },
+    {
+      "head_entity": "天文对象类型",
+      "tail_entity": "天文对象类型",
+      "rel_type": "属于"
+    },
+    {
+      "head_entity": "天文对象类型",
+      "tail_entity": "时间",
+      "rel_type": "发现时间"
+    },
+    {
+      "head_entity": "天文对象类型",
+      "tail_entity": "人物/组织",
+      "rel_type": "发现者或发明者"
+    },
+    {
+      "head_entity": "天文对象类型",
+      "tail_entity": "文本",
+      "rel_type": "名称由来"
+    },
+    {
+      "head_entity": "天文对象类型",
+      "tail_entity": "度量",
+      "rel_type": "绝对星等"
+    },
+    {
+      "head_entity": "天文对象类型",
+      "tail_entity": "度量",
+      "rel_type": "直径"
+    },
+    {
+      "head_entity": "天文对象类型",
+      "tail_entity": "度量",
+      "rel_type": "质量"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "产品",
+      "rel_type": "别名"
+    },
+    {
+      "head_entity": "生物",
+      "tail_entity": "度量",
+      "rel_type": "长度"
+    },
+    {
+      "head_entity": "生物",
+      "tail_entity": "度量",
+      "rel_type": "宽度"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "组织",
+      "rel_type": "品牌"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "产品",
+      "rel_type": "材料"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "地理地区",
+      "rel_type": "产地"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "组织",
+      "rel_type": "制造商"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "人物/组织",
+      "rel_type": "发现者或发明者"
+    },
+    {
+      "head_entity": "运输/地理地区",
+      "tail_entity": "地理地区",
+      "rel_type": "位于"
+    },
+    {
+      "head_entity": "运输",
+      "tail_entity": "时间",
+      "rel_type": "成立或创建时间"
+    },
+    {
+      "head_entity": "运输",
+      "tail_entity": "运输",
+      "rel_type": "线路"
+    },
+    {
+      "head_entity": "运输",
+      "tail_entity": "时间",
+      "rel_type": "开通时间"
+    },
+    {
+      "head_entity": "运输",
+      "tail_entity": "地理地区",
+      "rel_type": "途经"
+    },
+    {
+      "head_entity": "运输",
+      "tail_entity": "度量",
+      "rel_type": "面积"
+    },
+    {
+      "head_entity": "运输",
+      "tail_entity": "运输",
+      "rel_type": "别名"
+    },
+    {
+      "head_entity": "运输",
+      "tail_entity": "度量",
+      "rel_type": "长度"
+    },
+    {
+      "head_entity": "运输",
+      "tail_entity": "度量",
+      "rel_type": "宽度"
+    },
+    {
+      "head_entity": "运输",
+      "tail_entity": "度量",
+      "rel_type": "车站等级"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "人物",
+      "rel_type": "作者"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "时间",
+      "rel_type": "出版时间"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "产品",
+      "rel_type": "别名"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "地理地区",
+      "rel_type": "产地"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "产品",
+      "rel_type": "改编自"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "人物/组织",
+      "rel_type": "演员"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "组织",
+      "rel_type": "出版商"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "专业",
+      "rel_type": "成就"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "人物/组织",
+      "rel_type": "表演者"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "人物/组织",
+      "rel_type": "导演"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "人物/组织",
+      "rel_type": "制片人"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "人物/组织",
+      "rel_type": "编剧"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "产品",
+      "rel_type": "曲目"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "人物/组织",
+      "rel_type": "作曲者"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "人物/组织",
+      "rel_type": "开发者"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "人物/组织",
+      "rel_type": "作词者"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "组织",
+      "rel_type": "制作商"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "度量",
+      "rel_type": "票房"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "度量",
+      "rel_type": "时长"
+    },
+    {
+      "head_entity": "产品",
+      "tail_entity": "组织",
+      "rel_type": "平台"
+    },
+    {
+      "head_entity": "生物",
+      "tail_entity": "地理地区",
+      "rel_type": "分布"
+    },
+    {
+      "head_entity": "生物",
+      "tail_entity": "地理地区",
+      "rel_type": "父级分类单元"
+    },
+    {
+      "head_entity": "生物",
+      "tail_entity": "度量",
+      "rel_type": "长度"
+    },
+    {
+      "head_entity": "生物",
+      "tail_entity": "生物",
+      "rel_type": "别名"
+    },
+    {
+      "head_entity": "生物",
+      "tail_entity": "生物",
+      "rel_type": "学名"
+    },
+    {
+      "head_entity": "生物",
+      "tail_entity": "度量",
+      "rel_type": "重量"
+    },
+    {
+      "head_entity": "生物",
+      "tail_entity": "度量",
+      "rel_type": "宽度"
+    },
+    {
+      "head_entity": "生物",
+      "tail_entity": "度量",
+      "rel_type": "高度"
+    },
+    {
+      "head_entity": "生物",
+      "tail_entity": "文本",
+      "rel_type": "主要食物来源"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "人物",
+      "rel_type": "别名"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "地理地区",
+      "rel_type": "出生地点"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "时间",
+      "rel_type": "出生日期"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "地理地区",
+      "rel_type": "死亡地点"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "地理地区",
+      "rel_type": "国籍"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "专业",
+      "rel_type": "职业"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "产品",
+      "rel_type": "作品"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "专业",
+      "rel_type": "成就"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "地理地区",
+      "rel_type": "籍贯"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "专业",
+      "rel_type": "职务"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "人物",
+      "rel_type": "配偶"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "人物",
+      "rel_type": "父母"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "组织",
+      "rel_type": "所属组织"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "时间",
+      "rel_type": "死亡日期"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "人物",
+      "rel_type": "兄弟姊妹"
+    }
+  ]
+}

@@ -1,0 +1,391 @@
+公开数据集转换汇总信息
+生成时间: 2026-01-25 22:44:24
+
+数据集总数: 22
+RE 总数: 15 (RE-zh: 6 / RE-en: 9)
+EE 总数: 7 (EE-zh: 4 / EE-en: 3)
+Schema 总条目数: 689
+样本总数(输出): 596745
+原始记录总数(输入): 800321
+
+各数据集明细:
+- 数据集: instructIE_en
+  任务/语言/格式: re/en/instructie
+  schema 条目: 123 (roles: 0)
+  schema 来源: external
+  输出样本数: 4667
+  原始记录数: 188679
+  samples_limit: 0
+  include_input: False
+  relation_types(90): absolute magnitude, achievement, alternative name, ancestral home, area, author, awards, based on, box office, brand, capital, cast member, casualties, class of station, composer, composition, connecting line, country of citizenship, country of origin, creation time, creator, date of birth, date of death, date of incorporation, date of official opening, developer, diameter, director, discoverer or inventor, disease transmission process, dissolution time, distribution, drug or therapy used for treatment, duration, elevation above sea level, etiology, founded by, has cause, has effect, has subsidiary, has use, height, inception, length, located in, lyrics by, made from material, main food source, manufacturer, mass, member, member of, named after, occupation, occurrence time, of, organizer, original broadcaster, parent, parent taxon, participant, pass, pathogenic site, performer, place of birth, place of death, platform, population, position held, possible consequences, possible treatment, producer, product, product or material produced, production company, publication date, publisher, scene, screenwriter, sibling, sponsor, spouse, symptoms and signs, taxon name, time of discovery, tracklist, weight, width, winner, work
+  relation_types_source: schema_file
+  relation_types_llm_generated: False (None)
+  support(min/median/p90/p99/max): 1/32/108.0/192.0/197
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_instructIE_en.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_instructIE_en.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/InstructIE-en/train_en.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/InstructIE-en/valid_en.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/InstructIE-en/test_en.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/InstructIE-en/schema_en.json
+
+- 数据集: instructIE_zh
+  任务/语言/格式: re/zh/instructie
+  schema 条目: 122 (roles: 0)
+  schema 来源: external
+  输出样本数: 4952
+  原始记录数: 173477
+  samples_limit: 0
+  include_input: False
+  relation_types(89): 主办方, 主要食物来源, 产品, 产地, 人口, 传播方式, 伤亡人数, 位于, 作品, 作曲者, 作者, 作词者, 兄弟姊妹, 出版商, 出版时间, 出生地点, 出生日期, 分布, 创办者, 创建时间, 创建者, 别名, 制作商, 制片人, 制造商, 参与者, 发现时间, 发现者或发明者, 发生地点, 发生时间, 发病部位, 可能后果, 名称由来, 品牌, 国籍, 子组织, 学名, 宽度, 导演, 导致, 属于, 平台, 开发者, 开通时间, 成员, 成就, 成立或创建时间, 成立时间, 所属组织, 所获奖项, 改编自, 时长, 曲目, 材料, 死亡地点, 死亡日期, 海拔, 演员, 父母, 父级分类单元, 生成物, 用药, 用途, 疗法, 病因, 症状, 直径, 票房, 籍贯, 线路, 组成, 绝对星等, 编剧, 职业, 职务, 获胜者, 行政中心, 表演者, 解散时间, 质量, 赞助者, 起因, 车站等级, 途经, 配偶, 重量, 长度, 面积, 高度
+  relation_types_source: schema_file
+  relation_types_llm_generated: False (None)
+  support(min/median/p90/p99/max): 1/29.5/128.0/192.0/197
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_instructIE_zh.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_instructIE_zh.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/InstructIE-zh/train_zh.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/InstructIE-zh/valid_zh.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/InstructIE-zh/test_zh.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/InstructIE-zh/schema_zh.json
+
+- 数据集: duIE_zh
+  任务/语言/格式: re/zh/duie
+  schema 条目: 55 (roles: 0)
+  schema 来源: external
+  输出样本数: 286426
+  原始记录数: 191967
+  samples_limit: 0
+  include_input: False
+  relation_types(48): 丈夫, 上映时间, 专业代码, 主持人, 主演, 主角, 主题曲, 人口数量, 代言人, 作曲, 作者, 作词, 修业年限, 出品公司, 创始人, 制片人, 占地面积, 号, 嘉宾, 国籍, 妻子, 官方语言, 导演, 总部地点, 成立日期, 所在城市, 所属专辑, 改编自, 朝代, 校长, 歌手, 母亲, 毕业院校, 气候, 注册资本, 海拔, 父亲, 祖籍, 票房, 简称, 编剧, 获奖, 董事长, 邮政编码, 配音, 面积, 饰演, 首都
+  relation_types_source: schema_file
+  relation_types_llm_generated: False (None)
+  support(min/median/p90/p99/max): 21/2983/13699.0/27689.0/27689
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_duIE_zh.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_duIE_zh.json
+  data_files(2): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/duIE/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/duIE/dev.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/duIE/schema.json
+
+- 数据集: CMeIE
+  任务/语言/格式: re/zh/cmeie
+  schema 条目: 53 (roles: 0)
+  schema 来源: external
+  输出样本数: 27386
+  原始记录数: 22406
+  samples_limit: 0
+  include_input: False
+  relation_types(44): 临床表现, 传播途径, 侵及周围组织转移的症状, 内窥镜检查, 化疗, 发病年龄, 发病性别倾向, 发病机制, 发病率, 发病部位, 同义词, 外侵部位, 多发地区, 多发季节, 多发群体, 实验室检查, 就诊科室, 并发症, 影像学检查, 手术治疗, 放射治疗, 死亡率, 治疗后症状, 病史, 病因, 病理分型, 病理生理, 相关（导致）, 相关（症状）, 相关（转化）, 筛查, 组织学检查, 药物治疗, 转移部位, 辅助检查, 辅助治疗, 遗传因素, 鉴别诊断, 阶段, 预后状况, 预后生存率, 预防, 风险评估因素, 高危因素
+  relation_types_source: schema_file
+  relation_types_llm_generated: False (None)
+  support(min/median/p90/p99/max): 2/178/1363.0/4762.0/4762
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_CMeIE_zh.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_CMeIE_zh.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/CMeIE/CMeIE_train.jsonl, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/CMeIE/CMeIE_dev.jsonl, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/CMeIE/CMeIE_test.jsonl
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/CMeIE/53_schemas.jsonl
+
+- 数据集: COAE2016
+  任务/语言/格式: re/zh/coae2016
+  schema 条目: 18 (roles: 0)
+  schema 来源: external
+  输出样本数: 971
+  原始记录数: 971
+  samples_limit: 0
+  include_input: False
+  relation_types(18): _出生地_, _出生日期_, _创始人_, _员工数_, _子女_, _总部地点_, _毕业院校_, _配偶_, _高管_, 出生地, 出生日期, 创始人, 员工数, 子女, 总部地点, 毕业院校, 配偶, 高管
+  relation_types_source: schema_file
+  relation_types_llm_generated: False (None)
+  support(min/median/p90/p99/max): 10/100/200.0/200.0/200
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_COAE2016_zh.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_COAE2016_zh.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/COAE2016/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/COAE2016/dev.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/COAE2016/test.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/COAE2016/schema.json
+
+- 数据集: IPRE
+  任务/语言/格式: re/zh/ipre
+  schema 条目: 70 (roles: 0)
+  schema 来源: external
+  输出样本数: 3340
+  原始记录数: 3340
+  samples_limit: 0
+  include_input: False
+  relation_types(70): NA, _NA_, _侄女_, _侄子_, _儿媳_, _儿子_, _公公_, _前夫_, _前妻_, _叔伯_, _哥哥_, _喜欢_, _外公_, _女儿_, _女婿_, _奶奶_, _妹妹_, _姐姐_, _姑妈_, _嫂子_, _孙女_, _孙子_, _学生_, _岳父_, _弟弟_, _恋人_, _朋友_, _未婚夫_, _未婚妻_, _爷爷_, _现夫_, _现妻_, _生母_, _生父_, _老师_, _舅舅_, 侄女, 侄子, 儿媳, 儿子, 公公, 前夫, 前妻, 叔伯, 哥哥, 喜欢, 外公, 女儿, 女婿, 奶奶, 妹妹, 姐姐, 姑妈, 嫂子, 孙女, 孙子, 学生, 岳父, 弟弟, 恋人, 朋友, 未婚夫, 未婚妻, 爷爷, 现夫, 现妻, 生母, 生父, 老师, 舅舅
+  relation_types_source: schema_file
+  relation_types_llm_generated: False (None)
+  support(min/median/p90/p99/max): 1/15/286.0/698.0/698
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_IPRE_zh.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_IPRE_zh.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/IPRE/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/IPRE/dev.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/IPRE/test.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/IPRE/schema.json
+
+- 数据集: SKE2020
+  任务/语言/格式: re/zh/ske2020
+  schema 条目: 49 (roles: 0)
+  schema 来源: external
+  输出样本数: 6136
+  原始记录数: 3601
+  samples_limit: 0
+  include_input: False
+  relation_types(48): 丈夫, 上映时间, 专业代码, 主持人, 主演, 主角, 人口数量, 作曲, 作者, 作词, 出品公司, 出版社, 出生地, 出生日期, 创始人, 制片人, 占地面积, 号, 嘉宾, 国籍, 妻子, 字, 官方语言, 导演, 总部地点, 成立日期, 所在城市, 所属专辑, 改编自, 朝代, 歌手, 母亲, 毕业院校, 民族, 气候, 注册资本, 海拔, 父亲, 目, 祖籍, 简称, 编剧, 董事长, 身高, 连载网站, 邮政编码, 面积, 首都
+  relation_types_source: schema_file
+  relation_types_llm_generated: False (None)
+  support(min/median/p90/p99/max): 1/65/389.0/683.0/683
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_SKE2020_zh.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_SKE2020_zh.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/SKE2020/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/SKE2020/dev.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/SKE2020/test.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/SKE2020/schema.json
+
+- 数据集: ADE_corpus
+  任务/语言/格式: re/en/ade_corpus
+  schema 条目: 1 (roles: 0)
+  schema 来源: external
+  输出样本数: 4271
+  原始记录数: 4271
+  samples_limit: 0
+  include_input: False
+  relation_types(1): adverse effect
+  relation_types_source: schema_file
+  relation_types_llm_generated: False (None)
+  support(min/median/p90/p99/max): 4271/4271/4271.0/4271.0/4271
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_ADE_corpus_en.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_ADE_corpus_en.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/ADE_corpus/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/ADE_corpus/dev.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/ADE_corpus/test.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/ADE_corpus/schema.json
+
+- 数据集: GIDS
+  任务/语言/格式: re/en/gids
+  schema 条目: 4 (roles: 0)
+  schema 来源: external
+  输出样本数: 14248
+  原始记录数: 14249
+  samples_limit: 0
+  include_input: False
+  relation_types(4): education degree, education institution, place of birth, place of death
+  relation_types_source: schema_file
+  relation_types_llm_generated: False (None)
+  support(min/median/p90/p99/max): 2969/3412.5/4454.0/4454.0/4454
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_GIDS_en.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_GIDS_en.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/GIDS/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/GIDS/dev.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/GIDS/test.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/GIDS/schema.json
+
+- 数据集: NYT11
+  任务/语言/格式: re/en/nyt11
+  schema 条目: 12 (roles: 0)
+  schema 来源: external
+  输出样本数: 71031
+  原始记录数: 61273
+  samples_limit: 0
+  include_input: False
+  relation_types(12): administrative division of country, children, company, company founders, country capital, country of administrative divisions, location contains, nationality, neighborhood of, place lived, place of birth, place of death
+  relation_types_source: schema_file
+  relation_types_llm_generated: False (None)
+  support(min/median/p90/p99/max): 420/4863.0/6841.0/26950.0/26950
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_NYT11_en.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_NYT11_en.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/NYT11/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/NYT11/dev.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/NYT11/test.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/NYT11/schema.json
+
+- 数据集: New-York-Times-RE
+  任务/语言/格式: re/en/new_york_times_re
+  schema 条目: 24 (roles: 0)
+  schema 来源: external
+  输出样本数: 93644
+  原始记录数: 64372
+  samples_limit: 0
+  include_input: False
+  relation_types(24): administrative division of country, children, company advisors, company founded place, company founders, company industry, company major shareholders, company shareholder among major shareholders, country of administrative divisions, country of capital, ethnicity, ethnicity of people, geographic distribution, location contains, nationality, neighborhood of, person of company, place lived, place of birth, place of death, profession, religion, sports team location of teams, sports team of location
+  relation_types_source: schema_file
+  relation_types_llm_generated: False (None)
+  support(min/median/p90/p99/max): 1/15/1812.0/7015.0/37425
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_New-York-Times-RE_en.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_New-York-Times-RE_en.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/New-York-Times-RE/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/New-York-Times-RE/dev.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/New-York-Times-RE/test.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/New-York-Times-RE/schema.json
+
+- 数据集: SciERC
+  任务/语言/格式: re/en/scierc
+  schema 条目: 7 (roles: 0)
+  schema 来源: external
+  输出样本数: 3026
+  原始记录数: 1950
+  samples_limit: 0
+  include_input: False
+  relation_types(7): compare, conjunction, evaluate for, feature of, hyponym of, part of, used for
+  relation_types_source: schema_file
+  relation_types_llm_generated: False (None)
+  support(min/median/p90/p99/max): 203/230/1437.0/1437.0/1437
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_SciERC_en.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_SciERC_en.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SciERC/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SciERC/dev.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SciERC/test.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SciERC/schema.json
+
+- 数据集: conll04
+  任务/语言/格式: re/en/conll04
+  schema 条目: 5 (roles: 0)
+  schema 来源: external
+  输出样本数: 1561
+  原始记录数: 1391
+  samples_limit: 0
+  include_input: False
+  relation_types(5): Kill, Live_In, Located_In, OrgBased_In, Work_For
+  relation_types_source: schema_file
+  relation_types_llm_generated: False (None)
+  support(min/median/p90/p99/max): 226/316/399.0/399.0/399
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_conll04_en.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_conll04_en.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/conll04/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/conll04/dev.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/conll04/test.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/conll04/schema.json
+
+- 数据集: kbp37
+  任务/语言/格式: re/en/kbp37
+  schema 条目: 18 (roles: 0)
+  schema 来源: external
+  输出样本数: 20893
+  原始记录数: 21039
+  samples_limit: 0
+  include_input: False
+  relation_types(18): alternate names, cities of residence, city of headquarters, countries of residence, country of birth, country of headquarters, else, employee of, founded, founded by, members, origin, spouse, state or province of headquarters, state or provinces of residence, subsidiaries, title of person, top members employees
+  relation_types_source: schema_file
+  relation_types_llm_generated: False (None)
+  support(min/median/p90/p99/max): 342/905.5/2149.0/4279.0/4279
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_kbp37_en.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_kbp37_en.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/kbp37/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/kbp37/dev.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/kbp37/test.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/kbp37/schema.json
+
+- 数据集: SemEval2010_task8
+  任务/语言/格式: re/en/semeval2010
+  schema 条目: 11 (roles: 0)
+  schema 来源: external
+  输出样本数: 10689
+  原始记录数: 10717
+  samples_limit: 0
+  include_input: False
+  relation_types(11): Cause-Effect, Component-Whole, Content-Container, Entity-Destination, Entity-Origin, Instrument-Agency, Member-Collection, Message-Topc, Message-Topic, Other, Product-Producer
+  relation_types_source: schema_file
+  relation_types_llm_generated: False (None)
+  support(min/median/p90/p99/max): 654/960.0/1325.0/1862.0/1862
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_SemEval2010_task8_en.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_SemEval2010_task8_en.json
+  data_files(2): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_training/TRAIN_FILE.TXT, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_testing/TEST_FILE.txt
+  schema_paths(9): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/answer_key1.txt, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/answer_key2.txt, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/answer_key3.txt, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/answer_key5.txt, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer1.txt, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer2.txt, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer3.txt, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer4.txt, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer5.txt
+
+- 数据集: CASIE
+  任务/语言/格式: ee/en/casie
+  schema 条目: 5 (roles: 26)
+  schema 来源: external
+  输出样本数: 6001
+  原始记录数: 6001
+  samples_limit: 0
+  include_input: False
+  relation_types(0): NA (EE)
+  relation_types_source: na
+  relation_types_llm_generated: NA (EE)
+  support(min/median/p90/p99/max): 923/1161/1466.0/1466.0/1466
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_schema_CASIE_en.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_input_CASIE_en.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/CASIE/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/CASIE/dev.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/CASIE/test.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/CASIE/schema.json
+
+- 数据集: CrudeOilNews
+  任务/语言/格式: ee/en/crudeoilnews
+  schema 条目: 18 (roles: 20)
+  schema 来源: external
+  输出样本数: 563
+  原始记录数: 356
+  samples_limit: 0
+  include_input: False
+  relation_types(0): NA (EE)
+  relation_types_source: na
+  relation_types_llm_generated: NA (EE)
+  support(min/median/p90/p99/max): 1/9.5/143.0/176.0/176
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_schema_CrudeOilNews_en.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_input_CrudeOilNews_en.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/CrudeOilNews/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/CrudeOilNews/dev.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/CrudeOilNews/test.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/CrudeOilNews/schema.json
+
+- 数据集: PHEE
+  任务/语言/格式: ee/en/phee
+  schema 条目: 2 (roles: 16)
+  schema 来源: external
+  输出样本数: 4825
+  原始记录数: 4825
+  samples_limit: 0
+  include_input: False
+  relation_types(0): NA (EE)
+  relation_types_source: na
+  relation_types_llm_generated: NA (EE)
+  support(min/median/p90/p99/max): 451/2412.5/4374.0/4374.0/4374
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_schema_PHEE_en.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_input_PHEE_en.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/PHEE/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/PHEE/dev.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/PHEE/test.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/PHEE/schema.json
+
+- 数据集: ccf_law
+  任务/语言/格式: ee/zh/ccf_law
+  schema 条目: 9 (roles: 21)
+  schema 来源: external
+  输出样本数: 4151
+  原始记录数: 971
+  samples_limit: 0
+  include_input: False
+  relation_types(0): NA (EE)
+  relation_types_source: na
+  relation_types_llm_generated: NA (EE)
+  support(min/median/p90/p99/max): 111/218/1039.0/1039.0/1039
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_schema_ccf_law_zh.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_input_ccf_law_zh.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/ccf_law/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/ccf_law/dev.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/ccf_law/test.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/ccf_law/schema.json
+
+- 数据集: DuEE1.0
+  任务/语言/格式: ee/zh/duee1.0
+  schema 条目: 65 (roles: 121)
+  schema 来源: external
+  输出样本数: 15519
+  原始记录数: 13400
+  samples_limit: 0
+  include_input: False
+  relation_types(0): NA (EE)
+  relation_types_source: na
+  relation_types_llm_generated: NA (EE)
+  support(min/median/p90/p99/max): 28/136/409.0/2263.0/2263
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_schema_DuEE1.0_zh.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_input_DuEE1.0_zh.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/DuEE1.0/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/DuEE1.0/dev.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/DuEE1.0/test.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/DuEE1.0/schema.json
+
+- 数据集: DuEE-fin
+  任务/语言/格式: ee/zh/duee_fin
+  schema 条目: 13 (roles: 60)
+  schema 来源: external
+  输出样本数: 9242
+  原始记录数: 8186
+  samples_limit: 0
+  include_input: False
+  relation_types(0): NA (EE)
+  relation_types_source: na
+  relation_types_llm_generated: NA (EE)
+  support(min/median/p90/p99/max): 175/698/1043.0/1453.0/1453
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_schema_DuEE-fin_zh.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_input_DuEE-fin_zh.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/DuEE-fin/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/DuEE-fin/dev.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/DuEE-fin/test.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/DuEE-fin/schema.json
+
+- 数据集: FewFC
+  任务/语言/格式: ee/zh/fewfc
+  schema 条目: 5 (roles: 29)
+  schema 来源: external
+  输出样本数: 3203
+  原始记录数: 2879
+  samples_limit: 0
+  include_input: False
+  relation_types(0): NA (EE)
+  relation_types_source: na
+  relation_types_llm_generated: NA (EE)
+  support(min/median/p90/p99/max): 453/690/802.0/802.0/802
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_schema_FewFC_zh.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_input_FewFC_zh.json
+  data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/FewFC/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/FewFC/dev.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/FewFC/test.json
+  schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/FewFC/schema.json
+
+Schema/关系类型汇总:
+  有 schema(22): instructIE_en, instructIE_zh, duIE_zh, CMeIE, COAE2016, IPRE, SKE2020, ADE_corpus, GIDS, NYT11, New-York-Times-RE, SciERC, conll04, kbp37, SemEval2010_task8, CASIE, CrudeOilNews, PHEE, ccf_law, DuEE1.0, DuEE-fin, FewFC
+  无 schema(0): None
+  有关系类型(15): instructIE_en, instructIE_zh, duIE_zh, CMeIE, COAE2016, IPRE, SKE2020, ADE_corpus, GIDS, NYT11, New-York-Times-RE, SciERC, conll04, kbp37, SemEval2010_task8
+  无关系类型(0): None
+  模型生成关系类型(0): None

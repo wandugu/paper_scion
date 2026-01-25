@@ -1,0 +1,42 @@
+{
+  "dataset": "SciERC",
+  "language": "en",
+  "entities": [],
+  "relationships": [
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "conjunction"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "feature of"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "hyponym of"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "used for"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "part of"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "compare"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "evaluate for"
+    }
+  ]
+}

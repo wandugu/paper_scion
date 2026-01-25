@@ -1,0 +1,70 @@
+{
+  "dataset": "PHEE",
+  "language": "en",
+  "event_types": [
+    "adverse event",
+    "potential therapeutic event"
+  ],
+  "roles": [
+    "Combination.Drug",
+    "Effect",
+    "Subject",
+    "Subject.Age",
+    "Subject.Disorder",
+    "Subject.Gender",
+    "Subject.Population",
+    "Subject.Race",
+    "Treatment",
+    "Treatment.Disorder",
+    "Treatment.Dosage",
+    "Treatment.Drug",
+    "Treatment.Duration",
+    "Treatment.Freq",
+    "Treatment.Route",
+    "Treatment.Time_elapsed"
+  ],
+  "events": [
+    {
+      "event_type": "adverse event",
+      "roles": [
+        "Combination.Drug",
+        "Effect",
+        "Subject",
+        "Subject.Age",
+        "Subject.Disorder",
+        "Subject.Gender",
+        "Subject.Population",
+        "Subject.Race",
+        "Treatment",
+        "Treatment.Disorder",
+        "Treatment.Dosage",
+        "Treatment.Drug",
+        "Treatment.Duration",
+        "Treatment.Freq",
+        "Treatment.Route",
+        "Treatment.Time_elapsed"
+      ]
+    },
+    {
+      "event_type": "potential therapeutic event",
+      "roles": [
+        "Combination.Drug",
+        "Effect",
+        "Subject",
+        "Subject.Age",
+        "Subject.Disorder",
+        "Subject.Gender",
+        "Subject.Population",
+        "Subject.Race",
+        "Treatment",
+        "Treatment.Disorder",
+        "Treatment.Dosage",
+        "Treatment.Drug",
+        "Treatment.Duration",
+        "Treatment.Freq",
+        "Treatment.Route",
+        "Treatment.Time_elapsed"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,309 @@
+{
+  "dataset": "duIE_zh",
+  "language": "zh",
+  "entities": [
+    "Date",
+    "Number",
+    "Text",
+    "人物",
+    "企业",
+    "企业/品牌",
+    "作品",
+    "历史人物",
+    "国家",
+    "图书作品",
+    "地点",
+    "城市",
+    "奖项",
+    "娱乐人物",
+    "学校",
+    "学科专业",
+    "影视作品",
+    "文学作品",
+    "景点",
+    "机构",
+    "歌曲",
+    "气候",
+    "电视综艺",
+    "行政区",
+    "语言",
+    "音乐专辑"
+  ],
+  "relationships": [
+    {
+      "head_entity": "人物",
+      "tail_entity": "学校",
+      "rel_type": "毕业院校"
+    },
+    {
+      "head_entity": "电视综艺",
+      "tail_entity": "人物",
+      "rel_type": "嘉宾"
+    },
+    {
+      "head_entity": "娱乐人物",
+      "tail_entity": "人物",
+      "rel_type": "配音"
+    },
+    {
+      "head_entity": "娱乐人物",
+      "tail_entity": "影视作品",
+      "rel_type": "配音"
+    },
+    {
+      "head_entity": "影视作品",
+      "tail_entity": "歌曲",
+      "rel_type": "主题曲"
+    },
+    {
+      "head_entity": "企业/品牌",
+      "tail_entity": "人物",
+      "rel_type": "代言人"
+    },
+    {
+      "head_entity": "歌曲",
+      "tail_entity": "音乐专辑",
+      "rel_type": "所属专辑"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "人物",
+      "rel_type": "父亲"
+    },
+    {
+      "head_entity": "图书作品",
+      "tail_entity": "人物",
+      "rel_type": "作者"
+    },
+    {
+      "head_entity": "影视作品",
+      "tail_entity": "Date",
+      "rel_type": "上映时间"
+    },
+    {
+      "head_entity": "影视作品",
+      "tail_entity": "地点",
+      "rel_type": "上映时间"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "人物",
+      "rel_type": "母亲"
+    },
+    {
+      "head_entity": "学科专业",
+      "tail_entity": "Text",
+      "rel_type": "专业代码"
+    },
+    {
+      "head_entity": "机构",
+      "tail_entity": "Number",
+      "rel_type": "占地面积"
+    },
+    {
+      "head_entity": "行政区",
+      "tail_entity": "Text",
+      "rel_type": "邮政编码"
+    },
+    {
+      "head_entity": "影视作品",
+      "tail_entity": "Number",
+      "rel_type": "票房"
+    },
+    {
+      "head_entity": "影视作品",
+      "tail_entity": "地点",
+      "rel_type": "票房"
+    },
+    {
+      "head_entity": "企业",
+      "tail_entity": "Number",
+      "rel_type": "注册资本"
+    },
+    {
+      "head_entity": "文学作品",
+      "tail_entity": "人物",
+      "rel_type": "主角"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "人物",
+      "rel_type": "妻子"
+    },
+    {
+      "head_entity": "影视作品",
+      "tail_entity": "人物",
+      "rel_type": "编剧"
+    },
+    {
+      "head_entity": "行政区",
+      "tail_entity": "气候",
+      "rel_type": "气候"
+    },
+    {
+      "head_entity": "歌曲",
+      "tail_entity": "人物",
+      "rel_type": "歌手"
+    },
+    {
+      "head_entity": "娱乐人物",
+      "tail_entity": "奖项",
+      "rel_type": "获奖"
+    },
+    {
+      "head_entity": "娱乐人物",
+      "tail_entity": "作品",
+      "rel_type": "获奖"
+    },
+    {
+      "head_entity": "娱乐人物",
+      "tail_entity": "Date",
+      "rel_type": "获奖"
+    },
+    {
+      "head_entity": "娱乐人物",
+      "tail_entity": "Number",
+      "rel_type": "获奖"
+    },
+    {
+      "head_entity": "学校",
+      "tail_entity": "人物",
+      "rel_type": "校长"
+    },
+    {
+      "head_entity": "企业",
+      "tail_entity": "人物",
+      "rel_type": "创始人"
+    },
+    {
+      "head_entity": "国家",
+      "tail_entity": "城市",
+      "rel_type": "首都"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "人物",
+      "rel_type": "丈夫"
+    },
+    {
+      "head_entity": "历史人物",
+      "tail_entity": "Text",
+      "rel_type": "朝代"
+    },
+    {
+      "head_entity": "娱乐人物",
+      "tail_entity": "人物",
+      "rel_type": "饰演"
+    },
+    {
+      "head_entity": "娱乐人物",
+      "tail_entity": "影视作品",
+      "rel_type": "饰演"
+    },
+    {
+      "head_entity": "行政区",
+      "tail_entity": "Number",
+      "rel_type": "面积"
+    },
+    {
+      "head_entity": "企业",
+      "tail_entity": "地点",
+      "rel_type": "总部地点"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "地点",
+      "rel_type": "祖籍"
+    },
+    {
+      "head_entity": "行政区",
+      "tail_entity": "Number",
+      "rel_type": "人口数量"
+    },
+    {
+      "head_entity": "影视作品",
+      "tail_entity": "人物",
+      "rel_type": "制片人"
+    },
+    {
+      "head_entity": "学科专业",
+      "tail_entity": "Number",
+      "rel_type": "修业年限"
+    },
+    {
+      "head_entity": "景点",
+      "tail_entity": "城市",
+      "rel_type": "所在城市"
+    },
+    {
+      "head_entity": "企业",
+      "tail_entity": "人物",
+      "rel_type": "董事长"
+    },
+    {
+      "head_entity": "歌曲",
+      "tail_entity": "人物",
+      "rel_type": "作词"
+    },
+    {
+      "head_entity": "影视作品",
+      "tail_entity": "作品",
+      "rel_type": "改编自"
+    },
+    {
+      "head_entity": "影视作品",
+      "tail_entity": "企业",
+      "rel_type": "出品公司"
+    },
+    {
+      "head_entity": "影视作品",
+      "tail_entity": "人物",
+      "rel_type": "导演"
+    },
+    {
+      "head_entity": "歌曲",
+      "tail_entity": "人物",
+      "rel_type": "作曲"
+    },
+    {
+      "head_entity": "影视作品",
+      "tail_entity": "人物",
+      "rel_type": "主演"
+    },
+    {
+      "head_entity": "电视综艺",
+      "tail_entity": "人物",
+      "rel_type": "主持人"
+    },
+    {
+      "head_entity": "机构",
+      "tail_entity": "Date",
+      "rel_type": "成立日期"
+    },
+    {
+      "head_entity": "机构",
+      "tail_entity": "Text",
+      "rel_type": "简称"
+    },
+    {
+      "head_entity": "地点",
+      "tail_entity": "Number",
+      "rel_type": "海拔"
+    },
+    {
+      "head_entity": "历史人物",
+      "tail_entity": "Text",
+      "rel_type": "号"
+    },
+    {
+      "head_entity": "人物",
+      "tail_entity": "国家",
+      "rel_type": "国籍"
+    },
+    {
+      "head_entity": "国家",
+      "tail_entity": "语言",
+      "rel_type": "官方语言"
+    }
+  ]
+}

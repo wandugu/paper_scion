@@ -1,0 +1,97 @@
+{
+  "dataset": "kbp37",
+  "language": "en",
+  "entities": [],
+  "relationships": [
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "cities of residence"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "top members employees"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "members"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "alternate names"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "origin"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "state or provinces of residence"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "title of person"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "spouse"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "city of headquarters"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "else"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "founded by"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "state or province of headquarters"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "employee of"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "countries of residence"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "country of birth"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "founded"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "subsidiaries"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "country of headquarters"
+    }
+  ]
+}

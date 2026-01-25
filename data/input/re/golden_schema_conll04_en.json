@@ -1,0 +1,36 @@
+{
+  "dataset": "conll04",
+  "language": "en",
+  "entities": [
+    "Loc",
+    "Org",
+    "Peop"
+  ],
+  "relationships": [
+    {
+      "head_entity": "Peop",
+      "tail_entity": "Org",
+      "rel_type": "Work_For"
+    },
+    {
+      "head_entity": "Org",
+      "tail_entity": "Loc",
+      "rel_type": "OrgBased_In"
+    },
+    {
+      "head_entity": "Peop",
+      "tail_entity": "Peop",
+      "rel_type": "Kill"
+    },
+    {
+      "head_entity": "Peop",
+      "tail_entity": "Loc",
+      "rel_type": "Live_In"
+    },
+    {
+      "head_entity": "Loc",
+      "tail_entity": "Loc",
+      "rel_type": "Located_In"
+    }
+  ]
+}

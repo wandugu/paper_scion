@@ -1,0 +1,242 @@
+{
+  "dataset": "CrudeOilNews",
+  "language": "en",
+  "event_types": [
+    "CAUSE-MOVEMENT-DOWN-LOSS",
+    "CAUSE-MOVEMENT-UP-GAIN",
+    "CIVIL-UNREST",
+    "CRISIS",
+    "EMBARGO",
+    "GEOPOLITICAL-TENSION",
+    "GROW-STRONG",
+    "MOVEMENT-DOWN-LOSS",
+    "MOVEMENT-FLAT",
+    "MOVEMENT-UP-GAIN",
+    "NEGATIVE_SENTIMENT",
+    "OVERSUPPLY",
+    "POSITION-HIGH",
+    "POSITION-LOW",
+    "PROHIBITING",
+    "SHORTAGE",
+    "SLOW-WEAK",
+    "TRADE-FINANCIAL-TENSION"
+  ],
+  "roles": [
+    "ACTIVITY",
+    "ATTRIBUTE",
+    "CONTRACT_DATE",
+    "DIFFERENCE",
+    "DURATION",
+    "FINAL_VALUE",
+    "FORECAST",
+    "FORECASTER",
+    "IMPACTED_COUNTRIES",
+    "IMPOSEE",
+    "IMPOSER",
+    "INITIAL_REFERENCE_POINT",
+    "INITIAL_VALUE",
+    "ITEM",
+    "PARTICIPATING_COUNTRIES",
+    "PLACE",
+    "Place",
+    "REFERENCE_POINT_TIME",
+    "SUPPLIER_CONSUMER",
+    "TYPE"
+  ],
+  "events": [
+    {
+      "event_type": "CAUSE-MOVEMENT-DOWN-LOSS",
+      "roles": [
+        "ATTRIBUTE",
+        "DIFFERENCE",
+        "FINAL_VALUE",
+        "FORECAST",
+        "FORECASTER",
+        "INITIAL_REFERENCE_POINT",
+        "INITIAL_VALUE",
+        "ITEM",
+        "PLACE",
+        "REFERENCE_POINT_TIME",
+        "SUPPLIER_CONSUMER",
+        "TYPE"
+      ]
+    },
+    {
+      "event_type": "CAUSE-MOVEMENT-UP-GAIN",
+      "roles": [
+        "ATTRIBUTE",
+        "DIFFERENCE",
+        "FINAL_VALUE",
+        "ITEM",
+        "REFERENCE_POINT_TIME",
+        "SUPPLIER_CONSUMER"
+      ]
+    },
+    {
+      "event_type": "CIVIL-UNREST",
+      "roles": [
+        "PLACE",
+        "REFERENCE_POINT_TIME"
+      ]
+    },
+    {
+      "event_type": "CRISIS",
+      "roles": [
+        "PARTICIPATING_COUNTRIES",
+        "PLACE"
+      ]
+    },
+    {
+      "event_type": "EMBARGO",
+      "roles": [
+        "ATTRIBUTE",
+        "IMPOSEE",
+        "IMPOSER",
+        "ITEM",
+        "REFERENCE_POINT_TIME"
+      ]
+    },
+    {
+      "event_type": "GEOPOLITICAL-TENSION",
+      "roles": [
+        "IMPACTED_COUNTRIES",
+        "PARTICIPATING_COUNTRIES"
+      ]
+    },
+    {
+      "event_type": "GROW-STRONG",
+      "roles": [
+        "ATTRIBUTE",
+        "FINAL_VALUE",
+        "FORECAST",
+        "ITEM",
+        "REFERENCE_POINT_TIME",
+        "SUPPLIER_CONSUMER"
+      ]
+    },
+    {
+      "event_type": "MOVEMENT-DOWN-LOSS",
+      "roles": [
+        "ATTRIBUTE",
+        "CONTRACT_DATE",
+        "DIFFERENCE",
+        "DURATION",
+        "FINAL_VALUE",
+        "FORECAST",
+        "FORECASTER",
+        "INITIAL_REFERENCE_POINT",
+        "INITIAL_VALUE",
+        "ITEM",
+        "PLACE",
+        "Place",
+        "REFERENCE_POINT_TIME",
+        "SUPPLIER_CONSUMER",
+        "TYPE"
+      ]
+    },
+    {
+      "event_type": "MOVEMENT-FLAT",
+      "roles": [
+        "ATTRIBUTE",
+        "FINAL_VALUE",
+        "INITIAL_REFERENCE_POINT",
+        "ITEM",
+        "REFERENCE_POINT_TIME",
+        "SUPPLIER_CONSUMER",
+        "TYPE"
+      ]
+    },
+    {
+      "event_type": "MOVEMENT-UP-GAIN",
+      "roles": [
+        "ATTRIBUTE",
+        "CONTRACT_DATE",
+        "DIFFERENCE",
+        "DURATION",
+        "FINAL_VALUE",
+        "FORECAST",
+        "FORECASTER",
+        "INITIAL_REFERENCE_POINT",
+        "INITIAL_VALUE",
+        "ITEM",
+        "PLACE",
+        "REFERENCE_POINT_TIME",
+        "SUPPLIER_CONSUMER",
+        "TYPE"
+      ]
+    },
+    {
+      "event_type": "NEGATIVE_SENTIMENT",
+      "roles": [
+        "ATTRIBUTE",
+        "ITEM",
+        "SUPPLIER_CONSUMER",
+        "TYPE"
+      ]
+    },
+    {
+      "event_type": "OVERSUPPLY",
+      "roles": [
+        "ATTRIBUTE",
+        "FORECAST",
+        "ITEM",
+        "PLACE"
+      ]
+    },
+    {
+      "event_type": "POSITION-HIGH",
+      "roles": [
+        "ATTRIBUTE",
+        "DURATION",
+        "FINAL_VALUE",
+        "INITIAL_REFERENCE_POINT",
+        "ITEM",
+        "REFERENCE_POINT_TIME",
+        "SUPPLIER_CONSUMER"
+      ]
+    },
+    {
+      "event_type": "POSITION-LOW",
+      "roles": [
+        "ATTRIBUTE",
+        "DURATION",
+        "FINAL_VALUE",
+        "INITIAL_REFERENCE_POINT",
+        "ITEM",
+        "REFERENCE_POINT_TIME",
+        "TYPE"
+      ]
+    },
+    {
+      "event_type": "PROHIBITING",
+      "roles": [
+        "ACTIVITY"
+      ]
+    },
+    {
+      "event_type": "SHORTAGE",
+      "roles": [
+        "FINAL_VALUE",
+        "FORECAST",
+        "REFERENCE_POINT_TIME"
+      ]
+    },
+    {
+      "event_type": "SLOW-WEAK",
+      "roles": [
+        "ATTRIBUTE",
+        "FORECASTER",
+        "ITEM",
+        "PLACE",
+        "SUPPLIER_CONSUMER",
+        "TYPE"
+      ]
+    },
+    {
+      "event_type": "TRADE-FINANCIAL-TENSION",
+      "roles": [
+        "PARTICIPATING_COUNTRIES"
+      ]
+    }
+  ]
+}

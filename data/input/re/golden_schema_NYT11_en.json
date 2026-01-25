@@ -1,0 +1,67 @@
+{
+  "dataset": "NYT11",
+  "language": "en",
+  "entities": [],
+  "relationships": [
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "nationality"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "country capital"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "place of death"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "children"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "location contains"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "place of birth"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "place lived"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "administrative division of country"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "country of administrative divisions"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "company"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "neighborhood of"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "company founders"
+    }
+  ]
+}

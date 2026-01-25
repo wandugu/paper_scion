@@ -1,0 +1,114 @@
+{
+  "dataset": "CASIE",
+  "language": "en",
+  "event_types": [
+    "data breach",
+    "discover vulnerability",
+    "patch vulnerability",
+    "phishing",
+    "ransom"
+  ],
+  "roles": [
+    "attack pattern",
+    "attacker",
+    "capabilities",
+    "common vulnerabilities and exposures",
+    "compromised data",
+    "damage amount",
+    "discoverer",
+    "issues addressed",
+    "number of data",
+    "number of victim",
+    "patch",
+    "patch number",
+    "payment method",
+    "place",
+    "price",
+    "purpose",
+    "releaser",
+    "supported platform",
+    "time",
+    "tool",
+    "trusted entity",
+    "victim",
+    "vulnerability",
+    "vulnerable system",
+    "vulnerable system owner",
+    "vulnerable system version"
+  ],
+  "events": [
+    {
+      "event_type": "data breach",
+      "roles": [
+        "attack pattern",
+        "attacker",
+        "compromised data",
+        "damage amount",
+        "number of data",
+        "number of victim",
+        "place",
+        "purpose",
+        "time",
+        "tool",
+        "victim"
+      ]
+    },
+    {
+      "event_type": "discover vulnerability",
+      "roles": [
+        "capabilities",
+        "common vulnerabilities and exposures",
+        "discoverer",
+        "supported platform",
+        "time",
+        "vulnerability",
+        "vulnerable system",
+        "vulnerable system owner",
+        "vulnerable system version"
+      ]
+    },
+    {
+      "event_type": "patch vulnerability",
+      "roles": [
+        "common vulnerabilities and exposures",
+        "issues addressed",
+        "patch",
+        "patch number",
+        "releaser",
+        "supported platform",
+        "time",
+        "vulnerability",
+        "vulnerable system",
+        "vulnerable system version"
+      ]
+    },
+    {
+      "event_type": "phishing",
+      "roles": [
+        "attack pattern",
+        "attacker",
+        "damage amount",
+        "place",
+        "purpose",
+        "time",
+        "tool",
+        "trusted entity",
+        "victim"
+      ]
+    },
+    {
+      "event_type": "ransom",
+      "roles": [
+        "attack pattern",
+        "attacker",
+        "damage amount",
+        "payment method",
+        "place",
+        "price",
+        "time",
+        "tool",
+        "victim"
+      ]
+    }
+  ]
+}

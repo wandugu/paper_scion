@@ -1,0 +1,641 @@
+{
+  "dataset": "instructIE_en",
+  "language": "en",
+  "entities": [
+    "architectural structure",
+    "architectural structure/geographic region",
+    "astronomical object type",
+    "event",
+    "geographic region",
+    "human",
+    "measure",
+    "medicine",
+    "organism",
+    "organization",
+    "organization/geographic region",
+    "organization/human",
+    "product",
+    "profession",
+    "text",
+    "time",
+    "transport",
+    "transport/geographic region"
+  ],
+  "relationships": [
+    {
+      "head_entity": "astronomical object type",
+      "tail_entity": "astronomical object type",
+      "rel_type": "alternative name"
+    },
+    {
+      "head_entity": "astronomical object type",
+      "tail_entity": "astronomical object type",
+      "rel_type": "of"
+    },
+    {
+      "head_entity": "astronomical object type",
+      "tail_entity": "time",
+      "rel_type": "time of discovery"
+    },
+    {
+      "head_entity": "astronomical object type",
+      "tail_entity": "organization/human",
+      "rel_type": "discoverer or inventor"
+    },
+    {
+      "head_entity": "astronomical object type",
+      "tail_entity": "text",
+      "rel_type": "named after"
+    },
+    {
+      "head_entity": "astronomical object type",
+      "tail_entity": "measure",
+      "rel_type": "absolute magnitude"
+    },
+    {
+      "head_entity": "astronomical object type",
+      "tail_entity": "measure",
+      "rel_type": "diameter"
+    },
+    {
+      "head_entity": "astronomical object type",
+      "tail_entity": "measure",
+      "rel_type": "mass"
+    },
+    {
+      "head_entity": "geographic region",
+      "tail_entity": "geographic region",
+      "rel_type": "located in"
+    },
+    {
+      "head_entity": "geographic region",
+      "tail_entity": "geographic region",
+      "rel_type": "alternative name"
+    },
+    {
+      "head_entity": "geographic region",
+      "tail_entity": "measure",
+      "rel_type": "population"
+    },
+    {
+      "head_entity": "geographic region",
+      "tail_entity": "geographic region",
+      "rel_type": "capital"
+    },
+    {
+      "head_entity": "geographic region",
+      "tail_entity": "measure",
+      "rel_type": "area"
+    },
+    {
+      "head_entity": "geographic region",
+      "tail_entity": "measure",
+      "rel_type": "length"
+    },
+    {
+      "head_entity": "geographic region",
+      "tail_entity": "measure",
+      "rel_type": "width"
+    },
+    {
+      "head_entity": "geographic region",
+      "tail_entity": "measure",
+      "rel_type": "elevation above sea level"
+    },
+    {
+      "head_entity": "architectural structure/geographic region",
+      "tail_entity": "geographic region",
+      "rel_type": "located in"
+    },
+    {
+      "head_entity": "architectural structure",
+      "tail_entity": "architectural structure",
+      "rel_type": "alternative name"
+    },
+    {
+      "head_entity": "architectural structure",
+      "tail_entity": "time",
+      "rel_type": "creation time"
+    },
+    {
+      "head_entity": "architectural structure",
+      "tail_entity": "measure",
+      "rel_type": "width"
+    },
+    {
+      "head_entity": "architectural structure",
+      "tail_entity": "measure",
+      "rel_type": "length"
+    },
+    {
+      "head_entity": "architectural structure",
+      "tail_entity": "organization/human",
+      "rel_type": "creator"
+    },
+    {
+      "head_entity": "architectural structure",
+      "tail_entity": "measure",
+      "rel_type": "height"
+    },
+    {
+      "head_entity": "architectural structure",
+      "tail_entity": "measure",
+      "rel_type": "area"
+    },
+    {
+      "head_entity": "architectural structure",
+      "tail_entity": "profession",
+      "rel_type": "achievement"
+    },
+    {
+      "head_entity": "architectural structure",
+      "tail_entity": "text",
+      "rel_type": "named after"
+    },
+    {
+      "head_entity": "organization/geographic region",
+      "tail_entity": "geographic region",
+      "rel_type": "located in"
+    },
+    {
+      "head_entity": "organization",
+      "tail_entity": "organization",
+      "rel_type": "alternative name"
+    },
+    {
+      "head_entity": "organization",
+      "tail_entity": "organization",
+      "rel_type": "has subsidiary"
+    },
+    {
+      "head_entity": "organization",
+      "tail_entity": "organization",
+      "rel_type": "date of incorporation"
+    },
+    {
+      "head_entity": "organization",
+      "tail_entity": "organization",
+      "rel_type": "product or material produced"
+    },
+    {
+      "head_entity": "organization",
+      "tail_entity": "organization",
+      "rel_type": "member"
+    },
+    {
+      "head_entity": "organization",
+      "tail_entity": "organization",
+      "rel_type": "founded by"
+    },
+    {
+      "head_entity": "organization",
+      "tail_entity": "organization",
+      "rel_type": "dissolution time"
+    },
+    {
+      "head_entity": "organism",
+      "tail_entity": "geographic region",
+      "rel_type": "distribution"
+    },
+    {
+      "head_entity": "organism",
+      "tail_entity": "geographic region",
+      "rel_type": "parent taxon"
+    },
+    {
+      "head_entity": "organism",
+      "tail_entity": "measure",
+      "rel_type": "length"
+    },
+    {
+      "head_entity": "organism",
+      "tail_entity": "organism",
+      "rel_type": "alternative name"
+    },
+    {
+      "head_entity": "organism",
+      "tail_entity": "organism",
+      "rel_type": "taxon name"
+    },
+    {
+      "head_entity": "organism",
+      "tail_entity": "measure",
+      "rel_type": "weight"
+    },
+    {
+      "head_entity": "organism",
+      "tail_entity": "measure",
+      "rel_type": "width"
+    },
+    {
+      "head_entity": "organism",
+      "tail_entity": "measure",
+      "rel_type": "height"
+    },
+    {
+      "head_entity": "organism",
+      "tail_entity": "text",
+      "rel_type": "main food source"
+    },
+    {
+      "head_entity": "medicine",
+      "tail_entity": "medicine",
+      "rel_type": "symptoms and signs"
+    },
+    {
+      "head_entity": "medicine",
+      "tail_entity": "medicine",
+      "rel_type": "alternative name"
+    },
+    {
+      "head_entity": "medicine",
+      "tail_entity": "text",
+      "rel_type": "pathogenic site"
+    },
+    {
+      "head_entity": "medicine",
+      "tail_entity": "text",
+      "rel_type": "possible consequences"
+    },
+    {
+      "head_entity": "medicine",
+      "tail_entity": "text",
+      "rel_type": "etiology"
+    },
+    {
+      "head_entity": "medicine",
+      "tail_entity": "medicine",
+      "rel_type": "drug or therapy used for treatment"
+    },
+    {
+      "head_entity": "medicine",
+      "tail_entity": "medicine",
+      "rel_type": "possible treatment"
+    },
+    {
+      "head_entity": "medicine",
+      "tail_entity": "text",
+      "rel_type": "disease transmission process"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "human",
+      "rel_type": "author"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "time",
+      "rel_type": "publication date"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "product",
+      "rel_type": "alternative name"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "geographic region",
+      "rel_type": "country of origin"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "product",
+      "rel_type": "based on"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "organization/human",
+      "rel_type": "cast member"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "organization",
+      "rel_type": "publisher"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "profession",
+      "rel_type": "achievement"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "organization/human",
+      "rel_type": "performer"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "organization/human",
+      "rel_type": "director"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "organization/human",
+      "rel_type": "producer"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "organization/human",
+      "rel_type": "screenwriter"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "product",
+      "rel_type": "tracklist"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "organization/human",
+      "rel_type": "composer"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "organization",
+      "rel_type": "original broadcaster"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "organization/human",
+      "rel_type": "developer"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "organization/human",
+      "rel_type": "lyrics by"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "organization",
+      "rel_type": "production company"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "measure",
+      "rel_type": "box office"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "measure",
+      "rel_type": "duration"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "organization",
+      "rel_type": "platform"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "product",
+      "rel_type": "alternative name"
+    },
+    {
+      "head_entity": "organism",
+      "tail_entity": "measure",
+      "rel_type": "length"
+    },
+    {
+      "head_entity": "organism",
+      "tail_entity": "measure",
+      "rel_type": "width"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "organization",
+      "rel_type": "brand"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "product",
+      "rel_type": "made from material"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "geographic region",
+      "rel_type": "country of origin"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "organization",
+      "rel_type": "manufacturer"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "organization/human",
+      "rel_type": "discoverer or inventor"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "product",
+      "rel_type": "alternative name"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "product",
+      "rel_type": "composition"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "product",
+      "rel_type": "product"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "geographic region",
+      "rel_type": "country of origin"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "organization/human",
+      "rel_type": "discoverer or inventor"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "text",
+      "rel_type": "named after"
+    },
+    {
+      "head_entity": "product",
+      "tail_entity": "text",
+      "rel_type": "has use"
+    },
+    {
+      "head_entity": "transport/geographic region",
+      "tail_entity": "geographic region",
+      "rel_type": "located in"
+    },
+    {
+      "head_entity": "transport",
+      "tail_entity": "time",
+      "rel_type": "inception"
+    },
+    {
+      "head_entity": "transport",
+      "tail_entity": "transport",
+      "rel_type": "connecting line"
+    },
+    {
+      "head_entity": "transport",
+      "tail_entity": "time",
+      "rel_type": "date of official opening"
+    },
+    {
+      "head_entity": "transport",
+      "tail_entity": "geographic region",
+      "rel_type": "pass"
+    },
+    {
+      "head_entity": "transport",
+      "tail_entity": "measure",
+      "rel_type": "area"
+    },
+    {
+      "head_entity": "transport",
+      "tail_entity": "transport",
+      "rel_type": "alternative name"
+    },
+    {
+      "head_entity": "transport",
+      "tail_entity": "measure",
+      "rel_type": "length"
+    },
+    {
+      "head_entity": "transport",
+      "tail_entity": "measure",
+      "rel_type": "width"
+    },
+    {
+      "head_entity": "transport",
+      "tail_entity": "measure",
+      "rel_type": "class of station"
+    },
+    {
+      "head_entity": "human",
+      "tail_entity": "human",
+      "rel_type": "alternative name"
+    },
+    {
+      "head_entity": "human",
+      "tail_entity": "geographic region",
+      "rel_type": "place of birth"
+    },
+    {
+      "head_entity": "human",
+      "tail_entity": "time",
+      "rel_type": "date of birth"
+    },
+    {
+      "head_entity": "human",
+      "tail_entity": "geographic region",
+      "rel_type": "place of death"
+    },
+    {
+      "head_entity": "human",
+      "tail_entity": "geographic region",
+      "rel_type": "country of citizenship"
+    },
+    {
+      "head_entity": "human",
+      "tail_entity": "profession",
+      "rel_type": "occupation"
+    },
+    {
+      "head_entity": "human",
+      "tail_entity": "product",
+      "rel_type": "work"
+    },
+    {
+      "head_entity": "human",
+      "tail_entity": "profession",
+      "rel_type": "achievement"
+    },
+    {
+      "head_entity": "human",
+      "tail_entity": "geographic region",
+      "rel_type": "ancestral home"
+    },
+    {
+      "head_entity": "human",
+      "tail_entity": "profession",
+      "rel_type": "position held"
+    },
+    {
+      "head_entity": "human",
+      "tail_entity": "human",
+      "rel_type": "spouse"
+    },
+    {
+      "head_entity": "human",
+      "tail_entity": "human",
+      "rel_type": "parent"
+    },
+    {
+      "head_entity": "human",
+      "tail_entity": "organization",
+      "rel_type": "member of"
+    },
+    {
+      "head_entity": "human",
+      "tail_entity": "time",
+      "rel_type": "date of death"
+    },
+    {
+      "head_entity": "human",
+      "tail_entity": "human",
+      "rel_type": "sibling"
+    },
+    {
+      "head_entity": "event",
+      "tail_entity": "organization/human",
+      "rel_type": "participant"
+    },
+    {
+      "head_entity": "event",
+      "tail_entity": "geographic region",
+      "rel_type": "scene"
+    },
+    {
+      "head_entity": "event",
+      "tail_entity": "time",
+      "rel_type": "occurrence time"
+    },
+    {
+      "head_entity": "event",
+      "tail_entity": "event",
+      "rel_type": "alternative name"
+    },
+    {
+      "head_entity": "event",
+      "tail_entity": "organization/human",
+      "rel_type": "sponsor"
+    },
+    {
+      "head_entity": "event",
+      "tail_entity": "measure",
+      "rel_type": "casualties"
+    },
+    {
+      "head_entity": "event",
+      "tail_entity": "text",
+      "rel_type": "has cause"
+    },
+    {
+      "head_entity": "event",
+      "tail_entity": "text",
+      "rel_type": "has effect"
+    },
+    {
+      "head_entity": "event",
+      "tail_entity": "organization",
+      "rel_type": "organizer"
+    },
+    {
+      "head_entity": "event",
+      "tail_entity": "profession",
+      "rel_type": "awards"
+    },
+    {
+      "head_entity": "event",
+      "tail_entity": "organization/human",
+      "rel_type": "winner"
+    }
+  ]
+}

@@ -1,0 +1,284 @@
+{
+  "dataset": "CMeIE",
+  "language": "zh",
+  "entities": [
+    "其他",
+    "其他治疗",
+    "手术治疗",
+    "检查",
+    "流行病学",
+    "疾病",
+    "症状",
+    "社会学",
+    "药物",
+    "部位",
+    "预后"
+  ],
+  "relationships": [
+    {
+      "head_entity": "疾病",
+      "tail_entity": "其他",
+      "rel_type": "预防"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "其他",
+      "rel_type": "阶段"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "其他",
+      "rel_type": "就诊科室"
+    },
+    {
+      "head_entity": "其他",
+      "tail_entity": "其他",
+      "rel_type": "同义词"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "其他治疗",
+      "rel_type": "辅助治疗"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "其他治疗",
+      "rel_type": "化疗"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "其他治疗",
+      "rel_type": "放射治疗"
+    },
+    {
+      "head_entity": "其他治疗",
+      "tail_entity": "其他治疗",
+      "rel_type": "同义词"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "手术治疗",
+      "rel_type": "手术治疗"
+    },
+    {
+      "head_entity": "手术治疗",
+      "tail_entity": "手术治疗",
+      "rel_type": "同义词"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "检查",
+      "rel_type": "实验室检查"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "检查",
+      "rel_type": "影像学检查"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "检查",
+      "rel_type": "辅助检查"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "检查",
+      "rel_type": "组织学检查"
+    },
+    {
+      "head_entity": "检查",
+      "tail_entity": "检查",
+      "rel_type": "同义词"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "检查",
+      "rel_type": "内窥镜检查"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "检查",
+      "rel_type": "筛查"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "流行病学",
+      "rel_type": "多发群体"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "流行病学",
+      "rel_type": "发病率"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "流行病学",
+      "rel_type": "发病年龄"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "流行病学",
+      "rel_type": "多发地区"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "流行病学",
+      "rel_type": "发病性别倾向"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "流行病学",
+      "rel_type": "死亡率"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "流行病学",
+      "rel_type": "多发季节"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "流行病学",
+      "rel_type": "传播途径"
+    },
+    {
+      "head_entity": "流行病学",
+      "tail_entity": "流行病学",
+      "rel_type": "同义词"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "疾病",
+      "rel_type": "同义词"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "疾病",
+      "rel_type": "并发症"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "疾病",
+      "rel_type": "病理分型"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "疾病",
+      "rel_type": "相关（导致）"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "疾病",
+      "rel_type": "鉴别诊断"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "疾病",
+      "rel_type": "相关（转化）"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "疾病",
+      "rel_type": "相关（症状）"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "症状",
+      "rel_type": "临床表现"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "症状",
+      "rel_type": "治疗后症状"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "症状",
+      "rel_type": "侵及周围组织转移的症状"
+    },
+    {
+      "head_entity": "症状",
+      "tail_entity": "症状",
+      "rel_type": "同义词"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "社会学",
+      "rel_type": "病因"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "社会学",
+      "rel_type": "高危因素"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "社会学",
+      "rel_type": "风险评估因素"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "社会学",
+      "rel_type": "病史"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "社会学",
+      "rel_type": "遗传因素"
+    },
+    {
+      "head_entity": "社会学",
+      "tail_entity": "社会学",
+      "rel_type": "同义词"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "社会学",
+      "rel_type": "发病机制"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "社会学",
+      "rel_type": "病理生理"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "药物",
+      "rel_type": "药物治疗"
+    },
+    {
+      "head_entity": "药物",
+      "tail_entity": "药物",
+      "rel_type": "同义词"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "部位",
+      "rel_type": "发病部位"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "部位",
+      "rel_type": "转移部位"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "部位",
+      "rel_type": "外侵部位"
+    },
+    {
+      "head_entity": "部位",
+      "tail_entity": "部位",
+      "rel_type": "同义词"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "预后",
+      "rel_type": "预后状况"
+    },
+    {
+      "head_entity": "疾病",
+      "tail_entity": "预后",
+      "rel_type": "预后生存率"
+    }
+  ]
+}

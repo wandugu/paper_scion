@@ -1,0 +1,12 @@
+{
+  "dataset": "ADE_corpus",
+  "language": "en",
+  "entities": [],
+  "relationships": [
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "adverse effect"
+    }
+  ]
+}

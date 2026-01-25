@@ -1,0 +1,27 @@
+{
+  "dataset": "GIDS",
+  "language": "en",
+  "entities": [],
+  "relationships": [
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "place of death"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "place of birth"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "education degree"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "education institution"
+    }
+  ]
+}

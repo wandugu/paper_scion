@@ -1,0 +1,127 @@
+{
+  "dataset": "New-York-Times-RE",
+  "language": "en",
+  "entities": [],
+  "relationships": [
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "ethnicity"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "place lived"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "geographic distribution"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "company industry"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "country of administrative divisions"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "administrative division of country"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "location contains"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "person of company"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "profession"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "ethnicity of people"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "company shareholder among major shareholders"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "sports team of location"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "religion"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "neighborhood of"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "company major shareholders"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "place of death"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "nationality"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "children"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "company founders"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "company founded place"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "country of capital"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "company advisors"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "sports team location of teams"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "place of birth"
+    }
+  ]
+}

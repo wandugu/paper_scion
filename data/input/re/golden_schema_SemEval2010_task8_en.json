@@ -1,0 +1,62 @@
+{
+  "dataset": "SemEval2010_task8",
+  "language": "en",
+  "entities": [],
+  "relationships": [
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "Cause-Effect"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "Component-Whole"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "Content-Container"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "Entity-Destination"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "Entity-Origin"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "Instrument-Agency"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "Member-Collection"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "Message-Topc"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "Message-Topic"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "Other"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "Product-Producer"
+    }
+  ]
+}

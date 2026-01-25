@@ -1,0 +1,97 @@
+{
+  "dataset": "COAE2016",
+  "language": "zh",
+  "entities": [],
+  "relationships": [
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "_配偶_"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "_高管_"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "_出生日期_"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "_毕业院校_"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "_创始人_"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "_出生地_"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "_总部地点_"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "_员工数_"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "_子女_"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "配偶"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "高管"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "出生日期"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "毕业院校"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "创始人"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "出生地"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "总部地点"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "员工数"
+    },
+    {
+      "head_entity": "",
+      "tail_entity": "",
+      "rel_type": "子女"
+    }
+  ]
+}
