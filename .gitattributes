@@ -12,3 +12,6 @@ data/dataset_public/re/re-en/FewRel/test_pubmed_input-5-5.json filter=lfs diff=l
 data/dataset_public/re/re-en/InstructIE-en/train_en.json filter=lfs diff=lfs merge=lfs -text
 data/dataset_public/re/re-zh/InstructIE-zh/train_zh.json filter=lfs diff=lfs merge=lfs -text
 data/dataset_public/re/re-zh/duIE/train.json filter=lfs diff=lfs merge=lfs -text
+data/input/re/golden_input_duIE_zh.json filter=lfs diff=lfs merge=lfs -text
+data/input/re/golden_input_New-York-Times-RE_en.json filter=lfs diff=lfs merge=lfs -text
+data/input/re/golden_input_NYT11_en.json filter=lfs diff=lfs merge=lfs -text
