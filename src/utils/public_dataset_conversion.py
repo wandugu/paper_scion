@@ -177,6 +177,9 @@ def _generate_relation_types_with_llm(
     if not relation_examples:
         LOGGER.debug("未找到关系样例，跳过 LLM 生成。")
         return {}
+    if not any(examples for examples in relation_examples.values()):
+        LOGGER.debug("关系样例均为空，跳过 LLM 生成。")
+        return {}
 
     prompt_cfg = gen_cfg.get("prompts", {})
     lang_cfg = prompt_cfg.get(language, {}) if isinstance(prompt_cfg, dict) else {}
@@ -895,6 +898,56 @@ def _collect_relation_examples_from_tacred(data_paths: Sequence[Path], desc: str
     return relation_examples
 
 
+def _extract_traced_relation_types(label_paths: Sequence[Path]) -> List[str]:
+    relation_types: set[str] = set()
+    for path in label_paths:
+        if not path.exists():
+            continue
+        try:
+            payload = _load_json(path)
+        except json.JSONDecodeError as exc:
+            LOGGER.warning("traced 标签文件解析失败，跳过: %s (%s)", path, exc)
+            continue
+        if isinstance(payload, dict):
+            for value in payload.values():
+                rel_type = str(value).strip()
+                if rel_type:
+                    relation_types.add(rel_type)
+            continue
+        if isinstance(payload, list):
+            for item in payload:
+                if isinstance(item, dict):
+                    rel_type = str(item.get("relation", "")).strip()
+                    if rel_type:
+                        relation_types.add(rel_type)
+                elif isinstance(item, str):
+                    rel_type = item.strip()
+                    if rel_type:
+                        relation_types.add(rel_type)
+    sorted_types = sorted(relation_types)
+    LOGGER.debug("traced 标签文件关系类型统计: count=%s types=%s", len(sorted_types), sorted_types)
+    return sorted_types
+
+
+def _collect_relation_examples_from_traced(
+    data_paths: Sequence[Path],
+    label_paths: Sequence[Path],
+    desc: str | None = None,
+) -> Dict[str, List[Dict[str, Any]]]:
+    relation_examples = _collect_relation_examples_from_tacred(data_paths, desc=desc)
+    label_types = _extract_traced_relation_types(label_paths)
+    for rel_type in label_types:
+        relation_examples.setdefault(rel_type, [])
+    non_empty = sum(1 for examples in relation_examples.values() if examples)
+    LOGGER.debug(
+        "traced 样例汇总: relations=%s non_empty=%s label_only=%s",
+        len(relation_examples),
+        non_empty,
+        len(relation_examples) - non_empty,
+    )
+    return relation_examples
+
+
 def _relation_examples_for_format(
     format_key: str,
     data_files: Sequence[Path],
@@ -915,7 +968,12 @@ def _relation_examples_for_format(
             desc=f"{dataset_name} SemEval 样例",
         )
     if format_key == "traced":
-        return _collect_relation_examples_from_tacred(data_files, desc=f"{dataset_name} TACRED 样例")
+        label_files = _collect_label_files(dataset_cfg)
+        return _collect_relation_examples_from_traced(
+            data_files,
+            label_files,
+            desc=f"{dataset_name} TACRED 样例",
+        )
     return _collect_relation_examples_from_json(
         data_files,
         text_field="text",
