@@ -468,31 +468,32 @@ dataset_conversion:
         task: re
         format: instructie
         language: en
-        schema_path: data/dataset_public/re/InstructIE/schema_en.json
+        schema_path: data/dataset_public/re/re-en/InstructIE-en/schema_en.json
         data_files:
-          - data/dataset_public/re/InstructIE/valid_en.json
+          - data/dataset_public/re/re-en/InstructIE-en/valid_en.json
       - name: instructIE_zh
         task: re
         format: instructie
         language: zh
-        schema_path: data/dataset_public/re/InstructIE/schema_zh.json
+        schema_path: data/dataset_public/re/re-zh/InstructIE-zh/schema_zh.json
         data_files:
-          - data/dataset_public/re/InstructIE/valid_zh.json
+          - data/dataset_public/re/re-zh/InstructIE-zh/valid_zh.json
       - name: duIE_zh
         task: re
         format: duie
         language: zh
-        schema_path: data/dataset_public/re/duIE/schema.json
+        schema_path: data/dataset_public/re/re-zh/duIE/schema.json
         data_files:
-          - data/dataset_public/re/duIE/dev.json
+          - data/dataset_public/re/re-zh/duIE/dev.json
       - name: CMeIE
         task: re
         format: cmeie
         language: zh
-        schema_path: data/dataset_public/re/re-zh/CMeIE/schema.json
+        schema_path: data/dataset_public/re/re-zh/CMeIE/53_schemas.jsonl
         data_files:
-          - data/dataset_public/re/re-zh/CMeIE/train.json
-          - data/dataset_public/re/re-zh/CMeIE/test.json
+          - data/dataset_public/re/re-zh/CMeIE/CMeIE_train.jsonl
+          - data/dataset_public/re/re-zh/CMeIE/CMeIE_dev.jsonl
+          - data/dataset_public/re/re-zh/CMeIE/CMeIE_test.jsonl
       - name: COAE2016
         task: re
         format: coae2016
@@ -706,6 +707,7 @@ dataset_conversion:
         task: re
         format: tacred
         language: en
+        enabled: false
         schema_path: data/dataset_public/re/re-en/tacred/tacred.py
         data_files:
           - data/dataset_public/re/re-en/tacred/dev_patch.json

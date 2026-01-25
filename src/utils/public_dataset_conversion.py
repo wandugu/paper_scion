@@ -709,6 +709,54 @@ def _build_relation_schema_from_typed(schema_path: Path, dataset_name: str, lang
     return schema_payload, RelationTypeMap(by_relation=mapping)
 
 
+def _build_relation_schema_from_cmeie(schema_path: Path, dataset_name: str, language: str) -> Tuple[Dict[str, Any], RelationTypeMap]:
+    schema_lines = _load_schema_lines(schema_path)
+    relationships: List[Dict[str, str]] = []
+    entities: set[str] = set()
+    mapping: Dict[str, Tuple[str, str]] = {}
+
+    LOGGER.debug("解析 CMeIE schema 文件: path=%s lines=%s", schema_path, len(schema_lines))
+    for index, payload in enumerate(schema_lines):
+        if not isinstance(payload, dict):
+            LOGGER.debug("CMeIE schema 行不是字典，跳过: index=%s payload=%s", index, payload)
+            continue
+        head_type = str(payload.get("subject_type", "")).strip()
+        tail_type = str(payload.get("object_type", "")).strip()
+        rel_type = str(payload.get("predicate", "")).strip()
+        if not (head_type and tail_type and rel_type):
+            LOGGER.debug(
+                "CMeIE schema 行字段缺失，跳过: index=%s head=%s rel=%s tail=%s",
+                index,
+                head_type,
+                rel_type,
+                tail_type,
+            )
+            continue
+        entities.update([head_type, tail_type])
+        relationships.append(
+            {
+                "head_entity": head_type,
+                "tail_entity": tail_type,
+                "rel_type": rel_type,
+            }
+        )
+        mapping.setdefault(rel_type, (head_type, tail_type))
+
+    schema_payload = {
+        "dataset": dataset_name,
+        "language": language,
+        "entities": sorted(entities),
+        "relationships": relationships,
+    }
+    LOGGER.debug(
+        "CMeIE schema 解析完成: dataset=%s relations=%s entities=%s",
+        dataset_name,
+        len(relationships),
+        len(entities),
+    )
+    return schema_payload, RelationTypeMap(by_relation=mapping)
+
+
 def _build_relation_schema_from_labels(schema_path: Path, dataset_name: str, language: str) -> Dict[str, Any]:
     schema_lines = _load_schema_lines(schema_path)
     LOGGER.debug(
@@ -1910,7 +1958,7 @@ def convert_cmeie_schema(schema_path: Path | Sequence[Path], dataset_name: str, 
     schema_path = schema_path if isinstance(schema_path, Path) else next(iter(schema_path), None)
     if schema_path is None:
         raise ValueError("schema_path 不能为空")
-    return _build_relation_schema_from_typed(schema_path, dataset_name, language)
+    return _build_relation_schema_from_cmeie(schema_path, dataset_name, language)
 
 
 def convert_cmeie_inputs(
@@ -3217,6 +3265,9 @@ def _run_re_dataset_conversion(
     results: Dict[str, List[Path]],
     stats: List[DatasetConversionStats],
 ) -> None:
+    if dataset_cfg.get("enabled") is False:
+        LOGGER.debug("关系抽取数据集已禁用，跳过: config=%s", dataset_cfg)
+        return
     name = dataset_cfg.get("name")
     language = dataset_cfg.get("language", "").lower() or "zh"
     format_key = _normalize_dataset_name(dataset_cfg.get("format") or dataset_cfg.get("type"))
