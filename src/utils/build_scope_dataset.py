@@ -10,6 +10,7 @@ import logging
 import math
 import itertools
 import random
+import shutil
 import statistics
 import sys
 from collections import Counter, defaultdict
@@ -120,6 +121,39 @@ def _safe_json_load(path: Path) -> Any:
 
 def _text_hash(text: str) -> str:
     return hashlib.sha1(text.encode("utf-8")).hexdigest()
+
+
+def _hash_to_int(text: str) -> int:
+    return int(hashlib.md5(text.encode("utf-8")).hexdigest(), 16)
+
+
+def _choose_by_ratio(key: str, ratio: float, seed: int) -> bool:
+    if ratio <= 0:
+        return False
+    if ratio >= 1:
+        return True
+    value = _hash_to_int(f"{seed}:{key}") / 2**128
+    return value < ratio
+
+
+def _select_mask_ratio(mask_ratios: Sequence[float], key: str, seed: int) -> Optional[float]:
+    if not mask_ratios:
+        return None
+    if len(mask_ratios) == 1:
+        return float(mask_ratios[0])
+    idx = _hash_to_int(f"{seed}:{key}") % len(mask_ratios)
+    return float(list(mask_ratios)[idx])
+
+
+def _derive_mask_seed(
+    global_seed: int,
+    seed_offset: int,
+    task_id: str,
+    case_id: str,
+    mask_ratio: float,
+) -> int:
+    hash_value = _hash_to_int(f"{task_id}:{case_id}:{mask_ratio}")
+    return int(global_seed + seed_offset + (hash_value % 1000003))
 
 
 def _split_by_hash(key: str, ratios: Sequence[float], seed: int) -> str:
@@ -639,6 +673,100 @@ def _apply_fusion_mask(
     return remaining
 
 
+def _inject_noise_edges(
+    schema_in: List[Dict[str, Any]],
+    gold_full: List[Dict[str, Any]],
+    global_schema: List[Dict[str, Any]],
+    noise_ratio: float,
+    seed: int,
+) -> Tuple[List[Dict[str, Any]], int]:
+    if noise_ratio <= 0 or not schema_in:
+        return schema_in, 0
+    gold_keys = {_schema_key_from_edge(edge) for edge in gold_full}
+    existing_keys = {_schema_key_from_edge(edge) for edge in schema_in}
+    candidates = [
+        edge
+        for edge in global_schema
+        if _schema_key_from_edge(edge) not in gold_keys
+        and _schema_key_from_edge(edge) not in existing_keys
+    ]
+    if not candidates:
+        return schema_in, 0
+    desired = int(math.ceil(len(schema_in) * noise_ratio))
+    desired = min(desired, len(candidates))
+    rng = random.Random(seed)
+    rng.shuffle(candidates)
+    noise_edges = candidates[:desired]
+    return schema_in + noise_edges, len(noise_edges)
+
+
+def _write_case_input(
+    path: Path,
+    task_id: str,
+    case_id: str,
+    texts_path: str,
+    schema_in_path: Optional[str],
+    schema_in_mode: str,
+    schema_in_mask_ratio: Optional[float],
+    schema_out_path: str,
+) -> None:
+    payload = {
+        "task_id": task_id,
+        "case_id": case_id,
+        "texts_path": texts_path,
+        "schema_in_path": schema_in_path,
+        "schema_in_mode": schema_in_mode,
+        "schema_in_mask_ratio": schema_in_mask_ratio,
+        "schema_out_path": schema_out_path,
+    }
+    save_json(path, payload)
+
+
+def _build_schema_in(
+    base_schema_source: str,
+    base_case_path: Path,
+    gold_full: List[Dict[str, Any]],
+    gold_reachable: List[Dict[str, Any]],
+    mask_ratio: float,
+    task_id: str,
+    case_id: str,
+    global_seed: int,
+    seed_offset: int,
+    scope_schema_full: List[Dict[str, Any]],
+    inject_noise: bool,
+    noise_edge_ratio: float,
+) -> Tuple[List[Dict[str, Any]], int, str]:
+    schema_in_source = base_schema_source
+    mask_seed = _derive_mask_seed(global_seed, seed_offset, task_id, case_id, mask_ratio)
+    if base_schema_source == "base_mask":
+        base_mask_path = base_case_path / f"base_mask_{mask_ratio}.schema.json"
+        if base_mask_path.exists():
+            LOGGER.debug("使用 base_mask 作为 schema_in: case=%s ratio=%s", case_id, mask_ratio)
+            schema_in = _safe_json_load(base_mask_path)
+            schema_in_source = "base_mask"
+        else:
+            LOGGER.warning("缺少 base_mask 文件，回退到 mask_full: %s", base_mask_path)
+            schema_in_source = "mask_full"
+            schema_in = _apply_fusion_mask(gold_full, mask_ratio, mask_seed)
+    else:
+        if base_schema_source not in {"mask_full", "mask_reachable"}:
+            LOGGER.warning("未知 base_schema_source=%s，回退到 mask_full", base_schema_source)
+            schema_in_source = "mask_full"
+        base_edges = gold_reachable if schema_in_source == "mask_reachable" else gold_full
+        schema_in = _apply_fusion_mask(base_edges, mask_ratio, mask_seed)
+    noise_count = 0
+    if inject_noise:
+        schema_in, noise_count = _inject_noise_edges(
+            schema_in,
+            gold_full,
+            scope_schema_full,
+            noise_edge_ratio,
+            mask_seed + 77,
+        )
+        LOGGER.debug("注入噪声边: case=%s count=%s", case_id, noise_count)
+    return schema_in, noise_count, schema_in_source
+
+
 def _write_csv(path: Path, header: Sequence[str], rows: Sequence[Sequence[Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as fp:
@@ -772,7 +900,23 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
     case_sizes = args.case_sizes or scope_cfg.get("case_sizes", [200, 1000, 5000])
     case_seeds = args.case_seeds or scope_cfg.get("case_seeds", [1, 2, 3, 4, 5])
     sampling_strategies = args.sampling or scope_cfg.get("sampling", ["random", "coverage"])
-    fusion_mask_ratios = args.fusion_mask_ratios or scope_cfg.get("fusion_mask_ratios", [0.3, 0.6])
+    base_mask_ratios = (
+        args.base_mask_ratios
+        or scope_cfg.get("base_mask_ratios")
+        or scope_cfg.get("fusion_mask_ratios", [0.3, 0.6])
+    )
+    enable_fusion = bool(args.enable_fusion if args.enable_fusion is not None else scope_cfg.get("enable_fusion", True))
+    fusion_mode = str(args.fusion_mode or scope_cfg.get("fusion_mode", "paired")).lower()
+    fusion_case_ratio = float(args.fusion_case_ratio or scope_cfg.get("fusion_case_ratio", 0.6))
+    fusion_task_ratio = float(args.fusion_task_ratio or scope_cfg.get("fusion_task_ratio", 0.6))
+    base_schema_source = str(args.base_schema_source or scope_cfg.get("base_schema_source", "base_mask")).lower()
+    base_mask_seed_offset = int(args.base_mask_seed_offset or scope_cfg.get("base_mask_seed_offset", 10000))
+    fusion_eval_target = str(args.fusion_eval_target or scope_cfg.get("fusion_eval_target", "full")).lower()
+    inject_noise = bool(args.inject_noise if args.inject_noise is not None else scope_cfg.get("inject_noise", False))
+    noise_edge_ratio = float(args.noise_edge_ratio or scope_cfg.get("noise_edge_ratio", 0.05))
+    if fusion_mode not in {"paired", "ratio", "task_ratio"}:
+        LOGGER.warning("未知 fusion_mode=%s，回退为 paired", fusion_mode)
+        fusion_mode = "paired"
     schema_explosion_guard = bool(
         args.schema_explosion_guard
         if args.schema_explosion_guard is not None
@@ -801,7 +945,17 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
         case_sizes,
         case_seeds,
         sampling_strategies,
-        fusion_mask_ratios,
+        base_mask_ratios,
+    )
+    LOGGER.debug(
+        "Fusion 配置: enable=%s mode=%s case_ratio=%s task_ratio=%s base_source=%s eval_target=%s inject_noise=%s",
+        enable_fusion,
+        fusion_mode,
+        fusion_case_ratio,
+        fusion_task_ratio,
+        base_schema_source,
+        fusion_eval_target,
+        inject_noise,
     )
     out_root.mkdir(parents=True, exist_ok=True)
     failed_log = resolve_project_path(scope_cfg.get("failed_log", "logs/failed_datasets.txt"))
@@ -940,7 +1094,8 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
             all_re_edges |= set(schema.get("edges") or [])
         else:
             all_ee_edges |= set(schema.get("edges") or [])
-    save_json(scope_dir / "schema_full.json", _build_schema_payload(all_re_edges, all_ee_edges))
+    scope_schema_full = _build_schema_payload(all_re_edges, all_ee_edges)
+    save_json(scope_dir / "schema_full.json", scope_schema_full)
 
     subset_dir = out_root / "subsets"
     tasks_dir = out_root / "tasks"
@@ -958,6 +1113,9 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
     task_stats_rows: List[List[Any]] = []
     case_stats_rows: List[List[Any]] = []
     manifest_rows: List[Dict[str, Any]] = []
+    fusion_case_rows: List[List[Any]] = []
+    fusion_failed_cases: List[str] = []
+    fusion_summary_info: Optional[Dict[str, Any]] = None
 
     LOGGER.info("生成 subsets 与 tasks")
     for dataset_name, docs in _wrap_tqdm(
@@ -1107,6 +1265,21 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
             ]
         )
 
+    if enable_fusion and fusion_mode == "task_ratio":
+        fusion_task_seed = split_seed + base_mask_seed_offset
+        fusion_task_ids = {
+            task_id
+            for task_id in tasks
+            if _choose_by_ratio(task_id, fusion_task_ratio, fusion_task_seed)
+        }
+        LOGGER.debug(
+            "Fusion task_ratio: 选中任务=%s/%s",
+            len(fusion_task_ids),
+            len(tasks),
+        )
+    else:
+        fusion_task_ids = set()
+
     LOGGER.info("生成 cases 与 manifest")
     for task_id, info in _wrap_tqdm(list(tasks.items()), desc="生成 cases", total=len(tasks)):
         task_docs = [doc for doc in info["docs"] if doc.global_split == "train"]
@@ -1129,66 +1302,289 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
             case_id = f"K{k}_seed{seed}_{sampling}"
             case_path = cases_dir / task_id / case_id
             case_path.mkdir(parents=True, exist_ok=True)
-            induction_docs = _sample_docs_by_strategy(task_docs, schema_payload, k, seed, sampling)
-            LOGGER.debug(
-                "生成 case: task=%s case=%s docs=%s",
-                task_id,
-                case_id,
-                len(induction_docs),
-            )
-            _write_jsonl(
-                case_path / "induction_texts.jsonl",
-                ({"doc_id": doc.doc_id, "text": doc.text} for doc in induction_docs),
-            )
-            _write_jsonl(case_path / "induction_docs.jsonl", (doc.to_json() for doc in induction_docs))
-            reachable_edges = set()
-            for doc in induction_docs:
-                reachable_edges |= _doc_edge_keys(doc)
-            gold_reachable = [edge for edge in schema_payload if _schema_key_from_edge(edge) in reachable_edges]
-            save_json(case_path / "gold_full.schema.json", schema_payload)
-            save_json(case_path / "gold_reachable.schema.json", gold_reachable)
+            try:
+                induction_docs = _sample_docs_by_strategy(task_docs, schema_payload, k, seed, sampling)
+                LOGGER.debug(
+                    "生成 case: task=%s case=%s docs=%s",
+                    task_id,
+                    case_id,
+                    len(induction_docs),
+                )
+                _write_jsonl(
+                    case_path / "induction_texts.jsonl",
+                    ({"doc_id": doc.doc_id, "text": doc.text} for doc in induction_docs),
+                )
+                _write_jsonl(case_path / "induction_docs.jsonl", (doc.to_json() for doc in induction_docs))
+                reachable_edges = set()
+                for doc in induction_docs:
+                    reachable_edges |= _doc_edge_keys(doc)
+                gold_reachable = [edge for edge in schema_payload if _schema_key_from_edge(edge) in reachable_edges]
+                save_json(case_path / "gold_full.schema.json", schema_payload)
+                save_json(case_path / "gold_reachable.schema.json", gold_reachable)
 
-            base_edge_counts: Dict[float, int] = {}
-            for ratio in fusion_mask_ratios:
-                masked = _apply_fusion_mask(gold_reachable, ratio, seed)
-                base_edge_counts[ratio] = len(masked)
-                save_json(case_path / f"base_mask_{ratio}.schema.json", masked)
+                base_edge_counts: Dict[float, int] = {}
+                for ratio in base_mask_ratios:
+                    masked = _apply_fusion_mask(gold_reachable, ratio, seed)
+                    base_edge_counts[ratio] = len(masked)
+                    save_json(case_path / f"base_mask_{ratio}.schema.json", masked)
 
-            reachable_ratio = len(gold_reachable) / len(schema_payload) if schema_payload else 0.0
-            stats_payload = {
-                "task_id": task_id,
-                "case_id": case_id,
-                "k": k,
-                "seed": seed,
-                "sampling": sampling,
-                "reachable_edges": len(gold_reachable),
-                "reachable_ratio": reachable_ratio,
-                "avg_length": statistics.mean(len(doc.text) for doc in induction_docs) if induction_docs else 0,
-                "doc_id_hash": _text_hash("".join(doc.doc_id for doc in induction_docs)),
-            }
-            save_json(case_path / "stats.json", stats_payload)
-            _collect_case_stats(
-                case_stats_rows,
-                task_id,
-                case_id,
-                k,
-                seed,
-                sampling,
-                reachable_ratio,
-                base_edge_counts,
-            )
-            manifest_rows.append(
-                {
+                reachable_ratio = len(gold_reachable) / len(schema_payload) if schema_payload else 0.0
+                stats_payload = {
                     "task_id": task_id,
                     "case_id": case_id,
-                    "case_path": str(case_path),
                     "k": k,
                     "seed": seed,
                     "sampling": sampling,
+                    "reachable_edges": len(gold_reachable),
+                    "reachable_ratio": reachable_ratio,
+                    "avg_length": statistics.mean(len(doc.text) for doc in induction_docs) if induction_docs else 0,
+                    "doc_id_hash": _text_hash("".join(doc.doc_id for doc in induction_docs)),
                 }
+                save_json(case_path / "stats.json", stats_payload)
+                _collect_case_stats(
+                    case_stats_rows,
+                    task_id,
+                    case_id,
+                    k,
+                    seed,
+                    sampling,
+                    reachable_ratio,
+                    base_edge_counts,
+                )
+            except Exception as exc:  # noqa: BLE001
+                LOGGER.exception("case 生成失败: task=%s case=%s", task_id, case_id)
+                fusion_failed_cases.append(f"{task_id}\t{case_id}\t{exc}")
+                continue
+
+            schema_out_filename = (
+                "gold_reachable.schema.json" if fusion_eval_target == "reachable" else "gold_full.schema.json"
             )
 
+            if enable_fusion:
+                if fusion_mode == "ratio":
+                    fuse_enabled = _choose_by_ratio(
+                        f"{task_id}:{case_id}",
+                        fusion_case_ratio,
+                        split_seed + base_mask_seed_offset,
+                    )
+                elif fusion_mode == "task_ratio":
+                    fuse_enabled = task_id in fusion_task_ids
+                else:
+                    fuse_enabled = False
+
+                mask_ratio = _select_mask_ratio(
+                    base_mask_ratios,
+                    f"{task_id}:{case_id}",
+                    split_seed + base_mask_seed_offset,
+                )
+
+                if fuse_enabled and mask_ratio is not None:
+                    try:
+                        schema_in, noise_count, schema_in_source = _build_schema_in(
+                            base_schema_source,
+                            case_path,
+                            schema_payload,
+                            gold_reachable,
+                            mask_ratio,
+                            task_id,
+                            case_id,
+                            split_seed,
+                            base_mask_seed_offset,
+                            scope_schema_full,
+                            inject_noise,
+                            noise_edge_ratio,
+                        )
+
+                        save_json(case_path / "schema_in.partial.json", schema_in)
+                        _write_case_input(
+                            case_path / "case_input.json",
+                            task_id,
+                            case_id,
+                            "induction_texts.jsonl",
+                            "schema_in.partial.json",
+                            "fuse",
+                            mask_ratio,
+                            schema_out_filename,
+                        )
+                        manifest_rows.append(
+                            {
+                                "task_id": task_id,
+                                "case_id": case_id,
+                                "case_path": str(case_path),
+                                "k": k,
+                                "seed": seed,
+                                "sampling": sampling,
+                                "mode": "fuse",
+                                "schema_in": str(case_path / "schema_in.partial.json"),
+                                "schema_out": str(case_path / schema_out_filename),
+                                "mask_ratio": mask_ratio,
+                                "schema_in_source": schema_in_source,
+                            }
+                        )
+                        schema_in_edges = len(schema_in)
+                        full_edges = len(schema_payload)
+                        completeness = schema_in_edges / full_edges if full_edges else 0.0
+                        fusion_case_rows.append(
+                            [
+                                task_id,
+                                case_id,
+                                "train",
+                                "fuse",
+                                k,
+                                seed,
+                                sampling,
+                                full_edges,
+                                schema_in_edges,
+                                completeness,
+                                mask_ratio,
+                                noise_count,
+                            ]
+                        )
+                    except Exception as exc:  # noqa: BLE001
+                        LOGGER.exception("fusion schema_in 生成失败: task=%s case=%s", task_id, case_id)
+                        fusion_failed_cases.append(f"{task_id}\t{case_id}\t{exc}")
+                        continue
+                else:
+                    _write_case_input(
+                        case_path / "case_input.json",
+                        task_id,
+                        case_id,
+                        "induction_texts.jsonl",
+                        None,
+                        "construct",
+                        None,
+                        schema_out_filename,
+                    )
+                    manifest_rows.append(
+                        {
+                            "task_id": task_id,
+                            "case_id": case_id,
+                            "case_path": str(case_path),
+                            "k": k,
+                            "seed": seed,
+                            "sampling": sampling,
+                            "mode": "construct",
+                            "schema_in": None,
+                            "schema_out": str(case_path / schema_out_filename),
+                            "mask_ratio": None,
+                        }
+                    )
+                    fusion_case_rows.append(
+                        [
+                            task_id,
+                            case_id,
+                            "train",
+                            "construct",
+                            k,
+                            seed,
+                            sampling,
+                            len(schema_payload),
+                            0,
+                            0.0,
+                            None,
+                            0,
+                        ]
+                    )
+            else:
+                manifest_rows.append(
+                    {
+                        "task_id": task_id,
+                        "case_id": case_id,
+                        "case_path": str(case_path),
+                        "k": k,
+                        "seed": seed,
+                        "sampling": sampling,
+                    }
+                )
+
+            if enable_fusion and fusion_mode == "paired":
+                mask_ratio = _select_mask_ratio(
+                    base_mask_ratios,
+                    f"{task_id}:{case_id}:paired",
+                    split_seed + base_mask_seed_offset,
+                )
+                if mask_ratio is None:
+                    continue
+                fuse_case_id = f"{case_id}__fuse_r{mask_ratio}"
+                fuse_case_path = cases_dir / task_id / fuse_case_id
+                fuse_case_path.mkdir(parents=True, exist_ok=True)
+                try:
+                    for filename in (
+                        "induction_texts.jsonl",
+                        "induction_docs.jsonl",
+                        "gold_full.schema.json",
+                        "gold_reachable.schema.json",
+                        "stats.json",
+                    ):
+                        shutil.copy2(case_path / filename, fuse_case_path / filename)
+                    schema_in, noise_count, schema_in_source = _build_schema_in(
+                        base_schema_source,
+                        case_path,
+                        schema_payload,
+                        gold_reachable,
+                        mask_ratio,
+                        task_id,
+                        fuse_case_id,
+                        split_seed,
+                        base_mask_seed_offset,
+                        scope_schema_full,
+                        inject_noise,
+                        noise_edge_ratio,
+                    )
+
+                    save_json(fuse_case_path / "schema_in.partial.json", schema_in)
+                    _write_case_input(
+                        fuse_case_path / "case_input.json",
+                        task_id,
+                        fuse_case_id,
+                        "induction_texts.jsonl",
+                        "schema_in.partial.json",
+                        "fuse",
+                        mask_ratio,
+                        schema_out_filename,
+                    )
+                    manifest_rows.append(
+                        {
+                            "task_id": task_id,
+                            "case_id": fuse_case_id,
+                            "case_path": str(fuse_case_path),
+                            "k": k,
+                            "seed": seed,
+                            "sampling": sampling,
+                            "mode": "fuse",
+                            "schema_in": str(fuse_case_path / "schema_in.partial.json"),
+                            "schema_out": str(fuse_case_path / schema_out_filename),
+                            "mask_ratio": mask_ratio,
+                            "schema_in_source": schema_in_source,
+                        }
+                    )
+                    schema_in_edges = len(schema_in)
+                    full_edges = len(schema_payload)
+                    completeness = schema_in_edges / full_edges if full_edges else 0.0
+                    fusion_case_rows.append(
+                        [
+                            task_id,
+                            fuse_case_id,
+                            "train",
+                            "fuse",
+                            k,
+                            seed,
+                            sampling,
+                            full_edges,
+                            schema_in_edges,
+                            completeness,
+                            mask_ratio,
+                            noise_count,
+                        ]
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    LOGGER.exception("paired fuse case 生成失败: task=%s case=%s", task_id, fuse_case_id)
+                    fusion_failed_cases.append(f"{task_id}\t{fuse_case_id}\t{exc}")
+                    continue
+
     _write_jsonl(out_root / "manifest.jsonl", manifest_rows)
+    if fusion_failed_cases:
+        LOGGER.warning("Fusion case 失败数量: %s", len(fusion_failed_cases))
 
     LOGGER.info("生成统计信息")
     schema_stats_rows: List[List[Any]] = []
@@ -1393,6 +1789,83 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
         ["task_id", "case_id", "k", "seed", "sampling", "reachable_ratio", "mask_ratio", "edges_after_mask"],
         case_stats_rows,
     )
+    if enable_fusion:
+        _write_csv(
+            tables_dir / "fusion_case_stats.csv",
+            [
+                "task_id",
+                "case_id",
+                "split",
+                "mode",
+                "K",
+                "seed",
+                "sampling",
+                "full_edges",
+                "schema_in_edges",
+                "schema_in_completeness",
+                "mask_ratio",
+                "injected_noise_edges",
+            ],
+            fusion_case_rows,
+        )
+        split_counts: Dict[str, Dict[str, int]] = defaultdict(lambda: {"total": 0, "fuse": 0})
+        completeness_values: List[float] = []
+        mask_ratio_counts: Counter[float] = Counter()
+        for row in fusion_case_rows:
+            split = str(row[2])
+            mode = str(row[3])
+            split_counts[split]["total"] += 1
+            if mode == "fuse":
+                split_counts[split]["fuse"] += 1
+                if split == "train":
+                    completeness_values.append(float(row[9]))
+                if row[10] is not None:
+                    mask_ratio_counts[float(row[10])] += 1
+        fuse_ratio_train = (
+            split_counts["train"]["fuse"] / split_counts["train"]["total"]
+            if split_counts["train"]["total"]
+            else 0.0
+        )
+        fuse_ratio_dev = (
+            split_counts["dev"]["fuse"] / split_counts["dev"]["total"] if split_counts["dev"]["total"] else 0.0
+        )
+        fuse_ratio_test = (
+            split_counts["test"]["fuse"] / split_counts["test"]["total"] if split_counts["test"]["total"] else 0.0
+        )
+        avg_completeness = statistics.mean(completeness_values) if completeness_values else 0.0
+        mask_ratio_distribution = json.dumps(mask_ratio_counts, ensure_ascii=False)
+        fusion_summary_info = {
+            "cases_total": len(fusion_case_rows),
+            "cases_fuse": sum(1 for row in fusion_case_rows if row[3] == "fuse"),
+            "fuse_ratio_train": fuse_ratio_train,
+            "fuse_ratio_dev": fuse_ratio_dev,
+            "fuse_ratio_test": fuse_ratio_test,
+            "avg_schema_in_completeness_train": avg_completeness,
+            "mask_ratio_distribution": mask_ratio_distribution,
+        }
+        _write_csv(
+            tables_dir / "fusion_summary.csv",
+            [
+                "#cases_total",
+                "#cases_fuse",
+                "fuse_ratio_train",
+                "fuse_ratio_dev",
+                "fuse_ratio_test",
+                "avg_schema_in_completeness_train",
+                "mask_ratio_distribution",
+            ],
+            [
+                [
+                    fusion_summary_info["cases_total"],
+                    fusion_summary_info["cases_fuse"],
+                    fusion_summary_info["fuse_ratio_train"],
+                    fusion_summary_info["fuse_ratio_dev"],
+                    fusion_summary_info["fuse_ratio_test"],
+                    fusion_summary_info["avg_schema_in_completeness_train"],
+                    fusion_summary_info["mask_ratio_distribution"],
+                ]
+            ],
+        )
 
     overall_rows = [
         ["train", split_counter.get("train", 0)],
@@ -1497,6 +1970,24 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
         summary_lines.append("")
         summary_lines.append("## Coverage curve samples")
         summary_lines.extend(coverage_curve_lines)
+    if enable_fusion and fusion_summary_info:
+        summary_lines.extend(
+            [
+                "",
+                "## Fusion track",
+                "- Fusion track: 输入部分 schema，目标 full schema",
+                (
+                    f"- fuse_ratio train/dev/test: {fusion_summary_info['fuse_ratio_train']:.3f}/"
+                    f"{fusion_summary_info['fuse_ratio_dev']:.3f}/"
+                    f"{fusion_summary_info['fuse_ratio_test']:.3f}"
+                ),
+                (
+                    "- avg_schema_in_completeness_train: "
+                    f"{fusion_summary_info['avg_schema_in_completeness_train']:.3f}"
+                ),
+                f"- mask_ratio_distribution: {fusion_summary_info['mask_ratio_distribution']}",
+            ]
+        )
     _build_summary_md(stats_dir / "summary.md", summary_lines)
 
     LOGGER.info("SCOPE 构建完成，输出目录: %s", out_root)
@@ -1525,6 +2016,16 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--case_sizes", nargs="*", type=int)
     parser.add_argument("--case_seeds", nargs="*", type=int)
     parser.add_argument("--sampling", nargs="*", type=str)
+    parser.add_argument("--enable_fusion", type=_str2bool)
+    parser.add_argument("--fusion_mode", type=str)
+    parser.add_argument("--fusion_case_ratio", type=float)
+    parser.add_argument("--fusion_task_ratio", type=float)
+    parser.add_argument("--base_schema_source", type=str)
+    parser.add_argument("--base_mask_ratios", nargs="*", type=float)
+    parser.add_argument("--base_mask_seed_offset", type=int)
+    parser.add_argument("--fusion_eval_target", type=str)
+    parser.add_argument("--inject_noise", type=_str2bool)
+    parser.add_argument("--noise_edge_ratio", type=float)
     parser.add_argument("--fusion_mask_ratios", nargs="*", type=float)
     parser.add_argument("--schema_explosion_guard", type=_str2bool)
     parser.add_argument("--explosion_edge_threshold", type=int)
