@@ -489,20 +489,25 @@ dataset_conversion:
         language: en
         schema_path: data/dataset_public/re/re-en/InstructIE-en/schema_en.json
         data_files:
+          - data/dataset_public/re/re-en/InstructIE-en/train_en.json
           - data/dataset_public/re/re-en/InstructIE-en/valid_en.json
+          - data/dataset_public/re/re-en/InstructIE-en/test_en.json
       - name: instructIE_zh
         task: re
         format: instructie
         language: zh
         schema_path: data/dataset_public/re/re-zh/InstructIE-zh/schema_zh.json
         data_files:
+          - data/dataset_public/re/re-zh/InstructIE-zh/train_zh.json
           - data/dataset_public/re/re-zh/InstructIE-zh/valid_zh.json
+          - data/dataset_public/re/re-zh/InstructIE-zh/test_zh.json
       - name: duIE_zh
         task: re
         format: duie
         language: zh
         schema_path: data/dataset_public/re/re-zh/duIE/schema.json
         data_files:
+          - data/dataset_public/re/re-zh/duIE/train.json
           - data/dataset_public/re/re-zh/duIE/dev.json
       - name: CMeIE
         task: re
@@ -966,6 +971,7 @@ benchmark_stats:
     - sentence
     - contents
     - content
+    - input
     - tokens
   output_text_fallback: true
   split_aliases:
@@ -992,6 +998,9 @@ benchmark_stats:
   schema_edge_large_threshold: 200
   reachable_ratio_low_threshold: 0.2
   output_sample_ratio_high_threshold: 2.0
+  output_sample_ratio_high_threshold_by_task:
+    re: 3.0
+    ee: 5.0
   split_overlap_high_threshold: 0.05
   coverage_placeholder: Entity
   support_stats:

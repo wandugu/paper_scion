@@ -198,7 +198,7 @@ def run_benchmark_stats(config: Dict[str, Any]) -> Dict[str, Any]:
         support_stats.append(support_info)
         anomalies.extend(support_anomalies)
 
-        entity_info, entity_anomalies = _analyze_sample_entity_types(entry, benchmark_cfg)
+        entity_info, entity_anomalies = _analyze_sample_entity_types(entry, schema_info, benchmark_cfg)
         if entity_info:
             entity_type_stats.append(entity_info)
         anomalies.extend(entity_anomalies)
@@ -380,7 +380,7 @@ def _analyze_schema(entry: Dict[str, Any], cfg: Dict[str, Any]) -> Tuple[Dict[st
     }
 
     if entry.get("task") == "ee":
-        ee_edges, event_types, role_types, trigger_flag = _normalize_ee_schema(schema_payload)
+        ee_edges, event_types, role_types, trigger_flag, role_mapping = _normalize_ee_schema(schema_payload)
         graph_stats = _build_graph_stats(ee_edges, mode="ee")
         schema_info.update(
             {
@@ -389,6 +389,7 @@ def _analyze_schema(entry: Dict[str, Any], cfg: Dict[str, Any]) -> Tuple[Dict[st
                 "event_role_edges": len(ee_edges),
                 "schema_edges": len(ee_edges),
                 "trigger_in_schema_flag": trigger_flag,
+                "ee_role_mapping": role_mapping,
                 "graph_components": graph_stats["graph_components"],
                 "graph_avg_degree": graph_stats["graph_avg_degree"],
                 "graph_max_degree": graph_stats["graph_max_degree"],
@@ -504,11 +505,12 @@ def _normalize_re_schema(
 
 def _normalize_ee_schema(
     schema_payload: Any,
-) -> Tuple[List[Tuple[str, str, str]], List[str], List[str], bool]:
+) -> Tuple[List[Tuple[str, str, str]], List[str], List[str], bool, bool]:
     edges: List[Tuple[str, str, str]] = []
     event_types: set[str] = set()
     role_types: set[str] = set()
     trigger_flag = False
+    role_mapping = False
 
     events: List[Any] = []
     if isinstance(schema_payload, dict):
@@ -519,7 +521,17 @@ def _normalize_ee_schema(
         else:
             events = [schema_payload]
     elif isinstance(schema_payload, list):
-        events = schema_payload
+        if schema_payload and all(isinstance(item, str) for item in schema_payload):
+            events = [{"event_type": item, "roles": []} for item in schema_payload]
+        elif (
+            len(schema_payload) == 2
+            and all(isinstance(item, list) for item in schema_payload)
+            and all(all(isinstance(value, str) for value in item) for item in schema_payload)
+        ):
+            events = [{"event_type": item, "roles": []} for item in schema_payload[0]]
+            role_types.update([value.strip() for value in schema_payload[1] if isinstance(value, str) and value.strip()])
+        else:
+            events = schema_payload
 
     for item in events:
         if isinstance(item, (list, tuple)) and len(item) >= 2:
@@ -530,6 +542,7 @@ def _normalize_ee_schema(
                 edges.append((event_type, role, arg))
                 event_types.add(event_type)
                 role_types.add(role)
+                role_mapping = True
             continue
         if not isinstance(item, dict):
             continue
@@ -541,6 +554,7 @@ def _normalize_ee_schema(
         if any(key in item for key in ("trigger", "trigger_words", "triggers", "event_trigger")):
             trigger_flag = True
         if isinstance(roles, list) and roles:
+            role_mapping = True
             for role_item in roles:
                 role = ""
                 arg = "ARG"
@@ -553,12 +567,15 @@ def _normalize_ee_schema(
                     edges.append((event_type, role, arg))
                     role_types.add(role)
         elif roles:
+            role_mapping = True
             role = str(roles).strip()
             if role:
                 edges.append((event_type, role, "ARG"))
                 role_types.add(role)
+        if not roles:
+            edges.append((event_type, "ARG", "ARG"))
 
-    return sorted(set(edges)), sorted(event_types), sorted(role_types), trigger_flag
+    return sorted(set(edges)), sorted(event_types), sorted(role_types), trigger_flag, role_mapping
 
 
 def _relation_polysemy_stats(edges: Sequence[Tuple[str, str, str]]) -> Dict[str, float | str]:
@@ -859,7 +876,11 @@ def _analyze_corpus(
         )
 
     output_samples_count = entry.get("output_samples_count", 0)
-    if raw_records_count and output_samples_count > raw_records_count * float(cfg.get("output_sample_ratio_high_threshold", 2.0)):
+    ratio_threshold = float(cfg.get("output_sample_ratio_high_threshold", 2.0))
+    threshold_by_task = cfg.get("output_sample_ratio_high_threshold_by_task", {})
+    if isinstance(threshold_by_task, dict) and task in threshold_by_task:
+        ratio_threshold = float(threshold_by_task[task])
+    if raw_records_count and output_samples_count > raw_records_count * ratio_threshold:
         anomalies.append(
             {
                 "dataset": entry.get("dataset_name", ""),
@@ -868,6 +889,11 @@ def _analyze_corpus(
                 "suggestion": "检查是否出现样本重复或 flatten。",
             }
         )
+    LOGGER.debug(
+        "样本输出比例阈值: dataset=%s threshold=%s",
+        entry.get("dataset_name"),
+        ratio_threshold,
+    )
 
     LOGGER.debug("语料统计: %s -> %s", entry.get("dataset_name"), corpus_info)
     return corpus_info, text_lengths, anomalies
@@ -916,6 +942,10 @@ def _extract_list_from_payload(payload: Dict[str, Any]) -> List[Any]:
     for key in ("data", "instances", "samples", "records"):
         if isinstance(payload.get(key), list):
             return payload[key]
+    text_keys = ("text", "sentence", "input", "content", "contents", "tokens")
+    for key in text_keys:
+        if key in payload:
+            return []
     for value in payload.values():
         if isinstance(value, list) and value and all(isinstance(item, dict) for item in value):
             return value
@@ -991,6 +1021,19 @@ def _extract_text(record: Dict[str, Any], text_fields: Sequence[str]) -> str:
             return value.strip()
         if isinstance(value, list) and value and all(isinstance(item, str) for item in value):
             return " ".join(value).strip()
+        if isinstance(value, list) and value and all(isinstance(item, dict) for item in value):
+            tokens = []
+            for item in value:
+                for key in ("text", "token", "word", "value"):
+                    if key in item and item[key] is not None:
+                        tokens.append(str(item[key]).strip())
+                        break
+            if tokens:
+                return " ".join(tokens).strip()
+        if isinstance(value, dict):
+            for key in ("text", "content", "sentence", "value"):
+                if key in value and value[key] is not None:
+                    return str(value[key]).strip()
     return ""
 
 
@@ -1106,16 +1149,22 @@ def _analyze_coverage(
 
     schema_edges_count = schema_info.get("schema_edges") or 0
     reachable_edges = set()
+    has_train_split = any(_infer_split(path, split_aliases) == "train" for path in data_files)
+    use_all_splits = not has_train_split
 
     for data_path in data_files:
         split = _infer_split(data_path, split_aliases)
-        if split != "train":
+        if split != "train" and not use_all_splits:
             continue
         if not data_path.exists():
             continue
         for record in _iter_dataset_records(data_path, entry.get("format", ""), cfg):
             if entry.get("task") == "ee":
-                reachable_edges.update(_extract_ee_edges(record))
+                if schema_info.get("ee_role_mapping", True):
+                    reachable_edges.update(_extract_ee_edges(record))
+                else:
+                    for event_type in _extract_ee_event_types(record):
+                        reachable_edges.add((event_type, "ARG", "ARG"))
             else:
                 reachable_edges.update(_extract_re_edges(record, placeholder))
 
@@ -1141,6 +1190,9 @@ def _analyze_coverage(
                 "suggestion": "检查 schema 与训练集标注是否对齐。",
             }
         )
+
+    if use_all_splits:
+        LOGGER.debug("覆盖率统计未找到 train split，已使用全部 split: %s", entry.get("dataset_name"))
 
     schema_paths = entry.get("schema_paths", [])
     if not schema_paths and schema_edges_count > int(cfg.get("schema_edge_large_threshold", 200)):
@@ -1253,11 +1305,24 @@ def _is_valid_entity_type(value: str, placeholders: set[str]) -> bool:
 
 def _analyze_sample_entity_types(
     entry: Dict[str, Any],
+    schema_info: Dict[str, Any],
     cfg: Dict[str, Any],
 ) -> Tuple[Dict[str, Any] | None, List[Dict[str, Any]]]:
     task = entry.get("task", "")
     if task != "re":
         return None, []
+    if not schema_info.get("typed_flag", False):
+        info = {
+            "dataset": entry.get("dataset_name", ""),
+            "task": task,
+            "lang": entry.get("lang", ""),
+            "sample_entity_types_present": "NA",
+            "group_with_types": 0,
+            "samples_with_types": 0,
+            "total_samples": 0,
+        }
+        LOGGER.debug("schema 未提供实体类型，跳过样本类型统计: %s", entry.get("dataset_name"))
+        return info, []
     placeholders = set(
         cfg.get(
             "sample_entity_type_placeholders",
@@ -1349,6 +1414,20 @@ def _load_samples_payload(samples_path: str) -> List[Dict[str, Any]]:
         LOGGER.warning("samples_output 解析失败: %s (%s)", samples_path, exc)
         return []
     return payload if isinstance(payload, list) else []
+
+
+def _extract_ee_event_types(record: Dict[str, Any]) -> List[str]:
+    event_types: List[str] = []
+    events = record.get("event") or record.get("events") or []
+    if not isinstance(events, list):
+        return event_types
+    for event in events:
+        if not isinstance(event, dict):
+            continue
+        event_type = str(event.get("event_type") or event.get("type") or "").strip()
+        if event_type:
+            event_types.append(event_type)
+    return event_types
 
 
 def _support_distribution(values: Sequence[int], rare_threshold: int) -> Dict[str, float | str]:
