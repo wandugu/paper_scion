@@ -974,6 +974,9 @@ benchmark_stats:
     - input
     - tokens
   output_text_fallback: true
+  skip_empty_files: true
+  skip_lfs_pointers: true
+  lfs_pointer_prefix: "version https://git-lfs.github.com/spec/v1"
   split_aliases:
     train:
       - train

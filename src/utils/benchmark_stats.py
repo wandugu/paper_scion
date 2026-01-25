@@ -521,7 +521,12 @@ def _normalize_ee_schema(
         else:
             events = [schema_payload]
     elif isinstance(schema_payload, list):
-        if schema_payload and all(isinstance(item, str) for item in schema_payload):
+        if _is_three_section_ee_schema(schema_payload):
+            LOGGER.debug("检测到三段式 EE schema 格式。")
+            events, extracted_event_types, extracted_role_types = _build_ee_events_from_three_sections(schema_payload)
+            event_types.update(extracted_event_types)
+            role_types.update(extracted_role_types)
+        elif schema_payload and all(isinstance(item, str) for item in schema_payload):
             events = [{"event_type": item, "roles": []} for item in schema_payload]
         elif (
             len(schema_payload) == 2
@@ -576,6 +581,49 @@ def _normalize_ee_schema(
             edges.append((event_type, "ARG", "ARG"))
 
     return sorted(set(edges)), sorted(event_types), sorted(role_types), trigger_flag, role_mapping
+
+
+def _is_three_section_ee_schema(schema_payload: List[Any]) -> bool:
+    if len(schema_payload) != 3:
+        return False
+    first, second, third = schema_payload
+    if not isinstance(first, list) or not isinstance(second, list) or not isinstance(third, dict):
+        return False
+    if not all(isinstance(item, str) for item in first):
+        return False
+    if not all(isinstance(item, str) for item in second):
+        return False
+    return True
+
+
+def _build_ee_events_from_three_sections(
+    schema_payload: List[Any],
+) -> Tuple[List[Dict[str, Any]], set[str], set[str]]:
+    event_list_raw, role_list_raw, role_mapping_raw = schema_payload
+    event_types = {item.strip() for item in event_list_raw if isinstance(item, str) and item.strip()}
+    role_types = {item.strip() for item in role_list_raw if isinstance(item, str) and item.strip()}
+    events: List[Dict[str, Any]] = []
+
+    if isinstance(role_mapping_raw, dict):
+        for event_type, roles in role_mapping_raw.items():
+            if not isinstance(event_type, str) or not event_type.strip():
+                continue
+            cleaned_event = event_type.strip()
+            event_types.add(cleaned_event)
+            normalized_roles: List[str] = []
+            if isinstance(roles, list):
+                normalized_roles = [item.strip() for item in roles if isinstance(item, str) and item.strip()]
+                role_types.update(normalized_roles)
+            elif isinstance(roles, str) and roles.strip():
+                normalized_roles = [roles.strip()]
+                role_types.add(roles.strip())
+            events.append({"event_type": cleaned_event, "roles": normalized_roles})
+
+    if not events and event_types:
+        for event_type in sorted(event_types):
+            events.append({"event_type": event_type, "roles": []})
+
+    return events, event_types, role_types
 
 
 def _relation_polysemy_stats(edges: Sequence[Tuple[str, str, str]]) -> Dict[str, float | str]:
@@ -745,15 +793,9 @@ def _analyze_corpus(
     for data_path in data_files:
         split = _infer_split(data_path, split_aliases)
         file_records = 0
-        if not data_path.exists():
-            anomalies.append(
-                {
-                    "dataset": entry.get("dataset_name", ""),
-                    "issue": "raw_file_missing",
-                    "detail": f"缺失原始文件: {data_path}",
-                    "suggestion": "检查 data_files 配置路径。",
-                }
-            )
+        issue = _check_data_file_status(data_path, entry, cfg)
+        if issue:
+            anomalies.append(issue)
             continue
         LOGGER.debug("解析原始数据文件: %s", data_path)
         reader = _iter_dataset_records(data_path, entry.get("format", ""), cfg)
@@ -936,6 +978,48 @@ def _iter_dataset_records(path: Path, format_key: str, cfg: Dict[str, Any]) -> I
             continue
         if isinstance(payload, dict):
             yield payload
+
+
+def _check_data_file_status(path: Path, entry: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any] | None:
+    if not path.exists():
+        LOGGER.debug("原始数据文件缺失: %s", path)
+        return {
+            "dataset": entry.get("dataset_name", ""),
+            "issue": "raw_file_missing",
+            "detail": f"缺失原始文件: {path}",
+            "suggestion": "检查 data_files 配置路径。",
+        }
+    if cfg.get("skip_empty_files", True):
+        try:
+            if path.stat().st_size == 0:
+                LOGGER.debug("原始数据文件为空: %s", path)
+                return {
+                    "dataset": entry.get("dataset_name", ""),
+                    "issue": "raw_file_empty",
+                    "detail": f"空文件: {path}",
+                    "suggestion": "检查数据是否完整或重新下载。",
+                }
+        except OSError as exc:
+            LOGGER.debug("读取文件大小失败: %s (%s)", path, exc)
+    if cfg.get("skip_lfs_pointers", True) and _is_git_lfs_pointer(path, cfg):
+        return {
+            "dataset": entry.get("dataset_name", ""),
+            "issue": "raw_file_git_lfs_pointer",
+            "detail": f"检测到 Git LFS 指针文件: {path}",
+            "suggestion": "执行 git lfs pull 下载完整数据。",
+        }
+    return None
+
+
+def _is_git_lfs_pointer(path: Path, cfg: Dict[str, Any]) -> bool:
+    prefix = cfg.get("lfs_pointer_prefix", "version https://git-lfs.github.com/spec/v1")
+    try:
+        with path.open("r", encoding="utf-8") as handle:
+            head = handle.readline().strip()
+            return head.startswith(prefix)
+    except OSError as exc:
+        LOGGER.debug("读取文件头失败: %s (%s)", path, exc)
+        return False
 
 
 def _extract_list_from_payload(payload: Dict[str, Any]) -> List[Any]:
@@ -1152,13 +1236,17 @@ def _analyze_coverage(
     has_train_split = any(_infer_split(path, split_aliases) == "train" for path in data_files)
     use_all_splits = not has_train_split
 
+    parsed_any = False
     for data_path in data_files:
         split = _infer_split(data_path, split_aliases)
         if split != "train" and not use_all_splits:
             continue
-        if not data_path.exists():
+        issue = _check_data_file_status(data_path, entry, cfg)
+        if issue:
+            anomalies.append(issue)
             continue
         for record in _iter_dataset_records(data_path, entry.get("format", ""), cfg):
+            parsed_any = True
             if entry.get("task") == "ee":
                 if schema_info.get("ee_role_mapping", True):
                     reachable_edges.update(_extract_ee_edges(record))
@@ -1169,7 +1257,16 @@ def _analyze_coverage(
                 reachable_edges.update(_extract_re_edges(record, placeholder))
 
     reachable_ratio_train = "NA"
-    if schema_edges_count:
+    if not parsed_any:
+        anomalies.append(
+            {
+                "dataset": entry.get("dataset_name", ""),
+                "issue": "coverage_missing_data",
+                "detail": "未能解析到可用训练数据。",
+                "suggestion": "检查训练集文件是否缺失/为空或为 Git LFS 指针。",
+            }
+        )
+    if schema_edges_count and parsed_any:
         reachable_ratio_train = round(len(reachable_edges) / schema_edges_count, 4)
 
     coverage_info = {
