@@ -747,6 +747,41 @@ dataset_conversion:
           - data/dataset_public/ee/ee-zh/FewFC/train.json
           - data/dataset_public/ee/ee-zh/FewFC/dev.json
           - data/dataset_public/ee/ee-zh/FewFC/test.json
+benchmark_stats:
+  summary_txt: data/input/data_info.txt
+  out_dir: data/output/benchmark_stats
+  text_fields:
+    - text
+    - sentence
+    - contents
+    - content
+  output_text_fallback: true
+  split_aliases:
+    train:
+      - train
+    dev:
+      - dev
+      - valid
+      - val
+    test:
+      - test
+  schema_placeholder_types:
+    - Entity
+    - entity
+    - NA
+    - N/A
+    - ""
+  schema_edge_large_threshold: 200
+  reachable_ratio_low_threshold: 0.2
+  output_sample_ratio_high_threshold: 2.0
+  coverage_placeholder: Entity
+  core_set:
+    min_schema_edges: 5
+    max_schema_edges: 200
+    min_reachable_ratio: 0.4
+    min_docs: 100
+    max_docs: 100000
+    require_schema_file: true
 output:
   dir: data/output
   schema_filename: ontology_schema.json

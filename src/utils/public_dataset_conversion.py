@@ -7,7 +7,6 @@ import logging
 import re
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Sequence, Tuple
 
@@ -20,6 +19,7 @@ from .common import (
     save_json,
 )
 from .llm_factory import instantiate_llm_client
+from .benchmark_stats import DatasetConversionStats, build_conversion_summary, write_conversion_summary
 from .logger import get_ot_logger
 
 
@@ -90,26 +90,6 @@ class RelationTypeMap:
     """关系类型到实体类型的映射。"""
 
     by_relation: Dict[str, Tuple[str, str]]
-
-
-@dataclass(frozen=True)
-class DatasetConversionStats:
-    """数据集转换统计信息。"""
-
-    name: str
-    task: str
-    language: str
-    format_key: str
-    schema_count: int
-    schema_roles: int
-    sample_count: int
-    raw_records: int
-    sample_limit: int
-    include_input: bool
-    schema_output: str
-    samples_output: str
-    data_files: List[str]
-    schema_paths: List[str]
 
 
 def _extract_json_payload(response: str) -> Any:
@@ -622,6 +602,13 @@ def _parse_semeval_relation(raw: str) -> Tuple[str, str]:
     return rel_type, direction
 
 
+def _is_semeval_relation_line(raw: str) -> bool:
+    raw = raw.strip()
+    if not raw:
+        return False
+    return bool(re.match(r".+\((e1|e2),(e1|e2)\)$", raw))
+
+
 def _collect_relation_examples_from_semeval(
     data_paths: Sequence[Path],
     label_paths: Sequence[Path],
@@ -653,8 +640,14 @@ def _collect_relation_examples_from_semeval(
             sample_id, sentence = line.split("\t", 1)
             sentence = sentence.strip().strip('"')
             rel_line = ""
+            rel_line_from_file = False
             if idx + 1 < len(lines):
-                rel_line = lines[idx + 1].strip()
+                candidate = lines[idx + 1].strip()
+                if _is_semeval_relation_line(candidate):
+                    rel_line = candidate
+                    rel_line_from_file = True
+                else:
+                    LOGGER.debug("SemEval 行 %s 关系标签格式异常，改用 label_map: %s", idx + 1, candidate)
             if not rel_line and sample_id in label_map:
                 rel_line = label_map[sample_id]
             rel_type, direction = _parse_semeval_relation(rel_line or "Other")
@@ -662,7 +655,15 @@ def _collect_relation_examples_from_semeval(
             if direction == "e2,e1":
                 head_entity, tail_entity = tail_entity, head_entity
             relation_examples[rel_type].append({"text": text, "head": head_entity, "tail": tail_entity})
-            idx += 4
+            if rel_line_from_file:
+                idx += 2
+                while idx < len(lines):
+                    peek = lines[idx].strip()
+                    if peek and "\t" in peek:
+                        break
+                    idx += 1
+            else:
+                idx += 1
     return relation_examples
 
 
@@ -1430,8 +1431,14 @@ def convert_semeval2010_inputs(
             sample_id, sentence = line.split("\t", 1)
             sentence = sentence.strip().strip('"')
             rel_line = ""
+            rel_line_from_file = False
             if idx + 1 < len(lines):
-                rel_line = lines[idx + 1].strip()
+                candidate = lines[idx + 1].strip()
+                if _is_semeval_relation_line(candidate):
+                    rel_line = candidate
+                    rel_line_from_file = True
+                else:
+                    LOGGER.debug("SemEval 行 %s 关系标签格式异常，改用 label_map: %s", idx + 1, candidate)
             if not rel_line and sample_id in label_map:
                 rel_line = label_map[sample_id]
             rel_type, direction = _parse_semeval_relation(rel_line or "Other")
@@ -1471,7 +1478,15 @@ def convert_semeval2010_inputs(
             )
             bucket["items"].append(sample)
             bucket["texts"].add(text)
-            idx += 4
+            if rel_line_from_file:
+                idx += 2
+                while idx < len(lines):
+                    peek = lines[idx].strip()
+                    if peek and "\t" in peek:
+                        break
+                    idx += 1
+            else:
+                idx += 1
         iter_stats.setdefault("file_counts", {})[str(data_path)] = file_count
 
     results: List[Dict[str, Any]] = []
@@ -2541,59 +2556,6 @@ def _run_ee_dataset_conversion(
     )
 
 
-def _build_summary_text(stats: List[DatasetConversionStats]) -> str:
-    total_datasets = len(stats)
-    total_samples = sum(item.sample_count for item in stats)
-    total_raw = sum(item.raw_records for item in stats)
-    total_schema = sum(item.schema_count for item in stats)
-    re_stats = [item for item in stats if item.task == "re"]
-    ee_stats = [item for item in stats if item.task == "ee"]
-    re_zh = [item for item in re_stats if item.language == "zh"]
-    re_en = [item for item in re_stats if item.language == "en"]
-    ee_zh = [item for item in ee_stats if item.language == "zh"]
-    ee_en = [item for item in ee_stats if item.language == "en"]
-
-    lines = [
-        "公开数据集转换汇总信息",
-        f"生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-        "",
-        f"数据集总数: {total_datasets}",
-        f"RE 总数: {len(re_stats)} (RE-zh: {len(re_zh)} / RE-en: {len(re_en)})",
-        f"EE 总数: {len(ee_stats)} (EE-zh: {len(ee_zh)} / EE-en: {len(ee_en)})",
-        f"Schema 总条目数: {total_schema}",
-        f"样本总数(输出): {total_samples}",
-        f"原始记录总数(输入): {total_raw}",
-        "",
-        "各数据集明细:",
-    ]
-
-    for item in stats:
-        lines.extend(
-            [
-                f"- 数据集: {item.name}",
-                f"  任务/语言/格式: {item.task}/{item.language}/{item.format_key}",
-                f"  schema 条目: {item.schema_count} (roles: {item.schema_roles})",
-                f"  输出样本数: {item.sample_count}",
-                f"  原始记录数: {item.raw_records}",
-                f"  samples_limit: {item.sample_limit}",
-                f"  include_input: {item.include_input}",
-                f"  schema 输出: {item.schema_output}",
-                f"  samples 输出: {item.samples_output}",
-                f"  data_files({len(item.data_files)}): {', '.join(item.data_files)}",
-                f"  schema_paths({len(item.schema_paths)}): {', '.join(item.schema_paths)}",
-                "",
-            ]
-        )
-    return "\n".join(lines)
-
-
-def _write_summary(summary_path: Path, stats: List[DatasetConversionStats]) -> None:
-    summary_path.parent.mkdir(parents=True, exist_ok=True)
-    content = _build_summary_text(stats)
-    summary_path.write_text(content, encoding="utf-8")
-    LOGGER.info("汇总信息已写入: %s", summary_path)
-
-
 def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
     _apply_tqdm_settings(config)
     conv_cfg = config.get("dataset_conversion") or {}
@@ -2666,9 +2628,9 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
             conv_cfg.get("data_info_path", conv_cfg.get("output_dir", "data/input") + "/data_info.txt")
         )
         if stats:
-            summary_text = _build_summary_text(stats)
+            summary_text = build_conversion_summary(stats)
             LOGGER.info("\n%s", summary_text)
-            _write_summary(summary_path, stats)
+            write_conversion_summary(summary_path, stats)
         else:
             LOGGER.info("未生成任何数据集统计信息，跳过汇总写入。")
         return results
@@ -2746,9 +2708,9 @@ def convert_from_config(config: Dict[str, Any]) -> Dict[str, List[Path]]:
         conv_cfg.get("data_info_path", conv_cfg.get("output_dir", "data/input") + "/data_info.txt")
     )
     if stats:
-        summary_text = _build_summary_text(stats)
+        summary_text = build_conversion_summary(stats)
         LOGGER.info("\n%s", summary_text)
-        _write_summary(summary_path, stats)
+        write_conversion_summary(summary_path, stats)
     else:
         LOGGER.info("未生成任何数据集统计信息，跳过汇总写入。")
     return results
