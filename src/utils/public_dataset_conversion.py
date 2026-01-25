@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import logging
+import math
+import statistics
 import re
 from collections import defaultdict
 from dataclasses import dataclass
@@ -979,6 +981,40 @@ def _extract_relation_types(schema_payload: Dict[str, Any]) -> List[str]:
                 if rel_type:
                     types.append(rel_type)
     return sorted(set(types))
+
+
+def _support_percentile(values: List[int], percentile: float) -> float:
+    if not values:
+        return 0.0
+    values_sorted = sorted(values)
+    index = int(math.ceil(percentile * len(values_sorted))) - 1
+    index = max(0, min(index, len(values_sorted) - 1))
+    return float(values_sorted[index])
+
+
+def _compute_support_stats(samples_payload: Sequence[Dict[str, Any]]) -> Dict[str, float | str]:
+    counts: List[int] = []
+    for group in samples_payload:
+        if not isinstance(group, dict):
+            continue
+        samples = group.get("samples", [])
+        if isinstance(samples, list):
+            counts.append(len(samples))
+    if not counts:
+        return {
+            "support_min": "NA",
+            "support_median": "NA",
+            "support_p90": "NA",
+            "support_p99": "NA",
+            "support_max": "NA",
+        }
+    return {
+        "support_min": min(counts),
+        "support_median": round(statistics.median(counts), 4),
+        "support_p90": round(_support_percentile(counts, 0.9), 4),
+        "support_p99": round(_support_percentile(counts, 0.99), 4),
+        "support_max": max(counts),
+    }
 
 
 def _convert_relation_inputs(
@@ -2665,6 +2701,7 @@ def _run_re_dataset_conversion(
 
     total_samples = sum(len(item.get("samples", [])) for item in samples_payload)
     raw_records = sample_stats.get("raw_records", 0)
+    support_stats = _compute_support_stats(samples_payload)
     LOGGER.debug(
         "关系抽取数据集 %s 关系数=%s 样本数=%s 原始记录数=%s",
         dataset_name,
@@ -2702,6 +2739,11 @@ def _run_re_dataset_conversion(
             relation_types_source=relation_types_source,
             relation_types_llm_generated=llm_used,
             relation_types_llm_items=llm_generated_items,
+            support_min=support_stats["support_min"],
+            support_median=support_stats["support_median"],
+            support_p90=support_stats["support_p90"],
+            support_p99=support_stats["support_p99"],
+            support_max=support_stats["support_max"],
         )
     )
 
@@ -2783,6 +2825,7 @@ def _run_ee_dataset_conversion(
 
     total_samples = sum(len(item.get("samples", [])) for item in samples_payload)
     raw_records = sample_stats.get("raw_records", 0)
+    support_stats = _compute_support_stats(samples_payload)
     LOGGER.debug(
         "事件抽取数据集 %s 事件类型数=%s 样本数=%s 原始记录数=%s",
         dataset_name,
@@ -2819,6 +2862,11 @@ def _run_ee_dataset_conversion(
             relation_types_source="na",
             relation_types_llm_generated=False,
             relation_types_llm_items=[],
+            support_min=support_stats["support_min"],
+            support_median=support_stats["support_median"],
+            support_p90=support_stats["support_p90"],
+            support_p99=support_stats["support_p99"],
+            support_max=support_stats["support_max"],
         )
     )
 

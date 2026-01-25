@@ -800,7 +800,22 @@ benchmark_stats:
   schema_edge_large_threshold: 200
   reachable_ratio_low_threshold: 0.2
   output_sample_ratio_high_threshold: 2.0
+  split_overlap_high_threshold: 0.05
   coverage_placeholder: Entity
+  support_stats:
+    rare_threshold: 5
+  k_coverage:
+    enabled: true
+    ks:
+      - 50
+      - 100
+      - 200
+      - 500
+      - 1000
+    max_samples: 5000
+    random_seed: 42
+  overlap_stats:
+    top_k: 5
   core_set:
     min_schema_edges: 5
     max_schema_edges: 200

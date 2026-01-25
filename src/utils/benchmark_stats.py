@@ -6,6 +6,7 @@ import csv
 import hashlib
 import json
 import logging
+import random
 import math
 import re
 import statistics
@@ -45,6 +46,11 @@ class DatasetConversionStats:
     relation_types_source: str
     relation_types_llm_generated: bool
     relation_types_llm_items: List[str]
+    support_min: float | str
+    support_median: float | str
+    support_p90: float | str
+    support_p99: float | str
+    support_max: float | str
 
 
 def build_conversion_summary(stats: Sequence[DatasetConversionStats]) -> str:
@@ -89,6 +95,10 @@ def build_conversion_summary(stats: Sequence[DatasetConversionStats]) -> str:
                 (
                     "  relation_types_llm_generated:"
                     f" {item.relation_types_llm_generated} ({', '.join(item.relation_types_llm_items) if item.relation_types_llm_items else 'None'})"
+                ),
+                (
+                    "  support(min/median/p90/p99/max):"
+                    f" {item.support_min}/{item.support_median}/{item.support_p90}/{item.support_p99}/{item.support_max}"
                 ),
                 f"  schema 输出: {item.schema_output}",
                 f"  samples 输出: {item.samples_output}",
@@ -151,15 +161,17 @@ def run_benchmark_stats(config: Dict[str, Any]) -> Dict[str, Any]:
     schema_stats: List[Dict[str, Any]] = []
     corpus_stats: List[Dict[str, Any]] = []
     coverage_stats: List[Dict[str, Any]] = []
+    support_stats: List[Dict[str, Any]] = []
+    k_coverage_stats: List[Dict[str, Any]] = []
     anomalies: List[Dict[str, Any]] = []
     all_text_lengths: List[int] = []
-    schema_edges_all: List[int] = []
+    schema_details: List[Dict[str, Any]] = []
 
     for entry in registry:
         LOGGER.debug("处理数据集: %s", entry["dataset_name"])
-        schema_info = _analyze_schema(entry, benchmark_cfg)
+        schema_info, schema_detail = _analyze_schema(entry, benchmark_cfg)
         schema_stats.append(schema_info)
-        schema_edges_all.append(schema_info.get("schema_edges") or 0)
+        schema_details.append(schema_detail)
 
         corpus_info, corpus_text_lengths, corpus_anomalies = _analyze_corpus(entry, benchmark_cfg)
         corpus_stats.append(corpus_info)
@@ -170,11 +182,25 @@ def run_benchmark_stats(config: Dict[str, Any]) -> Dict[str, Any]:
         coverage_stats.append(coverage_info)
         anomalies.extend(coverage_anomalies)
 
+        support_info, support_anomalies = _analyze_support(entry, schema_info, benchmark_cfg)
+        support_stats.append(support_info)
+        anomalies.extend(support_anomalies)
+
+        k_rows = _analyze_k_coverage(entry, schema_info, benchmark_cfg)
+        k_coverage_stats.extend(k_rows)
+
     tables_dir = out_dir / "tables"
     tables_dir.mkdir(parents=True, exist_ok=True)
     _write_csv(tables_dir / "schema_stats.csv", schema_stats)
     _write_csv(tables_dir / "corpus_stats.csv", corpus_stats)
     _write_csv(tables_dir / "coverage_stats.csv", coverage_stats)
+    _write_csv(tables_dir / "support_stats.csv", support_stats)
+    if k_coverage_stats:
+        _write_csv(tables_dir / "k_coverage_stats.csv", k_coverage_stats)
+
+    overlap_rows = _analyze_schema_overlap(schema_details, benchmark_cfg)
+    if overlap_rows:
+        _write_csv(tables_dir / "schema_overlap_stats.csv", overlap_rows)
 
     _write_anomaly_report(out_dir / "anomaly_report.md", anomalies)
     _write_figs(out_dir / "figs", schema_stats, corpus_stats)
@@ -186,6 +212,8 @@ def run_benchmark_stats(config: Dict[str, Any]) -> Dict[str, Any]:
         "schema_stats": schema_stats,
         "corpus_stats": corpus_stats,
         "coverage_stats": coverage_stats,
+        "support_stats": support_stats,
+        "k_coverage_stats": k_coverage_stats,
         "anomalies": anomalies,
     }
 
@@ -281,7 +309,7 @@ def _safe_int(raw: str) -> int:
         return 0
 
 
-def _analyze_schema(entry: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
+def _analyze_schema(entry: Dict[str, Any], cfg: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     schema_paths = [Path(path) for path in entry.get("schema_paths", []) if path]
     schema_output = Path(entry.get("schema_output_path", "")) if entry.get("schema_output_path") else None
     schema_payload = _load_schema_payload(schema_output, schema_paths)
@@ -304,10 +332,27 @@ def _analyze_schema(entry: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any
         "role_types": "NA",
         "event_role_edges": 0,
         "trigger_in_schema_flag": False,
+        "polysemy_max_pairs_per_relation": "NA",
+        "polysemy_avg_pairs_per_relation": "NA",
+        "polysemous_rel_ratio": "NA",
+        "compound_type_ratio": "NA",
+        "max_compound_depth": "NA",
+        "graph_components": "NA",
+        "graph_avg_degree": "NA",
+        "graph_max_degree": "NA",
+        "graph_edge_density": "NA",
+    }
+    schema_detail: Dict[str, Any] = {
+        "dataset": entry.get("dataset_name", ""),
+        "task": entry.get("task", ""),
+        "rel_types": set(),
+        "event_types": set(),
+        "role_types": set(),
     }
 
     if entry.get("task") == "ee":
         ee_edges, event_types, role_types, trigger_flag = _normalize_ee_schema(schema_payload)
+        graph_stats = _build_graph_stats(ee_edges, mode="ee")
         schema_info.update(
             {
                 "event_types": len(event_types),
@@ -315,10 +360,23 @@ def _analyze_schema(entry: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any
                 "event_role_edges": len(ee_edges),
                 "schema_edges": len(ee_edges),
                 "trigger_in_schema_flag": trigger_flag,
+                "graph_components": graph_stats["graph_components"],
+                "graph_avg_degree": graph_stats["graph_avg_degree"],
+                "graph_max_degree": graph_stats["graph_max_degree"],
+                "graph_edge_density": graph_stats["graph_edge_density"],
+            }
+        )
+        schema_detail.update(
+            {
+                "event_types": set(event_types),
+                "role_types": set(role_types),
             }
         )
     else:
         re_edges, rel_types, ent_types, typed_flag = _normalize_re_schema(schema_payload, placeholder_types)
+        polysemy_stats = _relation_polysemy_stats(re_edges)
+        compound_stats = _compound_type_stats(ent_types)
+        graph_stats = _build_graph_stats(re_edges, mode="re")
         schema_info.update(
             {
                 "rel_types": len(rel_types),
@@ -326,11 +384,26 @@ def _analyze_schema(entry: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any
                 "schema_edges": len(re_edges) if typed_flag else len(rel_types),
                 "schema_edges_count": len(re_edges),
                 "typed_flag": typed_flag,
+                "polysemy_max_pairs_per_relation": polysemy_stats["polysemy_max_pairs_per_relation"],
+                "polysemy_avg_pairs_per_relation": polysemy_stats["polysemy_avg_pairs_per_relation"],
+                "polysemous_rel_ratio": polysemy_stats["polysemous_rel_ratio"],
+                "compound_type_ratio": compound_stats["compound_type_ratio"],
+                "max_compound_depth": compound_stats["max_compound_depth"],
+                "graph_components": graph_stats["graph_components"],
+                "graph_avg_degree": graph_stats["graph_avg_degree"],
+                "graph_max_degree": graph_stats["graph_max_degree"],
+                "graph_edge_density": graph_stats["graph_edge_density"],
+            }
+        )
+        schema_detail.update(
+            {
+                "rel_types": set(rel_types),
+                "ent_types": set(ent_types),
             }
         )
 
     LOGGER.debug("schema 统计: %s -> %s", entry.get("dataset_name"), schema_info)
-    return schema_info
+    return schema_info, schema_detail
 
 
 def _schema_items_count(schema_payload: Any) -> int:
@@ -459,6 +532,106 @@ def _normalize_ee_schema(
     return sorted(set(edges)), sorted(event_types), sorted(role_types), trigger_flag
 
 
+def _relation_polysemy_stats(edges: Sequence[Tuple[str, str, str]]) -> Dict[str, float | str]:
+    if not edges:
+        return {
+            "polysemy_max_pairs_per_relation": "NA",
+            "polysemy_avg_pairs_per_relation": "NA",
+            "polysemous_rel_ratio": "NA",
+        }
+    pairs_by_rel: Dict[str, set[Tuple[str, str]]] = {}
+    for head_type, rel_type, tail_type in edges:
+        pairs_by_rel.setdefault(rel_type, set()).add((head_type, tail_type))
+    pair_counts = [len(pairs) for pairs in pairs_by_rel.values()]
+    if not pair_counts:
+        return {
+            "polysemy_max_pairs_per_relation": "NA",
+            "polysemy_avg_pairs_per_relation": "NA",
+            "polysemous_rel_ratio": "NA",
+        }
+    poly_ratio = sum(1 for count in pair_counts if count > 1) / len(pair_counts)
+    return {
+        "polysemy_max_pairs_per_relation": max(pair_counts),
+        "polysemy_avg_pairs_per_relation": round(sum(pair_counts) / len(pair_counts), 4),
+        "polysemous_rel_ratio": round(poly_ratio, 4),
+    }
+
+
+def _compound_type_stats(ent_types: Sequence[str]) -> Dict[str, float | str]:
+    if not ent_types:
+        return {"compound_type_ratio": "NA", "max_compound_depth": "NA"}
+    compound = [item for item in ent_types if "/" in item]
+    ratio = len(compound) / len(ent_types) if ent_types else 0
+    max_depth = max((len(item.split("/")) for item in ent_types), default=0)
+    return {
+        "compound_type_ratio": round(ratio, 4),
+        "max_compound_depth": max_depth,
+    }
+
+
+def _build_graph_stats(
+    edges: Sequence[Tuple[str, str, str]],
+    mode: str = "re",
+) -> Dict[str, float | str]:
+    if not edges:
+        return {
+            "graph_components": "NA",
+            "graph_avg_degree": "NA",
+            "graph_max_degree": "NA",
+            "graph_edge_density": "NA",
+        }
+    node_pairs: List[Tuple[str, str]] = []
+    for head, rel, tail in edges:
+        if mode == "ee":
+            node_pairs.append((head, rel))
+        else:
+            node_pairs.append((head, tail))
+
+    nodes: set[str] = set()
+    adjacency: Dict[str, set[str]] = {}
+    for node_a, node_b in node_pairs:
+        nodes.update([node_a, node_b])
+        adjacency.setdefault(node_a, set()).add(node_b)
+        adjacency.setdefault(node_b, set()).add(node_a)
+
+    node_count = len(nodes)
+    if node_count == 0:
+        return {
+            "graph_components": "NA",
+            "graph_avg_degree": "NA",
+            "graph_max_degree": "NA",
+            "graph_edge_density": "NA",
+        }
+    degrees = [len(adjacency.get(node, set())) for node in nodes]
+    edge_count = len(node_pairs)
+    avg_degree = round(sum(degrees) / node_count, 4) if degrees else "NA"
+    max_degree = max(degrees) if degrees else "NA"
+    density = "NA"
+    if node_count > 1:
+        density = round((2 * edge_count) / (node_count * (node_count - 1)), 4)
+
+    visited: set[str] = set()
+    components = 0
+    for node in nodes:
+        if node in visited:
+            continue
+        components += 1
+        stack = [node]
+        while stack:
+            current = stack.pop()
+            if current in visited:
+                continue
+            visited.add(current)
+            stack.extend(adjacency.get(current, set()) - visited)
+
+    return {
+        "graph_components": components,
+        "graph_avg_degree": avg_degree,
+        "graph_max_degree": max_degree,
+        "graph_edge_density": density,
+    }
+
+
 def _extract_first_value(payload: Dict[str, Any], keys: Sequence[str]) -> Any:
     for key in keys:
         if key not in payload:
@@ -513,6 +686,7 @@ def _analyze_corpus(
     text_fields = cfg.get("text_fields", ["text", "sentence", "contents", "content"])
     anomalies: List[Dict[str, Any]] = []
     split_counts = {"train": "NA", "dev": "NA", "test": "NA"}
+    split_text_hashes: Dict[str, set[str]] = {"train": set(), "dev": set(), "test": set()}
     doc_texts: List[str] = []
     doc_texts_hash: set[str] = set()
     text_lengths: List[int] = []
@@ -545,6 +719,8 @@ def _analyze_corpus(
                 doc_texts.append(text)
                 text_hash = hashlib.md5(text.encode("utf-8")).hexdigest()
                 doc_texts_hash.add(text_hash)
+                if split in split_text_hashes:
+                    split_text_hashes[split].add(text_hash)
                 text_lengths.append(len(text))
                 token_lengths.append(len(text.split()))
             if task == "re":
@@ -576,6 +752,11 @@ def _analyze_corpus(
         token_lengths = [len(text.split()) for text in fallback_texts]
 
     doc_count_dedup = len(doc_texts_hash) if doc_texts_hash else "NA"
+    train_hashes = split_text_hashes.get("train", set())
+    dev_hashes = split_text_hashes.get("dev", set())
+    test_hashes = split_text_hashes.get("test", set())
+    train_dev_overlap = _overlap_ratio(train_hashes, dev_hashes)
+    train_test_overlap = _overlap_ratio(train_hashes, test_hashes)
 
     raw_records_count = entry.get("raw_records_count", 0)
     duplicate_ratio = "NA"
@@ -604,6 +785,8 @@ def _analyze_corpus(
         "avg_events_per_doc": _safe_mean(events_per_doc) if task == "ee" else "NA",
         "median_events_per_doc": _safe_median(events_per_doc) if task == "ee" else "NA",
         "avg_args_per_event": _safe_mean(args_per_event) if task == "ee" else "NA",
+        "train_dev_text_overlap_ratio": train_dev_overlap,
+        "train_test_text_overlap_ratio": train_test_overlap,
     }
 
     if doc_count_dedup == "NA":
@@ -623,6 +806,26 @@ def _analyze_corpus(
                 "issue": "split_missing",
                 "detail": f"split_counts={split_counts}",
                 "suggestion": "检查是否缺少 dev/test 文件。",
+            }
+        )
+
+    overlap_threshold = float(cfg.get("split_overlap_high_threshold", 0.05))
+    if isinstance(train_dev_overlap, float) and train_dev_overlap >= overlap_threshold:
+        anomalies.append(
+            {
+                "dataset": entry.get("dataset_name", ""),
+                "issue": "train_dev_text_overlap_high",
+                "detail": f"train_dev_overlap={train_dev_overlap}",
+                "suggestion": "检查 split 之间是否存在文本重复。",
+            }
+        )
+    if isinstance(train_test_overlap, float) and train_test_overlap >= overlap_threshold:
+        anomalies.append(
+            {
+                "dataset": entry.get("dataset_name", ""),
+                "issue": "train_test_text_overlap_high",
+                "detail": f"train_test_overlap={train_test_overlap}",
+                "suggestion": "检查 split 之间是否存在文本重复。",
             }
         )
 
@@ -910,6 +1113,365 @@ def _analyze_coverage(
     return coverage_info, anomalies
 
 
+def _analyze_support(
+    entry: Dict[str, Any],
+    schema_info: Dict[str, Any],
+    cfg: Dict[str, Any],
+) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    anomalies: List[Dict[str, Any]] = []
+    samples_path = entry.get("samples_output_path", "")
+    support_cfg = cfg.get("support_stats", {})
+    rare_threshold = int(support_cfg.get("rare_threshold", 5))
+    task = entry.get("task", "")
+
+    support_counts = _collect_support_counts(samples_path, task)
+    stats = _support_distribution(support_counts, rare_threshold)
+    support_info = {
+        "dataset": entry.get("dataset_name", ""),
+        "task": task,
+        "lang": entry.get("lang", ""),
+        "support_edge_count": len(support_counts),
+        "support_min": stats["support_min"],
+        "support_median": stats["support_median"],
+        "support_p90": stats["support_p90"],
+        "support_p99": stats["support_p99"],
+        "support_max": stats["support_max"],
+        "support_gini": stats["support_gini"],
+        "support_entropy": stats["support_entropy"],
+        "rare_edge_ratio": stats["rare_edge_ratio"],
+        "rare_threshold": rare_threshold,
+        "schema_edges": schema_info.get("schema_edges"),
+    }
+
+    if not support_counts:
+        anomalies.append(
+            {
+                "dataset": entry.get("dataset_name", ""),
+                "issue": "support_stats_missing",
+                "detail": f"samples_output_path={samples_path}",
+                "suggestion": "检查 golden_input 是否生成。",
+            }
+        )
+
+    LOGGER.debug("支持度统计: %s -> %s", entry.get("dataset_name"), support_info)
+    return support_info, anomalies
+
+
+def _collect_support_counts(samples_path: str, task: str) -> List[int]:
+    payload = _load_samples_payload(samples_path)
+    if not payload:
+        return []
+    if task == "ee":
+        edge_counts: Dict[Tuple[str, str], int] = {}
+        for group in payload:
+            if not isinstance(group, dict):
+                continue
+            event_type = str(group.get("event_type", "")).strip()
+            if not event_type:
+                continue
+            samples = group.get("samples", [])
+            if not isinstance(samples, list):
+                continue
+            for sample in samples:
+                if not isinstance(sample, dict):
+                    continue
+                arguments = sample.get("arguments", []) or []
+                if not isinstance(arguments, list):
+                    continue
+                for arg in arguments:
+                    if not isinstance(arg, dict):
+                        continue
+                    role = str(
+                        arg.get("role")
+                        or arg.get("argument_role")
+                        or arg.get("role_type")
+                        or ""
+                    ).strip()
+                    if not role:
+                        continue
+                    edge_counts[(event_type, role)] = edge_counts.get((event_type, role), 0) + 1
+        return list(edge_counts.values())
+
+    counts: List[int] = []
+    for group in payload:
+        if not isinstance(group, dict):
+            continue
+        samples = group.get("samples", [])
+        if isinstance(samples, list):
+            counts.append(len(samples))
+    return counts
+
+
+def _load_samples_payload(samples_path: str) -> List[Dict[str, Any]]:
+    if not samples_path:
+        return []
+    path = Path(samples_path)
+    if not path.exists():
+        LOGGER.debug("samples_output 不存在: %s", samples_path)
+        return []
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        LOGGER.warning("samples_output 解析失败: %s (%s)", samples_path, exc)
+        return []
+    return payload if isinstance(payload, list) else []
+
+
+def _support_distribution(values: Sequence[int], rare_threshold: int) -> Dict[str, float | str]:
+    if not values:
+        return {
+            "support_min": "NA",
+            "support_median": "NA",
+            "support_p90": "NA",
+            "support_p99": "NA",
+            "support_max": "NA",
+            "support_gini": "NA",
+            "support_entropy": "NA",
+            "rare_edge_ratio": "NA",
+        }
+    values_sorted = sorted(values)
+    total = sum(values_sorted)
+    rare_count = sum(1 for value in values_sorted if value < rare_threshold)
+    rare_ratio = round(rare_count / len(values_sorted), 4)
+    return {
+        "support_min": min(values_sorted),
+        "support_median": round(statistics.median(values_sorted), 4),
+        "support_p90": _safe_percentile(values_sorted, 0.9),
+        "support_p99": _safe_percentile(values_sorted, 0.99),
+        "support_max": max(values_sorted),
+        "support_gini": _compute_gini(values_sorted),
+        "support_entropy": _compute_entropy(values_sorted, total),
+        "rare_edge_ratio": rare_ratio,
+    }
+
+
+def _compute_gini(values_sorted: Sequence[int]) -> float:
+    if not values_sorted:
+        return 0.0
+    total = sum(values_sorted)
+    if total == 0:
+        return 0.0
+    cumulative = 0.0
+    for index, value in enumerate(values_sorted, start=1):
+        cumulative += index * value
+    gini = (2 * cumulative) / (len(values_sorted) * total) - (len(values_sorted) + 1) / len(values_sorted)
+    return round(gini, 4)
+
+
+def _compute_entropy(values: Sequence[int], total: int) -> float:
+    if not values or total <= 0:
+        return 0.0
+    entropy = 0.0
+    for value in values:
+        if value <= 0:
+            continue
+        prob = value / total
+        entropy -= prob * math.log2(prob)
+    return round(entropy, 4)
+
+
+def _analyze_k_coverage(
+    entry: Dict[str, Any],
+    schema_info: Dict[str, Any],
+    cfg: Dict[str, Any],
+) -> List[Dict[str, Any]]:
+    k_cfg = cfg.get("k_coverage", {})
+    if not k_cfg.get("enabled", False):
+        return []
+    ks = k_cfg.get("ks", [50, 100, 200, 500, 1000])
+    max_samples = int(k_cfg.get("max_samples", 5000))
+    seed = int(k_cfg.get("random_seed", 42))
+    samples_path = entry.get("samples_output_path", "")
+    task = entry.get("task", "")
+
+    sample_edges = _collect_sample_edges(samples_path, task)
+    if not sample_edges:
+        LOGGER.debug("K-coverage 无样本: %s", entry.get("dataset_name"))
+        return []
+    if len(sample_edges) > max_samples:
+        rng = random.Random(seed)
+        sample_edges = rng.sample(sample_edges, max_samples)
+        LOGGER.debug(
+            "K-coverage 样本裁剪: %s -> %s",
+            entry.get("dataset_name"),
+            len(sample_edges),
+        )
+
+    schema_edges = schema_info.get("schema_edges")
+    results: List[Dict[str, Any]] = []
+    for raw_k in ks:
+        k = int(raw_k)
+        for method in ("random", "coverage_aware"):
+            covered = _coverage_edges(sample_edges, k, seed, method)
+            reachable_edges = len(covered)
+            reachable_ratio = "NA"
+            if isinstance(schema_edges, int) and schema_edges > 0:
+                reachable_ratio = round(reachable_edges / schema_edges, 4)
+            results.append(
+                {
+                    "dataset": entry.get("dataset_name", ""),
+                    "task": task,
+                    "method": method,
+                    "k": k,
+                    "reachable_edges": reachable_edges,
+                    "reachable_ratio": reachable_ratio,
+                    "schema_edges": schema_edges,
+                }
+            )
+    LOGGER.debug("K-coverage 统计: %s -> %s", entry.get("dataset_name"), results)
+    return results
+
+
+def _collect_sample_edges(samples_path: str, task: str) -> List[set[Tuple[str, str, str]]]:
+    payload = _load_samples_payload(samples_path)
+    if not payload:
+        return []
+    sample_edges: List[set[Tuple[str, str, str]]] = []
+    if task == "ee":
+        for group in payload:
+            if not isinstance(group, dict):
+                continue
+            event_type = str(group.get("event_type", "")).strip()
+            if not event_type:
+                continue
+            samples = group.get("samples", [])
+            if not isinstance(samples, list):
+                continue
+            for sample in samples:
+                if not isinstance(sample, dict):
+                    continue
+                edges: set[Tuple[str, str, str]] = set()
+                arguments = sample.get("arguments", []) or []
+                if isinstance(arguments, list):
+                    for arg in arguments:
+                        if not isinstance(arg, dict):
+                            continue
+                        role = str(
+                            arg.get("role")
+                            or arg.get("argument_role")
+                            or arg.get("role_type")
+                            or ""
+                        ).strip()
+                        if role:
+                            edges.add((event_type, role, "ARG"))
+                if edges:
+                    sample_edges.append(edges)
+        return sample_edges
+
+    for group in payload:
+        if not isinstance(group, dict):
+            continue
+        head_type = str(group.get("head_entity_type", "")).strip()
+        rel_type = str(group.get("rel_type", "")).strip()
+        tail_type = str(group.get("tail_type", "")).strip()
+        if not rel_type:
+            continue
+        edge = (head_type, f"{rel_type}", tail_type)
+        samples = group.get("samples", [])
+        if not isinstance(samples, list):
+            continue
+        for _ in samples:
+            sample_edges.append({edge})
+    return sample_edges
+
+
+def _coverage_edges(
+    sample_edges: Sequence[set[Tuple[str, str, str]]],
+    k: int,
+    seed: int,
+    method: str,
+) -> set[Tuple[str, str, str]]:
+    if not sample_edges:
+        return set()
+    k = min(k, len(sample_edges))
+    rng = random.Random(seed)
+    if method == "random":
+        selected = rng.sample(list(sample_edges), k)
+        covered = set().union(*selected) if selected else set()
+        return covered
+
+    uncovered = set().union(*sample_edges)
+    remaining = list(sample_edges)
+    selected_edges: List[set[Tuple[str, str, str]]] = []
+    for _ in range(k):
+        if not remaining or not uncovered:
+            break
+        best_idx = None
+        best_gain = -1
+        for idx, edges in enumerate(remaining):
+            gain = len(edges & uncovered)
+            if gain > best_gain:
+                best_gain = gain
+                best_idx = idx
+            elif gain == best_gain and gain > 0 and rng.random() < 0.5:
+                best_idx = idx
+        if best_idx is None:
+            break
+        chosen = remaining.pop(best_idx)
+        selected_edges.append(chosen)
+        uncovered -= chosen
+    return set().union(*selected_edges) if selected_edges else set()
+
+
+def _analyze_schema_overlap(schema_details: List[Dict[str, Any]], cfg: Dict[str, Any]) -> List[Dict[str, Any]]:
+    overlap_cfg = cfg.get("overlap_stats", {})
+    top_k = int(overlap_cfg.get("top_k", 5))
+    rows: List[Dict[str, Any]] = []
+
+    by_task = {"re": [], "ee": []}
+    for detail in schema_details:
+        task = detail.get("task")
+        if task in by_task:
+            by_task[task].append(detail)
+
+    rows.extend(_build_overlap_rows(by_task["re"], "rel_types", "rel_type", "re", top_k))
+    rows.extend(_build_overlap_rows(by_task["ee"], "event_types", "event_type", "ee", top_k))
+    rows.extend(_build_overlap_rows(by_task["ee"], "role_types", "role_type", "ee", top_k))
+    return rows
+
+
+def _build_overlap_rows(
+    details: List[Dict[str, Any]],
+    field: str,
+    metric: str,
+    task: str,
+    top_k: int,
+) -> List[Dict[str, Any]]:
+    rows: List[Dict[str, Any]] = []
+    for item in details:
+        dataset = item.get("dataset", "")
+        target_set = set(item.get(field, []) or [])
+        candidates: List[Tuple[float, str, int, int]] = []
+        for other in details:
+            other_name = other.get("dataset", "")
+            if other_name == dataset:
+                continue
+            other_set = set(other.get(field, []) or [])
+            if not target_set and not other_set:
+                jaccard = 0.0
+                overlap = 0
+                union = 0
+            else:
+                overlap = len(target_set & other_set)
+                union = len(target_set | other_set)
+                jaccard = overlap / union if union else 0.0
+            candidates.append((jaccard, other_name, overlap, union))
+        candidates.sort(key=lambda x: x[0], reverse=True)
+        for jaccard, other_name, overlap, union in candidates[:top_k]:
+            rows.append(
+                {
+                    "dataset": dataset,
+                    "other_dataset": other_name,
+                    "task": task,
+                    "metric": metric,
+                    "jaccard": round(jaccard, 4),
+                    "overlap": overlap,
+                    "union": union,
+                }
+            )
+    return rows
+
+
 def _extract_texts_from_samples(samples_path: str) -> List[str]:
     if not samples_path:
         return []
@@ -939,6 +1501,12 @@ def _safe_add(value: Any, addition: int) -> Any:
     if isinstance(value, int):
         return value + addition
     return addition
+
+
+def _overlap_ratio(base: set[str], compare: set[str]) -> float | str:
+    if not base or not compare:
+        return "NA"
+    return round(len(base & compare) / len(base), 4)
 
 
 def _safe_mean(values: Sequence[float]) -> Any:
