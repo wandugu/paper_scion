@@ -2104,18 +2104,98 @@ def convert_cmeie_inputs(
     include_input: bool = False,
     stats: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
-    return _convert_relation_inputs(
-        data_paths=data_paths,
-        dataset_name=dataset_name,
-        language=language,
-        sample_limit=sample_limit,
-        text_field="text",
-        relation_field="relation",
-        mapping=mapping,
-        task=task,
-        include_input=include_input,
-        stats=stats,
+    samples: Dict[Tuple[str, str, str], Dict[str, Any]] = defaultdict(_new_sample_bucket)
+    limit = sample_limit if sample_limit > 0 else None
+    task_value = _normalize_task(task, "re")
+    iter_stats = stats if stats is not None else {}
+    total_relations = 0
+    kept_relations = 0
+    skipped_relations = 0
+
+    for record in _iter_json_lines(data_paths, desc=f"{dataset_name} 样本抽取", stats=iter_stats):
+        text = str(record.get("text", "")).strip()
+        if not text:
+            continue
+        spo_list = record.get("spo_list", [])
+        if not isinstance(spo_list, list):
+            LOGGER.debug(
+                "CMeIE 样本 spo_list 字段非列表，跳过: dataset=%s payload=%s",
+                dataset_name,
+                record,
+            )
+            continue
+        for spo in spo_list:
+            if not isinstance(spo, dict):
+                continue
+            total_relations += 1
+            rel_type = str(spo.get("predicate", "") or spo.get("relation", "")).strip()
+            head_entity = str(spo.get("subject", "") or spo.get("head", "")).strip()
+            head_type = str(spo.get("subject_type", "") or spo.get("head_type", "")).strip()
+            object_raw = spo.get("object", spo.get("tail", ""))
+            object_type_raw = spo.get("object_type", spo.get("tail_type", ""))
+            tail_pairs = _iter_duie_object_pairs(object_raw, object_type_raw)
+            if not tail_pairs:
+                tail_pairs = [(str(object_raw or "").strip(), str(object_type_raw or "").strip())]
+
+            for tail_entity, tail_type in tail_pairs:
+                if not (rel_type and head_entity and tail_entity):
+                    skipped_relations += 1
+                    continue
+                if not head_type or not tail_type:
+                    inferred_head, inferred_tail = _infer_relation_types(rel_type, mapping)
+                    head_type = head_type or inferred_head
+                    tail_type = tail_type or inferred_tail
+
+                key = (head_type, rel_type, tail_type)
+                bucket = samples[key]
+                if text in bucket["texts"]:
+                    continue
+                if limit is not None and len(bucket["items"]) >= limit:
+                    continue
+
+                sample = _normalize_sample(
+                    RE_SAMPLE_FIELDS,
+                    {
+                        "id": record.get("id", ""),
+                        "category": record.get("category", ""),
+                        "input": text if include_input else "",
+                        "text": text,
+                        "head_entity": head_entity,
+                        "head_entity_type": head_type,
+                        "head_pos": spo.get("subject_pos", spo.get("head_pos", "")),
+                        "tail_entity": tail_entity,
+                        "tail_entity_type": tail_type,
+                        "tail_pos": spo.get("object_pos", spo.get("tail_pos", "")),
+                        "relation": rel_type,
+                        "dataset": dataset_name,
+                        "language": language,
+                        "task": _normalize_task(record.get("task", ""), task_value),
+                    },
+                )
+
+                bucket["items"].append(sample)
+                bucket["texts"].add(text)
+                kept_relations += 1
+
+    results: List[Dict[str, Any]] = []
+    for head_type, rel_type, tail_type in sorted(samples.keys(), key=lambda x: (x[0], x[1], x[2])):
+        bucket = samples[(head_type, rel_type, tail_type)]
+        results.append(
+            {
+                "head_entity_type": head_type,
+                "rel_type": rel_type,
+                "tail_type": tail_type,
+                "samples": bucket["items"],
+            }
+        )
+    LOGGER.debug(
+        "CMeIE 样本解析统计: dataset=%s total_relations=%s kept=%s skipped=%s",
+        dataset_name,
+        total_relations,
+        kept_relations,
+        skipped_relations,
     )
+    return results
 
 
 def convert_coae2016_schema(schema_path: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:

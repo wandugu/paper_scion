@@ -468,7 +468,6 @@ dataset_conversion:
       - duIE_zh
       - CMeIE
       - COAE2016
-      - DuIE2.0
       - IPRE
       - SKE2020
       - ADE_corpus
@@ -527,6 +526,8 @@ dataset_conversion:
         task: re
         format: duie2.0
         language: zh
+        enabled: false
+        # DuIE2.0 暂不处理
         schema_path: data/dataset_public/re/re-zh/DuIE2.0/schema.json
         data_files:
           - data/dataset_public/re/re-zh/DuIE2.0/train.json
