@@ -173,6 +173,7 @@ def run_benchmark_stats(config: Dict[str, Any]) -> Dict[str, Any]:
     corpus_stats: List[Dict[str, Any]] = []
     coverage_stats: List[Dict[str, Any]] = []
     support_stats: List[Dict[str, Any]] = []
+    entity_type_stats: List[Dict[str, Any]] = []
     k_coverage_stats: List[Dict[str, Any]] = []
     anomalies: List[Dict[str, Any]] = []
     all_text_lengths: List[int] = []
@@ -197,6 +198,11 @@ def run_benchmark_stats(config: Dict[str, Any]) -> Dict[str, Any]:
         support_stats.append(support_info)
         anomalies.extend(support_anomalies)
 
+        entity_info, entity_anomalies = _analyze_sample_entity_types(entry, benchmark_cfg)
+        if entity_info:
+            entity_type_stats.append(entity_info)
+        anomalies.extend(entity_anomalies)
+
         k_rows = _analyze_k_coverage(entry, schema_info, benchmark_cfg)
         k_coverage_stats.extend(k_rows)
 
@@ -206,6 +212,8 @@ def run_benchmark_stats(config: Dict[str, Any]) -> Dict[str, Any]:
     _write_csv(tables_dir / "corpus_stats.csv", corpus_stats)
     _write_csv(tables_dir / "coverage_stats.csv", coverage_stats)
     _write_csv(tables_dir / "support_stats.csv", support_stats)
+    if entity_type_stats:
+        _write_csv(tables_dir / "entity_type_stats.csv", entity_type_stats)
     if k_coverage_stats:
         _write_csv(tables_dir / "k_coverage_stats.csv", k_coverage_stats)
 
@@ -215,7 +223,16 @@ def run_benchmark_stats(config: Dict[str, Any]) -> Dict[str, Any]:
 
     _write_anomaly_report(out_dir / "anomaly_report.md", anomalies)
     _write_figs(out_dir / "figs", schema_stats, corpus_stats)
-    _write_final_summary(out_dir / "summary.md", registry, schema_stats, corpus_stats, coverage_stats, all_text_lengths, benchmark_cfg)
+    _write_final_summary(
+        out_dir / "summary.md",
+        registry,
+        schema_stats,
+        corpus_stats,
+        coverage_stats,
+        entity_type_stats,
+        all_text_lengths,
+        benchmark_cfg,
+    )
 
     LOGGER.info("benchmark 统计已完成，输出目录: %s", out_dir)
     return {
@@ -224,6 +241,7 @@ def run_benchmark_stats(config: Dict[str, Any]) -> Dict[str, Any]:
         "corpus_stats": corpus_stats,
         "coverage_stats": coverage_stats,
         "support_stats": support_stats,
+        "entity_type_stats": entity_type_stats,
         "k_coverage_stats": k_coverage_stats,
         "anomalies": anomalies,
     }
@@ -1227,6 +1245,97 @@ def _collect_support_counts(samples_path: str, task: str) -> List[int]:
     return counts
 
 
+def _is_valid_entity_type(value: str, placeholders: set[str]) -> bool:
+    if not value:
+        return False
+    return value not in placeholders
+
+
+def _analyze_sample_entity_types(
+    entry: Dict[str, Any],
+    cfg: Dict[str, Any],
+) -> Tuple[Dict[str, Any] | None, List[Dict[str, Any]]]:
+    task = entry.get("task", "")
+    if task != "re":
+        return None, []
+    placeholders = set(
+        cfg.get(
+            "sample_entity_type_placeholders",
+            cfg.get("schema_placeholder_types", ["Entity", "entity", "NA", "N/A", ""]),
+        )
+    )
+    samples_path = entry.get("samples_output_path", "")
+    payload = _load_samples_payload(samples_path)
+    anomalies: List[Dict[str, Any]] = []
+    total_samples = 0
+    samples_with_types = 0
+    group_with_types = 0
+
+    if not payload:
+        anomalies.append(
+            {
+                "dataset": entry.get("dataset_name", ""),
+                "issue": "sample_entity_types_missing",
+                "detail": f"samples_output_path={samples_path}",
+                "suggestion": "检查是否生成 golden_input 或输出路径配置。",
+            }
+        )
+        return (
+            {
+                "dataset": entry.get("dataset_name", ""),
+                "task": task,
+                "lang": entry.get("lang", ""),
+                "sample_entity_types_present": "NA",
+                "group_with_types": 0,
+                "samples_with_types": 0,
+                "total_samples": 0,
+            },
+            anomalies,
+        )
+
+    for group in payload:
+        if not isinstance(group, dict):
+            continue
+        group_head = str(group.get("head_entity_type") or group.get("head_type") or "").strip()
+        group_tail = str(group.get("tail_type") or group.get("tail_entity_type") or "").strip()
+        if _is_valid_entity_type(group_head, placeholders) or _is_valid_entity_type(group_tail, placeholders):
+            group_with_types += 1
+        samples = group.get("samples", [])
+        if not isinstance(samples, list):
+            continue
+        for sample in samples:
+            if not isinstance(sample, dict):
+                continue
+            total_samples += 1
+            sample_head = str(sample.get("head_entity_type") or sample.get("head_type") or "").strip()
+            sample_tail = str(sample.get("tail_entity_type") or sample.get("tail_type") or "").strip()
+            if _is_valid_entity_type(sample_head, placeholders) or _is_valid_entity_type(sample_tail, placeholders):
+                samples_with_types += 1
+
+    has_types = (group_with_types > 0) or (samples_with_types > 0)
+    if not has_types:
+        anomalies.append(
+            {
+                "dataset": entry.get("dataset_name", ""),
+                "issue": "sample_entity_types_empty",
+                "detail": f"total_samples={total_samples}",
+                "suggestion": "检查生成样本是否包含 head_entity_type/tail_entity_type。",
+            }
+        )
+
+    info = {
+        "dataset": entry.get("dataset_name", ""),
+        "task": task,
+        "lang": entry.get("lang", ""),
+        "sample_entity_types_present": has_types,
+        "group_with_types": group_with_types,
+        "samples_with_types": samples_with_types,
+        "total_samples": total_samples,
+    }
+    LOGGER.debug("样本实体类型统计: %s -> %s", entry.get("dataset_name"), info)
+    return info, anomalies
+
+
 def _load_samples_payload(samples_path: str) -> List[Dict[str, Any]]:
     if not samples_path:
         return []
@@ -1634,6 +1743,7 @@ def _write_final_summary(
     schema_stats: List[Dict[str, Any]],
     corpus_stats: List[Dict[str, Any]],
     coverage_stats: List[Dict[str, Any]],
+    entity_type_stats: List[Dict[str, Any]],
     text_lengths: List[int],
     cfg: Dict[str, Any],
 ) -> None:
@@ -1653,6 +1763,27 @@ def _write_final_summary(
     }
 
     core_candidates = _select_core_candidates(schema_stats, corpus_stats, coverage_stats, cfg)
+    entity_type_with = sorted(
+        [
+            row.get("dataset", "")
+            for row in entity_type_stats
+            if row.get("sample_entity_types_present") is True
+        ]
+    )
+    entity_type_without = sorted(
+        [
+            row.get("dataset", "")
+            for row in entity_type_stats
+            if row.get("sample_entity_types_present") is False
+        ]
+    )
+    entity_type_na = sorted(
+        [
+            row.get("dataset", "")
+            for row in entity_type_stats
+            if row.get("sample_entity_types_present") == "NA"
+        ]
+    )
 
     lines = [
         "# 数据集统计汇总",
@@ -1675,6 +1806,15 @@ def _write_final_summary(
         lines.extend([f"- {name}" for name in core_candidates])
     else:
         lines.append("- 暂无满足条件的数据集。")
+    lines.extend(
+        [
+            "",
+            "## RE 样本实体类型覆盖",
+            f"- 有实体类型({len(entity_type_with)}): {', '.join(entity_type_with) if entity_type_with else 'None'}",
+            f"- 无实体类型({len(entity_type_without)}): {', '.join(entity_type_without) if entity_type_without else 'None'}",
+            f"- 未统计({len(entity_type_na)}): {', '.join(entity_type_na) if entity_type_na else 'None'}",
+        ]
+    )
 
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines), encoding="utf-8")

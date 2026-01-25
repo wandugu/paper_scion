@@ -1900,6 +1900,72 @@ def convert_instructie_inputs(
     )
 
 
+def _coerce_duie_value(value: Any) -> str:
+    if isinstance(value, dict):
+        for key in ("@value", "value", "name"):
+            if key in value and value[key] is not None:
+                return str(value[key]).strip()
+        if value:
+            return str(next(iter(value.values()))).strip()
+        return ""
+    if isinstance(value, list):
+        items = [_coerce_duie_value(item) for item in value]
+        return " ".join([item for item in items if item])
+    return str(value).strip()
+
+
+def _iter_duie_object_types(obj_type_raw: Any) -> List[str]:
+    types: List[str] = []
+    if isinstance(obj_type_raw, dict):
+        if "@value" in obj_type_raw:
+            types.append(_coerce_duie_value(obj_type_raw.get("@value")))
+        for key, value in obj_type_raw.items():
+            if key == "@value":
+                continue
+            types.append(_coerce_duie_value(value))
+    elif isinstance(obj_type_raw, list):
+        for item in obj_type_raw:
+            types.append(_coerce_duie_value(item))
+    else:
+        types.append(_coerce_duie_value(obj_type_raw))
+    return [item for item in types if item]
+
+
+def _iter_duie_object_pairs(obj_raw: Any, obj_type_raw: Any) -> List[Tuple[str, str]]:
+    pairs: List[Tuple[str, str]] = []
+    obj_dict = obj_raw if isinstance(obj_raw, dict) else {}
+    type_dict = obj_type_raw if isinstance(obj_type_raw, dict) else {}
+    if isinstance(obj_raw, dict) or isinstance(obj_type_raw, dict):
+        base_entity = _coerce_duie_value(obj_dict.get("@value") if isinstance(obj_dict, dict) else obj_raw)
+        base_type = _coerce_duie_value(type_dict.get("@value") if isinstance(type_dict, dict) else obj_type_raw)
+        if base_entity or base_type:
+            pairs.append((base_entity, base_type))
+        keys = set()
+        if isinstance(obj_dict, dict):
+            keys.update(obj_dict.keys())
+        if isinstance(type_dict, dict):
+            keys.update(type_dict.keys())
+        keys.discard("@value")
+        for key in sorted(keys):
+            tail_entity = _coerce_duie_value(obj_dict.get(key, "")) if isinstance(obj_dict, dict) else ""
+            tail_type = _coerce_duie_value(type_dict.get(key, "")) if isinstance(type_dict, dict) else ""
+            if tail_entity or tail_type:
+                pairs.append((tail_entity, tail_type))
+    else:
+        tail_entity = _coerce_duie_value(obj_raw)
+        tail_type = _coerce_duie_value(obj_type_raw)
+        if tail_entity or tail_type:
+            pairs.append((tail_entity, tail_type))
+    deduped: List[Tuple[str, str]] = []
+    seen = set()
+    for pair in pairs:
+        if pair in seen:
+            continue
+        seen.add(pair)
+        deduped.append(pair)
+    return deduped
+
+
 def convert_duie_schema(schema_path: Path | Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
     if not isinstance(schema_path, Path):
         schema_path = next(iter(schema_path), None)
@@ -1913,20 +1979,18 @@ def convert_duie_schema(schema_path: Path | Sequence[Path], dataset_name: str, l
         subject_type = str(record.get("subject_type", "")).strip()
         predicate = str(record.get("predicate", "")).strip()
         obj_type_raw = record.get("object_type", {})
-        if isinstance(obj_type_raw, dict):
-            obj_type = str(obj_type_raw.get("@value", "")).strip()
-        else:
-            obj_type = str(obj_type_raw).strip()
-        if not (subject_type and predicate and obj_type):
+        obj_types = _iter_duie_object_types(obj_type_raw)
+        if not subject_type or not predicate or not obj_types:
             continue
-        entities.update([subject_type, obj_type])
-        relationships.append(
-            {
-                "head_entity": subject_type,
-                "tail_entity": obj_type,
-                "rel_type": predicate,
-            }
-        )
+        for obj_type in obj_types:
+            entities.update([subject_type, obj_type])
+            relationships.append(
+                {
+                    "head_entity": subject_type,
+                    "tail_entity": obj_type,
+                    "rel_type": predicate,
+                }
+            )
 
     return {
         "dataset": dataset_name,
@@ -1951,6 +2015,9 @@ def convert_duie_inputs(
 
     task_value = _normalize_task(task, "re")
     iter_stats = stats if stats is not None else {}
+    total_relations = 0
+    kept_relations = 0
+    skipped_relations = 0
     for record in _iter_json_lines(data_paths, desc=f"{dataset_name} 样本抽取", stats=iter_stats):
         text = str(record.get("text", "")).strip()
         if not text:
@@ -1958,54 +2025,46 @@ def convert_duie_inputs(
         for rel in record.get("spo_list", []):
             if not isinstance(rel, dict):
                 continue
+            total_relations += 1
             head_type = str(rel.get("subject_type", "")).strip()
             rel_type = str(rel.get("predicate", "")).strip()
             head_entity = str(rel.get("subject", "")).strip()
             obj_raw = rel.get("object", {})
-            tail_entity = ""
-            if isinstance(obj_raw, dict):
-                tail_entity = str(obj_raw.get("@value", "")).strip()
-            else:
-                tail_entity = str(obj_raw).strip()
             obj_type_raw = rel.get("object_type", {})
-            tail_type = ""
-            if isinstance(obj_type_raw, dict):
-                tail_type = str(obj_type_raw.get("@value", "")).strip()
-            else:
-                tail_type = str(obj_type_raw).strip()
+            for tail_entity, tail_type in _iter_duie_object_pairs(obj_raw, obj_type_raw):
+                if not (rel_type and head_entity and tail_entity):
+                    skipped_relations += 1
+                    continue
+                key = (head_type, rel_type, tail_type)
+                bucket = samples[key]
+                if text in bucket["texts"]:
+                    continue
+                if limit is not None and len(bucket["items"]) >= limit:
+                    continue
 
-            if not (head_type and rel_type and tail_type and head_entity and tail_entity):
-                continue
+                sample = _normalize_sample(
+                    RE_SAMPLE_FIELDS,
+                    {
+                        "id": record.get("id", ""),
+                        "category": record.get("category", ""),
+                        "input": text if include_input else "",
+                        "text": text,
+                        "head_entity": head_entity,
+                        "head_entity_type": head_type,
+                        "head_pos": "",
+                        "tail_entity": tail_entity,
+                        "tail_entity_type": tail_type,
+                        "tail_pos": "",
+                        "relation": rel_type,
+                        "dataset": dataset_name,
+                        "language": language,
+                        "task": _normalize_task(record.get("task", ""), task_value),
+                    },
+                )
 
-            key = (head_type, rel_type, tail_type)
-            bucket = samples[key]
-            if text in bucket["texts"]:
-                continue
-            if limit is not None and len(bucket["items"]) >= limit:
-                continue
-
-            sample = _normalize_sample(
-                RE_SAMPLE_FIELDS,
-                {
-                    "id": record.get("id", ""),
-                    "category": record.get("category", ""),
-                    "input": text if include_input else "",
-                    "text": text,
-                    "head_entity": head_entity,
-                    "head_entity_type": head_type,
-                    "head_pos": "",
-                    "tail_entity": tail_entity,
-                    "tail_entity_type": tail_type,
-                    "tail_pos": "",
-                    "relation": rel_type,
-                    "dataset": dataset_name,
-                    "language": language,
-                    "task": _normalize_task(record.get("task", ""), task_value),
-                },
-            )
-
-            bucket["items"].append(sample)
-            bucket["texts"].add(text)
+                bucket["items"].append(sample)
+                bucket["texts"].add(text)
+                kept_relations += 1
 
     results: List[Dict[str, Any]] = []
     for head_type, rel_type, tail_type in sorted(samples.keys(), key=lambda x: (x[0], x[1], x[2])):
@@ -2018,6 +2077,13 @@ def convert_duie_inputs(
                 "samples": bucket["items"],
             }
         )
+    LOGGER.debug(
+        "duIE 样本解析统计: dataset=%s total_relations=%s kept=%s skipped=%s",
+        dataset_name,
+        total_relations,
+        kept_relations,
+        skipped_relations,
+    )
     return results
 
 
