@@ -472,7 +472,7 @@ dataset_conversion:
       - IPRE
       - SKE2020
       - ADE_corpus
-      - fewrel_0-4
+      # - fewrel_0-4
       - GIDS
       - NYT11
       - New-York-Times-RE
@@ -480,7 +480,7 @@ dataset_conversion:
       - conll04
       - kbp37
       - SemEval2010_task8
-      - wiki_0-4
+      # - wiki_0-4
       # - semval-RE  # 暂不处理，待补充配置
       # - FewRel  # FewRel 数据集暂不处理
     dataset_configs:
@@ -614,34 +614,34 @@ dataset_conversion:
           - data/dataset_public/re/re-en/fewrel_4/train.json
           - data/dataset_public/re/re-en/fewrel_4/dev.json
           - data/dataset_public/re/re-en/fewrel_4/test.json
-      - name: fewrel_0-4
-        task: re
-        format: fewrel_0
-        language: en
-        schema_paths:
-          - data/dataset_public/re/re-en/fewrel_0/schema.json
-          - data/dataset_public/re/re-en/fewrel_1/schema.json
-          - data/dataset_public/re/re-en/fewrel_2/schema.json
-          - data/dataset_public/re/re-en/fewrel_3/schema.json
-          - data/dataset_public/re/re-en/fewrel_4/schema.json
-        data_files:
-          - data/dataset_public/re/re-en/fewrel_0/train.json
-          - data/dataset_public/re/re-en/fewrel_0/dev.json
-          - data/dataset_public/re/re-en/fewrel_0/test.json
-          - data/dataset_public/re/re-en/fewrel_1/train.json
-          - data/dataset_public/re/re-en/fewrel_1/dev.json
-          - data/dataset_public/re/re-en/fewrel_1/test.json
-          - data/dataset_public/re/re-en/fewrel_2/train.json
-          - data/dataset_public/re/re-en/fewrel_2/dev.json
-          - data/dataset_public/re/re-en/fewrel_2/test.json
-          - data/dataset_public/re/re-en/fewrel_3/train.json
-          - data/dataset_public/re/re-en/fewrel_3/dev.json
-          - data/dataset_public/re/re-en/fewrel_3/test.json
-          - data/dataset_public/re/re-en/fewrel_4/train.json
-          - data/dataset_public/re/re-en/fewrel_4/dev.json
-          - data/dataset_public/re/re-en/fewrel_4/test.json
-        schema_output: fewrel_0-4/golden_schema_fewrel_0-4.json
-        samples_output: fewrel_0-4/golden_input_fewrel_0-4.json
+      # - name: fewrel_0-4
+      #   task: re
+      #   format: fewrel_0
+      #   language: en
+      #   schema_paths:
+      #     - data/dataset_public/re/re-en/fewrel_0/schema.json
+      #     - data/dataset_public/re/re-en/fewrel_1/schema.json
+      #     - data/dataset_public/re/re-en/fewrel_2/schema.json
+      #     - data/dataset_public/re/re-en/fewrel_3/schema.json
+      #     - data/dataset_public/re/re-en/fewrel_4/schema.json
+      #   data_files:
+      #     - data/dataset_public/re/re-en/fewrel_0/train.json
+      #     - data/dataset_public/re/re-en/fewrel_0/dev.json
+      #     - data/dataset_public/re/re-en/fewrel_0/test.json
+      #     - data/dataset_public/re/re-en/fewrel_1/train.json
+      #     - data/dataset_public/re/re-en/fewrel_1/dev.json
+      #     - data/dataset_public/re/re-en/fewrel_1/test.json
+      #     - data/dataset_public/re/re-en/fewrel_2/train.json
+      #     - data/dataset_public/re/re-en/fewrel_2/dev.json
+      #     - data/dataset_public/re/re-en/fewrel_2/test.json
+      #     - data/dataset_public/re/re-en/fewrel_3/train.json
+      #     - data/dataset_public/re/re-en/fewrel_3/dev.json
+      #     - data/dataset_public/re/re-en/fewrel_3/test.json
+      #     - data/dataset_public/re/re-en/fewrel_4/train.json
+      #     - data/dataset_public/re/re-en/fewrel_4/dev.json
+      #     - data/dataset_public/re/re-en/fewrel_4/test.json
+      #   schema_output: golden_schema_fewrel_0-4.json
+      #   samples_output: golden_input_fewrel_0-4.json
       - name: FewRel
         task: re
         format: fewrel
@@ -833,34 +833,34 @@ dataset_conversion:
           - data/dataset_public/re/re-en/wiki_4/train.json
           - data/dataset_public/re/re-en/wiki_4/dev.json
           - data/dataset_public/re/re-en/wiki_4/test.json
-      - name: wiki_0-4
-        task: re
-        format: wiki_0
-        language: en
-        schema_paths:
-          - data/dataset_public/re/re-en/wiki_0/schema.json
-          - data/dataset_public/re/re-en/wiki_1/schema.json
-          - data/dataset_public/re/re-en/wiki_2/schema.json
-          - data/dataset_public/re/re-en/wiki_3/schema.json
-          - data/dataset_public/re/re-en/wiki_4/schema.json
-        data_files:
-          - data/dataset_public/re/re-en/wiki_0/train.json
-          - data/dataset_public/re/re-en/wiki_0/dev.json
-          - data/dataset_public/re/re-en/wiki_0/test.json
-          - data/dataset_public/re/re-en/wiki_1/train.json
-          - data/dataset_public/re/re-en/wiki_1/dev.json
-          - data/dataset_public/re/re-en/wiki_1/test.json
-          - data/dataset_public/re/re-en/wiki_2/train.json
-          - data/dataset_public/re/re-en/wiki_2/dev.json
-          - data/dataset_public/re/re-en/wiki_2/test.json
-          - data/dataset_public/re/re-en/wiki_3/train.json
-          - data/dataset_public/re/re-en/wiki_3/dev.json
-          - data/dataset_public/re/re-en/wiki_3/test.json
-          - data/dataset_public/re/re-en/wiki_4/train.json
-          - data/dataset_public/re/re-en/wiki_4/dev.json
-          - data/dataset_public/re/re-en/wiki_4/test.json
-        schema_output: wiki_0-4/golden_schema_wiki_0-4.json
-        samples_output: wiki_0-4/golden_input_wiki_0-4.json
+      # - name: wiki_0-4
+      #   task: re
+      #   format: wiki_0
+      #   language: en
+      #   schema_paths:
+      #     - data/dataset_public/re/re-en/wiki_0/schema.json
+      #     - data/dataset_public/re/re-en/wiki_1/schema.json
+      #     - data/dataset_public/re/re-en/wiki_2/schema.json
+      #     - data/dataset_public/re/re-en/wiki_3/schema.json
+      #     - data/dataset_public/re/re-en/wiki_4/schema.json
+      #   data_files:
+      #     - data/dataset_public/re/re-en/wiki_0/train.json
+      #     - data/dataset_public/re/re-en/wiki_0/dev.json
+      #     - data/dataset_public/re/re-en/wiki_0/test.json
+      #     - data/dataset_public/re/re-en/wiki_1/train.json
+      #     - data/dataset_public/re/re-en/wiki_1/dev.json
+      #     - data/dataset_public/re/re-en/wiki_1/test.json
+      #     - data/dataset_public/re/re-en/wiki_2/train.json
+      #     - data/dataset_public/re/re-en/wiki_2/dev.json
+      #     - data/dataset_public/re/re-en/wiki_2/test.json
+      #     - data/dataset_public/re/re-en/wiki_3/train.json
+      #     - data/dataset_public/re/re-en/wiki_3/dev.json
+      #     - data/dataset_public/re/re-en/wiki_3/test.json
+      #     - data/dataset_public/re/re-en/wiki_4/train.json
+      #     - data/dataset_public/re/re-en/wiki_4/dev.json
+      #     - data/dataset_public/re/re-en/wiki_4/test.json
+      #   schema_output: golden_schema_wiki_0-4.json
+      #   samples_output: golden_input_wiki_0-4.json
   ee:
     output_dir: data/input/ee
     datasets:
@@ -977,6 +977,12 @@ benchmark_stats:
     test:
       - test
   schema_placeholder_types:
+    - Entity
+    - entity
+    - NA
+    - N/A
+    - ""
+  sample_entity_type_placeholders:
     - Entity
     - entity
     - NA
