@@ -8,6 +8,7 @@ import hashlib
 import json
 import logging
 import math
+import itertools
 import random
 import statistics
 import sys
@@ -16,7 +17,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
-import matplotlib.pyplot as plt
+import matplotlib
+from tqdm import tqdm
 
 SRC_DIR = Path(__file__).resolve().parent.parent
 if str(SRC_DIR) not in sys.path:
@@ -31,6 +33,14 @@ LOGGER = get_ot_logger()
 LOGGER.setLevel(logging.DEBUG)
 
 PLACEHOLDER_ENTITY_TYPES = {"entity", "na", "n/a", ""}
+
+TQDM_SETTINGS: Dict[str, Any] = {
+    "enabled": True,
+    "mininterval": 0.1,
+    "leave": False,
+}
+
+_MATPLOTLIB_PYPLOT = None
 
 
 @dataclass
@@ -67,6 +77,40 @@ class ScopeDoc:
             "relations": self.relations,
             "events": self.events,
         }
+
+
+def _apply_tqdm_settings(cfg: Dict[str, Any]) -> None:
+    settings = cfg.get("tqdm") or {}
+    TQDM_SETTINGS.update(
+        {
+            "enabled": bool(settings.get("enabled", TQDM_SETTINGS["enabled"])),
+            "mininterval": float(settings.get("mininterval", TQDM_SETTINGS["mininterval"])),
+            "leave": bool(settings.get("leave", TQDM_SETTINGS["leave"])),
+        }
+    )
+
+
+def _wrap_tqdm(iterable: Iterable[Any], desc: str, total: int | None = None) -> Iterable[Any]:
+    if not TQDM_SETTINGS.get("enabled", True):
+        return iterable
+    return tqdm(
+        iterable,
+        desc=desc,
+        total=total,
+        mininterval=TQDM_SETTINGS.get("mininterval", 0.1),
+        leave=TQDM_SETTINGS.get("leave", False),
+    )
+
+
+def _get_matplotlib_pyplot(backend: str | None) -> Any:
+    global _MATPLOTLIB_PYPLOT
+    if _MATPLOTLIB_PYPLOT is None:
+        if backend:
+            matplotlib.use(backend)
+        import matplotlib.pyplot as plt
+
+        _MATPLOTLIB_PYPLOT = plt
+    return _MATPLOTLIB_PYPLOT
 
 
 def _safe_json_load(path: Path) -> Any:
@@ -613,9 +657,15 @@ def _percentile(values: Sequence[float], p: float) -> float:
     return float(values_sorted[idx])
 
 
-def _plot_schema_hist(path: Path, re_values: Sequence[int], ee_values: Sequence[int]) -> None:
+def _plot_schema_hist(
+    path: Path,
+    re_values: Sequence[int],
+    ee_values: Sequence[int],
+    backend: str | None,
+) -> None:
     if not re_values and not ee_values:
         return
+    plt = _get_matplotlib_pyplot(backend)
     path.parent.mkdir(parents=True, exist_ok=True)
     plt.figure(figsize=(6, 4))
     if re_values:
@@ -631,9 +681,12 @@ def _plot_schema_hist(path: Path, re_values: Sequence[int], ee_values: Sequence[
     plt.close()
 
 
-def _plot_scatter(path: Path, xs: Sequence[int], ys: Sequence[int], title: str) -> None:
+def _plot_scatter(
+    path: Path, xs: Sequence[int], ys: Sequence[int], title: str, backend: str | None
+) -> None:
     if not xs or not ys:
         return
+    plt = _get_matplotlib_pyplot(backend)
     path.parent.mkdir(parents=True, exist_ok=True)
     plt.figure(figsize=(6, 4))
     plt.scatter(xs, ys, alpha=0.6)
@@ -645,9 +698,16 @@ def _plot_scatter(path: Path, xs: Sequence[int], ys: Sequence[int], title: str) 
     plt.close()
 
 
-def _plot_coverage_curve(path: Path, ks: Sequence[int], ratios: Sequence[float], title: str) -> None:
+def _plot_coverage_curve(
+    path: Path,
+    ks: Sequence[int],
+    ratios: Sequence[float],
+    title: str,
+    backend: str | None,
+) -> None:
     if not ks or not ratios:
         return
+    plt = _get_matplotlib_pyplot(backend)
     path.parent.mkdir(parents=True, exist_ok=True)
     plt.figure(figsize=(6, 4))
     plt.plot(ks, ratios, marker="o")
@@ -692,6 +752,7 @@ def _build_summary_md(path: Path, summary_lines: List[str]) -> None:
 
 def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> None:
     scope_cfg = config.get("scope_dataset") or {}
+    _apply_tqdm_settings(scope_cfg)
     out_root = resolve_project_path(args.out_root or scope_cfg.get("out_root", "data/input/scope"))
     dedup_by_text = bool(args.dedup_by_text if args.dedup_by_text is not None else scope_cfg.get("dedup_by_text", True))
     cross_dataset_dedup = bool(
@@ -725,8 +786,23 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
     support_rare_threshold = int(stats_cfg.get("support_rare_threshold", 5))
     split_overlap_threshold = float(stats_cfg.get("split_overlap_threshold", 0.05))
     coverage_curve_ks = stats_cfg.get("coverage_curve_ks", [50, 100, 200, 500, 1000])
+    matplotlib_backend = scope_cfg.get("matplotlib_backend")
 
     LOGGER.info("SCOPE 输出目录: %s", out_root)
+    LOGGER.debug(
+        "SCOPE 参数: dedup_by_text=%s cross_dataset_dedup=%s ratios=%s split_seed=%s",
+        dedup_by_text,
+        cross_dataset_dedup,
+        ratios,
+        split_seed,
+    )
+    LOGGER.debug(
+        "SCOPE case 配置: sizes=%s seeds=%s sampling=%s mask_ratios=%s",
+        case_sizes,
+        case_seeds,
+        sampling_strategies,
+        fusion_mask_ratios,
+    )
     out_root.mkdir(parents=True, exist_ok=True)
     failed_log = resolve_project_path(scope_cfg.get("failed_log", "logs/failed_datasets.txt"))
     failed_log.parent.mkdir(parents=True, exist_ok=True)
@@ -739,13 +815,20 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
     dataset_sample_counts: Dict[str, int] = {}
     explosion_guard_datasets: List[str] = []
 
-    for entry in registry:
+    for entry in _wrap_tqdm(registry, desc="解析数据集", total=len(registry)):
         LOGGER.info("处理数据集: %s (%s)", entry.name, entry.task)
         try:
             samples_payload = _safe_json_load(entry.samples_output_path)
             if entry.task == "re":
                 docs, sample_count, typed_flag = _parse_re_samples(
                     samples_payload, entry.name, entry.language, dedup_by_text, cross_dataset_dedup
+                )
+                LOGGER.debug(
+                    "RE 样本解析完成: dataset=%s docs=%s samples=%s typed_flag=%s",
+                    entry.name,
+                    len(docs),
+                    sample_count,
+                    typed_flag,
                 )
                 rel_types, ent_types, rel_edges = set(), set(), set()
                 if entry.schema_output_path.exists():
@@ -761,6 +844,13 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
                     if downgraded:
                         explosion_guard_datasets.append(entry.name)
                         typed_flag = False
+                LOGGER.debug(
+                    "RE schema 汇总: dataset=%s rel_types=%s ent_types=%s edges=%s",
+                    entry.name,
+                    len(rel_types),
+                    len(ent_types),
+                    len(rel_edges),
+                )
                 dataset_schema[entry.name] = {
                     "task": "re",
                     "language": entry.language,
@@ -775,12 +865,25 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
                 docs, sample_count = _parse_ee_samples(
                     samples_payload, entry.name, entry.language, dedup_by_text, cross_dataset_dedup
                 )
+                LOGGER.debug(
+                    "EE 样本解析完成: dataset=%s docs=%s samples=%s",
+                    entry.name,
+                    len(docs),
+                    sample_count,
+                )
                 if entry.schema_output_path.exists():
                     schema_payload = _safe_json_load(entry.schema_output_path)
                     event_types, roles, edges = _extract_ee_schema_edges(schema_payload)
                 else:
                     LOGGER.warning("缺少 schema 文件，使用样本推断: %s", entry.schema_output_path)
                     event_types, roles, edges = _infer_ee_schema_from_samples(docs)
+                LOGGER.debug(
+                    "EE schema 汇总: dataset=%s event_types=%s roles=%s edges=%s",
+                    entry.name,
+                    len(event_types),
+                    len(roles),
+                    len(edges),
+                )
                 dataset_schema[entry.name] = {
                     "task": "ee",
                     "language": entry.language,
@@ -857,7 +960,11 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
     manifest_rows: List[Dict[str, Any]] = []
 
     LOGGER.info("生成 subsets 与 tasks")
-    for dataset_name, docs in dataset_docs.items():
+    for dataset_name, docs in _wrap_tqdm(
+        list(dataset_docs.items()),
+        desc="生成 subsets/tasks",
+        total=len(dataset_docs),
+    ):
         schema = dataset_schema.get(dataset_name) or {}
         task = schema.get("task")
         language = schema.get("language", "zh")
@@ -970,7 +1077,7 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
         }
 
     LOGGER.info("任务总数: %s", len(tasks))
-    for task_id, info in tasks.items():
+    for task_id, info in _wrap_tqdm(list(tasks.items()), desc="输出 tasks", total=len(tasks)):
         task_path = tasks_dir / task_id
         task_path.mkdir(parents=True, exist_ok=True)
         schema_payload = _build_schema_payload(info["schema_re"], info["schema_ee"])
@@ -1001,69 +1108,85 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
         )
 
     LOGGER.info("生成 cases 与 manifest")
-    for task_id, info in tasks.items():
+    for task_id, info in _wrap_tqdm(list(tasks.items()), desc="生成 cases", total=len(tasks)):
         task_docs = [doc for doc in info["docs"] if doc.global_split == "train"]
         schema_payload = _build_schema_payload(info["schema_re"], info["schema_ee"])
         if not task_docs:
             continue
-        for k in case_sizes:
-            for seed in case_seeds:
-                for sampling in sampling_strategies:
-                    case_id = f"K{k}_seed{seed}_{sampling}"
-                    case_path = cases_dir / task_id / case_id
-                    case_path.mkdir(parents=True, exist_ok=True)
-                    induction_docs = _sample_docs_by_strategy(task_docs, schema_payload, k, seed, sampling)
-                    _write_jsonl(
-                        case_path / "induction_texts.jsonl",
-                        ({"doc_id": doc.doc_id, "text": doc.text} for doc in induction_docs),
-                    )
-                    _write_jsonl(case_path / "induction_docs.jsonl", (doc.to_json() for doc in induction_docs))
-                    reachable_edges = set()
-                    for doc in induction_docs:
-                        reachable_edges |= _doc_edge_keys(doc)
-                    gold_reachable = [edge for edge in schema_payload if _schema_key_from_edge(edge) in reachable_edges]
-                    save_json(case_path / "gold_full.schema.json", schema_payload)
-                    save_json(case_path / "gold_reachable.schema.json", gold_reachable)
+        LOGGER.debug(
+            "case 任务准备: task=%s train_docs=%s schema_edges=%s",
+            task_id,
+            len(task_docs),
+            len(schema_payload),
+        )
+        case_total = len(case_sizes) * len(case_seeds) * len(sampling_strategies)
+        case_iter = itertools.product(case_sizes, case_seeds, sampling_strategies)
+        for k, seed, sampling in _wrap_tqdm(
+            case_iter,
+            desc=f"{task_id} cases",
+            total=case_total,
+        ):
+            case_id = f"K{k}_seed{seed}_{sampling}"
+            case_path = cases_dir / task_id / case_id
+            case_path.mkdir(parents=True, exist_ok=True)
+            induction_docs = _sample_docs_by_strategy(task_docs, schema_payload, k, seed, sampling)
+            LOGGER.debug(
+                "生成 case: task=%s case=%s docs=%s",
+                task_id,
+                case_id,
+                len(induction_docs),
+            )
+            _write_jsonl(
+                case_path / "induction_texts.jsonl",
+                ({"doc_id": doc.doc_id, "text": doc.text} for doc in induction_docs),
+            )
+            _write_jsonl(case_path / "induction_docs.jsonl", (doc.to_json() for doc in induction_docs))
+            reachable_edges = set()
+            for doc in induction_docs:
+                reachable_edges |= _doc_edge_keys(doc)
+            gold_reachable = [edge for edge in schema_payload if _schema_key_from_edge(edge) in reachable_edges]
+            save_json(case_path / "gold_full.schema.json", schema_payload)
+            save_json(case_path / "gold_reachable.schema.json", gold_reachable)
 
-                    base_edge_counts: Dict[float, int] = {}
-                    for ratio in fusion_mask_ratios:
-                        masked = _apply_fusion_mask(gold_reachable, ratio, seed)
-                        base_edge_counts[ratio] = len(masked)
-                        save_json(case_path / f"base_mask_{ratio}.schema.json", masked)
+            base_edge_counts: Dict[float, int] = {}
+            for ratio in fusion_mask_ratios:
+                masked = _apply_fusion_mask(gold_reachable, ratio, seed)
+                base_edge_counts[ratio] = len(masked)
+                save_json(case_path / f"base_mask_{ratio}.schema.json", masked)
 
-                    reachable_ratio = len(gold_reachable) / len(schema_payload) if schema_payload else 0.0
-                    stats_payload = {
-                        "task_id": task_id,
-                        "case_id": case_id,
-                        "k": k,
-                        "seed": seed,
-                        "sampling": sampling,
-                        "reachable_edges": len(gold_reachable),
-                        "reachable_ratio": reachable_ratio,
-                        "avg_length": statistics.mean(len(doc.text) for doc in induction_docs) if induction_docs else 0,
-                        "doc_id_hash": _text_hash("".join(doc.doc_id for doc in induction_docs)),
-                    }
-                    save_json(case_path / "stats.json", stats_payload)
-                    _collect_case_stats(
-                        case_stats_rows,
-                        task_id,
-                        case_id,
-                        k,
-                        seed,
-                        sampling,
-                        reachable_ratio,
-                        base_edge_counts,
-                    )
-                    manifest_rows.append(
-                        {
-                            "task_id": task_id,
-                            "case_id": case_id,
-                            "case_path": str(case_path),
-                            "k": k,
-                            "seed": seed,
-                            "sampling": sampling,
-                        }
-                    )
+            reachable_ratio = len(gold_reachable) / len(schema_payload) if schema_payload else 0.0
+            stats_payload = {
+                "task_id": task_id,
+                "case_id": case_id,
+                "k": k,
+                "seed": seed,
+                "sampling": sampling,
+                "reachable_edges": len(gold_reachable),
+                "reachable_ratio": reachable_ratio,
+                "avg_length": statistics.mean(len(doc.text) for doc in induction_docs) if induction_docs else 0,
+                "doc_id_hash": _text_hash("".join(doc.doc_id for doc in induction_docs)),
+            }
+            save_json(case_path / "stats.json", stats_payload)
+            _collect_case_stats(
+                case_stats_rows,
+                task_id,
+                case_id,
+                k,
+                seed,
+                sampling,
+                reachable_ratio,
+                base_edge_counts,
+            )
+            manifest_rows.append(
+                {
+                    "task_id": task_id,
+                    "case_id": case_id,
+                    "case_path": str(case_path),
+                    "k": k,
+                    "seed": seed,
+                    "sampling": sampling,
+                }
+            )
 
     _write_jsonl(out_root / "manifest.jsonl", manifest_rows)
 
@@ -1278,8 +1401,19 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
     ]
     _write_csv(tables_dir / "scope_overall_stats.csv", ["split", "doc_count"], overall_rows)
 
-    _plot_schema_hist(figs_dir / "schema_edges_hist.png", schema_edges_counts_re, schema_edges_counts_ee)
-    _plot_scatter(figs_dir / "corpus_vs_schema_scatter.png", scatter_docs, scatter_edges, "Corpus vs Schema")
+    _plot_schema_hist(
+        figs_dir / "schema_edges_hist.png",
+        schema_edges_counts_re,
+        schema_edges_counts_ee,
+        matplotlib_backend,
+    )
+    _plot_scatter(
+        figs_dir / "corpus_vs_schema_scatter.png",
+        scatter_docs,
+        scatter_edges,
+        "Corpus vs Schema",
+        matplotlib_backend,
+    )
 
     coverage_curve_lines: List[str] = []
     coverage_curve_dataset = None
@@ -1305,6 +1439,7 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
             coverage_curve_ks,
             ratios,
             f"Coverage curve ({dataset_name})",
+            matplotlib_backend,
         )
         coverage_curve_lines.append(f"- {dataset_name}: {ratios}")
         break
