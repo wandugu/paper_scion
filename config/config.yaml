@@ -971,6 +971,11 @@ dataset_conversion:
 benchmark_stats:
   summary_txt: data/input/data_info.txt
   out_dir: data/output/benchmark_stats
+  matplotlib_backend: Agg
+  tqdm:
+    enabled: true
+    mininterval: 0.1
+    leave: false
   text_fields:
     - text
     - sentence
@@ -1033,6 +1038,11 @@ scope_dataset:
   out_root: data/input/scope
   dedup_by_text: true
   cross_dataset_dedup: false
+  matplotlib_backend: Agg
+  tqdm:
+    enabled: true
+    mininterval: 0.1
+    leave: false
   global_split_ratios:
     - 0.8
     - 0.1

@@ -15,12 +15,20 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Sequence, Tuple
 
+from tqdm import tqdm
+
 from .common import load_yaml_config, resolve_project_path, save_json
 from .logger import get_ot_logger
 
 
 LOGGER = get_ot_logger()
 LOGGER.setLevel(logging.DEBUG)
+
+TQDM_SETTINGS: Dict[str, Any] = {
+    "enabled": True,
+    "mininterval": 0.1,
+    "leave": False,
+}
 
 
 @dataclass(frozen=True)
@@ -154,8 +162,32 @@ def write_conversion_summary(summary_path: Path, stats: Sequence[DatasetConversi
     LOGGER.info("汇总信息已写入: %s", summary_path)
 
 
+def _apply_tqdm_settings(cfg: Dict[str, Any]) -> None:
+    settings = cfg.get("tqdm") or {}
+    TQDM_SETTINGS.update(
+        {
+            "enabled": bool(settings.get("enabled", TQDM_SETTINGS["enabled"])),
+            "mininterval": float(settings.get("mininterval", TQDM_SETTINGS["mininterval"])),
+            "leave": bool(settings.get("leave", TQDM_SETTINGS["leave"])),
+        }
+    )
+
+
+def _wrap_tqdm(iterable: Iterable[Any], desc: str, total: int | None = None) -> Iterable[Any]:
+    if not TQDM_SETTINGS.get("enabled", True):
+        return iterable
+    return tqdm(
+        iterable,
+        desc=desc,
+        total=total,
+        mininterval=TQDM_SETTINGS.get("mininterval", 0.1),
+        leave=TQDM_SETTINGS.get("leave", False),
+    )
+
+
 def run_benchmark_stats(config: Dict[str, Any]) -> Dict[str, Any]:
     benchmark_cfg = config.get("benchmark_stats") or {}
+    _apply_tqdm_settings(benchmark_cfg)
     summary_txt = resolve_project_path(
         benchmark_cfg.get("summary_txt", "data/input/data_info.txt")
     )
@@ -179,7 +211,7 @@ def run_benchmark_stats(config: Dict[str, Any]) -> Dict[str, Any]:
     all_text_lengths: List[int] = []
     schema_details: List[Dict[str, Any]] = []
 
-    for entry in registry:
+    for entry in _wrap_tqdm(registry, desc="benchmark 数据集统计", total=len(registry)):
         LOGGER.debug("处理数据集: %s", entry["dataset_name"])
         schema_info, schema_detail = _analyze_schema(entry, benchmark_cfg)
         schema_stats.append(schema_info)
@@ -224,7 +256,12 @@ def run_benchmark_stats(config: Dict[str, Any]) -> Dict[str, Any]:
         _write_csv(tables_dir / "schema_overlap_stats.csv", overlap_rows)
 
     _write_anomaly_report(out_dir / "anomaly_report.md", anomalies)
-    _write_figs(out_dir / "figs", schema_stats, corpus_stats)
+    _write_figs(
+        out_dir / "figs",
+        schema_stats,
+        corpus_stats,
+        backend=benchmark_cfg.get("matplotlib_backend"),
+    )
     _write_final_summary(
         out_dir / "summary.md",
         registry,
@@ -1823,8 +1860,17 @@ def _write_anomaly_report(path: Path, anomalies: List[Dict[str, Any]]) -> None:
     LOGGER.info("异常报告已输出: %s", path)
 
 
-def _write_figs(out_dir: Path, schema_stats: List[Dict[str, Any]], corpus_stats: List[Dict[str, Any]]) -> None:
+def _write_figs(
+    out_dir: Path,
+    schema_stats: List[Dict[str, Any]],
+    corpus_stats: List[Dict[str, Any]],
+    backend: str | None = None,
+) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
+    if backend:
+        import matplotlib
+
+        matplotlib.use(backend)
     try:
         import matplotlib.pyplot as plt
     except ImportError as exc:
