@@ -1,12 +1,12 @@
 公开数据集转换汇总信息
-生成时间: 2026-01-25 22:44:24
+生成时间: 2026-01-26 00:29:44
 
-数据集总数: 22
+数据集总数: 24
 RE 总数: 15 (RE-zh: 6 / RE-en: 9)
-EE 总数: 7 (EE-zh: 4 / EE-en: 3)
-Schema 总条目数: 689
-样本总数(输出): 596745
-原始记录总数(输入): 800321
+EE 总数: 9 (EE-zh: 4 / EE-en: 5)
+Schema 总条目数: 826
+样本总数(输出): 597515
+原始记录总数(输入): 801457
 
 各数据集明细:
 - 数据集: instructIE_en
@@ -315,6 +315,40 @@ Schema 总条目数: 689
   data_files(3): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/PHEE/train.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/PHEE/dev.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/PHEE/test.json
   schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/PHEE/schema.json
 
+- 数据集: RAMS
+  任务/语言/格式: ee/en/rams
+  schema 条目: 106 (roles: 62)
+  schema 来源: external
+  输出样本数: 611
+  原始记录数: 887
+  samples_limit: 0
+  include_input: False
+  relation_types(0): NA (EE)
+  relation_types_source: na
+  relation_types_llm_generated: NA (EE)
+  support(min/median/p90/p99/max): 1/5.0/11.0/35.0/35
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_schema_RAMS_en.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_input_RAMS_en.json
+  data_files(12): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/conflict/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/contact/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/justice/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/artifactexistence/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/government/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/transaction/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/disaster/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/manufacture/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/inspection/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/movement/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/life/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/personnel/test.json
+  schema_paths(12): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/conflict/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/contact/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/justice/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/artifactexistence/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/government/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/transaction/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/disaster/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/manufacture/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/inspection/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/movement/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/life/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/personnel/schema.json
+
+- 数据集: WikiEvents
+  任务/语言/格式: ee/en/wikievents
+  schema 条目: 31 (roles: 43)
+  schema 来源: external
+  输出样本数: 159
+  原始记录数: 249
+  samples_limit: 0
+  include_input: False
+  relation_types(0): NA (EE)
+  relation_types_source: na
+  relation_types_llm_generated: NA (EE)
+  support(min/median/p90/p99/max): 1/1.5/35.0/41.0/41
+  schema 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_schema_WikiEvents_en.json
+  samples 输出: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_input_WikiEvents_en.json
+  data_files(12): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Contact/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Control/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Medical/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Cognitive/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/GenericCrime/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Life/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Transaction/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/ArtifactExistence/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Movement/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Conflict/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Personnel/test.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Justice/test.json
+  schema_paths(12): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Contact/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Control/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Medical/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Cognitive/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/GenericCrime/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Life/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Transaction/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/ArtifactExistence/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Movement/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Conflict/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Personnel/schema.json, /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Justice/schema.json
+
 - 数据集: ccf_law
   任务/语言/格式: ee/zh/ccf_law
   schema 条目: 9 (roles: 21)
@@ -384,7 +418,7 @@ Schema 总条目数: 689
   schema_paths(1): /home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/FewFC/schema.json
 
 Schema/关系类型汇总:
-  有 schema(22): instructIE_en, instructIE_zh, duIE_zh, CMeIE, COAE2016, IPRE, SKE2020, ADE_corpus, GIDS, NYT11, New-York-Times-RE, SciERC, conll04, kbp37, SemEval2010_task8, CASIE, CrudeOilNews, PHEE, ccf_law, DuEE1.0, DuEE-fin, FewFC
+  有 schema(24): instructIE_en, instructIE_zh, duIE_zh, CMeIE, COAE2016, IPRE, SKE2020, ADE_corpus, GIDS, NYT11, New-York-Times-RE, SciERC, conll04, kbp37, SemEval2010_task8, CASIE, CrudeOilNews, PHEE, RAMS, WikiEvents, ccf_law, DuEE1.0, DuEE-fin, FewFC
   无 schema(0): None
   有关系类型(15): instructIE_en, instructIE_zh, duIE_zh, CMeIE, COAE2016, IPRE, SKE2020, ADE_corpus, GIDS, NYT11, New-York-Times-RE, SciERC, conll04, kbp37, SemEval2010_task8
   无关系类型(0): None

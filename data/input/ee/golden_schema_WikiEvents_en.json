@@ -1,0 +1,320 @@
+{
+  "dataset": "WikiEvents",
+  "language": "en",
+  "event_types": [
+    "Arresting, jailing, or detaining",
+    "Attack",
+    "Broadcast",
+    "Charging or indicting",
+    "Conducting a trial or hearing",
+    "Contact",
+    "Correspondence",
+    "Damage",
+    "Demonstrate",
+    "Destroy",
+    "Detonating or causing an explosion",
+    "Die",
+    "Disabling or defusing",
+    "Dismantle",
+    "Exchanging, buying, or selling",
+    "Generic crime",
+    "Identifying or categorizing",
+    "Illegal transportation",
+    "Impeding or interfering with",
+    "Injure",
+    "Intervention",
+    "Investigating a crime",
+    "Legal transportation",
+    "Manufacturing or assembling",
+    "Meet",
+    "Observing through sensory perception",
+    "RequestCommand",
+    "Research",
+    "Sentence",
+    "StartPosition",
+    "ThreatenCoerce"
+  ],
+  "roles": [
+    "AcquiredEntity",
+    "Artifact",
+    "Attacker",
+    "Communicator",
+    "Damager",
+    "Defendant",
+    "Demonstrator",
+    "Destination",
+    "Destroyer",
+    "Detainee",
+    "Disabler",
+    "Dismantler",
+    "Employee",
+    "ExplosiveDevice",
+    "Giver",
+    "IdentifiedObject",
+    "Identifier",
+    "Impeder",
+    "Injurer",
+    "Instrument",
+    "Investigator",
+    "Jailer",
+    "JudgeCourt",
+    "Killer",
+    "ManufacturerAssembler",
+    "ObservedEntity",
+    "Observer",
+    "Origin",
+    "Participant",
+    "PassengerArtifact",
+    "Patient",
+    "Perpetrator",
+    "Place",
+    "Position",
+    "Prosecutor",
+    "Recipient",
+    "Researcher",
+    "Target",
+    "Topic",
+    "Transporter",
+    "Treater",
+    "Vehicle",
+    "Victim"
+  ],
+  "events": [
+    {
+      "event_type": "Arresting, jailing, or detaining",
+      "roles": [
+        "Detainee",
+        "Jailer",
+        "Place"
+      ]
+    },
+    {
+      "event_type": "Attack",
+      "roles": [
+        "Attacker",
+        "Instrument",
+        "Place",
+        "Target"
+      ]
+    },
+    {
+      "event_type": "Broadcast",
+      "roles": [
+        "Communicator"
+      ]
+    },
+    {
+      "event_type": "Charging or indicting",
+      "roles": [
+        "Defendant",
+        "Prosecutor"
+      ]
+    },
+    {
+      "event_type": "Conducting a trial or hearing",
+      "roles": [
+        "Defendant",
+        "JudgeCourt",
+        "Place"
+      ]
+    },
+    {
+      "event_type": "Contact",
+      "roles": [
+        "Participant",
+        "Place",
+        "Topic"
+      ]
+    },
+    {
+      "event_type": "Correspondence",
+      "roles": [
+        "Communicator",
+        "Recipient",
+        "Topic"
+      ]
+    },
+    {
+      "event_type": "Damage",
+      "roles": [
+        "Artifact",
+        "Damager",
+        "Place"
+      ]
+    },
+    {
+      "event_type": "Demonstrate",
+      "roles": [
+        "Demonstrator"
+      ]
+    },
+    {
+      "event_type": "Destroy",
+      "roles": [
+        "Artifact",
+        "Destroyer",
+        "Place"
+      ]
+    },
+    {
+      "event_type": "Detonating or causing an explosion",
+      "roles": [
+        "Attacker",
+        "ExplosiveDevice",
+        "Instrument",
+        "Place",
+        "Target"
+      ]
+    },
+    {
+      "event_type": "Die",
+      "roles": [
+        "Killer",
+        "Place",
+        "Victim"
+      ]
+    },
+    {
+      "event_type": "Disabling or defusing",
+      "roles": [
+        "Artifact",
+        "Disabler"
+      ]
+    },
+    {
+      "event_type": "Dismantle",
+      "roles": [
+        "Artifact",
+        "Dismantler",
+        "Instrument"
+      ]
+    },
+    {
+      "event_type": "Exchanging, buying, or selling",
+      "roles": [
+        "AcquiredEntity",
+        "Giver",
+        "Recipient"
+      ]
+    },
+    {
+      "event_type": "Generic crime",
+      "roles": [
+        "Perpetrator",
+        "Place",
+        "Victim"
+      ]
+    },
+    {
+      "event_type": "Identifying or categorizing",
+      "roles": [
+        "IdentifiedObject",
+        "Identifier",
+        "Place"
+      ]
+    },
+    {
+      "event_type": "Illegal transportation",
+      "roles": [
+        "Destination",
+        "PassengerArtifact",
+        "Transporter",
+        "Vehicle"
+      ]
+    },
+    {
+      "event_type": "Impeding or interfering with",
+      "roles": [
+        "Impeder"
+      ]
+    },
+    {
+      "event_type": "Injure",
+      "roles": [
+        "Injurer",
+        "Instrument",
+        "Victim"
+      ]
+    },
+    {
+      "event_type": "Intervention",
+      "roles": [
+        "Patient",
+        "Treater"
+      ]
+    },
+    {
+      "event_type": "Investigating a crime",
+      "roles": [
+        "Investigator"
+      ]
+    },
+    {
+      "event_type": "Legal transportation",
+      "roles": [
+        "Destination",
+        "Origin",
+        "PassengerArtifact",
+        "Transporter"
+      ]
+    },
+    {
+      "event_type": "Manufacturing or assembling",
+      "roles": [
+        "Artifact",
+        "ManufacturerAssembler",
+        "Place"
+      ]
+    },
+    {
+      "event_type": "Meet",
+      "roles": [
+        "Participant",
+        "Place",
+        "Topic"
+      ]
+    },
+    {
+      "event_type": "Observing through sensory perception",
+      "roles": [
+        "ObservedEntity",
+        "Observer"
+      ]
+    },
+    {
+      "event_type": "RequestCommand",
+      "roles": [
+        "Communicator",
+        "Recipient"
+      ]
+    },
+    {
+      "event_type": "Research",
+      "roles": [
+        "Researcher"
+      ]
+    },
+    {
+      "event_type": "Sentence",
+      "roles": [
+        "Defendant",
+        "JudgeCourt"
+      ]
+    },
+    {
+      "event_type": "StartPosition",
+      "roles": [
+        "Employee",
+        "Place",
+        "Position"
+      ]
+    },
+    {
+      "event_type": "ThreatenCoerce",
+      "roles": [
+        "Communicator",
+        "Recipient"
+      ]
+    }
+  ]
+}

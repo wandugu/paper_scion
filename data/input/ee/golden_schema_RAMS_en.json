@@ -1,0 +1,1106 @@
+{
+  "dataset": "RAMS",
+  "language": "en",
+  "event_types": [
+    "A person falling",
+    "Acceptance of an agreement, contract, or ceasefire",
+    "Accident or crash",
+    "Act of surrender",
+    "Airstrike or missile strike",
+    "An artifact falling",
+    "Arrest, jailing, or detainment",
+    "Arson or fire setting",
+    "Biological chemical or poisoning attack",
+    "Bombing incident",
+    "Borrowing or lending money",
+    "Borrowing or lending ownership",
+    "Bringing, carrying or unloading a person",
+    "Bringing, carrying or unloading an artifact",
+    "Broadcast expressing commitment, promise, or intent",
+    "Broadcast for requests or advice",
+    "Broadcast involving threats or coercion",
+    "Broadcast of prevarication or misleading information",
+    "Broadcasting commands or orders",
+    "Carrying out an execution",
+    "Casting a vote",
+    "Charging or indictment proceedings",
+    "Collaborative correspondence",
+    "Construction of a structure or artifact",
+    "Conviction in a judicial process",
+    "Correspondence expressing commitment, promise, or intent",
+    "Correspondence for discussion",
+    "Correspondence for negotiation",
+    "Correspondence for requests or advice",
+    "Correspondence involving commands or orders",
+    "Correspondence involving prevarication or misleading information",
+    "Creation of intellectual property",
+    "Creation or manufacturing of goods",
+    "Death caused by violent events",
+    "Dispersing or separating an artifact",
+    "Dispersing or separating people",
+    "Espionage activities",
+    "Evacuation or rescue of a person",
+    "Execution by hanging",
+    "Extradition proceedings",
+    "Financial embargo or sanction",
+    "Fire or explosion incident",
+    "Firearm assault",
+    "Firing or laying off from a position",
+    "Forced retreat",
+    "Formation or start of a geopolitical entity",
+    "Gifting or granting ownership, or providing aid in ownership transfer",
+    "Giving a gift, grant, or providing aid in a transaction",
+    "Giving a gift, grant, or providing aid with money",
+    "Granting entry or asylum to a person",
+    "Granting entry to an artifact",
+    "Hiding a person",
+    "Hiding an artifact",
+    "Hiring for a position",
+    "Illness or degradation due to hunger or thirst",
+    "Implementing an embargo or sanction",
+    "Injury caused by violent events",
+    "Inspection of people or organizations",
+    "Investigation of a crime",
+    "Media statement broadcast",
+    "Meeting for a funeral or vigil",
+    "Meeting for collaboration",
+    "Meeting for discussion",
+    "Meeting for requesting or advising",
+    "Meeting involving prevarication or misleading information",
+    "Meeting involving threats or coercion",
+    "Meeting to express commitment, promise, or intent",
+    "Meeting to issue commands or orders",
+    "Meeting to negotiate",
+    "Merger of geopolitical entities",
+    "Military invasion",
+    "Monitoring of elections",
+    "Non-violent death",
+    "Non-violent throwing or launching of an artifact",
+    "Ownership embargo or sanction",
+    "Passing legislation",
+    "Paying for a service",
+    "Physical illness or degradation",
+    "Physical investigation or inspection",
+    "Political march protest or gathering",
+    "Preventing entry of a person",
+    "Preventing entry of an artifact",
+    "Preventing exit of a person",
+    "Preventing exit of an artifact",
+    "Public statement broadcast in person",
+    "Purchasing to transfer ownership",
+    "Purchasing with money",
+    "Quitting or retiring from a position",
+    "Receiving or importing an artifact",
+    "Rejection or nullification of an agreement, contract, or ceasefire",
+    "Self directed combat",
+    "Self-motion of a person",
+    "Sending, supplying or exporting an artifact",
+    "Smuggling or extracting a person",
+    "Smuggling or extracting an artifact",
+    "Stabbing attack",
+    "Strangulation",
+    "Theft robbery or hijacking",
+    "Threats or coercion through correspondence",
+    "Transferring control of assets or entities",
+    "Trial or hearing process initiation",
+    "Violation of an agreement",
+    "Voting irregularities or prevention of voting",
+    "Winning an election",
+    "damage",
+    "destroy"
+  ],
+  "roles": [
+    "artifact",
+    "artifactmoney",
+    "attacker",
+    "ballot",
+    "beneficiary",
+    "candidate",
+    "communicator",
+    "crashobject",
+    "crime",
+    "damager",
+    "deceased",
+    "defendant",
+    "demonstrator",
+    "destination",
+    "destroyer",
+    "detainee",
+    "driverpassenger",
+    "employee",
+    "executioner",
+    "extraditer",
+    "fireexplosionobject",
+    "founder",
+    "giver",
+    "governmentbody",
+    "gpe",
+    "granter",
+    "hidingplace",
+    "injurer",
+    "inspectedentity",
+    "inspector",
+    "instrument",
+    "investigator",
+    "jailer",
+    "judgecourt",
+    "killer",
+    "law",
+    "manufacturer",
+    "money",
+    "monitor",
+    "monitoredentity",
+    "observedentity",
+    "origin",
+    "otherparticipant",
+    "participant",
+    "passenger",
+    "place",
+    "placeofemployment",
+    "preventer",
+    "prosecutor",
+    "recipient",
+    "rejecternullifier",
+    "result",
+    "retreater",
+    "spy",
+    "surrenderer",
+    "target",
+    "territoryorfacility",
+    "transporter",
+    "vehicle",
+    "victim",
+    "violator",
+    "voter"
+  ],
+  "events": [
+    {
+      "event_type": "A person falling",
+      "roles": [
+        "destination",
+        "origin",
+        "passenger"
+      ]
+    },
+    {
+      "event_type": "Acceptance of an agreement, contract, or ceasefire",
+      "roles": [
+        "participant",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Accident or crash",
+      "roles": [
+        "crashobject",
+        "driverpassenger",
+        "place",
+        "vehicle"
+      ]
+    },
+    {
+      "event_type": "Act of surrender",
+      "roles": [
+        "place",
+        "recipient",
+        "surrenderer"
+      ]
+    },
+    {
+      "event_type": "Airstrike or missile strike",
+      "roles": [
+        "attacker",
+        "instrument",
+        "place",
+        "target"
+      ]
+    },
+    {
+      "event_type": "An artifact falling",
+      "roles": [
+        "artifact",
+        "destination",
+        "origin"
+      ]
+    },
+    {
+      "event_type": "Arrest, jailing, or detainment",
+      "roles": [
+        "crime",
+        "detainee",
+        "jailer",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Arson or fire setting",
+      "roles": [
+        "attacker",
+        "instrument",
+        "place",
+        "target"
+      ]
+    },
+    {
+      "event_type": "Biological chemical or poisoning attack",
+      "roles": [
+        "attacker",
+        "instrument",
+        "place",
+        "target"
+      ]
+    },
+    {
+      "event_type": "Bombing incident",
+      "roles": [
+        "attacker",
+        "instrument",
+        "place",
+        "target"
+      ]
+    },
+    {
+      "event_type": "Borrowing or lending money",
+      "roles": [
+        "beneficiary",
+        "giver",
+        "money",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Borrowing or lending ownership",
+      "roles": [
+        "artifact",
+        "beneficiary",
+        "giver",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Bringing, carrying or unloading a person",
+      "roles": [
+        "destination",
+        "origin",
+        "passenger",
+        "transporter",
+        "vehicle"
+      ]
+    },
+    {
+      "event_type": "Bringing, carrying or unloading an artifact",
+      "roles": [
+        "artifact",
+        "destination",
+        "origin",
+        "transporter",
+        "vehicle"
+      ]
+    },
+    {
+      "event_type": "Broadcast expressing commitment, promise, or intent",
+      "roles": [
+        "communicator",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Broadcast for requests or advice",
+      "roles": [
+        "communicator",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Broadcast involving threats or coercion",
+      "roles": [
+        "communicator",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Broadcast of prevarication or misleading information",
+      "roles": [
+        "communicator",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Broadcasting commands or orders",
+      "roles": [
+        "communicator",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Carrying out an execution",
+      "roles": [
+        "crime",
+        "defendant",
+        "executioner",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Casting a vote",
+      "roles": [
+        "ballot",
+        "candidate",
+        "place",
+        "result",
+        "voter"
+      ]
+    },
+    {
+      "event_type": "Charging or indictment proceedings",
+      "roles": [
+        "crime",
+        "defendant",
+        "judgecourt",
+        "place",
+        "prosecutor"
+      ]
+    },
+    {
+      "event_type": "Collaborative correspondence",
+      "roles": [
+        "participant",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Construction of a structure or artifact",
+      "roles": [
+        "artifact",
+        "instrument",
+        "manufacturer",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Conviction in a judicial process",
+      "roles": [
+        "crime",
+        "defendant",
+        "judgecourt",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Correspondence expressing commitment, promise, or intent",
+      "roles": [
+        "communicator",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Correspondence for discussion",
+      "roles": [
+        "participant",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Correspondence for negotiation",
+      "roles": [
+        "participant",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Correspondence for requests or advice",
+      "roles": [
+        "communicator",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Correspondence involving commands or orders",
+      "roles": [
+        "communicator",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Correspondence involving prevarication or misleading information",
+      "roles": [
+        "communicator",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Creation of intellectual property",
+      "roles": [
+        "artifact",
+        "instrument",
+        "manufacturer",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Creation or manufacturing of goods",
+      "roles": [
+        "artifact",
+        "instrument",
+        "manufacturer",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Death caused by violent events",
+      "roles": [
+        "instrument",
+        "killer",
+        "place",
+        "victim"
+      ]
+    },
+    {
+      "event_type": "Dispersing or separating an artifact",
+      "roles": [
+        "artifact",
+        "destination",
+        "origin",
+        "transporter",
+        "vehicle"
+      ]
+    },
+    {
+      "event_type": "Dispersing or separating people",
+      "roles": [
+        "destination",
+        "origin",
+        "passenger",
+        "transporter",
+        "vehicle"
+      ]
+    },
+    {
+      "event_type": "Espionage activities",
+      "roles": [
+        "beneficiary",
+        "observedentity",
+        "place",
+        "spy"
+      ]
+    },
+    {
+      "event_type": "Evacuation or rescue of a person",
+      "roles": [
+        "destination",
+        "origin",
+        "passenger",
+        "transporter",
+        "vehicle"
+      ]
+    },
+    {
+      "event_type": "Execution by hanging",
+      "roles": [
+        "attacker",
+        "instrument",
+        "place",
+        "target"
+      ]
+    },
+    {
+      "event_type": "Extradition proceedings",
+      "roles": [
+        "crime",
+        "defendant",
+        "destination",
+        "extraditer",
+        "origin"
+      ]
+    },
+    {
+      "event_type": "Financial embargo or sanction",
+      "roles": [
+        "giver",
+        "money",
+        "place",
+        "preventer",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Fire or explosion incident",
+      "roles": [
+        "fireexplosionobject",
+        "instrument",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Firearm assault",
+      "roles": [
+        "attacker",
+        "instrument",
+        "place",
+        "target"
+      ]
+    },
+    {
+      "event_type": "Firing or laying off from a position",
+      "roles": [
+        "employee",
+        "place",
+        "placeofemployment"
+      ]
+    },
+    {
+      "event_type": "Forced retreat",
+      "roles": [
+        "destination",
+        "origin",
+        "retreater"
+      ]
+    },
+    {
+      "event_type": "Formation or start of a geopolitical entity",
+      "roles": [
+        "founder",
+        "gpe",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Gifting or granting ownership, or providing aid in ownership transfer",
+      "roles": [
+        "artifact",
+        "beneficiary",
+        "giver",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Giving a gift, grant, or providing aid in a transaction",
+      "roles": [
+        "beneficiary",
+        "giver",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Giving a gift, grant, or providing aid with money",
+      "roles": [
+        "beneficiary",
+        "giver",
+        "money",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Granting entry or asylum to a person",
+      "roles": [
+        "destination",
+        "granter",
+        "origin",
+        "passenger",
+        "transporter"
+      ]
+    },
+    {
+      "event_type": "Granting entry to an artifact",
+      "roles": [
+        "artifact",
+        "destination",
+        "origin",
+        "transporter"
+      ]
+    },
+    {
+      "event_type": "Hiding a person",
+      "roles": [
+        "hidingplace",
+        "origin",
+        "passenger",
+        "transporter",
+        "vehicle"
+      ]
+    },
+    {
+      "event_type": "Hiding an artifact",
+      "roles": [
+        "artifact",
+        "hidingplace",
+        "origin",
+        "transporter",
+        "vehicle"
+      ]
+    },
+    {
+      "event_type": "Hiring for a position",
+      "roles": [
+        "employee",
+        "place",
+        "placeofemployment"
+      ]
+    },
+    {
+      "event_type": "Illness or degradation due to hunger or thirst",
+      "roles": [
+        "place",
+        "victim"
+      ]
+    },
+    {
+      "event_type": "Implementing an embargo or sanction",
+      "roles": [
+        "artifactmoney",
+        "giver",
+        "place",
+        "preventer",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Injury caused by violent events",
+      "roles": [
+        "injurer",
+        "instrument",
+        "place",
+        "victim"
+      ]
+    },
+    {
+      "event_type": "Inspection of people or organizations",
+      "roles": [
+        "inspectedentity",
+        "inspector",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Investigation of a crime",
+      "roles": [
+        "crime",
+        "defendant",
+        "investigator",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Media statement broadcast",
+      "roles": [
+        "communicator",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Meeting for a funeral or vigil",
+      "roles": [
+        "deceased",
+        "participant",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Meeting for collaboration",
+      "roles": [
+        "participant",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Meeting for discussion",
+      "roles": [
+        "participant",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Meeting for requesting or advising",
+      "roles": [
+        "communicator",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Meeting involving prevarication or misleading information",
+      "roles": [
+        "communicator",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Meeting involving threats or coercion",
+      "roles": [
+        "communicator",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Meeting to express commitment, promise, or intent",
+      "roles": [
+        "communicator",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Meeting to issue commands or orders",
+      "roles": [
+        "communicator",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Meeting to negotiate",
+      "roles": [
+        "participant",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Merger of geopolitical entities",
+      "roles": [
+        "participant",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Military invasion",
+      "roles": [
+        "attacker",
+        "instrument",
+        "place",
+        "target"
+      ]
+    },
+    {
+      "event_type": "Monitoring of elections",
+      "roles": [
+        "monitor",
+        "monitoredentity",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Non-violent death",
+      "roles": [
+        "place",
+        "victim"
+      ]
+    },
+    {
+      "event_type": "Non-violent throwing or launching of an artifact",
+      "roles": [
+        "artifact",
+        "destination",
+        "origin",
+        "transporter",
+        "vehicle"
+      ]
+    },
+    {
+      "event_type": "Ownership embargo or sanction",
+      "roles": [
+        "artifact",
+        "giver",
+        "place",
+        "preventer",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Passing legislation",
+      "roles": [
+        "governmentbody",
+        "law",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Paying for a service",
+      "roles": [
+        "beneficiary",
+        "giver",
+        "money",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Physical illness or degradation",
+      "roles": [
+        "victim"
+      ]
+    },
+    {
+      "event_type": "Physical investigation or inspection",
+      "roles": [
+        "inspectedentity",
+        "inspector",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Political march protest or gathering",
+      "roles": [
+        "demonstrator",
+        "place"
+      ]
+    },
+    {
+      "event_type": "Preventing entry of a person",
+      "roles": [
+        "destination",
+        "origin",
+        "passenger",
+        "preventer",
+        "transporter"
+      ]
+    },
+    {
+      "event_type": "Preventing entry of an artifact",
+      "roles": [
+        "artifact",
+        "destination",
+        "origin",
+        "preventer",
+        "transporter"
+      ]
+    },
+    {
+      "event_type": "Preventing exit of a person",
+      "roles": [
+        "destination",
+        "origin",
+        "passenger",
+        "preventer",
+        "transporter"
+      ]
+    },
+    {
+      "event_type": "Preventing exit of an artifact",
+      "roles": [
+        "artifact",
+        "destination",
+        "origin",
+        "preventer",
+        "transporter"
+      ]
+    },
+    {
+      "event_type": "Public statement broadcast in person",
+      "roles": [
+        "communicator",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Purchasing to transfer ownership",
+      "roles": [
+        "artifact",
+        "beneficiary",
+        "giver",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Purchasing with money",
+      "roles": [
+        "beneficiary",
+        "giver",
+        "money",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Quitting or retiring from a position",
+      "roles": [
+        "employee",
+        "place",
+        "placeofemployment"
+      ]
+    },
+    {
+      "event_type": "Receiving or importing an artifact",
+      "roles": [
+        "artifact",
+        "destination",
+        "origin",
+        "transporter",
+        "vehicle"
+      ]
+    },
+    {
+      "event_type": "Rejection or nullification of an agreement, contract, or ceasefire",
+      "roles": [
+        "otherparticipant",
+        "place",
+        "rejecternullifier"
+      ]
+    },
+    {
+      "event_type": "Self directed combat",
+      "roles": [
+        "attacker",
+        "instrument",
+        "place",
+        "target"
+      ]
+    },
+    {
+      "event_type": "Self-motion of a person",
+      "roles": [
+        "destination",
+        "origin",
+        "transporter"
+      ]
+    },
+    {
+      "event_type": "Sending, supplying or exporting an artifact",
+      "roles": [
+        "artifact",
+        "destination",
+        "origin",
+        "transporter",
+        "vehicle"
+      ]
+    },
+    {
+      "event_type": "Smuggling or extracting a person",
+      "roles": [
+        "destination",
+        "origin",
+        "passenger",
+        "transporter",
+        "vehicle"
+      ]
+    },
+    {
+      "event_type": "Smuggling or extracting an artifact",
+      "roles": [
+        "artifact",
+        "destination",
+        "origin",
+        "transporter",
+        "vehicle"
+      ]
+    },
+    {
+      "event_type": "Stabbing attack",
+      "roles": [
+        "attacker",
+        "instrument",
+        "place",
+        "target"
+      ]
+    },
+    {
+      "event_type": "Strangulation",
+      "roles": [
+        "attacker",
+        "instrument",
+        "place",
+        "target"
+      ]
+    },
+    {
+      "event_type": "Theft robbery or hijacking",
+      "roles": [
+        "artifact",
+        "attacker",
+        "instrument",
+        "place",
+        "target"
+      ]
+    },
+    {
+      "event_type": "Threats or coercion through correspondence",
+      "roles": [
+        "communicator",
+        "place",
+        "recipient"
+      ]
+    },
+    {
+      "event_type": "Transferring control of assets or entities",
+      "roles": [
+        "beneficiary",
+        "giver",
+        "place",
+        "recipient",
+        "territoryorfacility"
+      ]
+    },
+    {
+      "event_type": "Trial or hearing process initiation",
+      "roles": [
+        "crime",
+        "defendant",
+        "judgecourt",
+        "place",
+        "prosecutor"
+      ]
+    },
+    {
+      "event_type": "Violation of an agreement",
+      "roles": [
+        "otherparticipant",
+        "place",
+        "violator"
+      ]
+    },
+    {
+      "event_type": "Voting irregularities or prevention of voting",
+      "roles": [
+        "ballot",
+        "candidate",
+        "place",
+        "preventer",
+        "voter"
+      ]
+    },
+    {
+      "event_type": "Winning an election",
+      "roles": [
+        "candidate",
+        "place",
+        "voter"
+      ]
+    },
+    {
+      "event_type": "damage",
+      "roles": [
+        "artifact",
+        "damager",
+        "instrument",
+        "place"
+      ]
+    },
+    {
+      "event_type": "destroy",
+      "roles": [
+        "artifact",
+        "destroyer",
+        "instrument",
+        "place"
+      ]
+    }
+  ]
+}
