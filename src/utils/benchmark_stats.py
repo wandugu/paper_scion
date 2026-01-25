@@ -1744,10 +1744,19 @@ def _write_csv(path: Path, rows: List[Dict[str, Any]]) -> None:
         LOGGER.warning("CSV 输出为空: %s", path)
         return
     path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames: List[str] = []
+    for row in rows:
+        for key in row.keys():
+            if key not in fieldnames:
+                fieldnames.append(key)
+    LOGGER.debug("CSV 字段汇总: %s", fieldnames)
     with path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()))
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
         for row in rows:
+            missing_fields = [key for key in fieldnames if key not in row]
+            if missing_fields:
+                LOGGER.debug("CSV 行缺失字段: %s -> %s", missing_fields, row)
             writer.writerow(row)
     LOGGER.info("表格已输出: %s", path)
 
