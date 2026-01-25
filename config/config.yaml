@@ -447,6 +447,16 @@ dataset_conversion:
       - obj
       - object
       - tail_entity
+    relation_id_pattern: "^P\\d+$"
+    relation_map_keys:
+      - pid2name
+      - id2rel
+      - id2relation
+      - relation2id
+      - rel2id
+      - rel2name
+      - relation2name
+      - relation_name_map
   re:
     output_dir: data/input/re
     datasets: all
@@ -690,7 +700,7 @@ dataset_conversion:
         task: re
         format: traced
         language: en
-        schema_path: data/dataset_public/re/re-en/traced/traced.py
+        schema_path: data/dataset_public/re/re-en/traced/tacred.py
         data_files:
           - data/dataset_public/re/re-en/traced/dev_patch.json
           - data/dataset_public/re/re-en/traced/test_patch.json

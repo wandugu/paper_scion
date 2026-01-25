@@ -80,6 +80,19 @@ def build_conversion_summary(stats: Sequence[DatasetConversionStats]) -> str:
     ]
 
     for item in stats:
+        relation_types_desc = (
+            "NA (EE)"
+            if item.task == "ee"
+            else (", ".join(item.relation_types) if item.relation_types else "None")
+        )
+        relation_types_source = "na" if item.task == "ee" else item.relation_types_source
+        relation_llm_desc = (
+            "NA (EE)"
+            if item.task == "ee"
+            else (
+                f"{item.relation_types_llm_generated} ({', '.join(item.relation_types_llm_items) if item.relation_types_llm_items else 'None'})"
+            )
+        )
         lines.extend(
             [
                 f"- 数据集: {item.name}",
@@ -90,12 +103,9 @@ def build_conversion_summary(stats: Sequence[DatasetConversionStats]) -> str:
                 f"  原始记录数: {item.raw_records}",
                 f"  samples_limit: {item.sample_limit}",
                 f"  include_input: {item.include_input}",
-                f"  relation_types({len(item.relation_types)}): {', '.join(item.relation_types) if item.relation_types else 'None'}",
-                f"  relation_types_source: {item.relation_types_source}",
-                (
-                    "  relation_types_llm_generated:"
-                    f" {item.relation_types_llm_generated} ({', '.join(item.relation_types_llm_items) if item.relation_types_llm_items else 'None'})"
-                ),
+                f"  relation_types({len(item.relation_types)}): {relation_types_desc}",
+                f"  relation_types_source: {relation_types_source}",
+                f"  relation_types_llm_generated: {relation_llm_desc}",
                 (
                     "  support(min/median/p90/p99/max):"
                     f" {item.support_min}/{item.support_median}/{item.support_p90}/{item.support_p99}/{item.support_max}"
@@ -114,11 +124,12 @@ def build_conversion_summary(stats: Sequence[DatasetConversionStats]) -> str:
 def _build_schema_summary(stats: Sequence[DatasetConversionStats]) -> List[str]:
     with_schema = [item.name for item in stats if item.schema_has_file]
     without_schema = [item.name for item in stats if not item.schema_has_file]
-    with_relation_types = [item.name for item in stats if item.relation_types]
-    without_relation_types = [item.name for item in stats if not item.relation_types]
+    re_stats = [item for item in stats if item.task == "re"]
+    with_relation_types = [item.name for item in re_stats if item.relation_types]
+    without_relation_types = [item.name for item in re_stats if not item.relation_types]
     llm_generated = [
         f"{item.name}({', '.join(item.relation_types_llm_items) if item.relation_types_llm_items else 'None'})"
-        for item in stats
+        for item in re_stats
         if item.relation_types_llm_generated
     ]
 
