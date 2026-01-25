@@ -3128,6 +3128,7 @@ def convert_wiki_4_inputs(
 def _build_event_schema(schema_paths: Sequence[Path], dataset_name: str, language: str) -> Dict[str, Any]:
     event_types: set[str] = set()
     roles: set[str] = set()
+    event_role_map: Dict[str, List[str]] = {}
 
     for schema_path in schema_paths:
         schema_lines = _load_schema_lines(schema_path)
@@ -3135,13 +3136,46 @@ def _build_event_schema(schema_paths: Sequence[Path], dataset_name: str, languag
             event_types.update([str(item).strip() for item in schema_lines[0] if str(item).strip()])
         if len(schema_lines) > 1 and isinstance(schema_lines[1], list):
             roles.update([str(item).strip() for item in schema_lines[1] if str(item).strip()])
+        for payload in schema_lines:
+            if not isinstance(payload, dict):
+                continue
+            for event_type, role_list in payload.items():
+                if not event_type:
+                    continue
+                if isinstance(role_list, list):
+                    cleaned_roles = [str(item).strip() for item in role_list if str(item).strip()]
+                else:
+                    cleaned_roles = [str(role_list).strip()] if str(role_list).strip() else []
+                if not cleaned_roles:
+                    continue
+                event_role_map.setdefault(str(event_type).strip(), [])
+                event_role_map[str(event_type).strip()].extend(cleaned_roles)
 
-    return {
+    if event_role_map:
+        for event_type, role_list in event_role_map.items():
+            event_types.add(event_type)
+            roles.update(role_list)
+        LOGGER.debug(
+            "事件 schema 解析到角色映射: dataset=%s event_types=%s roles=%s",
+            dataset_name,
+            len(event_role_map),
+            len(roles),
+        )
+
+    schema_payload = {
         "dataset": dataset_name,
         "language": language,
         "event_types": sorted(event_types),
         "roles": sorted(roles),
     }
+    if event_role_map:
+        events: List[Dict[str, Any]] = []
+        for event_type, role_list in sorted(event_role_map.items()):
+            unique_roles = sorted(set(role_list))
+            events.append({"event_type": event_type, "roles": unique_roles})
+        schema_payload["events"] = events
+
+    return schema_payload
 
 
 def _convert_event_inputs(
