@@ -1024,6 +1024,51 @@ benchmark_stats:
     min_docs: 100
     max_docs: 100000
     require_schema_file: true
+scope_dataset:
+  out_root: data/input/scope
+  dedup_by_text: true
+  cross_dataset_dedup: false
+  global_split_ratios:
+    - 0.8
+    - 0.1
+    - 0.1
+  split_seed: 42
+  rel_shard_size: 8
+  evt_shard_size: 3
+  min_docs_per_type: 200
+  make_category_subsets: true
+  category_min_docs: 200
+  mix_pairs: 200
+  mix_seed: 7
+  case_sizes:
+    - 200
+    - 1000
+    - 5000
+  case_seeds:
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+  sampling:
+    - random
+    - coverage
+  fusion_mask_ratios:
+    - 0.3
+    - 0.6
+  schema_explosion_guard: true
+  explosion_edge_threshold: 200
+  failed_log: logs/failed_datasets.txt
+  stats:
+    coverage_low_threshold: 0.2
+    support_rare_threshold: 5
+    split_overlap_threshold: 0.05
+    coverage_curve_ks:
+      - 50
+      - 100
+      - 200
+      - 500
+      - 1000
 output:
   dir: data/output
   schema_filename: ontology_schema.json
