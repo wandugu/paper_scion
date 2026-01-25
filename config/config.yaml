@@ -406,6 +406,9 @@ dataset_conversion:
           Infer relation schema from the samples (JSON list) below:
           {relation_examples}
           Return JSON with key "relationships", each item includes rel_type, head_entity, tail_entity, description (optional).
+  semeval_aux_ignore:
+    - "*README*"
+    - "*.pl"
   fewrel:
     episode_keys:
       - meta_train

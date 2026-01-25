@@ -8,6 +8,7 @@ import logging
 import math
 import statistics
 import re
+from fnmatch import fnmatch
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -1150,9 +1151,17 @@ def _parse_semeval_distribution(path: Path) -> Dict[str, Dict[str, int]]:
     return distributions
 
 
-def _summarize_semeval_aux_files(dataset_name: str, aux_files: Sequence[Path]) -> None:
+def _summarize_semeval_aux_files(
+    dataset_name: str,
+    aux_files: Sequence[Path],
+    ignore_patterns: Sequence[str] | None = None,
+) -> None:
+    ignore_patterns = [pattern for pattern in (ignore_patterns or []) if pattern]
     for path in aux_files:
         if not path.exists():
+            continue
+        if ignore_patterns and any(fnmatch(path.name, pattern) for pattern in ignore_patterns):
+            LOGGER.debug("SemEval 附加文件过滤: %s", path.name)
             continue
         content = path.read_text(encoding="utf-8", errors="ignore")
         lines = content.splitlines()
@@ -1165,13 +1174,7 @@ def _summarize_semeval_aux_files(dataset_name: str, aux_files: Sequence[Path]) -
                 {section: list(values.items())[:5] for section, values in distributions.items()},
             )
         elif "readme" in filename.lower():
-            first_line = next((line.strip() for line in lines if line.strip()), "")
-            LOGGER.debug(
-                "SemEval 附加文件 %s README 摘要: 行数=%s 首行=%s",
-                filename,
-                len(lines),
-                first_line,
-            )
+            LOGGER.debug("SemEval 附加文件跳过 README: %s", filename)
         else:
             LOGGER.debug(
                 "SemEval 附加文件 %s 已读取: 行数=%s 字符数=%s",
@@ -3126,6 +3129,11 @@ def _run_re_dataset_conversion(
     semeval_full_files = _collect_paths(dataset_cfg.get("semeval_full_files", []) or [])
     semeval_clean_files = _collect_paths(dataset_cfg.get("semeval_clean_files", []) or [])
     semeval_aux_files = _collect_paths(dataset_cfg.get("semeval_aux_files", []) or [])
+    semeval_aux_ignore = (
+        dataset_cfg.get("semeval_aux_ignore")
+        or (config.get("dataset_conversion") or {}).get("semeval_aux_ignore")
+        or []
+    )
     LOGGER.debug(
         "关系抽取数据集 %s schema_paths=%s data_files=%s label_files=%s",
         dataset_name,
@@ -3140,7 +3148,7 @@ def _run_re_dataset_conversion(
             [str(path) for path in semeval_clean_files],
             [str(path) for path in semeval_aux_files],
         )
-        _summarize_semeval_aux_files(dataset_name, semeval_aux_files)
+        _summarize_semeval_aux_files(dataset_name, semeval_aux_files, semeval_aux_ignore)
     if not data_files:
         LOGGER.warning("关系抽取数据集 %s 未配置 data_files", dataset_name)
         return
