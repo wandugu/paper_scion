@@ -29,6 +29,10 @@
    ```bash
    python -m src.utils.paper_report
    ```
+7. SCOPE 数据集训练/验证集导出（或 eval 模式生成本体并评测）：
+   ```bash
+   python -m src.scope_experiment
+   ```
 
 ## 项目结构与运行方式
 

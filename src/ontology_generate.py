@@ -51,6 +51,7 @@ from .utils.dataset_paths import (
 from .utils.llm_factory import instantiate_llm_client
 from .utils.llm_stats import dump_llm_run_stats, ensure_llm_run_stats, llm_stats_enabled
 from .utils.logger import get_ot_logger
+from .utils.scope_dataset_utils import build_scope_background_text, load_scope_docs
 
 
 CONFIG: Dict = load_yaml_config(CONFIG_PATH)
@@ -677,6 +678,28 @@ def load_text_chunks() -> Sequence[str]:
             dataset_text = load_dataset_background_text(CONFIG, dataset_name)
             LOGGER.info("未找到 golden_input 文件，改用 data_files 拼接背景文本。")
         return chunk_text(dataset_text, cfg["chunk_size"])
+    if input_type == "scope":
+        scope_cfg = cfg.get("scope") or {}
+        scope_root = scope_cfg.get("root_dir") or (CONFIG.get("scope_experiment") or {}).get("root_dir", "data/input/scope")
+        scope_part = scope_cfg.get("part", "scope")
+        scope_name = scope_cfg.get("name")
+        scope_split = scope_cfg.get("split", "train")
+        text_fields = scope_cfg.get("text_fields") or ["text", "input"]
+        max_docs = scope_cfg.get("max_docs")
+        scope_root_path = resolve_project_path(scope_root)
+        LOGGER.debug(
+            "加载 scope 数据: root=%s part=%s name=%s split=%s max_docs=%s",
+            scope_root_path,
+            scope_part,
+            scope_name,
+            scope_split,
+            max_docs,
+        )
+        docs = load_scope_docs(scope_root_path, scope_part, scope_name, scope_split, max_docs=max_docs)
+        dataset_text = build_scope_background_text(docs, text_fields)
+        if not dataset_text:
+            raise ValueError("scope 数据集中未找到可用文本字段，请检查配置 input.scope.text_fields")
+        return chunk_text(dataset_text, cfg["chunk_size"])
     if input_type == "text":
         return chunk_text(cfg["text"], cfg["chunk_size"])
     if input_type == "file":
@@ -685,7 +708,7 @@ def load_text_chunks() -> Sequence[str]:
             raise FileNotFoundError(f"未找到输入文件: {text_path}")
         return chunk_text(text_path.read_text(encoding="utf-8"), cfg["chunk_size"])
     raise ValueError(
-        "input.type 仅支持 'sample'、'dataset'、'text' 或 'file'，"
+        "input.type 仅支持 'sample'、'dataset'、'scope'、'text' 或 'file'，"
         "也可使用 duIE / instructIE 作为 dataset 别名"
     )
 
