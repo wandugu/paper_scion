@@ -19,6 +19,23 @@ LOGGER = get_ot_logger()
 LOGGER.setLevel(logging.DEBUG)
 
 PLACEHOLDER_ENTITY_TYPES = {"entity", "na", "n/a", ""}
+SCOPE_PART_ALIASES = {
+    "scope": "SCOPE",
+    "root": "SCOPE",
+    "subset": "subsets",
+    "subsets": "subsets",
+    "task": "tasks",
+    "tasks": "tasks",
+    "case": "cases",
+    "cases": "cases",
+}
+SCOPE_SPLIT_ALIASES = {
+    "train": "train",
+    "dev": "dev",
+    "valid": "dev",
+    "val": "dev",
+    "test": "test",
+}
 
 TQDM_SETTINGS: Dict[str, Any] = {
     "enabled": True,
@@ -95,6 +112,157 @@ def safe_json_load(path: Path) -> Any:
         LOGGER.warning("检测到 Git LFS 指针文件，跳过解析: %s", path)
         return {}
     return json.loads(content)
+
+
+def normalize_scope_split(split: str | None) -> str:
+    raw = str(split or "train").strip().lower()
+    normalized = SCOPE_SPLIT_ALIASES.get(raw)
+    if not normalized:
+        LOGGER.debug("未知 split=%s，默认回退为 train", split)
+        return "train"
+    return normalized
+
+
+def normalize_scope_part(part: str | None) -> str:
+    raw = str(part or "scope").strip().lower()
+    normalized = SCOPE_PART_ALIASES.get(raw)
+    if not normalized:
+        LOGGER.debug("未知 scope part=%s，默认回退为 SCOPE", part)
+        return "SCOPE"
+    return normalized
+
+
+def resolve_scope_docs_path(scope_root: Path, part: str | None, name: str | None, split: str | None) -> Path:
+    normalized_part = normalize_scope_part(part)
+    normalized_split = normalize_scope_split(split)
+    if normalized_part == "SCOPE":
+        doc_path = scope_root / "SCOPE" / f"docs.{normalized_split}.jsonl"
+        LOGGER.debug("解析 scope 文档路径: part=%s split=%s path=%s", normalized_part, normalized_split, doc_path)
+        return doc_path
+
+    if not name:
+        raise ValueError(f"scope part={normalized_part} 时必须提供 name")
+    doc_path = scope_root / normalized_part / str(name) / f"docs.{normalized_split}.jsonl"
+    LOGGER.debug(
+        "解析 scope 文档路径: part=%s name=%s split=%s path=%s",
+        normalized_part,
+        name,
+        normalized_split,
+        doc_path,
+    )
+    return doc_path
+
+
+def load_scope_docs(
+    scope_root: Path,
+    part: str | None,
+    name: str | None,
+    split: str | None,
+    max_docs: int | None = None,
+) -> List[Dict[str, Any]]:
+    doc_path = resolve_scope_docs_path(scope_root, part, name, split)
+    if not doc_path.exists():
+        raise FileNotFoundError(f"未找到 scope 文档文件: {doc_path}")
+    docs: List[Dict[str, Any]] = []
+    with doc_path.open("r", encoding="utf-8") as fp:
+        for line_no, line in enumerate(fp, start=1):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                LOGGER.debug("跳过无法解析的 JSONL 行: %s:%s", doc_path, line_no)
+                continue
+            if not isinstance(record, dict):
+                continue
+            docs.append(record)
+            if max_docs and len(docs) >= max_docs:
+                LOGGER.debug("达到 max_docs=%s，提前结束读取", max_docs)
+                break
+    LOGGER.debug("读取 scope 文档完成: %s 条", len(docs))
+    return docs
+
+
+def build_scope_background_text(docs: Sequence[Dict[str, Any]], text_fields: Sequence[str]) -> str:
+    texts: List[str] = []
+    for doc in docs:
+        for field in text_fields:
+            value = doc.get(field)
+            if value:
+                text = str(value).strip()
+                if text:
+                    texts.append(text)
+                    break
+    LOGGER.debug("Scope 文本拼接完成: texts=%s", len(texts))
+    return "\n\n".join(texts)
+
+
+def schema_from_doc_records(docs: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
+    entity_types: Set[str] = set()
+    relation_map: Dict[Tuple[str, str, str], Dict[str, Any]] = {}
+    event_roles: Dict[str, Set[str]] = {}
+
+    for doc in docs:
+        for rel in doc.get("relations", []) or []:
+            if not isinstance(rel, dict):
+                continue
+            head_type = normalize_entity_type(rel.get("head", {}).get("type"))
+            tail_type = normalize_entity_type(rel.get("tail", {}).get("type"))
+            rel_type = str(rel.get("predicate") or "").strip()
+            if not rel_type:
+                continue
+            entity_types.update([head_type, tail_type])
+            key = (head_type, rel_type, tail_type)
+            relation_map.setdefault(
+                key,
+                {
+                    "head_entity": head_type,
+                    "rel_type": rel_type,
+                    "tail_entity": tail_type,
+                },
+            )
+
+        for event in doc.get("events", []) or []:
+            if not isinstance(event, dict):
+                continue
+            event_type = str(event.get("event_type") or "").strip()
+            if not event_type:
+                continue
+            role_set = event_roles.setdefault(event_type, set())
+            for arg in event.get("arguments", []) or []:
+                if not isinstance(arg, dict):
+                    continue
+                role = str(arg.get("role") or "").strip()
+                if role:
+                    role_set.add(role)
+
+    relationships = list(relation_map.values())
+    events: List[Dict[str, Any]] = []
+    for event_type, roles in sorted(event_roles.items()):
+        events.append(
+            {
+                "event_type": event_type,
+                "description": "",
+                "trigger_words": [],
+                "arguments": [{"role": role, "description": "", "required": False} for role in sorted(roles)],
+            }
+        )
+
+    schema: Dict[str, Any] = {
+        "entities": sorted(entity_types),
+        "relationships": relationships,
+    }
+    if events:
+        schema["events"] = events
+
+    LOGGER.debug(
+        "从 scope 文档生成 schema: entities=%s relationships=%s events=%s",
+        len(schema.get("entities", [])),
+        len(schema.get("relationships", [])),
+        len(schema.get("events", [])) if schema.get("events") else 0,
+    )
+    return schema
 
 
 def text_hash(text: str) -> str:
@@ -572,6 +740,12 @@ __all__ = [
     "apply_tqdm_settings",
     "wrap_tqdm",
     "safe_json_load",
+    "normalize_scope_split",
+    "normalize_scope_part",
+    "resolve_scope_docs_path",
+    "load_scope_docs",
+    "build_scope_background_text",
+    "schema_from_doc_records",
     "text_hash",
     "hash_to_int",
     "split_by_hash",

@@ -344,8 +344,17 @@ event_extraction:
               description: "Key conditions or exchanges that enable the alliance"
               required: false
 input:
-  type: dataset
+  type: scope
   dataset_name: *dataset_name
+  scope:
+    root_dir: data/input/scope
+    part: scope
+    name: SCOPE
+    split: train
+    text_fields:
+      - text
+      - input
+    max_docs: null
   text: "这里可以直接放置自定义背景文本……"
   file_path: data/input/background.txt
   existing_ontology_path: data/input/golden_schema_instrctIE_zh.json
@@ -1175,6 +1184,44 @@ scope_dataset:
       - 200
       - 500
       - 1000
+scope_experiment:
+  mode: eval
+  root_dir: data/input/scope
+  output_dir: data/output/scope_experiment
+  text_fields:
+    - text
+    - input
+  train:
+    part: scope
+    name: SCOPE
+    split: train
+    max_docs: null
+  validation:
+    part: scope
+    name: SCOPE
+    split: dev
+    max_docs: null
+  output_files:
+    train_jsonl: train.jsonl
+    validation_jsonl: validation.jsonl
+    train_text: train_text.txt
+    validation_text: validation_text.txt
+    summary_json: summary.json
+  eval:
+    part: scope
+    name: SCOPE
+    split: test
+    max_docs: null
+    text_fields:
+      - text
+      - input
+    output_dir: data/output/scope_experiment
+    schema_filename: ontology_schema_scope.json
+    pred_schema_path: data/output/scope_experiment/ontology_schema_scope.json
+    golden_schema_path: data/input/scope/SCOPE/schema_full.json
+    metrics_path: data/output/scope_experiment/ontology_eval_metrics.json
+    use_heuristic_schema: true
+    metrics_mode: auto
 output:
   dir: data/output
   schema_filename: ontology_schema.json
