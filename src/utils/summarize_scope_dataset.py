@@ -1177,7 +1177,23 @@ def summarize_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) ->
             eval_script,
         )
 
+    _maybe_run_paper_report(config)
     LOGGER.info("SCOPE 统计完成，输出目录: %s", out_root)
+
+
+def _maybe_run_paper_report(config: Dict[str, Any]) -> None:
+    report_cfg = config.get("paper_report") or {}
+    auto_run = bool(report_cfg.get("auto_run_in_scope", True))
+    LOGGER.debug("paper_report auto_run_in_scope=%s", auto_run)
+    if not auto_run:
+        return
+    from utils.paper_report import run_paper_report
+
+    try:
+        run_paper_report(config)
+        LOGGER.info("已自动生成 paper_report")
+    except Exception as exc:  # noqa: BLE001
+        LOGGER.exception("自动运行 paper_report 失败: %s", exc)
 
 
 def _sample_docs_by_strategy(

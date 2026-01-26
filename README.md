@@ -25,6 +25,10 @@
    ```bash
    python src/convert_public_datasets.py
    ```
+6. 论文统计汇总（schema 口径、样本数、Graph F1 参数等）：
+   ```bash
+   python -m src.utils.paper_report
+   ```
 
 ## 项目结构与运行方式
 
@@ -33,9 +37,10 @@
   - `language` / `llm`：控制语言及模型参数，支持 DeepSeek、OpenAI、Groq 等。
   - `input`：指定背景文本、已有本体（默认为 `data/input` 下的文件）以及文本切片大小。
   - `output`：生成文件统一写入 `data/output`，文件名会自动添加语言后缀。
-  - `pipeline` / `runtime`：流程控制与运行节奏配置（是否抽取节点/边、延迟等）。
-  - `evaluation`：评测所需的设备、阈值、嵌入模型与指标输出路径（默认 `data/output/ontology_eval_metrics_2.json`）。
-  - `dataset_conversion`：公开数据集转换的输入/输出目录（默认读写 `data/input`），以及样本条数限制。
+- `pipeline` / `runtime`：流程控制与运行节奏配置（是否抽取节点/边、延迟等）。
+- `evaluation`：评测所需的设备、阈值、嵌入模型与指标输出路径（默认 `data/output/ontology_eval_metrics_2.json`）。
+- `dataset_conversion`：公开数据集转换的输入/输出目录（默认读写 `data/input`），以及样本条数限制。
+- `paper_report`：论文统计汇总配置（schema 统计口径、Graph F1 参数、fuzzy 阈值敏感性、fusion track 说明）。
 - 示例素材与配置集中在 `src/assets/`、`config/`，便于统一维护。
 - 如已拥有旧的本体定义，可放入 `data/input/ontology_schema_exist_<lang>.json`（或在 `config/config.yaml` 的 `input.existing_ontology_path` 中指定其它路径）。脚本会先构建新本体，再与旧版本去重合并，最终输出合并后的 `ontology_schema_<lang>.json`。
 - 若只需生成本体文件，可在 `runtime.graph_extraction_enabled` 中设置为 `false`，此时脚本只会输出合并后的本体 JSON，跳过节点/边文件及 Neo4j 相关流程。

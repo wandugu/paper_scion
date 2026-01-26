@@ -374,6 +374,66 @@ evaluation:
   graph_smoothing_rounds: 2
   graph_smoothing_alpha: 0.5
   output_json: data/output/ontology_eval_metrics.json
+paper_report:
+  output_dir: data/output/paper_report
+  dataset_name: *dataset_name
+  auto_run_in_scope: true
+  schema:
+    pred_path: null
+    gold_path: null
+  samples:
+    path: null
+  sample_stats:
+    dedup_by_text: true
+    cross_dataset_dedup: false
+    synthetic_on_missing: true
+    synthetic_text: "论文统计自测样本文本"
+    synthetic_relation: "related_to"
+    synthetic_event_type: "SyntheticEvent"
+    synthetic_role: "Participant"
+  normalization_spec:
+    RE:
+      direction_policy: directed
+      symmetric_policy: none
+      missing_type_policy: Entity
+      type_path_policy: keep_atomic
+      label_for_embedding: "replace '/' -> ' '"
+    EE:
+      label_casing_en: lower
+      separator_policy: collapse_whitespace + unify(_,-)
+      edge_form: "(event_type, role, ARG)"
+      ARG_semantics: placeholder
+    DEDUP:
+      dedup_mode: normalized
+      normalize_text_en: strip + collapse spaces (+ optional lowercase)
+      normalize_text_zh: strip + collapse spaces
+      provenance_fields_kept: source_sample_ids, source_groups, source_dataset
+  normalization_examples:
+    - before: "InstructIE: Person/Place -> Located_In"
+      after: "Person Place -> located_in"
+    - before: "Event/Attack Role:Victim"
+      after: "attack victim"
+  graph_f1:
+    embedding_dim: 1024
+    similarity: cosine
+    matching: hungarian
+  fuzzy_sweep:
+    enabled: true
+    thresholds:
+      - 0.7
+      - 0.8
+      - 0.9
+  fusion_track:
+    base_ontologies:
+      - name: "ExampleBaseOntology"
+        version: "v1.0"
+        license: "CC-BY-4.0"
+    leakage_check:
+      - "drop entries that exactly match gold labels"
+    mapping_fields:
+      - equivalent
+      - broader
+      - narrower
 stats:
   enabled: true
   output_dir: data/output/stats
