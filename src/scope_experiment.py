@@ -240,6 +240,14 @@ def _run_eval_mode(exp_cfg: Dict[str, Any]) -> None:
         LOGGER.exception("加载 schema 失败: %s", exc)
         raise
 
+    LOGGER.debug(
+        "schema 加载完成: gold_entities=%s gold_relationships=%s pred_entities=%s pred_relationships=%s",
+        len(gold_schema.get("entities", [])),
+        len(gold_schema.get("relationships", [])),
+        len(pred_schema.get("entities", [])),
+        len(pred_schema.get("relationships", [])),
+    )
+
     gold_graph = schema_dict_to_graph(gold_schema)
     pred_graph = schema_dict_to_graph(pred_schema)
 

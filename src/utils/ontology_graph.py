@@ -3,9 +3,16 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Sequence, Set
+
+from .logger import get_ot_logger
+
+
+LOGGER = get_ot_logger()
+LOGGER.setLevel(logging.DEBUG)
 
 
 def normalize_label(label: str | None) -> str:
@@ -14,14 +21,99 @@ def normalize_label(label: str | None) -> str:
     return str(label).strip().lower()
 
 
+def _schema_from_sequence(items: Sequence[Any]) -> Dict[str, Any]:
+    entities: Set[str] = set()
+    relationships: List[Dict[str, str]] = []
+    events: List[Dict[str, Any]] = []
+
+    for idx, item in enumerate(items):
+        if isinstance(item, str):
+            label = item.strip()
+            if label:
+                entities.add(label)
+            continue
+        if not isinstance(item, dict):
+            LOGGER.debug("跳过非字典/字符串的 schema 条目: index=%s type=%s", idx, type(item).__name__)
+            continue
+
+        if {"head_entity", "tail_entity", "rel_type"}.issubset(item.keys()):
+            head = str(item.get("head_entity") or "").strip()
+            tail = str(item.get("tail_entity") or "").strip()
+            rel_type = str(item.get("rel_type") or "").strip()
+            if not (head and tail and rel_type):
+                LOGGER.debug("跳过不完整关系条目: index=%s item=%s", idx, item)
+                continue
+            entities.update([head, tail])
+            relationships.append({"head_entity": head, "rel_type": rel_type, "tail_entity": tail})
+            continue
+
+        if "event_type" in item:
+            event_type = str(item.get("event_type") or "").strip()
+            if not event_type:
+                LOGGER.debug("跳过空 event_type 条目: index=%s item=%s", idx, item)
+                continue
+            description = str(item.get("description") or "").strip()
+            trigger_words = [str(word).strip() for word in item.get("trigger_words", []) if str(word).strip()]
+            arguments: List[Dict[str, Any]] = []
+            for arg in item.get("arguments", []) or []:
+                if not isinstance(arg, dict):
+                    continue
+                role = str(arg.get("role") or "").strip()
+                if not role:
+                    continue
+                arguments.append(
+                    {
+                        "role": role,
+                        "description": str(arg.get("description") or "").strip(),
+                        "required": bool(arg.get("required", False)),
+                    }
+                )
+            events.append(
+                {
+                    "event_type": event_type,
+                    "description": description,
+                    "trigger_words": trigger_words,
+                    "arguments": arguments,
+                }
+            )
+            continue
+
+        if "entity" in item:
+            label = str(item.get("entity") or "").strip()
+            if label:
+                entities.add(label)
+                continue
+
+        LOGGER.debug("未识别的 schema 条目: index=%s keys=%s", idx, sorted(item.keys()))
+
+    schema: Dict[str, Any] = {
+        "entities": sorted(entities),
+        "relationships": relationships,
+    }
+    if events:
+        schema["events"] = events
+    LOGGER.debug(
+        "从列表 schema 生成结构: entities=%s relationships=%s events=%s",
+        len(schema.get("entities", [])),
+        len(schema.get("relationships", [])),
+        len(schema.get("events", [])) if schema.get("events") else 0,
+    )
+    return schema
+
+
 def load_schema_file(path: str | Path) -> Dict[str, Any]:
     schema_path = Path(path)
     if not schema_path.exists():
         raise FileNotFoundError(f"未找到本体文件: {schema_path}")
+    LOGGER.debug("加载本体文件: %s", schema_path)
     data = json.loads(schema_path.read_text(encoding="utf-8"))
-    if not isinstance(data, dict):
-        raise ValueError("本体文件必须是 JSON 对象。")
-    return data
+    if isinstance(data, dict):
+        LOGGER.debug("本体文件为 JSON 对象: keys=%s", sorted(data.keys()))
+        return data
+    if isinstance(data, list):
+        LOGGER.debug("本体文件为 JSON 数组: len=%s", len(data))
+        return _schema_from_sequence(data)
+    raise ValueError("本体文件必须是 JSON 对象。")
 
 
 @dataclass(frozen=True)
