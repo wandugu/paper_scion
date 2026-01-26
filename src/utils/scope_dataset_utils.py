@@ -10,9 +10,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
-from utils.common import save_json
-from utils.dataset_paths import resolve_dataset_paths
-from utils.logger import get_ot_logger
+from .common import save_json
+from .dataset_paths import resolve_dataset_paths
+from .logger import get_ot_logger
 
 
 LOGGER = get_ot_logger()
@@ -90,7 +90,11 @@ def wrap_tqdm(iterable: Iterable[Any], desc: str, total: int | None = None) -> I
 
 def safe_json_load(path: Path) -> Any:
     LOGGER.debug("读取 JSON: %s", path)
-    return json.loads(path.read_text(encoding="utf-8"))
+    content = path.read_text(encoding="utf-8")
+    if content.lstrip().startswith("version https://git-lfs.github.com/spec/v1"):
+        LOGGER.warning("检测到 Git LFS 指针文件，跳过解析: %s", path)
+        return {}
+    return json.loads(content)
 
 
 def text_hash(text: str) -> str:
