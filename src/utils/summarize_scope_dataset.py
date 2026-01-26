@@ -144,6 +144,38 @@ def _build_summary_md(path: Path, summary_lines: List[str]) -> None:
     path.write_text("\n".join(summary_lines) + "\n", encoding="utf-8")
 
 
+def _load_stats_payload(path: Path, label: str) -> Optional[Dict[str, Any]]:
+    if not path.exists():
+        LOGGER.warning("%s 统计文件不存在: %s", label, path)
+        return None
+    try:
+        payload = safe_json_load(path)
+    except Exception as exc:  # noqa: BLE001
+        LOGGER.warning("%s 统计文件解析失败: %s (%s)", label, path, exc)
+        return None
+    if not isinstance(payload, dict):
+        LOGGER.warning("%s 统计文件格式异常: %s", label, path)
+        return None
+    return payload
+
+
+def _resolve_stats_path(config: Dict[str, Any], section: str, default_name: str) -> Optional[Path]:
+    stats_cfg = config.get("stats") or {}
+    if not isinstance(stats_cfg, dict):
+        return None
+    if stats_cfg.get("enabled", True) is False:
+        return None
+    section_cfg = stats_cfg.get(section) or {}
+    if isinstance(section_cfg, dict):
+        if section_cfg.get("enabled", True) is False:
+            return None
+        filename = section_cfg.get("filename", default_name)
+    else:
+        filename = default_name
+    output_dir = resolve_project_path(stats_cfg.get("output_dir", "data/output/stats"))
+    return output_dir / filename
+
+
 def _render_spec_table(title: str, spec: Dict[str, Any]) -> List[str]:
     lines = [f"## {title}", "", "| Key | Value |", "| --- | --- |"]
     for key, value in spec.items():
@@ -691,6 +723,118 @@ def summarize_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) ->
         ],
         polysemy_stats_rows,
     )
+
+    controllability_path = _resolve_stats_path(config, "controllability", "controllability_stats.json")
+    if controllability_path:
+        controllability_payload = _load_stats_payload(controllability_path, "controllability")
+    else:
+        controllability_payload = None
+    if controllability_payload:
+        candidate_counts = controllability_payload.get("candidate_counts") or {}
+        merged_counts = controllability_payload.get("merged_counts") or {}
+        retained_counts = controllability_payload.get("retained_counts") or {}
+        retained_ratio = controllability_payload.get("retained_ratio") or {}
+        merged_ratio = controllability_payload.get("merged_ratio") or {}
+        json_parse = controllability_payload.get("json_parse") or {}
+        fallback = controllability_payload.get("fallback") or {}
+        write_csv(
+            tables_dir / "controllability_stats.csv",
+            [
+                "dataset",
+                "candidate_entities",
+                "candidate_relationships",
+                "candidate_events",
+                "merged_entities",
+                "merged_relationships",
+                "merged_events",
+                "retained_entities",
+                "retained_relationships",
+                "retained_events",
+                "retained_ratio_entities",
+                "retained_ratio_relationships",
+                "retained_ratio_events",
+                "merged_ratio_entities",
+                "merged_ratio_relationships",
+                "merged_ratio_events",
+                "json_success_rate_overall",
+                "json_success_rate_ontology",
+                "json_success_rate_events",
+                "fallback_rate_overall",
+                "fallback_rate_ontology",
+                "fallback_rate_events",
+            ],
+            [
+                [
+                    controllability_payload.get("dataset", "default"),
+                    candidate_counts.get("entities", 0),
+                    candidate_counts.get("relationships", 0),
+                    candidate_counts.get("events", 0),
+                    merged_counts.get("entities", 0),
+                    merged_counts.get("relationships", 0),
+                    merged_counts.get("events", 0),
+                    retained_counts.get("entities", 0),
+                    retained_counts.get("relationships", 0),
+                    retained_counts.get("events", 0),
+                    retained_ratio.get("entities", 0),
+                    retained_ratio.get("relationships", 0),
+                    retained_ratio.get("events", 0),
+                    merged_ratio.get("entities", 0),
+                    merged_ratio.get("relationships", 0),
+                    merged_ratio.get("events", 0),
+                    (json_parse.get("overall") or {}).get("success_rate", 0),
+                    (json_parse.get("ontology") or {}).get("success_rate", 0),
+                    (json_parse.get("events") or {}).get("success_rate", 0),
+                    (fallback.get("overall") or {}).get("rate", 0),
+                    (fallback.get("ontology") or {}).get("rate", 0),
+                    (fallback.get("events") or {}).get("rate", 0),
+                ]
+            ],
+        )
+        fallback_note = controllability_payload.get("fallback_note") or {}
+        fallback_lines = ["# Controllability Notes", ""]
+        if fallback_note:
+            fallback_lines.append("## Fallback 退化策略说明")
+            if isinstance(fallback_note, dict):
+                for lang, text in fallback_note.items():
+                    fallback_lines.append(f"- {lang}: {text}")
+            fallback_lines.append("")
+        _build_summary_md(stats_dir / "controllability_notes.md", fallback_lines)
+
+    llm_stats_path = _resolve_stats_path(config, "llm_run", "llm_run_stats.json")
+    if llm_stats_path:
+        llm_payload = _load_stats_payload(llm_stats_path, "llm_run")
+    else:
+        llm_payload = None
+    if llm_payload:
+        write_csv(
+            tables_dir / "llm_run_stats.csv",
+            [
+                "run_id",
+                "calls",
+                "prompt_tokens",
+                "completion_tokens",
+                "prompt_chars",
+                "completion_chars",
+                "elapsed_total_s",
+                "elapsed_wall_s",
+                "min_elapsed_s",
+                "max_elapsed_s",
+            ],
+            [
+                [
+                    llm_payload.get("run_id"),
+                    llm_payload.get("calls", 0),
+                    llm_payload.get("prompt_tokens", 0),
+                    llm_payload.get("completion_tokens", 0),
+                    llm_payload.get("prompt_chars", 0),
+                    llm_payload.get("completion_chars", 0),
+                    llm_payload.get("elapsed_total_s", 0),
+                    llm_payload.get("elapsed_wall_s", 0),
+                    llm_payload.get("min_elapsed_s", 0),
+                    llm_payload.get("max_elapsed_s", 0),
+                ]
+            ],
+        )
 
     cases_dir = out_root / "cases"
     case_stats_rows: List[List[Any]] = []

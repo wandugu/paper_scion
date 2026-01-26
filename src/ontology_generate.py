@@ -41,6 +41,7 @@ CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
 BACKGROUND_SNIPPET_MAX_CHARS = 4000
 
 from .utils.common import load_yaml_config, resolve_project_path, save_json
+from .utils.controllability_stats import ControllabilityStats, write_controllability_stats
 from .utils.dataset_paths import (
     dataset_is_relation_only,
     load_dataset_background_text,
@@ -48,6 +49,7 @@ from .utils.dataset_paths import (
     resolve_dataset_paths,
 )
 from .utils.llm_factory import instantiate_llm_client
+from .utils.llm_stats import dump_llm_run_stats, ensure_llm_run_stats, llm_stats_enabled
 from .utils.logger import get_ot_logger
 
 
@@ -996,11 +998,17 @@ def _fallback_events() -> List[Dict[str, Any]]:
     return []
 
 
-def build_ontology(llm_client: LLMClient, background_text: str) -> Ontology:
+def build_ontology(
+    llm_client: LLMClient,
+    background_text: str,
+    stats: ControllabilityStats | None = None,
+) -> Ontology:
     """根据背景语料动态生成本体。"""
 
     if not background_text.strip():
         LOGGER.warning("背景文本为空，退回使用配置中的本体。")
+        if stats:
+            stats.record_fallback("ontology", "empty_background")
         return _fallback_ontology()
 
     language_instruction = _language_instruction_text()
@@ -1027,7 +1035,11 @@ def build_ontology(llm_client: LLMClient, background_text: str) -> Ontology:
 
     try:
         response = llm_client.generate(user_message=user_message, system_message=system_message)
+        if stats:
+            stats.record_json_attempt("ontology")
         payload = _extract_json_payload(response)
+        if stats:
+            stats.record_json_success("ontology")
         entities = _normalize_entities(payload.get("entities"))
         relationships = _normalize_relationships(payload.get("relationships"))
         if not entities or not relationships:
@@ -1035,6 +1047,8 @@ def build_ontology(llm_client: LLMClient, background_text: str) -> Ontology:
         return Ontology(entities=entities, relationships=relationships)
     except Exception as exc:  # noqa: BLE001
         LOGGER.warning("根据背景生成动态本体失败，改用配置本体。原因: %s", exc)
+        if stats:
+            stats.record_fallback("ontology", f"exception:{exc}")
         return _fallback_ontology()
 
 
@@ -1084,6 +1098,37 @@ def _normalize_event_schema(raw_events: Any) -> List[Dict[str, Any]]:
             }
             )
     return normalized
+
+
+def _entity_key_set(entities: Sequence[Any]) -> Set[str]:
+    keys: Set[str] = set()
+    for item in entities:
+        for entity_name, _ in _iter_entity_entries(item):
+            if entity_name:
+                keys.add(entity_name)
+    return keys
+
+
+def _relationship_key_set(relationships: Sequence[Dict[str, Any]]) -> Set[Tuple[str, str, str]]:
+    keys: Set[Tuple[str, str, str]] = set()
+    for item in _normalize_relationships(relationships):
+        key = (
+            str(item.get("head_entity", "")).strip(),
+            str(item.get("rel_type", "")).strip(),
+            str(item.get("tail_entity", "")).strip(),
+        )
+        if all(key):
+            keys.add(key)
+    return keys
+
+
+def _event_key_set(events: Sequence[Dict[str, Any]]) -> Set[str]:
+    keys: Set[str] = set()
+    for item in events:
+        event_type = str(item.get("event_type", "")).strip()
+        if event_type:
+            keys.add(event_type)
+    return keys
 
 
 def _iter_entity_entries(item: Any) -> Iterable[Tuple[str, str | None]]:
@@ -1283,7 +1328,7 @@ def merge_schema_payload(
     new_ontology: Ontology,
     new_events: Sequence[Dict[str, Any]],
     enabled_sections: Collection[str] | None = None,
-) -> Tuple[Ontology, Dict[str, Any]]:
+) -> Tuple[Ontology, Dict[str, Any], List[Dict[str, Any]]]:
     existing_entities = _normalize_entities(existing_schema.get("entities")) if existing_schema else []
     existing_relationships = (
         _normalize_relationships(existing_schema.get("relationships")) if existing_schema else []
@@ -1310,16 +1355,22 @@ def merge_schema_payload(
         payload["relationships"] = preferred_relationships
     if merged_events and _section_enabled("events", enabled_sections):
         payload["events"] = merged_events
-    return merged_ontology, payload
+    return merged_ontology, payload, merged_events
 
 
-def build_event_schema(llm_client: LLMClient, background_text: str) -> List[Dict[str, Any]]:
+def build_event_schema(
+    llm_client: LLMClient,
+    background_text: str,
+    stats: ControllabilityStats | None = None,
+) -> List[Dict[str, Any]]:
     cfg = _event_cfg()
     if not cfg.get("enabled", False):
         return []
 
     if not background_text.strip():
         LOGGER.warning("背景文本为空，事件抽取提示退回使用 fallback 配置。")
+        if stats:
+            stats.record_fallback("events", "empty_background")
         return _fallback_events()
 
     language_instruction = _language_instruction_text()
@@ -1350,13 +1401,19 @@ def build_event_schema(llm_client: LLMClient, background_text: str) -> List[Dict
 
     try:
         response = llm_client.generate(user_message=user_message, system_message=system_message)
+        if stats:
+            stats.record_json_attempt("events")
         payload = _extract_json_payload(response)
+        if stats:
+            stats.record_json_success("events")
         events = _normalize_event_schema(payload.get("events"))
         if not events:
             raise ValueError("LLM 响应缺少 events 字段或内容为空")
         return events
     except Exception as exc:  # noqa: BLE001
         LOGGER.warning("生成事件抽取配置失败，改用 fallback。原因: %s", exc)
+        if stats:
+            stats.record_fallback("events", f"exception:{exc}")
         return _fallback_events()
 
 
@@ -1445,6 +1502,10 @@ def main():
     output_paths = ensure_output_paths(dataset_name or None)
     existing_schema, _ = load_existing_ontology_schema()
     golden_schema, _ = load_golden_schema_for_eval(dataset_name)
+    controllability_stats = ControllabilityStats()
+    if llm_stats_enabled(CONFIG):
+        run_id = f"ontology_generate:{dataset_name or 'default'}"
+        ensure_llm_run_stats(CONFIG, run_id=run_id)
     relation_only_dataset = False
     if dataset_name:
         try:
@@ -1458,7 +1519,7 @@ def main():
     documents = build_documents(chunks)
     llm_client = instantiate_llm_client(CONFIG)
     background_excerpt = build_background_excerpt(chunks)
-    ontology = build_ontology(llm_client=llm_client, background_text=background_excerpt)
+    ontology = build_ontology(llm_client=llm_client, background_text=background_excerpt, stats=controllability_stats)
     log_label = "新构建出的本体" if existing_schema else "构建出的本体"
     LOGGER.info("%s: %s", log_label, json.dumps(ontology.model_dump(), ensure_ascii=False, indent=2))
     schema_sections = schema_output_sections()
@@ -1469,19 +1530,44 @@ def main():
     if relation_only_dataset:
         LOGGER.info("检测到数据集 %s 仅包含关系，将跳过事件类型生成。", dataset_name)
     else:
-        event_schema = build_event_schema(llm_client=llm_client, background_text=background_excerpt)
+        event_schema = build_event_schema(
+            llm_client=llm_client,
+            background_text=background_excerpt,
+            stats=controllability_stats,
+        )
     schema_for_eval: Dict[str, Any] = {
         "entities": _normalize_entities(ontology.entities),
         "relationships": _normalize_relationships(ontology.relationships),
     }
     if event_schema:
         schema_for_eval["events"] = event_schema
-    merged_ontology, schema_payload = merge_schema_payload(
+    merged_ontology, schema_payload, merged_events = merge_schema_payload(
         existing_schema,
         ontology,
         event_schema,
         enabled_sections=schema_sections,
     )
+
+    candidate_entities = _entity_key_set(ontology.entities)
+    candidate_relationships = _relationship_key_set(ontology.relationships)
+    candidate_events = _event_key_set(event_schema)
+    merged_entities = _entity_key_set(merged_ontology.entities)
+    merged_relationships = _relationship_key_set(merged_ontology.relationships)
+    merged_events_set = _event_key_set(merged_events)
+    controllability_stats.set_candidate_counts(
+        entities=len(candidate_entities),
+        relationships=len(candidate_relationships),
+        events=len(candidate_events),
+    )
+    controllability_stats.set_merge_counts(
+        merged_entities=len(merged_entities),
+        merged_relationships=len(merged_relationships),
+        merged_events=len(merged_events_set),
+        retained_entities=len(candidate_entities & merged_entities),
+        retained_relationships=len(candidate_relationships & merged_relationships),
+        retained_events=len(candidate_events & merged_events_set),
+    )
+    write_controllability_stats(controllability_stats, CONFIG, dataset_name or "default")
 
     save_json(output_paths.schema, schema_payload)
     LOGGER.info("已保存 Schema 文件: %s", output_paths.schema)
@@ -1489,6 +1575,7 @@ def main():
 
     if not graph_extraction_enabled():
         LOGGER.info("已根据配置仅输出本体文件，跳过图谱抽取及 Neo4j 导出。输出目录: %s", output_paths.base_dir)
+        dump_llm_run_stats(CONFIG)
         return
 
     graph_maker = GraphMaker(
@@ -1510,6 +1597,7 @@ def main():
     maybe_save_to_neo4j(edges)
 
     LOGGER.info("已生成 %s 个节点、%s 条边。输出目录: %s", len(nodes), len(edges), output_paths.base_dir)
+    dump_llm_run_stats(CONFIG)
 
 
 if __name__ == "__main__":

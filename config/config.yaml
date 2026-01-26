@@ -374,6 +374,19 @@ evaluation:
   graph_smoothing_rounds: 2
   graph_smoothing_alpha: 0.5
   output_json: data/output/ontology_eval_metrics.json
+stats:
+  enabled: true
+  output_dir: data/output/stats
+  llm_run:
+    enabled: true
+    filename: llm_run_stats.json
+    keep_call_details: false
+  controllability:
+    enabled: true
+    filename: controllability_stats.json
+    fallback_note:
+      zh: "当解析失败或背景为空时，系统回退到配置中的保底 schema/事件列表，保证输出结构可用。"
+      en: "When parsing fails or background is empty, the system falls back to configured schema/events for a stable output."
 dataset_conversion:
   output_dir: data/input
   include_input: false

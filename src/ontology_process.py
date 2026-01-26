@@ -11,6 +11,7 @@ from __future__ import annotations
 from typing import Literal
 
 from .utils.common import load_yaml_config
+from .utils.llm_stats import dump_llm_run_stats, ensure_llm_run_stats, llm_stats_enabled
 from .utils.logger import get_ot_logger
 
 CONFIG = load_yaml_config()
@@ -77,6 +78,8 @@ def run_evaluation() -> None:
 
 
 def main() -> None:
+    if llm_stats_enabled(CONFIG):
+        ensure_llm_run_stats(CONFIG, run_id="ontology_process")
     if generation_enabled():
         run_generation()
     else:
@@ -86,6 +89,7 @@ def main() -> None:
         run_evaluation()
     else:
         LOGGER.info("[pipeline] 跳过本体评测阶段（未开启或未满足启用条件）。")
+    dump_llm_run_stats(CONFIG)
 
 
 if __name__ == "__main__":
