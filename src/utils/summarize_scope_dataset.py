@@ -40,6 +40,7 @@ from utils.scope_dataset_utils import (
     schema_key_from_edge,
     split_by_hash,
     text_hash,
+    wrap_tqdm,
     write_csv,
 )
 
