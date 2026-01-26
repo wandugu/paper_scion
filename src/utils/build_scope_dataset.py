@@ -403,7 +403,7 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
     if fusion_mode not in {"paired", "ratio", "task_ratio"}:
         LOGGER.warning("未知 fusion_mode=%s，回退为 paired", fusion_mode)
         fusion_mode = "paired"
-    schema_explosion_guard = bool(
+    enable_schema_explosion_guard = bool(
         args.schema_explosion_guard
         if args.schema_explosion_guard is not None
         else scope_cfg.get("schema_explosion_guard", True)
@@ -419,6 +419,11 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
         cross_dataset_dedup,
         ratios,
         split_seed,
+    )
+    LOGGER.debug(
+        "Schema guard 配置: enable=%s edge_threshold=%s",
+        enable_schema_explosion_guard,
+        explosion_edge_threshold,
     )
     LOGGER.debug(
         "SCOPE case 配置: sizes=%s seeds=%s sampling=%s mask_ratios=%s",
@@ -476,7 +481,7 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
                 else:
                     LOGGER.warning("缺少 schema 文件，使用样本推断: %s", entry.schema_output_path)
                     rel_types, ent_types, rel_edges = schema_edges_from_docs(docs)
-                if schema_explosion_guard:
+                if enable_schema_explosion_guard:
                     rel_edges, downgraded = schema_explosion_guard(
                         entry, rel_edges, docs, explosion_edge_threshold
                     )
