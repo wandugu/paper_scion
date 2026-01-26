@@ -1085,6 +1085,12 @@ scope_dataset:
     - 0.6
   schema_explosion_guard: true
   explosion_edge_threshold: 200
+  symmetric_relations_file: null
+  cross_source_fusion:
+    enabled: true
+    corpus_mode: a
+  dataset_cards:
+    eval_script: src/ontology_eval.py
   failed_log: logs/failed_datasets.txt
   stats:
     coverage_low_threshold: 0.2
