@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Iterable, List
 
 from .common import load_yaml_config, resolve_project_path
 from .logger import get_ot_logger
@@ -162,6 +162,168 @@ def _default_output_filename(cfg: Dict[str, Any], fmt: str) -> str:
     return output_cfg.get("text_filename") or "repro_settings.txt"
 
 
+def _controllability_summary_cfg(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    stats_cfg = cfg.get("stats") or {}
+    summary_cfg = stats_cfg.get("controllability_summary") or {}
+    return summary_cfg if isinstance(summary_cfg, dict) else {}
+
+
+def _resolve_controllability_input_dir(cfg: Dict[str, Any], input_dir: str | None = None) -> Path:
+    summary_cfg = _controllability_summary_cfg(cfg)
+    path_value = input_dir or summary_cfg.get("input_dir") or "data/dataset_stat/controllability_runs"
+    resolved = resolve_project_path(path_value)
+    LOGGER.debug("Controllability 输入目录: %s", resolved)
+    return resolved
+
+
+def _resolve_controllability_output_dir(cfg: Dict[str, Any]) -> Path:
+    summary_cfg = _controllability_summary_cfg(cfg)
+    output_dir = summary_cfg.get("output_dir") or "data/dataset_stat/controllability_summary"
+    resolved = resolve_project_path(output_dir)
+    LOGGER.debug("Controllability 输出目录: %s", resolved)
+    return resolved
+
+
+def _default_controllability_filename(cfg: Dict[str, Any], fmt: str) -> str:
+    summary_cfg = _controllability_summary_cfg(cfg)
+    if fmt == "json":
+        return summary_cfg.get("json_filename") or "controllability_summary.json"
+    return summary_cfg.get("text_filename") or "controllability_summary.txt"
+
+
+def _load_expected_datasets(cfg: Dict[str, Any]) -> List[str]:
+    summary_cfg = _controllability_summary_cfg(cfg)
+    datasets = summary_cfg.get("datasets")
+    if isinstance(datasets, list) and datasets:
+        expected = [str(item).strip() for item in datasets if str(item).strip()]
+        LOGGER.debug("使用配置 datasets 过滤: %s", expected)
+        return expected
+    subset_dir_value = summary_cfg.get("subset_dir")
+    if not subset_dir_value:
+        return []
+    subset_dir = resolve_project_path(subset_dir_value)
+    if not subset_dir.exists():
+        LOGGER.debug("subset_dir 不存在，跳过过滤: %s", subset_dir)
+        return []
+    subset_names = sorted([path.name for path in subset_dir.iterdir() if path.is_dir()])
+    LOGGER.debug("从 subset_dir 收集 datasets: %s", subset_names)
+    return subset_names
+
+
+def _iter_controllability_files(
+    cfg: Dict[str, Any], input_dir: Path, glob_pattern: str | None = None
+) -> Iterable[Path]:
+    summary_cfg = _controllability_summary_cfg(cfg)
+    pattern = glob_pattern or summary_cfg.get("glob") or "**/controllability_stats.json"
+    LOGGER.debug("Controllability 文件匹配模式: %s", pattern)
+    return input_dir.glob(pattern)
+
+
+def collect_controllability_summary(
+    cfg: Dict[str, Any], input_dir: Path, expected_datasets: List[str]
+) -> Dict[str, Any]:
+    summary_cfg = _controllability_summary_cfg(cfg)
+    dataset_label = summary_cfg.get("dataset_label") or "SCOPE (24)"
+    totals = {
+        "ontology": {"attempts": 0, "success": 0, "fallback": 0},
+        "events": {"attempts": 0, "success": 0, "fallback": 0},
+    }
+    files: List[str] = []
+    datasets: List[str] = []
+
+    for stats_path in sorted(_iter_controllability_files(cfg, input_dir)):
+        try:
+            payload = json.loads(stats_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            LOGGER.debug("跳过损坏文件: %s (%s)", stats_path, exc)
+            continue
+        dataset = payload.get("dataset") or stats_path.parent.name
+        if expected_datasets and dataset not in expected_datasets:
+            LOGGER.debug("跳过非目标数据集: %s", dataset)
+            continue
+        files.append(str(stats_path))
+        datasets.append(dataset)
+
+        json_parse = payload.get("json_parse") or {}
+        fallback = payload.get("fallback") or {}
+        for section in ("ontology", "events"):
+            section_parse = json_parse.get(section) or {}
+            section_fallback = fallback.get(section) or {}
+            totals[section]["attempts"] += int(section_parse.get("attempts", 0))
+            totals[section]["success"] += int(section_parse.get("success", 0))
+            totals[section]["fallback"] += int(section_fallback.get("count", 0))
+            LOGGER.debug(
+                "累计 %s: attempts=%s success=%s fallback=%s",
+                section,
+                totals[section]["attempts"],
+                totals[section]["success"],
+                totals[section]["fallback"],
+            )
+
+    LOGGER.debug("统计完成: files=%s datasets=%s", len(files), len(datasets))
+    overall_attempts = totals["ontology"]["attempts"] + totals["events"]["attempts"]
+    overall_success = totals["ontology"]["success"] + totals["events"]["success"]
+    overall_fallback = totals["ontology"]["fallback"] + totals["events"]["fallback"]
+
+    def _ratio(numerator: int, denominator: int) -> float:
+        return round(numerator / denominator, 6) if denominator else 0.0
+
+    summary = {
+        "dataset_label": dataset_label,
+        "expected_datasets": expected_datasets,
+        "observed_datasets": datasets,
+        "files": files,
+        "module_stats": {
+            "ontology": {
+                "calls": totals["ontology"]["attempts"],
+                "parse_success": _ratio(totals["ontology"]["success"], totals["ontology"]["attempts"]),
+                "fallback_rate": _ratio(totals["ontology"]["fallback"], totals["ontology"]["attempts"]),
+            },
+            "events": {
+                "calls": totals["events"]["attempts"],
+                "parse_success": _ratio(totals["events"]["success"], totals["events"]["attempts"]),
+                "fallback_rate": _ratio(totals["events"]["fallback"], totals["events"]["attempts"]),
+            },
+            "overall": {
+                "calls": overall_attempts,
+                "parse_success": _ratio(overall_success, overall_attempts),
+                "fallback_rate": _ratio(overall_fallback, overall_attempts),
+            },
+        },
+    }
+    LOGGER.debug("Controllability 汇总结果: %s", summary)
+    return summary
+
+
+def _format_rate(value: float, precision: int) -> str:
+    return f"{value:.{precision}f}"
+
+
+def format_controllability_rows(summary: Dict[str, Any], precision: int) -> str:
+    dataset_label = summary.get("dataset_label", "SCOPE (24)")
+    module_stats = summary.get("module_stats") or {}
+    rows = []
+    for module_key, module_name in (
+        ("ontology", "Ontology module"),
+        ("events", "Event-schema module"),
+        ("overall", "Overall"),
+    ):
+        stats = module_stats.get(module_key) or {}
+        rows.append(
+            " & ".join(
+                [
+                    dataset_label,
+                    module_name,
+                    str(stats.get("calls", 0)),
+                    _format_rate(float(stats.get("parse_success", 0.0)), precision),
+                    _format_rate(float(stats.get("fallback_rate", 0.0)), precision),
+                ]
+            )
+            + r" \\"
+        )
+    return "\n".join(rows)
+
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="统计复现实验参数。")
     parser.add_argument("--config", type=str, default=None, help="配置文件路径（默认读取 config/config.yaml）")
@@ -172,10 +334,22 @@ def _parse_args() -> argparse.Namespace:
         help="输出格式，text 为可直接填写表格的文本。",
     )
     parser.add_argument(
+        "--mode",
+        choices=("repro", "controllability"),
+        default="repro",
+        help="统计模式：repro 输出复现实验参数；controllability 输出 controllability 汇总。",
+    )
+    parser.add_argument(
         "--output",
         type=str,
         default=None,
         help="可选输出文件路径；未指定时写入 repro_settings.output.dir",
+    )
+    parser.add_argument(
+        "--input-dir",
+        type=str,
+        default=None,
+        help="controllability 模式的输入目录（默认读取 stats.controllability_summary.input_dir）",
     )
     return parser.parse_args()
 
@@ -185,17 +359,28 @@ def main() -> None:
     config_path = resolve_project_path(args.config) if args.config else None
     LOGGER.debug("加载配置文件: %s", config_path or "config/config.yaml")
     cfg = load_yaml_config(config_path)
-    settings = collect_repro_settings(cfg)
-
-    if args.format == "json":
-        payload = json.dumps(settings, ensure_ascii=False, indent=2)
+    if args.mode == "controllability":
+        input_dir = _resolve_controllability_input_dir(cfg, args.input_dir)
+        expected_datasets = _load_expected_datasets(cfg)
+        summary = collect_controllability_summary(cfg, input_dir, expected_datasets)
+        precision = int(_controllability_summary_cfg(cfg).get("rate_precision", 4))
+        if args.format == "json":
+            payload = json.dumps(summary, ensure_ascii=False, indent=2)
+        else:
+            payload = format_controllability_rows(summary, precision)
+        output_dir = _resolve_controllability_output_dir(cfg)
+        output_filename = _default_controllability_filename(cfg, args.format)
     else:
-        payload = format_text(settings)
+        settings = collect_repro_settings(cfg)
+        if args.format == "json":
+            payload = json.dumps(settings, ensure_ascii=False, indent=2)
+        else:
+            payload = format_text(settings)
+        output_dir = _default_output_dir(cfg)
+        output_filename = _default_output_filename(cfg, args.format)
 
     print(payload)
 
-    output_dir = _default_output_dir(cfg)
-    output_filename = _default_output_filename(cfg, args.format)
     output_path = resolve_project_path(args.output) if args.output else output_dir / output_filename
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(payload, encoding="utf-8")
