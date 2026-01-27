@@ -151,7 +151,7 @@ def format_text(settings: Dict[str, Any]) -> str:
 
 def _default_output_dir(cfg: Dict[str, Any]) -> Path:
     output_cfg = (cfg.get("repro_settings") or {}).get("output") or {}
-    default_dir = output_cfg.get("dir") or "data/dtaset_stat/para_stat"
+    default_dir = output_cfg.get("dir") or "data/dataset_stat/para_stat"
     return resolve_project_path(default_dir)
 
 
@@ -170,7 +170,9 @@ def _controllability_summary_cfg(cfg: Dict[str, Any]) -> Dict[str, Any]:
 
 def _resolve_controllability_input_dir(cfg: Dict[str, Any], input_dir: str | None = None) -> Path:
     summary_cfg = _controllability_summary_cfg(cfg)
-    path_value = input_dir or summary_cfg.get("input_dir") or "data/dataset_stat/controllability_runs"
+    path_value = (
+        input_dir or summary_cfg.get("input_dir") or "data/dataset_stat/para_stat/controllability_runs"
+    )
     resolved = resolve_project_path(path_value)
     LOGGER.debug("Controllability 输入目录: %s", resolved)
     return resolved
@@ -178,7 +180,9 @@ def _resolve_controllability_input_dir(cfg: Dict[str, Any], input_dir: str | Non
 
 def _resolve_controllability_output_dir(cfg: Dict[str, Any]) -> Path:
     summary_cfg = _controllability_summary_cfg(cfg)
-    output_dir = summary_cfg.get("output_dir") or "data/dataset_stat/controllability_summary"
+    output_dir = (
+        summary_cfg.get("output_dir") or "data/dataset_stat/para_stat/controllability_summary"
+    )
     resolved = resolve_project_path(output_dir)
     LOGGER.debug("Controllability 输出目录: %s", resolved)
     return resolved

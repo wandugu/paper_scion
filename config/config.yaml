@@ -494,11 +494,11 @@ stats:
       zh: "当解析失败或背景为空时，系统回退到配置中的保底 schema/事件列表，保证输出结构可用。"
       en: "When parsing fails or background is empty, the system falls back to configured schema/events for a stable output."
   controllability_summary:
-    input_dir: data/dataset_stat/controllability_runs
+    input_dir: data/dataset_stat/para_stat/controllability_runs
     glob: "**/controllability_stats.json"
     subset_dir: data/scope/subsets
     dataset_label: "SCOPE (24)"
-    output_dir: data/dataset_stat/controllability_summary
+    output_dir: data/dataset_stat/para_stat/controllability_summary
     text_filename: controllability_summary.txt
     json_filename: controllability_summary.json
     rate_precision: 4
