@@ -1,0 +1,14 @@
+{
+  "Track-1": {
+    "name": "single_source_induction",
+    "description": "单源归纳：仅提供语料，输出完整 schema"
+  },
+  "Track-2": {
+    "name": "induction_with_partial_base_schema",
+    "description": "提供部分 base schema，完成剩余 schema"
+  },
+  "Track-3": {
+    "name": "multi_source_fusion",
+    "description": "多源 fusion：base 来自另一来源，gold 为双源 union"
+  }
+}

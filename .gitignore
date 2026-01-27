@@ -12,3 +12,6 @@ src/assets/*.psd
 */__pycache__/*
 *.pyc
 models/
+data/scope/cases
+data/scope/tasks
+logs

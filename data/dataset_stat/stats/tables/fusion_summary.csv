@@ -1,0 +1,2 @@
+#cases_total,#cases_fuse,fuse_ratio_train,fuse_ratio_dev,fuse_ratio_test,avg_schema_in_completeness_train,mask_ratio_distribution
+7590,7590,1.0,0.0,0.0,0.7243151861370364,"{""0.3"": 3827, ""0.6"": 3763}"

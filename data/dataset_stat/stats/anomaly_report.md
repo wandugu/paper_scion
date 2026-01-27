@@ -1,0 +1,35 @@
+# SCOPE Anomaly Report
+
+## reachable_ratio 过低的数据集
+- GIDS: 0.000
+- New-York-Times-RE: 0.042
+
+## validation warnings
+- instructIE_en: illegal_text=1
+- instructIE_en: dedup_docs 4667 -> 1904
+- instructIE_zh: illegal_text=1
+- instructIE_zh: dedup_docs 4952 -> 1923
+- duIE_zh: illegal_text=79
+- duIE_zh: dedup_docs 286426 -> 191957
+- CMeIE: illegal_text=1025
+- CMeIE: dedup_docs 27386 -> 17924
+- IPRE: illegal_text=2
+- SKE2020: dedup_docs 6136 -> 3601
+- NYT11: dedup_docs 71031 -> 61269
+- New-York-Times-RE: dedup_docs 93644 -> 64159
+- SciERC: dedup_docs 3026 -> 1950
+- conll04: dedup_docs 1561 -> 1382
+- kbp37: dedup_docs 20893 -> 20892
+- SemEval2010_task8: dedup_docs 10689 -> 10674
+- CASIE: dedup_docs 6001 -> 5998
+- CrudeOilNews: dedup_docs 563 -> 265
+- RAMS: illegal_text=4
+- RAMS: dedup_docs 611 -> 584
+- WikiEvents: dedup_docs 159 -> 119
+- ccf_law: dedup_docs 4151 -> 971
+- DuEE1.0: illegal_text=1
+- DuEE1.0: dedup_docs 15519 -> 13400
+- DuEE-fin: illegal_text=8
+- DuEE-fin: dedup_docs 9242 -> 6924
+- FewFC: dedup_docs 3203 -> 2869
+
