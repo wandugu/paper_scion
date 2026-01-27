@@ -13,6 +13,8 @@
    - DeepSeek: 设置 ``DEEPSEEK_API_KEY`` 环境变量（示例脚本默认使用
      ``provider='deepseek'``，API Key 也可通过 ``config/config.yaml`` 中的
      ``llm.default_api_key`` 字段临时填写）。
+   - OpenRouter: 设置 ``OPENROUTER_API_KEY`` 环境变量，或在 ``config/config.yaml``
+     的 ``openrouter.api_key`` 中填写。
    - OpenAI: 设置 ``OPENAI_API_KEY`` 环境变量。
    - Groq: 设置 ``GROQ_API_KEY`` 环境变量。
 3. 如需自动写入 Neo4j，请确保本地或远端 Neo4j 实例已启动，且账号、密码、URI

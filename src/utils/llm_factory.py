@@ -1,4 +1,4 @@
-"""LLM 客户端工厂与 DeepSeek Client 实现。"""
+"""LLM 客户端工厂与 DeepSeek/OpenRouter Client 实现。"""
 
 from __future__ import annotations
 
@@ -7,8 +7,10 @@ import time
 from typing import Any, Dict, Protocol
 
 import requests
+from openai import OpenAI
 
 from .llm_stats import get_llm_run_stats, llm_stats_enabled
+from .logger import get_ot_logger
 
 
 class LLMClient(Protocol):
@@ -94,6 +96,96 @@ class DeepSeekClient(LLMClient):
         return data["choices"][0]["message"]["content"]
 
 
+class OpenRouterClient(LLMClient):
+    """OpenRouter LLM Client：使用 OpenAI SDK 适配 OpenRouter /chat/completions。"""
+
+    _model: str
+    _temperature: float
+    _top_p: float
+    _max_tokens: int
+
+    def __init__(
+        self,
+        model: str,
+        temperature: float,
+        top_p: float,
+        max_tokens: int,
+        cfg: Dict[str, Any],
+    ):
+        base_url = cfg.get("base_url", "https://openrouter.ai/api/v1")
+        key_env = cfg.get("api_key_env", "OPENROUTER_API_KEY")
+        api_key = cfg.get("api_key") or os.environ.get(key_env, "")
+        if not api_key:
+            raise RuntimeError(
+                "OpenRouter API key 未提供，请在 config.openrouter.api_key 或环境变量中设置 api_key_env"
+            )
+
+        extra_headers_cfg = cfg.get("extra_headers", {}) or {}
+        default_headers: Dict[str, str] = {}
+        referer = extra_headers_cfg.get("referer")
+        title = extra_headers_cfg.get("title")
+        if referer:
+            default_headers["HTTP-Referer"] = referer
+        if title:
+            default_headers["X-Title"] = title
+
+        client_kwargs: Dict[str, Any] = {
+            "base_url": base_url,
+            "api_key": api_key,
+            "default_headers": default_headers or None,
+        }
+        timeout = cfg.get("timeout")
+        if timeout is not None:
+            client_kwargs["timeout"] = timeout
+
+        self._client = OpenAI(**client_kwargs)
+        self._model = model
+        self._temperature = float(temperature)
+        self._top_p = float(top_p)
+        self._max_tokens = int(max_tokens)
+        self._extra_body = cfg.get("extra_body") or {}
+        self._plugins = cfg.get("plugins") or []
+        self._logger = get_ot_logger()
+        self._logger.debug(
+            "OpenRouterClient 初始化完成: base_url=%s model=%s headers=%s timeout=%s",
+            base_url,
+            model,
+            list(default_headers.keys()),
+            timeout,
+        )
+
+    def generate(self, user_message: str, system_message: str) -> str:
+        messages = [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": user_message},
+        ]
+        body: Dict[str, Any] = dict(self._extra_body) if self._extra_body else {}
+        if self._plugins:
+            body["plugins"] = self._plugins
+
+        self._logger.debug(
+            "OpenRouter 请求: model=%s messages=%s temperature=%s top_p=%s max_tokens=%s extra_body_keys=%s",
+            self._model,
+            len(messages),
+            self._temperature,
+            self._top_p,
+            self._max_tokens,
+            list(body.keys()),
+        )
+
+        resp = self._client.chat.completions.create(
+            model=self._model,
+            messages=messages,
+            temperature=self._temperature,
+            top_p=self._top_p,
+            max_tokens=self._max_tokens,
+            extra_body=body,
+        )
+        content = resp.choices[0].message.content
+        self._logger.debug("OpenRouter 响应完成: content_len=%s", len(content or ""))
+        return content
+
+
 def _maybe_wrap_client(config: Dict[str, Any], client: LLMClient, provider: str, model: str) -> LLMClient:
     if not llm_stats_enabled(config):
         return client
@@ -103,6 +195,8 @@ def _maybe_wrap_client(config: Dict[str, Any], client: LLMClient, provider: str,
 def instantiate_llm_client(config: Dict[str, Any]) -> LLMClient:
     llm_cfg = config.get("llm") or {}
     provider = str(llm_cfg.get("provider", "")).lower()
+    logger = get_ot_logger()
+    logger.debug("LLM provider 初始化: %s", provider)
 
     if provider == "deepseek":
         api_key = os.environ.get("DEEPSEEK_API_KEY") or llm_cfg.get("default_api_key")
@@ -122,6 +216,24 @@ def instantiate_llm_client(config: Dict[str, Any]) -> LLMClient:
             proxy=proxy,
         )
         return _maybe_wrap_client(config, client, "deepseek", llm_cfg["deepseek"]["model"])
+
+    if provider == "openrouter":
+        openrouter_cfg = config.get("openrouter") or llm_cfg.get("openrouter") or {}
+        if not isinstance(openrouter_cfg, dict):
+            openrouter_cfg = {}
+        model = llm_cfg.get("openrouter", {}).get("model")
+        if not model:
+            model = openrouter_cfg.get("model")
+        if not model:
+            raise EnvironmentError("请在 llm.openrouter.model 或 openrouter.model 中设置模型名称")
+        client = OpenRouterClient(
+            model=model,
+            temperature=llm_cfg["temperature"],
+            top_p=llm_cfg["top_p"],
+            max_tokens=llm_cfg.get("openrouter", {}).get("max_tokens", llm_cfg.get("openai", {}).get("max_tokens", 2048)),
+            cfg=openrouter_cfg,
+        )
+        return _maybe_wrap_client(config, client, "openrouter", model)
 
     if provider == "openai":
         if not os.environ.get("OPENAI_API_KEY"):
@@ -160,7 +272,7 @@ def instantiate_llm_client(config: Dict[str, Any]) -> LLMClient:
         )
         return _maybe_wrap_client(config, client, "ollama", ollama_cfg.get("model", "bge-m3"))
 
-    raise ValueError("llm.provider 仅支持 'deepseek'、'openai'、'groq' 或 'ollama'")
+    raise ValueError("llm.provider 仅支持 'deepseek'、'openrouter'、'openai'、'groq' 或 'ollama'")
 
 
-__all__ = ["DeepSeekClient", "instantiate_llm_client"]
+__all__ = ["DeepSeekClient", "OpenRouterClient", "instantiate_llm_client"]
