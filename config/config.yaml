@@ -417,7 +417,7 @@ repro_settings:
     runs_per_source: 1
     reported_aggregation: "single run"
   output:
-    dir: "data/dtaset_stat/para_stat"
+    dir: "data/dataset_stat/para_stat"
     text_filename: "repro_settings.txt"
     json_filename: "repro_settings.json"
 paper_report:

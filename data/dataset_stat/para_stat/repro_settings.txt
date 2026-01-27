@@ -1,0 +1,8 @@
+Chunking: max tokens per chunk = 1200; overlap = 0; segmentation rule = split on whitespace; accumulate char length until >= chunk_size.
+NLP preprocessing: sentence splitter = none; tokenizer/POS/dep parser = none.
+Candidate mining: term extractor = LLM prompt (ontology_generate); predicate/dep patterns = none; event sketches = LLM prompt (event_extraction).
+Clustering: embedding model = none; algorithm = none; #clusters selection = none.
+Fuzzy threshold: τ = 0.45.
+Graph smoothing: α = 0.5, K = 2.
+LLM decoding: temperature = 0.1; top_p = 0.5; max_tokens = 4096.
+Randomness control: seed(s) = not set (LLM-dependent); runs per source = 1; reported aggregation = single run.
