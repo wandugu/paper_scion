@@ -91,7 +91,7 @@ def _write_text(path: Path, text: str) -> None:
 
 
 def _export_train_validation(exp_cfg: Dict[str, Any]) -> None:
-    scope_root = resolve_project_path(exp_cfg.get("root_dir", "data/input/scope"))
+    scope_root = resolve_project_path(exp_cfg.get("root_dir", "data/scope"))
     output_dir = resolve_project_path(exp_cfg.get("output_dir", "data/output/scope_experiment"))
     text_fields = _list_str(exp_cfg.get("text_fields"), ["text", "input"])
     output_files = exp_cfg.get("output_files") or {}
@@ -149,7 +149,7 @@ def _write_eval_metrics(path: Path, metrics: Dict[str, Any]) -> None:
 
 def _run_eval_mode(exp_cfg: Dict[str, Any]) -> None:
     eval_cfg = exp_cfg.get("eval") or {}
-    scope_root = resolve_project_path(exp_cfg.get("root_dir", "data/input/scope"))
+    scope_root = resolve_project_path(exp_cfg.get("root_dir", "data/scope"))
     eval_part = eval_cfg.get("part", "scope")
     eval_name = eval_cfg.get("name")
     eval_split = eval_cfg.get("split", "test")

@@ -149,7 +149,7 @@ def llm_stats_enabled(config: Dict[str, Any]) -> bool:
 def resolve_llm_stats_path(config: Dict[str, Any]) -> Path:
     stats_cfg = _stats_cfg(config)
     llm_cfg = stats_cfg.get("llm_run") or {}
-    output_dir = resolve_project_path(stats_cfg.get("output_dir", "data/output/stats"))
+    output_dir = resolve_project_path(stats_cfg.get("output_dir", "data/dataset_stat"))
     filename = llm_cfg.get("filename", "llm_run_stats.json")
     return output_dir / filename
 

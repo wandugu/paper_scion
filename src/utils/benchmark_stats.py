@@ -191,7 +191,7 @@ def run_benchmark_stats(config: Dict[str, Any]) -> Dict[str, Any]:
     summary_txt = resolve_project_path(
         benchmark_cfg.get("summary_txt", "data/input/data_info.txt")
     )
-    out_dir = resolve_project_path(benchmark_cfg.get("out_dir", "data/output/benchmark_stats"))
+    out_dir = resolve_project_path(benchmark_cfg.get("out_dir", "data/dataset_stat/benchmark_stats"))
     out_dir.mkdir(parents=True, exist_ok=True)
     if not summary_txt.exists():
         LOGGER.warning("未找到 summary_txt: %s", summary_txt)

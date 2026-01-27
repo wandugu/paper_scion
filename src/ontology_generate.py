@@ -680,7 +680,7 @@ def load_text_chunks() -> Sequence[str]:
         return chunk_text(dataset_text, cfg["chunk_size"])
     if input_type == "scope":
         scope_cfg = cfg.get("scope") or {}
-        scope_root = scope_cfg.get("root_dir") or (CONFIG.get("scope_experiment") or {}).get("root_dir", "data/input/scope")
+        scope_root = scope_cfg.get("root_dir") or (CONFIG.get("scope_experiment") or {}).get("root_dir", "data/scope")
         scope_part = scope_cfg.get("part", "scope")
         scope_name = scope_cfg.get("name")
         scope_split = scope_cfg.get("split", "train")
