@@ -502,11 +502,29 @@ stats:
     text_filename: controllability_summary.txt
     json_filename: controllability_summary.json
     rate_precision: 4
+  efficiency_cost:
+    input_dir: data/dataset_stat/para_stat/efficiency_runs
+    glob: "**/efficiency_stats.json"
+    dataset_label: "SCOPE (24)"
+    output_dir: data/dataset_stat/para_stat/efficiency_cost
+    text_filename: efficiency_cost.txt
+    json_filename: efficiency_cost.json
+    aggregation: total
+    time_unit: s
+    time_precision: 2
+    cost_unit: USD
+    cost_precision: 4
+    settings:
+      - key: scion_o
+        label: "SCION ($\\mathcal{O}$)"
+      - key: scion_o_fusion
+        label: "SCION ($\\mathcal{O}_{\\text{fusion}}$)"
   para_stat:
     # 支持模式: repro / controllability / all
     modes:
       - repro
       - controllability
+      - efficiency_cost
 dataset_conversion:
   output_dir: data/input
   include_input: false

@@ -1,0 +1,25 @@
+{
+  "dataset": "SCOPE",
+  "records": [
+    {
+      "setting": "scion_o",
+      "docs": 1,
+      "chunks": 2,
+      "llm_calls": 4,
+      "tokens_in": 1200,
+      "tokens_out": 800,
+      "time_s": 35.5,
+      "cost_usd": 0.12
+    },
+    {
+      "setting": "scion_o_fusion",
+      "docs": 1,
+      "chunks": 2,
+      "llm_calls": 3,
+      "tokens_in": 900,
+      "tokens_out": 600,
+      "time_s": 28.0,
+      "cost_usd": 0.1
+    }
+  ]
+}
