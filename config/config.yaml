@@ -13,6 +13,9 @@ llm:
   deepseek:
     model: deepseek-chat
     max_tokens: 4096
+  openrouter:
+    model: openai/gpt-4o-mini
+    max_tokens: 2048
   openai:
     model: gpt-4o-mini
     max_tokens: 2048
@@ -21,6 +24,15 @@ llm:
   ollama:
     model: bge-m3
     base_url: http://0.0.0.0:11434
+
+openrouter:
+  api_key_env: "OPENROUTER_API_KEY"
+  api_key: ""
+  base_url: "https://openrouter.ai/api/v1"
+  timeout: 3600
+  extra_headers:
+    referer: ""
+    title: ""
 
 dataset:
   name: &dataset_name SCOPE
