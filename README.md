@@ -33,6 +33,10 @@
    ```bash
    python -m src.scope_experiment
    ```
+8. 复现实验参数统计（用于填写论文设置表）：
+   ```bash
+   python -m src.utils.para_stat
+   ```
 
 ## 项目结构与运行方式
 

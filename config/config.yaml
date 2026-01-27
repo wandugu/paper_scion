@@ -396,6 +396,30 @@ evaluation:
   graph_smoothing_rounds: 2
   graph_smoothing_alpha: 0.5
   output_json: data/output/ontology_eval_metrics.json
+repro_settings:
+  chunking:
+    max_tokens_per_chunk: 1200
+    overlap: 0
+    segmentation_rule: "split on whitespace; accumulate char length until >= chunk_size"
+  nlp_preprocessing:
+    sentence_splitter: "none"
+    tokenizer_pos_dep_parser: "none"
+  candidate_mining:
+    term_extractor: "LLM prompt (ontology_generate)"
+    predicate_dep_patterns: "none"
+    event_sketches: "LLM prompt (event_extraction)"
+  clustering:
+    embedding_model: "none"
+    algorithm: "none"
+    cluster_selection: "none"
+  randomness_control:
+    seeds: "not set (LLM-dependent)"
+    runs_per_source: 1
+    reported_aggregation: "single run"
+  output:
+    dir: "data/dtaset_stat/para_stat"
+    text_filename: "repro_settings.txt"
+    json_filename: "repro_settings.json"
 paper_report:
   output_dir: data/output/paper_report
   dataset_name: *dataset_name
