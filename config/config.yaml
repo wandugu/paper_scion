@@ -23,7 +23,7 @@ llm:
     base_url: http://0.0.0.0:11434
 
 dataset:
-  name: &dataset_name duIE_zh
+  name: &dataset_name SCOPE
 ontology:
   languages:
     zh:
@@ -357,8 +357,8 @@ input:
     max_docs: null
   text: "这里可以直接放置自定义背景文本……"
   file_path: data/input/background.txt
-  existing_ontology_path: data/input/golden_schema_instrctIE_zh.json
-  source_label: duIE
+  existing_ontology_path: data/input/scope/SCOPE/schema_full.json
+  source_label: SCOPE
   chunk_size: 1200
 runtime:
   verbose: false
@@ -372,6 +372,7 @@ pipeline:
 evaluation:
   enabled: true
   dataset_name: *dataset_name
+  golden_schema_path: data/input/scope/SCOPE/schema_full.json
   # 可填 auto / cpu / cuda:{index}；默认使用第二张卡 cuda:1
   device: cuda:1
   embedding_backend: ollama  # local：本地向量模型；ollama：通过 Ollama 服务调用
