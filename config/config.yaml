@@ -519,12 +519,28 @@ stats:
         label: "SCION ($\\mathcal{O}$)"
       - key: scion_o_fusion
         label: "SCION ($\\mathcal{O}_{\\text{fusion}}$)"
+  human_audit:
+    input_dir: data/dataset_stat/para_stat/human_audit_pairs
+    glob: "**/mapping_pairs.json"
+    output_dir: data/dataset_stat/para_stat/human_audit
+    text_filename: human_audit.txt
+    json_filename: human_audit.json
+    sample_per_source: 50
+    sample_overall: 200
+    random_seed: 42
+    synthetic_on_missing: true
+    synthetic_source: "SyntheticSource"
+    synthetic_pair:
+      source_label: "EntityA"
+      target_label: "EntityB"
+      relation: "equivalent"
   para_stat:
     # 支持模式: repro / controllability / all
     modes:
       - repro
       - controllability
       - efficiency_cost
+      - human_audit
 dataset_conversion:
   output_dir: data/input
   include_input: false
