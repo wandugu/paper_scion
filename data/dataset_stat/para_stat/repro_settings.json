@@ -1,0 +1,36 @@
+{
+  "chunking": {
+    "max_tokens_per_chunk": 1200,
+    "overlap": 0,
+    "segmentation_rule": "split on whitespace; accumulate char length until >= chunk_size"
+  },
+  "nlp_preprocessing": {
+    "sentence_splitter": "none",
+    "tokenizer_pos_dep_parser": "none"
+  },
+  "candidate_mining": {
+    "term_extractor": "LLM prompt (ontology_generate)",
+    "predicate_dep_patterns": "none",
+    "event_sketches": "LLM prompt (event_extraction)"
+  },
+  "clustering": {
+    "embedding_model": "none",
+    "algorithm": "none",
+    "cluster_selection": "none"
+  },
+  "fuzzy_threshold": 0.45,
+  "graph_smoothing": {
+    "alpha": 0.5,
+    "K": 2
+  },
+  "llm_decoding": {
+    "temperature": 0.1,
+    "top_p": 0.5,
+    "max_tokens": 4096
+  },
+  "randomness_control": {
+    "seeds": "not set (LLM-dependent)",
+    "runs_per_source": 1,
+    "reported_aggregation": "single run"
+  }
+}

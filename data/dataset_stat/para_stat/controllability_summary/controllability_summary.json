@@ -1,0 +1,52 @@
+{
+  "dataset_label": "SCOPE (24)",
+  "expected_datasets": [
+    "SCOPE_ee_en_CASIE",
+    "SCOPE_ee_en_CrudeOilNews",
+    "SCOPE_ee_en_PHEE",
+    "SCOPE_ee_en_RAMS",
+    "SCOPE_ee_en_WikiEvents",
+    "SCOPE_ee_zh_DuEE-fin",
+    "SCOPE_ee_zh_DuEE1.0",
+    "SCOPE_ee_zh_FewFC",
+    "SCOPE_ee_zh_ccf_law",
+    "SCOPE_re_en_ADE_corpus",
+    "SCOPE_re_en_GIDS",
+    "SCOPE_re_en_NYT11",
+    "SCOPE_re_en_New-York-Times-RE",
+    "SCOPE_re_en_SciERC",
+    "SCOPE_re_en_SemEval2010_task8",
+    "SCOPE_re_en_conll04",
+    "SCOPE_re_en_instructIE_en",
+    "SCOPE_re_en_kbp37",
+    "SCOPE_re_zh_CMeIE",
+    "SCOPE_re_zh_COAE2016",
+    "SCOPE_re_zh_IPRE",
+    "SCOPE_re_zh_SKE2020",
+    "SCOPE_re_zh_duIE_zh",
+    "SCOPE_re_zh_instructIE_zh"
+  ],
+  "observed_datasets": [
+    "SCOPE_re_zh_duIE_zh"
+  ],
+  "files": [
+    "/workspace/gxb_6_graph_maker/data/dataset_stat/para_stat/controllability_runs/SCOPE_re_zh_duIE_zh/controllability_stats.json"
+  ],
+  "module_stats": {
+    "ontology": {
+      "calls": 2,
+      "parse_success": 1.0,
+      "fallback_rate": 0.0
+    },
+    "events": {
+      "calls": 2,
+      "parse_success": 0.5,
+      "fallback_rate": 0.5
+    },
+    "overall": {
+      "calls": 4,
+      "parse_success": 0.75,
+      "fallback_rate": 0.25
+    }
+  }
+}
