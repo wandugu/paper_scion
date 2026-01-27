@@ -15,3 +15,4 @@ data/dataset_public/re/re-zh/duIE/train.json filter=lfs diff=lfs merge=lfs -text
 data/input/re/golden_input_duIE_zh.json filter=lfs diff=lfs merge=lfs -text
 data/input/re/golden_input_New-York-Times-RE_en.json filter=lfs diff=lfs merge=lfs -text
 data/input/re/golden_input_NYT11_en.json filter=lfs diff=lfs merge=lfs -text
+data/scope/subsets/SCOPE_re_zh_duIE_zh/docs.train.jsonl filter=lfs diff=lfs merge=lfs -text
