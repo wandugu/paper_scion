@@ -172,7 +172,7 @@ def _resolve_stats_path(config: Dict[str, Any], section: str, default_name: str)
         filename = section_cfg.get("filename", default_name)
     else:
         filename = default_name
-    output_dir = resolve_project_path(stats_cfg.get("output_dir", "data/output/stats"))
+    output_dir = resolve_project_path(stats_cfg.get("output_dir", "data/dataset_stat"))
     return output_dir / filename
 
 
@@ -343,7 +343,8 @@ def _normalize_re_edge_for_stats(
 def summarize_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> None:
     scope_cfg = config.get("scope_dataset") or {}
     apply_tqdm_settings(scope_cfg)
-    out_root = resolve_project_path(args.out_root or scope_cfg.get("out_root", "data/input/scope"))
+    out_root = resolve_project_path(args.out_root or scope_cfg.get("out_root", "data/scope"))
+    stats_output_root = resolve_project_path(scope_cfg.get("stats_output_dir", "data/dataset_stat/scope"))
     dedup_by_text = bool(args.dedup_by_text if args.dedup_by_text is not None else scope_cfg.get("dedup_by_text", True))
     cross_dataset_dedup = bool(
         args.cross_dataset_dedup if args.cross_dataset_dedup is not None else scope_cfg.get("cross_dataset_dedup", False)
@@ -368,14 +369,20 @@ def summarize_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) ->
     symmetric_relations_file = args.symmetric_relations_file or scope_cfg.get("symmetric_relations_file")
     symmetric_relations = _load_symmetric_relations(symmetric_relations_file)
 
-    LOGGER.info("SCOPE 统计输出目录: %s", out_root)
-    LOGGER.debug("统计参数: dedup_by_text=%s cross_dataset_dedup=%s split_seed=%s", dedup_by_text, cross_dataset_dedup, split_seed)
+    LOGGER.info("SCOPE 数据集目录: %s", out_root)
+    LOGGER.info("SCOPE 统计输出目录: %s", stats_output_root)
+    LOGGER.debug(
+        "统计参数: dedup_by_text=%s cross_dataset_dedup=%s split_seed=%s",
+        dedup_by_text,
+        cross_dataset_dedup,
+        split_seed,
+    )
 
-    stats_dir = out_root / "stats"
+    stats_dir = stats_output_root / "stats"
     tables_dir = stats_dir / "tables"
     figs_dir = stats_dir / "figs"
-    logs_dir = out_root / "logs"
-    dataset_cards_dir = out_root / "dataset_cards"
+    logs_dir = stats_output_root / "logs"
+    dataset_cards_dir = stats_output_root / "dataset_cards"
     stats_dir.mkdir(parents=True, exist_ok=True)
     tables_dir.mkdir(parents=True, exist_ok=True)
     figs_dir.mkdir(parents=True, exist_ok=True)
@@ -836,7 +843,7 @@ def summarize_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) ->
             ],
         )
 
-    cases_dir = out_root / "cases"
+    cases_dir = stats_output_root / "cases"
     case_stats_rows: List[List[Any]] = []
     fusion_case_rows: List[List[Any]] = []
     if cases_dir.exists():
@@ -1178,7 +1185,7 @@ def summarize_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) ->
         )
 
     _maybe_run_paper_report(config)
-    LOGGER.info("SCOPE 统计完成，输出目录: %s", out_root)
+    LOGGER.info("SCOPE 统计完成，输出目录: %s", stats_output_root)
 
 
 def _maybe_run_paper_report(config: Dict[str, Any]) -> None:

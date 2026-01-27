@@ -347,7 +347,7 @@ input:
   type: scope
   dataset_name: *dataset_name
   scope:
-    root_dir: data/input/scope
+    root_dir: data/scope
     part: scope
     name: SCOPE
     split: train
@@ -357,7 +357,7 @@ input:
     max_docs: null
   text: "这里可以直接放置自定义背景文本……"
   file_path: data/input/background.txt
-  existing_ontology_path: data/input/scope/SCOPE/schema_full.json
+  existing_ontology_path: data/scope/SCOPE/schema_full.json
   source_label: SCOPE
   chunk_size: 1200
 runtime:
@@ -372,7 +372,7 @@ pipeline:
 evaluation:
   enabled: true
   dataset_name: *dataset_name
-  golden_schema_path: data/input/scope/SCOPE/schema_full.json
+  golden_schema_path: data/scope/SCOPE/schema_full.json
   # 可填 auto / cpu / cuda:{index}；默认使用第二张卡 cuda:1
   device: cuda:1
   embedding_backend: ollama  # local：本地向量模型；ollama：通过 Ollama 服务调用
@@ -446,7 +446,7 @@ paper_report:
       - narrower
 stats:
   enabled: true
-  output_dir: data/output/stats
+  output_dir: data/dataset_stat
   llm_run:
     enabled: true
     filename: llm_run_stats.json
@@ -1053,7 +1053,7 @@ dataset_conversion:
           - data/dataset_public/ee/ee-zh/FewFC/test.json
 benchmark_stats:
   summary_txt: data/input/data_info.txt
-  out_dir: data/output/benchmark_stats
+  out_dir: data/dataset_stat/benchmark_stats
   matplotlib_backend: Agg
   tqdm:
     enabled: true
@@ -1118,7 +1118,8 @@ benchmark_stats:
     max_docs: 100000
     require_schema_file: true
 scope_dataset:
-  out_root: data/input/scope
+  out_root: data/scope
+  stats_output_dir: data/dataset_stat/scope
   dedup_by_text: true
   cross_dataset_dedup: false
   matplotlib_backend: Agg
@@ -1187,7 +1188,7 @@ scope_dataset:
       - 1000
 scope_experiment:
   mode: eval
-  root_dir: data/input/scope
+  root_dir: data/scope
   output_dir: data/output/scope_experiment
   text_fields:
     - text
@@ -1219,7 +1220,7 @@ scope_experiment:
     output_dir: data/output/scope_experiment
     schema_filename: ontology_schema_scope.json
     pred_schema_path: data/output/scope_experiment/ontology_schema_scope.json
-    golden_schema_path: data/input/scope/SCOPE/schema_full.json
+    golden_schema_path: data/scope/SCOPE/schema_full.json
     metrics_path: data/output/scope_experiment/ontology_eval_metrics.json
     use_heuristic_schema: true
     metrics_mode: auto

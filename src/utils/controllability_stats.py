@@ -161,7 +161,7 @@ def controllability_enabled(config: Dict[str, Any]) -> bool:
 def resolve_controllability_output_path(config: Dict[str, Any]) -> Path:
     stats_cfg = _stats_cfg(config)
     ctrl_cfg = stats_cfg.get("controllability") or {}
-    output_dir = resolve_project_path(stats_cfg.get("output_dir", "data/output/stats"))
+    output_dir = resolve_project_path(stats_cfg.get("output_dir", "data/dataset_stat"))
     filename = ctrl_cfg.get("filename", "controllability_stats.json") if isinstance(ctrl_cfg, dict) else "controllability_stats.json"
     return output_dir / filename
 

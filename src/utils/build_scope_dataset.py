@@ -8,6 +8,7 @@ import math
 import itertools
 import random
 import shutil
+import statistics
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -364,7 +365,8 @@ def _plot_coverage_curve(
 def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> None:
     scope_cfg = config.get("scope_dataset") or {}
     apply_tqdm_settings(scope_cfg)
-    out_root = resolve_project_path(args.out_root or scope_cfg.get("out_root", "data/input/scope"))
+    out_root = resolve_project_path(args.out_root or scope_cfg.get("out_root", "data/scope"))
+    stats_output_root = resolve_project_path(scope_cfg.get("stats_output_dir", "data/dataset_stat/scope"))
     dedup_by_text = bool(args.dedup_by_text if args.dedup_by_text is not None else scope_cfg.get("dedup_by_text", True))
     cross_dataset_dedup = bool(
         args.cross_dataset_dedup if args.cross_dataset_dedup is not None else scope_cfg.get("cross_dataset_dedup", False)
@@ -413,6 +415,7 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
     )
 
     LOGGER.info("SCOPE 输出目录: %s", out_root)
+    LOGGER.info("SCOPE 统计输出目录: %s", stats_output_root)
     LOGGER.debug(
         "SCOPE 参数: dedup_by_text=%s cross_dataset_dedup=%s ratios=%s split_seed=%s",
         dedup_by_text,
@@ -448,6 +451,7 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
         cross_source_corpus_mode,
     )
     out_root.mkdir(parents=True, exist_ok=True)
+    stats_output_root.mkdir(parents=True, exist_ok=True)
     failed_log = resolve_project_path(scope_cfg.get("failed_log", "logs/failed_datasets.txt"))
     failed_log.parent.mkdir(parents=True, exist_ok=True)
     failed_entries: List[str] = []
@@ -590,9 +594,11 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
     subset_dir = out_root / "subsets"
     tasks_dir = out_root / "tasks"
     cases_dir = out_root / "cases"
+    stats_cases_dir = stats_output_root / "cases"
     subset_dir.mkdir(parents=True, exist_ok=True)
     tasks_dir.mkdir(parents=True, exist_ok=True)
     cases_dir.mkdir(parents=True, exist_ok=True)
+    stats_cases_dir.mkdir(parents=True, exist_ok=True)
 
     tasks: Dict[str, Dict[str, Any]] = {}
     manifest_rows: List[Dict[str, Any]] = []
@@ -849,7 +855,9 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
                     "avg_length": statistics.mean(len(doc.text) for doc in induction_docs) if induction_docs else 0,
                     "doc_id_hash": text_hash("".join(doc.doc_id for doc in induction_docs)),
                 }
-                save_json(case_path / "stats.json", stats_payload)
+                stats_case_path = stats_cases_dir / task_id / case_id
+                stats_case_path.mkdir(parents=True, exist_ok=True)
+                save_json(stats_case_path / "stats.json", stats_payload)
                 LOGGER.debug(
                     "case stats: task=%s case=%s reachable_ratio=%.4f masks=%s",
                     task_id,
@@ -993,13 +1001,17 @@ def build_scope_dataset(config: Dict[str, Any], args: argparse.Namespace) -> Non
                         "induction_docs.jsonl",
                         "gold_full.schema.json",
                         "gold_reachable.schema.json",
-                        "stats.json",
                         "base_cross_source.schema.json",
                         "gold_fusion_union.schema.json",
                     ):
                         src = case_path / filename
                         if src.exists():
                             shutil.copy2(src, fuse_case_path / filename)
+                    src_stats_path = stats_cases_dir / task_id / case_id / "stats.json"
+                    if src_stats_path.exists():
+                        fuse_stats_dir = stats_cases_dir / task_id / fuse_case_id
+                        fuse_stats_dir.mkdir(parents=True, exist_ok=True)
+                        shutil.copy2(src_stats_path, fuse_stats_dir / "stats.json")
                     schema_in, noise_count, schema_in_source = _build_schema_in(
                         base_schema_source,
                         case_path,
