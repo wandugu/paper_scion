@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import random
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
@@ -174,6 +175,12 @@ def _efficiency_cost_cfg(cfg: Dict[str, Any]) -> Dict[str, Any]:
     return efficiency_cfg if isinstance(efficiency_cfg, dict) else {}
 
 
+def _human_audit_cfg(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    stats_cfg = cfg.get("stats") or {}
+    audit_cfg = stats_cfg.get("human_audit") or {}
+    return audit_cfg if isinstance(audit_cfg, dict) else {}
+
+
 def _resolve_controllability_input_dir(cfg: Dict[str, Any], input_dir: str | None = None) -> Path:
     summary_cfg = _controllability_summary_cfg(cfg)
     path_value = (
@@ -196,6 +203,16 @@ def _resolve_efficiency_input_dir(cfg: Dict[str, Any], input_dir: str | None = N
     return resolved
 
 
+def _resolve_human_audit_input_dir(cfg: Dict[str, Any], input_dir: str | None = None) -> Path:
+    audit_cfg = _human_audit_cfg(cfg)
+    path_value = (
+        input_dir or audit_cfg.get("input_dir") or "data/dataset_stat/para_stat/human_audit_pairs"
+    )
+    resolved = resolve_project_path(path_value)
+    LOGGER.debug("Human audit 输入目录: %s", resolved)
+    return resolved
+
+
 def _resolve_controllability_output_dir(cfg: Dict[str, Any]) -> Path:
     summary_cfg = _controllability_summary_cfg(cfg)
     output_dir = (
@@ -214,6 +231,14 @@ def _resolve_efficiency_output_dir(cfg: Dict[str, Any]) -> Path:
     return resolved
 
 
+def _resolve_human_audit_output_dir(cfg: Dict[str, Any]) -> Path:
+    audit_cfg = _human_audit_cfg(cfg)
+    output_dir = audit_cfg.get("output_dir") or "data/dataset_stat/para_stat/human_audit"
+    resolved = resolve_project_path(output_dir)
+    LOGGER.debug("Human audit 输出目录: %s", resolved)
+    return resolved
+
+
 def _default_controllability_filename(cfg: Dict[str, Any], fmt: str) -> str:
     summary_cfg = _controllability_summary_cfg(cfg)
     if fmt == "json":
@@ -226,6 +251,13 @@ def _default_efficiency_filename(cfg: Dict[str, Any], fmt: str) -> str:
     if fmt == "json":
         return efficiency_cfg.get("json_filename") or "efficiency_cost.json"
     return efficiency_cfg.get("text_filename") or "efficiency_cost.txt"
+
+
+def _default_human_audit_filename(cfg: Dict[str, Any], fmt: str) -> str:
+    audit_cfg = _human_audit_cfg(cfg)
+    if fmt == "json":
+        return audit_cfg.get("json_filename") or "human_audit.json"
+    return audit_cfg.get("text_filename") or "human_audit.txt"
 
 
 def _load_expected_datasets(cfg: Dict[str, Any]) -> List[str]:
@@ -286,6 +318,15 @@ def _iter_efficiency_files(
     efficiency_cfg = _efficiency_cost_cfg(cfg)
     pattern = glob_pattern or efficiency_cfg.get("glob") or "**/efficiency_stats.json"
     LOGGER.debug("Efficiency/cost 文件匹配模式: %s", pattern)
+    return input_dir.glob(pattern)
+
+
+def _iter_human_audit_files(
+    cfg: Dict[str, Any], input_dir: Path, glob_pattern: str | None = None
+) -> Iterable[Path]:
+    audit_cfg = _human_audit_cfg(cfg)
+    pattern = glob_pattern or audit_cfg.get("glob") or "**/mapping_pairs.json"
+    LOGGER.debug("Human audit 文件匹配模式: %s", pattern)
     return input_dir.glob(pattern)
 
 
@@ -408,6 +449,122 @@ def collect_efficiency_cost_summary(cfg: Dict[str, Any], input_dir: Path) -> Dic
         "stats": aggregates,
     }
     LOGGER.debug("Efficiency/cost 汇总结果: %s", summary)
+    return summary
+
+
+def _normalize_human_audit_source(raw_source: str | None, fallback: str) -> str:
+    source = str(raw_source or "").strip()
+    if source:
+        return source
+    return fallback
+
+
+def _collect_human_audit_pairs(
+    cfg: Dict[str, Any], input_dir: Path
+) -> tuple[Dict[str, List[Dict[str, Any]]], List[str]]:
+    audit_cfg = _human_audit_cfg(cfg)
+    synthetic_on_missing = bool(audit_cfg.get("synthetic_on_missing", False))
+    synthetic_source = str(audit_cfg.get("synthetic_source") or "SyntheticSource")
+    synthetic_pair = audit_cfg.get("synthetic_pair") or {
+        "source_label": "EntityA",
+        "target_label": "EntityB",
+        "relation": "equivalent",
+    }
+
+    pairs_by_source: Dict[str, List[Dict[str, Any]]] = {}
+    files: List[str] = []
+    for stats_path in sorted(_iter_human_audit_files(cfg, input_dir)):
+        try:
+            payload = json.loads(stats_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            LOGGER.debug("跳过损坏文件: %s (%s)", stats_path, exc)
+            continue
+        files.append(str(stats_path))
+        if isinstance(payload, dict):
+            fallback_source = stats_path.parent.name
+            source_value = payload.get("source") or payload.get("dataset") or payload.get("name")
+            pairs = payload.get("pairs") or payload.get("mapping_pairs") or []
+            if isinstance(pairs, list):
+                for item in pairs:
+                    if not isinstance(item, dict):
+                        continue
+                    source_name = _normalize_human_audit_source(
+                        item.get("source") or source_value, fallback_source
+                    )
+                    pairs_by_source.setdefault(source_name, []).append(item)
+            else:
+                LOGGER.debug("human audit pairs 格式不符合 list: %s", stats_path)
+        elif isinstance(payload, list):
+            fallback_source = stats_path.parent.name
+            for item in payload:
+                if not isinstance(item, dict):
+                    continue
+                source_name = _normalize_human_audit_source(
+                    item.get("source") or item.get("dataset"), fallback_source
+                )
+                pairs_by_source.setdefault(source_name, []).append(item)
+        else:
+            LOGGER.debug("human audit 文件格式不支持: %s", stats_path)
+
+    if not pairs_by_source and synthetic_on_missing:
+        LOGGER.warning("human audit 未找到数据，使用合成样本进行自测。")
+        pairs_by_source[synthetic_source] = [
+            {"source": synthetic_source, **synthetic_pair},
+        ]
+
+    LOGGER.debug(
+        "human audit 读取完成: files=%s sources=%s",
+        len(files),
+        list(pairs_by_source.keys()),
+    )
+    return pairs_by_source, files
+
+
+def collect_human_audit_summary(cfg: Dict[str, Any], input_dir: Path) -> Dict[str, Any]:
+    audit_cfg = _human_audit_cfg(cfg)
+    sample_per_source = int(audit_cfg.get("sample_per_source") or 0)
+    sample_overall = int(audit_cfg.get("sample_overall") or 0)
+    random_seed = audit_cfg.get("random_seed")
+    rng = random.Random(random_seed)
+    pairs_by_source, files = _collect_human_audit_pairs(cfg, input_dir)
+
+    pair_counts = {source: len(pairs) for source, pairs in pairs_by_source.items()}
+    total_pairs = sum(pair_counts.values())
+    LOGGER.debug("human audit pairs 计数: %s (total=%s)", pair_counts, total_pairs)
+
+    sampled_pairs_per_source: Dict[str, List[Dict[str, Any]]] = {}
+    for source, pairs in pairs_by_source.items():
+        if sample_per_source <= 0:
+            sampled_pairs_per_source[source] = []
+            continue
+        sample_size = min(sample_per_source, len(pairs))
+        sampled = rng.sample(pairs, sample_size) if sample_size else []
+        sampled_pairs_per_source[source] = sampled
+        LOGGER.debug("human audit 抽样: source=%s size=%s", source, sample_size)
+
+    overall_pairs: List[Dict[str, Any]] = []
+    for source, pairs in pairs_by_source.items():
+        for item in pairs:
+            record = dict(item)
+            record.setdefault("source", source)
+            overall_pairs.append(record)
+    overall_sampled = []
+    if sample_overall > 0 and overall_pairs:
+        sample_size = min(sample_overall, len(overall_pairs))
+        overall_sampled = rng.sample(overall_pairs, sample_size)
+        LOGGER.debug("human audit overall 抽样: size=%s", sample_size)
+
+    summary = {
+        "sample_per_source": sample_per_source,
+        "sample_overall": sample_overall,
+        "random_seed": random_seed,
+        "files": files,
+        "pair_counts": pair_counts,
+        "total_pairs": total_pairs,
+        "sampled_pairs_per_source": sampled_pairs_per_source,
+        "sampled_pairs_overall": overall_sampled,
+    }
+    LOGGER.debug("Human audit 汇总结果: %s", summary)
     return summary
 
 
@@ -555,6 +712,22 @@ def format_efficiency_cost_rows(summary: Dict[str, Any], cfg: Dict[str, Any]) ->
     return "\n".join(rows)
 
 
+def format_human_audit_text(summary: Dict[str, Any]) -> str:
+    sample_per_source = summary.get("sample_per_source", 0)
+    sample_overall = summary.get("sample_overall", 0)
+    total_pairs = summary.get("total_pairs", 0)
+    source_count = len(summary.get("pair_counts") or {})
+    return "\n".join(
+        [
+            "Human audit (estimated mapping precision)",
+            f"- sample_per_source: {sample_per_source}",
+            f"- sample_overall: {sample_overall}",
+            f"- sources: {source_count}",
+            f"- total_pairs: {total_pairs}",
+        ]
+    )
+
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="统计复现实验参数。")
     parser.add_argument("--config", type=str, default=None, help="配置文件路径（默认读取 config/config.yaml）")
@@ -582,6 +755,12 @@ def _parse_args() -> argparse.Namespace:
         default=None,
         help="efficiency/cost 模式的输入目录（默认读取 stats.efficiency_cost.input_dir）",
     )
+    parser.add_argument(
+        "--human-audit-input-dir",
+        type=str,
+        default=None,
+        help="human audit 模式的输入目录（默认读取 stats.human_audit.input_dir）",
+    )
     return parser.parse_args()
 
 
@@ -605,7 +784,7 @@ def _resolve_para_stat_modes(cfg: Dict[str, Any]) -> List[str]:
         LOGGER.debug("para_stat 模式配置为空或包含 all，默认运行全部模式。")
         return ["repro", "controllability", "efficiency_cost"]
 
-    supported = {"repro", "controllability", "efficiency_cost"}
+    supported = {"repro", "controllability", "efficiency_cost", "human_audit"}
     selected = [mode for mode in normalized if mode in supported]
     skipped = [mode for mode in normalized if mode not in supported]
     if skipped:
@@ -653,6 +832,18 @@ def _run_efficiency_cost(cfg: Dict[str, Any], args: argparse.Namespace) -> None:
     _write_payload(payload, args, output_dir, output_filename, "efficiency_cost")
 
 
+def _run_human_audit(cfg: Dict[str, Any], args: argparse.Namespace) -> None:
+    input_dir = _resolve_human_audit_input_dir(cfg, args.human_audit_input_dir)
+    summary = collect_human_audit_summary(cfg, input_dir)
+    if args.format == "json":
+        payload = json.dumps(summary, ensure_ascii=False, indent=2)
+    else:
+        payload = format_human_audit_text(summary)
+    output_dir = _resolve_human_audit_output_dir(cfg)
+    output_filename = _default_human_audit_filename(cfg, args.format)
+    _write_payload(payload, args, output_dir, output_filename, "human_audit")
+
+
 def _write_payload(
     payload: str, args: argparse.Namespace, output_dir: Path, output_filename: str, mode: str
 ) -> None:
@@ -678,6 +869,8 @@ def main() -> None:
             _run_controllability(cfg, args)
         elif mode == "efficiency_cost":
             _run_efficiency_cost(cfg, args)
+        elif mode == "human_audit":
+            _run_human_audit(cfg, args)
 
 
 if __name__ == "__main__":
