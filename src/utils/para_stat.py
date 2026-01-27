@@ -168,6 +168,12 @@ def _controllability_summary_cfg(cfg: Dict[str, Any]) -> Dict[str, Any]:
     return summary_cfg if isinstance(summary_cfg, dict) else {}
 
 
+def _efficiency_cost_cfg(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    stats_cfg = cfg.get("stats") or {}
+    efficiency_cfg = stats_cfg.get("efficiency_cost") or {}
+    return efficiency_cfg if isinstance(efficiency_cfg, dict) else {}
+
+
 def _resolve_controllability_input_dir(cfg: Dict[str, Any], input_dir: str | None = None) -> Path:
     summary_cfg = _controllability_summary_cfg(cfg)
     path_value = (
@@ -175,6 +181,18 @@ def _resolve_controllability_input_dir(cfg: Dict[str, Any], input_dir: str | Non
     )
     resolved = resolve_project_path(path_value)
     LOGGER.debug("Controllability 输入目录: %s", resolved)
+    return resolved
+
+
+def _resolve_efficiency_input_dir(cfg: Dict[str, Any], input_dir: str | None = None) -> Path:
+    efficiency_cfg = _efficiency_cost_cfg(cfg)
+    path_value = (
+        input_dir
+        or efficiency_cfg.get("input_dir")
+        or "data/dataset_stat/para_stat/efficiency_runs"
+    )
+    resolved = resolve_project_path(path_value)
+    LOGGER.debug("Efficiency/cost 输入目录: %s", resolved)
     return resolved
 
 
@@ -188,11 +206,26 @@ def _resolve_controllability_output_dir(cfg: Dict[str, Any]) -> Path:
     return resolved
 
 
+def _resolve_efficiency_output_dir(cfg: Dict[str, Any]) -> Path:
+    efficiency_cfg = _efficiency_cost_cfg(cfg)
+    output_dir = efficiency_cfg.get("output_dir") or "data/dataset_stat/para_stat/efficiency_cost"
+    resolved = resolve_project_path(output_dir)
+    LOGGER.debug("Efficiency/cost 输出目录: %s", resolved)
+    return resolved
+
+
 def _default_controllability_filename(cfg: Dict[str, Any], fmt: str) -> str:
     summary_cfg = _controllability_summary_cfg(cfg)
     if fmt == "json":
         return summary_cfg.get("json_filename") or "controllability_summary.json"
     return summary_cfg.get("text_filename") or "controllability_summary.txt"
+
+
+def _default_efficiency_filename(cfg: Dict[str, Any], fmt: str) -> str:
+    efficiency_cfg = _efficiency_cost_cfg(cfg)
+    if fmt == "json":
+        return efficiency_cfg.get("json_filename") or "efficiency_cost.json"
+    return efficiency_cfg.get("text_filename") or "efficiency_cost.txt"
 
 
 def _load_expected_datasets(cfg: Dict[str, Any]) -> List[str]:
@@ -214,6 +247,30 @@ def _load_expected_datasets(cfg: Dict[str, Any]) -> List[str]:
     return subset_names
 
 
+def _load_efficiency_settings(cfg: Dict[str, Any]) -> List[Dict[str, str]]:
+    efficiency_cfg = _efficiency_cost_cfg(cfg)
+    settings = efficiency_cfg.get("settings")
+    if isinstance(settings, list) and settings:
+        normalized = []
+        for item in settings:
+            if not isinstance(item, dict):
+                continue
+            key = str(item.get("key") or "").strip()
+            label = str(item.get("label") or "").strip()
+            if not key or not label:
+                continue
+            normalized.append({"key": key, "label": label})
+        if normalized:
+            LOGGER.debug("使用配置的 efficiency settings: %s", normalized)
+            return normalized
+    fallback = [
+        {"key": "scion_o", "label": r"SCION ($\mathcal{O}$)"},
+        {"key": "scion_o_fusion", "label": r"SCION ($\mathcal{O}_{\text{fusion}}$)"},
+    ]
+    LOGGER.debug("未配置 efficiency settings，使用默认设置: %s", fallback)
+    return fallback
+
+
 def _iter_controllability_files(
     cfg: Dict[str, Any], input_dir: Path, glob_pattern: str | None = None
 ) -> Iterable[Path]:
@@ -221,6 +278,137 @@ def _iter_controllability_files(
     pattern = glob_pattern or summary_cfg.get("glob") or "**/controllability_stats.json"
     LOGGER.debug("Controllability 文件匹配模式: %s", pattern)
     return input_dir.glob(pattern)
+
+
+def _iter_efficiency_files(
+    cfg: Dict[str, Any], input_dir: Path, glob_pattern: str | None = None
+) -> Iterable[Path]:
+    efficiency_cfg = _efficiency_cost_cfg(cfg)
+    pattern = glob_pattern or efficiency_cfg.get("glob") or "**/efficiency_stats.json"
+    LOGGER.debug("Efficiency/cost 文件匹配模式: %s", pattern)
+    return input_dir.glob(pattern)
+
+
+def _parse_efficiency_tokens(payload: Dict[str, Any]) -> tuple[int, int]:
+    tokens_in = payload.get("tokens_in")
+    tokens_out = payload.get("tokens_out")
+    if tokens_in is not None or tokens_out is not None:
+        return int(tokens_in or 0), int(tokens_out or 0)
+    token_bundle = payload.get("tokens")
+    if isinstance(token_bundle, dict):
+        return int(token_bundle.get("input", 0)), int(token_bundle.get("output", 0))
+    prompt_tokens = payload.get("prompt_tokens")
+    completion_tokens = payload.get("completion_tokens")
+    return int(prompt_tokens or 0), int(completion_tokens or 0)
+
+
+def _normalize_efficiency_record(payload: Dict[str, Any], source: Path) -> Dict[str, Any] | None:
+    setting = str(payload.get("setting") or payload.get("mode") or payload.get("name") or "").strip()
+    if not setting:
+        LOGGER.debug("跳过缺少 setting 的记录: %s", source)
+        return None
+    tokens_in, tokens_out = _parse_efficiency_tokens(payload)
+    record = {
+        "setting": setting,
+        "dataset": str(payload.get("dataset") or "").strip(),
+        "docs": int(payload.get("docs") or payload.get("documents") or 0),
+        "chunks": int(payload.get("chunks") or payload.get("chunk_count") or 0),
+        "llm_calls": int(payload.get("llm_calls") or payload.get("calls") or 0),
+        "tokens_in": tokens_in,
+        "tokens_out": tokens_out,
+        "time_s": float(payload.get("time_s") or payload.get("elapsed_s") or payload.get("time") or 0.0),
+        "cost": float(payload.get("cost") or payload.get("cost_usd") or 0.0),
+    }
+    LOGGER.debug("解析 efficiency 记录: %s", record)
+    return record
+
+
+def collect_efficiency_cost_summary(cfg: Dict[str, Any], input_dir: Path) -> Dict[str, Any]:
+    efficiency_cfg = _efficiency_cost_cfg(cfg)
+    dataset_label = efficiency_cfg.get("dataset_label") or "SCOPE (24)"
+    aggregation = (efficiency_cfg.get("aggregation") or "total").lower()
+    settings = _load_efficiency_settings(cfg)
+    setting_keys = [item["key"] for item in settings]
+    records: List[Dict[str, Any]] = []
+    files: List[str] = []
+
+    for stats_path in sorted(_iter_efficiency_files(cfg, input_dir)):
+        try:
+            payload = json.loads(stats_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            LOGGER.debug("跳过损坏文件: %s (%s)", stats_path, exc)
+            continue
+        files.append(str(stats_path))
+        payload_records = payload.get("records") if isinstance(payload, dict) else None
+        if isinstance(payload_records, list):
+            LOGGER.debug("读取 efficiency records: %s (%s)", stats_path, len(payload_records))
+            for item in payload_records:
+                if not isinstance(item, dict):
+                    continue
+                record = _normalize_efficiency_record(item, stats_path)
+                if record:
+                    records.append(record)
+            continue
+        if isinstance(payload, dict):
+            record = _normalize_efficiency_record(payload, stats_path)
+            if record:
+                records.append(record)
+        elif isinstance(payload, list):
+            for item in payload:
+                if not isinstance(item, dict):
+                    continue
+                record = _normalize_efficiency_record(item, stats_path)
+                if record:
+                    records.append(record)
+
+    LOGGER.debug("Efficiency/cost 汇总: files=%s records=%s", len(files), len(records))
+    aggregates: Dict[str, Dict[str, Any]] = {}
+    for key in setting_keys:
+        aggregates[key] = {
+            "docs": 0,
+            "chunks": 0,
+            "llm_calls": 0,
+            "tokens_in": 0,
+            "tokens_out": 0,
+            "time_s": 0.0,
+            "cost": 0.0,
+            "records": 0,
+        }
+
+    for record in records:
+        setting = record["setting"]
+        if setting not in aggregates:
+            LOGGER.debug("跳过未配置 setting: %s", setting)
+            continue
+        target = aggregates[setting]
+        target["docs"] += record["docs"]
+        target["chunks"] += record["chunks"]
+        target["llm_calls"] += record["llm_calls"]
+        target["tokens_in"] += record["tokens_in"]
+        target["tokens_out"] += record["tokens_out"]
+        target["time_s"] += record["time_s"]
+        target["cost"] += record["cost"]
+        target["records"] += 1
+        LOGGER.debug("累计 setting=%s stats=%s", setting, target)
+
+    if aggregation == "macro":
+        for key, stats in aggregates.items():
+            count = stats["records"] or 1
+            LOGGER.debug("macro 平均: setting=%s records=%s", key, count)
+            for field in ("docs", "chunks", "llm_calls", "tokens_in", "tokens_out"):
+                stats[field] = round(stats[field] / count)
+            stats["time_s"] = stats["time_s"] / count
+            stats["cost"] = stats["cost"] / count
+
+    summary = {
+        "dataset_label": dataset_label,
+        "aggregation": aggregation,
+        "files": files,
+        "settings": settings,
+        "stats": aggregates,
+    }
+    LOGGER.debug("Efficiency/cost 汇总结果: %s", summary)
+    return summary
 
 
 def collect_controllability_summary(
@@ -328,6 +516,45 @@ def format_controllability_rows(summary: Dict[str, Any], precision: int) -> str:
     return "\n".join(rows)
 
 
+def _format_time(value: float, unit: str, precision: int) -> str:
+    if unit == "min":
+        return f"{value / 60:.{precision}f}m"
+    if unit == "h":
+        return f"{value / 3600:.{precision}f}h"
+    return f"{value:.{precision}f}s"
+
+
+def format_efficiency_cost_rows(summary: Dict[str, Any], cfg: Dict[str, Any]) -> str:
+    efficiency_cfg = _efficiency_cost_cfg(cfg)
+    time_unit = efficiency_cfg.get("time_unit") or "s"
+    cost_unit = efficiency_cfg.get("cost_unit") or "USD"
+    time_precision = int(efficiency_cfg.get("time_precision", 2))
+    cost_precision = int(efficiency_cfg.get("cost_precision", 4))
+    rows = []
+    stats = summary.get("stats") or {}
+    for setting in summary.get("settings") or []:
+        key = setting["key"]
+        label = setting["label"]
+        data = stats.get(key) or {}
+        tokens = f"{int(data.get('tokens_in', 0))}/{int(data.get('tokens_out', 0))}"
+        time_value = _format_time(float(data.get("time_s", 0.0)), time_unit, time_precision)
+        cost_value = f"{float(data.get('cost', 0.0)):.{cost_precision}f}"
+        rows.append(
+            " & ".join(
+                [
+                    label,
+                    str(int(data.get("docs", 0))),
+                    str(int(data.get("chunks", 0))),
+                    str(int(data.get("llm_calls", 0))),
+                    tokens,
+                    f"{time_value} / {cost_value} {cost_unit}",
+                ]
+            )
+            + r" \\"
+        )
+    return "\n".join(rows)
+
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="统计复现实验参数。")
     parser.add_argument("--config", type=str, default=None, help="配置文件路径（默认读取 config/config.yaml）")
@@ -349,11 +576,17 @@ def _parse_args() -> argparse.Namespace:
         default=None,
         help="controllability 模式的输入目录（默认读取 stats.controllability_summary.input_dir）",
     )
+    parser.add_argument(
+        "--efficiency-input-dir",
+        type=str,
+        default=None,
+        help="efficiency/cost 模式的输入目录（默认读取 stats.efficiency_cost.input_dir）",
+    )
     return parser.parse_args()
 
 
 def _resolve_para_stat_modes(cfg: Dict[str, Any]) -> List[str]:
-    """解析统计模式配置（支持模式: repro / controllability / all）。"""
+    """解析统计模式配置（支持模式: repro / controllability / efficiency_cost / all）。"""
     modes_cfg = _get_nested(cfg, "stats", "para_stat", "modes", default=[])
     if isinstance(modes_cfg, str):
         modes = [modes_cfg]
@@ -370,16 +603,16 @@ def _resolve_para_stat_modes(cfg: Dict[str, Any]) -> List[str]:
 
     if not normalized or "all" in normalized:
         LOGGER.debug("para_stat 模式配置为空或包含 all，默认运行全部模式。")
-        return ["repro", "controllability"]
+        return ["repro", "controllability", "efficiency_cost"]
 
-    supported = {"repro", "controllability"}
+    supported = {"repro", "controllability", "efficiency_cost"}
     selected = [mode for mode in normalized if mode in supported]
     skipped = [mode for mode in normalized if mode not in supported]
     if skipped:
         LOGGER.debug("忽略不支持的 para_stat 模式: %s", skipped)
     if not selected:
         LOGGER.debug("未配置有效 para_stat 模式，默认运行全部模式。")
-        return ["repro", "controllability"]
+        return ["repro", "controllability", "efficiency_cost"]
     return selected
 
 
@@ -408,6 +641,18 @@ def _run_controllability(cfg: Dict[str, Any], args: argparse.Namespace) -> None:
     _write_payload(payload, args, output_dir, output_filename, "controllability")
 
 
+def _run_efficiency_cost(cfg: Dict[str, Any], args: argparse.Namespace) -> None:
+    input_dir = _resolve_efficiency_input_dir(cfg, args.efficiency_input_dir)
+    summary = collect_efficiency_cost_summary(cfg, input_dir)
+    if args.format == "json":
+        payload = json.dumps(summary, ensure_ascii=False, indent=2)
+    else:
+        payload = format_efficiency_cost_rows(summary, cfg)
+    output_dir = _resolve_efficiency_output_dir(cfg)
+    output_filename = _default_efficiency_filename(cfg, args.format)
+    _write_payload(payload, args, output_dir, output_filename, "efficiency_cost")
+
+
 def _write_payload(
     payload: str, args: argparse.Namespace, output_dir: Path, output_filename: str, mode: str
 ) -> None:
@@ -431,6 +676,8 @@ def main() -> None:
             _run_repro(cfg, args)
         elif mode == "controllability":
             _run_controllability(cfg, args)
+        elif mode == "efficiency_cost":
+            _run_efficiency_cost(cfg, args)
 
 
 if __name__ == "__main__":
