@@ -1,0 +1,138 @@
+[
+  {
+    "edge_kind": "re",
+    "head_entity": "历史人物",
+    "rel_type": "号",
+    "tail_entity": "Text"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "图书作品",
+    "rel_type": "作者",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "影视作品",
+    "rel_type": "主题曲",
+    "tail_entity": "歌曲"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "影视作品",
+    "rel_type": "编剧",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "景点",
+    "rel_type": "所在城市",
+    "tail_entity": "城市"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "歌曲",
+    "rel_type": "作曲",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业破产",
+    "role": "债务规模"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业破产",
+    "role": "债权人"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业破产",
+    "role": "披露时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业破产",
+    "role": "破产公司"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业破产",
+    "role": "破产时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股份回购",
+    "role": "交易金额"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股份回购",
+    "role": "占公司总股本比例"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股份回购",
+    "role": "回购完成时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股份回购",
+    "role": "回购方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股份回购",
+    "role": "回购股份数量"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股份回购",
+    "role": "披露时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股份回购",
+    "role": "每股交易价格"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "高管变动",
+    "role": "事件时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "高管变动",
+    "role": "任职公司"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "高管变动",
+    "role": "变动后公司名称"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "高管变动",
+    "role": "变动后职位"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "高管变动",
+    "role": "变动类型"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "高管变动",
+    "role": "披露日期"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "高管变动",
+    "role": "高管姓名"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "高管变动",
+    "role": "高管职位"
+  }
+]

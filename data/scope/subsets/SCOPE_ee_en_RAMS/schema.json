@@ -1,0 +1,1992 @@
+[
+  {
+    "edge_kind": "ee",
+    "event_type": "A person falling",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "A person falling",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "A person falling",
+    "role": "passenger"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Acceptance of an agreement, contract, or ceasefire",
+    "role": "participant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Acceptance of an agreement, contract, or ceasefire",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Accident or crash",
+    "role": "crashobject"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Accident or crash",
+    "role": "driverpassenger"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Accident or crash",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Accident or crash",
+    "role": "vehicle"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Act of surrender",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Act of surrender",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Act of surrender",
+    "role": "surrenderer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Airstrike or missile strike",
+    "role": "attacker"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Airstrike or missile strike",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Airstrike or missile strike",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Airstrike or missile strike",
+    "role": "target"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "An artifact falling",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "An artifact falling",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "An artifact falling",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Arrest, jailing, or detainment",
+    "role": "crime"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Arrest, jailing, or detainment",
+    "role": "detainee"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Arrest, jailing, or detainment",
+    "role": "jailer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Arrest, jailing, or detainment",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Arson or fire setting",
+    "role": "attacker"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Arson or fire setting",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Arson or fire setting",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Arson or fire setting",
+    "role": "target"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Biological chemical or poisoning attack",
+    "role": "attacker"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Biological chemical or poisoning attack",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Biological chemical or poisoning attack",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Biological chemical or poisoning attack",
+    "role": "target"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Bombing incident",
+    "role": "attacker"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Bombing incident",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Bombing incident",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Bombing incident",
+    "role": "target"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Borrowing or lending money",
+    "role": "beneficiary"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Borrowing or lending money",
+    "role": "giver"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Borrowing or lending money",
+    "role": "money"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Borrowing or lending money",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Borrowing or lending money",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Borrowing or lending ownership",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Borrowing or lending ownership",
+    "role": "beneficiary"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Borrowing or lending ownership",
+    "role": "giver"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Borrowing or lending ownership",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Borrowing or lending ownership",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Bringing, carrying or unloading a person",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Bringing, carrying or unloading a person",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Bringing, carrying or unloading a person",
+    "role": "passenger"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Bringing, carrying or unloading a person",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Bringing, carrying or unloading a person",
+    "role": "vehicle"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Bringing, carrying or unloading an artifact",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Bringing, carrying or unloading an artifact",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Bringing, carrying or unloading an artifact",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Bringing, carrying or unloading an artifact",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Bringing, carrying or unloading an artifact",
+    "role": "vehicle"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Broadcast expressing commitment, promise, or intent",
+    "role": "communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Broadcast expressing commitment, promise, or intent",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Broadcast expressing commitment, promise, or intent",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Broadcast for requests or advice",
+    "role": "communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Broadcast for requests or advice",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Broadcast for requests or advice",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Broadcast involving threats or coercion",
+    "role": "communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Broadcast involving threats or coercion",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Broadcast involving threats or coercion",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Broadcast of prevarication or misleading information",
+    "role": "communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Broadcast of prevarication or misleading information",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Broadcast of prevarication or misleading information",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Broadcasting commands or orders",
+    "role": "communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Broadcasting commands or orders",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Broadcasting commands or orders",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Carrying out an execution",
+    "role": "crime"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Carrying out an execution",
+    "role": "defendant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Carrying out an execution",
+    "role": "executioner"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Carrying out an execution",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Casting a vote",
+    "role": "ballot"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Casting a vote",
+    "role": "candidate"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Casting a vote",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Casting a vote",
+    "role": "result"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Casting a vote",
+    "role": "voter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Charging or indictment proceedings",
+    "role": "crime"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Charging or indictment proceedings",
+    "role": "defendant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Charging or indictment proceedings",
+    "role": "judgecourt"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Charging or indictment proceedings",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Charging or indictment proceedings",
+    "role": "prosecutor"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Collaborative correspondence",
+    "role": "participant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Collaborative correspondence",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Construction of a structure or artifact",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Construction of a structure or artifact",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Construction of a structure or artifact",
+    "role": "manufacturer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Construction of a structure or artifact",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Conviction in a judicial process",
+    "role": "crime"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Conviction in a judicial process",
+    "role": "defendant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Conviction in a judicial process",
+    "role": "judgecourt"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Conviction in a judicial process",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence expressing commitment, promise, or intent",
+    "role": "communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence expressing commitment, promise, or intent",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence expressing commitment, promise, or intent",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence for discussion",
+    "role": "participant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence for discussion",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence for negotiation",
+    "role": "participant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence for negotiation",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence for requests or advice",
+    "role": "communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence for requests or advice",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence for requests or advice",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence involving commands or orders",
+    "role": "communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence involving commands or orders",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence involving commands or orders",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence involving prevarication or misleading information",
+    "role": "communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence involving prevarication or misleading information",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence involving prevarication or misleading information",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Creation of intellectual property",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Creation of intellectual property",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Creation of intellectual property",
+    "role": "manufacturer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Creation of intellectual property",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Creation or manufacturing of goods",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Creation or manufacturing of goods",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Creation or manufacturing of goods",
+    "role": "manufacturer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Creation or manufacturing of goods",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Death caused by violent events",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Death caused by violent events",
+    "role": "killer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Death caused by violent events",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Death caused by violent events",
+    "role": "victim"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Dispersing or separating an artifact",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Dispersing or separating an artifact",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Dispersing or separating an artifact",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Dispersing or separating an artifact",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Dispersing or separating an artifact",
+    "role": "vehicle"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Dispersing or separating people",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Dispersing or separating people",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Dispersing or separating people",
+    "role": "passenger"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Dispersing or separating people",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Dispersing or separating people",
+    "role": "vehicle"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Espionage activities",
+    "role": "beneficiary"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Espionage activities",
+    "role": "observedentity"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Espionage activities",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Espionage activities",
+    "role": "spy"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Evacuation or rescue of a person",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Evacuation or rescue of a person",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Evacuation or rescue of a person",
+    "role": "passenger"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Evacuation or rescue of a person",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Evacuation or rescue of a person",
+    "role": "vehicle"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Execution by hanging",
+    "role": "attacker"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Execution by hanging",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Execution by hanging",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Execution by hanging",
+    "role": "target"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Extradition proceedings",
+    "role": "crime"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Extradition proceedings",
+    "role": "defendant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Extradition proceedings",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Extradition proceedings",
+    "role": "extraditer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Extradition proceedings",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Financial embargo or sanction",
+    "role": "giver"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Financial embargo or sanction",
+    "role": "money"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Financial embargo or sanction",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Financial embargo or sanction",
+    "role": "preventer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Financial embargo or sanction",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Fire or explosion incident",
+    "role": "fireexplosionobject"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Fire or explosion incident",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Fire or explosion incident",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Firearm assault",
+    "role": "attacker"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Firearm assault",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Firearm assault",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Firearm assault",
+    "role": "target"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Firing or laying off from a position",
+    "role": "employee"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Firing or laying off from a position",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Firing or laying off from a position",
+    "role": "placeofemployment"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Forced retreat",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Forced retreat",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Forced retreat",
+    "role": "retreater"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Formation or start of a geopolitical entity",
+    "role": "founder"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Formation or start of a geopolitical entity",
+    "role": "gpe"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Formation or start of a geopolitical entity",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Gifting or granting ownership, or providing aid in ownership transfer",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Gifting or granting ownership, or providing aid in ownership transfer",
+    "role": "beneficiary"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Gifting or granting ownership, or providing aid in ownership transfer",
+    "role": "giver"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Gifting or granting ownership, or providing aid in ownership transfer",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Gifting or granting ownership, or providing aid in ownership transfer",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Giving a gift, grant, or providing aid in a transaction",
+    "role": "beneficiary"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Giving a gift, grant, or providing aid in a transaction",
+    "role": "giver"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Giving a gift, grant, or providing aid in a transaction",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Giving a gift, grant, or providing aid in a transaction",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Giving a gift, grant, or providing aid with money",
+    "role": "beneficiary"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Giving a gift, grant, or providing aid with money",
+    "role": "giver"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Giving a gift, grant, or providing aid with money",
+    "role": "money"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Giving a gift, grant, or providing aid with money",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Giving a gift, grant, or providing aid with money",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Granting entry or asylum to a person",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Granting entry or asylum to a person",
+    "role": "granter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Granting entry or asylum to a person",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Granting entry or asylum to a person",
+    "role": "passenger"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Granting entry or asylum to a person",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Granting entry to an artifact",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Granting entry to an artifact",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Granting entry to an artifact",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Granting entry to an artifact",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Hiding a person",
+    "role": "hidingplace"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Hiding a person",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Hiding a person",
+    "role": "passenger"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Hiding a person",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Hiding a person",
+    "role": "vehicle"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Hiding an artifact",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Hiding an artifact",
+    "role": "hidingplace"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Hiding an artifact",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Hiding an artifact",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Hiding an artifact",
+    "role": "vehicle"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Hiring for a position",
+    "role": "employee"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Hiring for a position",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Hiring for a position",
+    "role": "placeofemployment"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Illness or degradation due to hunger or thirst",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Illness or degradation due to hunger or thirst",
+    "role": "victim"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Implementing an embargo or sanction",
+    "role": "artifactmoney"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Implementing an embargo or sanction",
+    "role": "giver"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Implementing an embargo or sanction",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Implementing an embargo or sanction",
+    "role": "preventer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Implementing an embargo or sanction",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Injury caused by violent events",
+    "role": "injurer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Injury caused by violent events",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Injury caused by violent events",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Injury caused by violent events",
+    "role": "victim"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Inspection of people or organizations",
+    "role": "inspectedentity"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Inspection of people or organizations",
+    "role": "inspector"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Inspection of people or organizations",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Investigation of a crime",
+    "role": "crime"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Investigation of a crime",
+    "role": "defendant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Investigation of a crime",
+    "role": "investigator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Investigation of a crime",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Media statement broadcast",
+    "role": "communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Media statement broadcast",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Media statement broadcast",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting for a funeral or vigil",
+    "role": "deceased"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting for a funeral or vigil",
+    "role": "participant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting for a funeral or vigil",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting for collaboration",
+    "role": "participant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting for collaboration",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting for discussion",
+    "role": "participant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting for discussion",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting for requesting or advising",
+    "role": "communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting for requesting or advising",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting for requesting or advising",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting involving prevarication or misleading information",
+    "role": "communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting involving prevarication or misleading information",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting involving prevarication or misleading information",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting involving threats or coercion",
+    "role": "communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting involving threats or coercion",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting involving threats or coercion",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting to express commitment, promise, or intent",
+    "role": "communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting to express commitment, promise, or intent",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting to express commitment, promise, or intent",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting to issue commands or orders",
+    "role": "communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting to issue commands or orders",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting to issue commands or orders",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting to negotiate",
+    "role": "participant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meeting to negotiate",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Merger of geopolitical entities",
+    "role": "participant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Merger of geopolitical entities",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Military invasion",
+    "role": "attacker"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Military invasion",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Military invasion",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Military invasion",
+    "role": "target"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Monitoring of elections",
+    "role": "monitor"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Monitoring of elections",
+    "role": "monitoredentity"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Monitoring of elections",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Non-violent death",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Non-violent death",
+    "role": "victim"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Non-violent throwing or launching of an artifact",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Non-violent throwing or launching of an artifact",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Non-violent throwing or launching of an artifact",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Non-violent throwing or launching of an artifact",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Non-violent throwing or launching of an artifact",
+    "role": "vehicle"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Ownership embargo or sanction",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Ownership embargo or sanction",
+    "role": "giver"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Ownership embargo or sanction",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Ownership embargo or sanction",
+    "role": "preventer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Ownership embargo or sanction",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Passing legislation",
+    "role": "governmentbody"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Passing legislation",
+    "role": "law"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Passing legislation",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Paying for a service",
+    "role": "beneficiary"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Paying for a service",
+    "role": "giver"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Paying for a service",
+    "role": "money"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Paying for a service",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Paying for a service",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Physical illness or degradation",
+    "role": "victim"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Physical investigation or inspection",
+    "role": "inspectedentity"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Physical investigation or inspection",
+    "role": "inspector"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Physical investigation or inspection",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Political march protest or gathering",
+    "role": "demonstrator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Political march protest or gathering",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing entry of a person",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing entry of a person",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing entry of a person",
+    "role": "passenger"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing entry of a person",
+    "role": "preventer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing entry of a person",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing entry of an artifact",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing entry of an artifact",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing entry of an artifact",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing entry of an artifact",
+    "role": "preventer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing entry of an artifact",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing exit of a person",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing exit of a person",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing exit of a person",
+    "role": "passenger"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing exit of a person",
+    "role": "preventer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing exit of a person",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing exit of an artifact",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing exit of an artifact",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing exit of an artifact",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing exit of an artifact",
+    "role": "preventer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Preventing exit of an artifact",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Public statement broadcast in person",
+    "role": "communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Public statement broadcast in person",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Public statement broadcast in person",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Purchasing to transfer ownership",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Purchasing to transfer ownership",
+    "role": "beneficiary"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Purchasing to transfer ownership",
+    "role": "giver"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Purchasing to transfer ownership",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Purchasing to transfer ownership",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Purchasing with money",
+    "role": "beneficiary"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Purchasing with money",
+    "role": "giver"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Purchasing with money",
+    "role": "money"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Purchasing with money",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Purchasing with money",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Quitting or retiring from a position",
+    "role": "employee"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Quitting or retiring from a position",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Quitting or retiring from a position",
+    "role": "placeofemployment"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Receiving or importing an artifact",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Receiving or importing an artifact",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Receiving or importing an artifact",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Receiving or importing an artifact",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Receiving or importing an artifact",
+    "role": "vehicle"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Rejection or nullification of an agreement, contract, or ceasefire",
+    "role": "otherparticipant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Rejection or nullification of an agreement, contract, or ceasefire",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Rejection or nullification of an agreement, contract, or ceasefire",
+    "role": "rejecternullifier"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Self directed combat",
+    "role": "attacker"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Self directed combat",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Self directed combat",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Self directed combat",
+    "role": "target"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Self-motion of a person",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Self-motion of a person",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Self-motion of a person",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Sending, supplying or exporting an artifact",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Sending, supplying or exporting an artifact",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Sending, supplying or exporting an artifact",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Sending, supplying or exporting an artifact",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Sending, supplying or exporting an artifact",
+    "role": "vehicle"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Smuggling or extracting a person",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Smuggling or extracting a person",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Smuggling or extracting a person",
+    "role": "passenger"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Smuggling or extracting a person",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Smuggling or extracting a person",
+    "role": "vehicle"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Smuggling or extracting an artifact",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Smuggling or extracting an artifact",
+    "role": "destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Smuggling or extracting an artifact",
+    "role": "origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Smuggling or extracting an artifact",
+    "role": "transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Smuggling or extracting an artifact",
+    "role": "vehicle"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Stabbing attack",
+    "role": "attacker"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Stabbing attack",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Stabbing attack",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Stabbing attack",
+    "role": "target"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Strangulation",
+    "role": "attacker"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Strangulation",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Strangulation",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Strangulation",
+    "role": "target"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Theft robbery or hijacking",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Theft robbery or hijacking",
+    "role": "attacker"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Theft robbery or hijacking",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Theft robbery or hijacking",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Theft robbery or hijacking",
+    "role": "target"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Threats or coercion through correspondence",
+    "role": "communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Threats or coercion through correspondence",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Threats or coercion through correspondence",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Transferring control of assets or entities",
+    "role": "beneficiary"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Transferring control of assets or entities",
+    "role": "giver"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Transferring control of assets or entities",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Transferring control of assets or entities",
+    "role": "recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Transferring control of assets or entities",
+    "role": "territoryorfacility"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Trial or hearing process initiation",
+    "role": "crime"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Trial or hearing process initiation",
+    "role": "defendant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Trial or hearing process initiation",
+    "role": "judgecourt"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Trial or hearing process initiation",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Trial or hearing process initiation",
+    "role": "prosecutor"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Violation of an agreement",
+    "role": "otherparticipant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Violation of an agreement",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Violation of an agreement",
+    "role": "violator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Voting irregularities or prevention of voting",
+    "role": "ballot"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Voting irregularities or prevention of voting",
+    "role": "candidate"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Voting irregularities or prevention of voting",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Voting irregularities or prevention of voting",
+    "role": "preventer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Voting irregularities or prevention of voting",
+    "role": "voter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Winning an election",
+    "role": "candidate"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Winning an election",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Winning an election",
+    "role": "voter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "damage",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "damage",
+    "role": "damager"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "damage",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "damage",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "destroy",
+    "role": "artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "destroy",
+    "role": "destroyer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "destroy",
+    "role": "instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "destroy",
+    "role": "place"
+  }
+]

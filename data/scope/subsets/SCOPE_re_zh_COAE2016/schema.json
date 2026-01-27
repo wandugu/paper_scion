@@ -1,0 +1,110 @@
+[
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_出生地_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_出生日期_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_创始人_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_员工数_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_子女_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_总部地点_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_毕业院校_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_配偶_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_高管_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "出生地",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "出生日期",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "创始人",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "员工数",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "子女",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "总部地点",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "毕业院校",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "配偶",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "高管",
+    "tail_entity": "Entity"
+  }
+]

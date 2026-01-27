@@ -9,12 +9,8 @@
     {
       "事件": "事件或情节，保持中立描述"
     },
-    {
-      "地点": "地理位置、场所或区域"
-    },
-    {
-      "组织": "公司、机构、团体等法人或非法人实体"
-    },
+    "地点",
+    "组织",
     "文档",
     {
       "行动": "关键动作或行为"
@@ -23,13 +19,10 @@
       "其它": "其它重要概念"
     },
     {
-      "作品": "文学、艺术、音乐等创作产物"
+      "实体类型": "基础设施"
     },
     {
-      "产品": "商品、服务或技术成果"
-    },
-    {
-      "职务": "在组织中的职位或角色"
+      "描述": "具有特定功能的人工建造物，如桥梁、水库、机场等"
     }
   ],
   "relationships": [
@@ -94,52 +87,429 @@
       "description": "个人以专家、负责人或调查成员身份参与事件评估"
     },
     {
-      "head_entity": "人物",
-      "tail_entity": "组织",
-      "rel_type": "任职于",
-      "description": "个人在组织中担任职务"
+      "head_entity": "基础设施",
+      "tail_entity": "地理区域",
+      "rel_type": "位于",
+      "description": "设施所在的地理位置"
     },
     {
-      "head_entity": "人物",
-      "tail_entity": "人物",
-      "rel_type": "亲属关系",
-      "description": "血缘或婚姻关系"
+      "head_entity": "基础设施",
+      "tail_entity": "设计者",
+      "rel_type": "由...设计",
+      "description": null
     },
     {
-      "head_entity": "人物",
-      "tail_entity": "事件",
-      "rel_type": "参与",
-      "description": "个人参与某项活动或事件"
+      "head_entity": "基础设施",
+      "tail_entity": "建造事件",
+      "rel_type": "建于",
+      "description": null
     },
     {
-      "head_entity": "人物",
-      "tail_entity": "作品",
-      "rel_type": "创作",
-      "description": "个人创作文学艺术作品"
+      "head_entity": "基础设施",
+      "tail_entity": "管理机构",
+      "rel_type": "由...管理",
+      "description": null
     },
     {
-      "head_entity": "组织",
-      "tail_entity": "产品",
-      "rel_type": "生产",
-      "description": "组织制造或提供产品服务"
+      "head_entity": "基础设施",
+      "tail_entity": "功能用途",
+      "rel_type": "具有功能",
+      "description": null
     },
     {
-      "head_entity": "人物",
-      "tail_entity": "产品",
-      "rel_type": "代言",
-      "description": "个人为产品进行宣传推广"
+      "head_entity": "基础设施",
+      "tail_entity": "荣誉称号",
+      "rel_type": "被授予",
+      "description": null
     },
     {
-      "head_entity": "事件",
-      "tail_entity": "事件",
-      "rel_type": "引发",
-      "description": "一个事件导致另一个事件发生"
+      "head_entity": "文化遗址",
+      "tail_entity": "地理区域",
+      "rel_type": "位于",
+      "description": null
     },
     {
-      "head_entity": "人物",
-      "tail_entity": "行动",
-      "rel_type": "执行",
-      "description": "个人实施具体行为"
+      "head_entity": "文化遗址",
+      "tail_entity": "历史时期",
+      "rel_type": "建于...时期",
+      "description": null
+    },
+    {
+      "head_entity": "文化遗址",
+      "tail_entity": "荣誉称号",
+      "rel_type": "被列为",
+      "description": null
+    },
+    {
+      "head_entity": "宗教场所",
+      "tail_entity": "地理区域",
+      "rel_type": "位于",
+      "description": null
+    },
+    {
+      "head_entity": "宗教场所",
+      "tail_entity": "宗教派别",
+      "rel_type": "属于",
+      "description": null
+    },
+    {
+      "head_entity": "宗教场所",
+      "tail_entity": "宗教人物",
+      "rel_type": "主奉",
+      "description": null
+    },
+    {
+      "head_entity": "宗教场所",
+      "tail_entity": "荣誉称号",
+      "rel_type": "被列为",
+      "description": null
+    },
+    {
+      "head_entity": "行政辖区",
+      "tail_entity": "地理区域",
+      "rel_type": "包含于",
+      "description": "行政辖区是更大地理区域的一部分"
+    },
+    {
+      "head_entity": "基础设施",
+      "tail_entity": "行政辖区",
+      "rel_type": "位于",
+      "description": null
+    },
+    {
+      "head_entity": "水体",
+      "tail_entity": "地理区域",
+      "rel_type": "位于",
+      "description": null
+    },
+    {
+      "head_entity": "基础设施",
+      "tail_entity": "水体",
+      "rel_type": "跨越",
+      "description": "如桥梁跨越河流"
+    },
+    {
+      "head_entity": "建造事件",
+      "tail_entity": "历史时期",
+      "rel_type": "发生于",
+      "description": null
+    },
+    {
+      "head_entity": "基础设施",
+      "tail_entity": "基础设施",
+      "rel_type": "替代",
+      "description": "新设施取代旧设施"
+    },
+    {
+      "head_entity": "基础设施",
+      "tail_entity": "基础设施",
+      "rel_type": "又名",
+      "description": "设施拥有其他常用名称"
+    },
+    {
+      "head_entity": "管理机构",
+      "tail_entity": "行政辖区",
+      "rel_type": "管辖",
+      "description": "管理机构的管辖范围"
+    },
+    {
+      "head_entity": "宗教场所",
+      "tail_entity": "管理机构",
+      "rel_type": "曾为...座堂",
+      "description": "教堂曾作为主教座堂"
+    },
+    {
+      "head_entity": "主教",
+      "tail_entity": "宗教场所",
+      "rel_type": "现任...于",
+      "description": "主教现任于某个教区"
+    },
+    {
+      "head_entity": "主教",
+      "tail_entity": "管理机构",
+      "rel_type": "隶属于",
+      "description": null
+    },
+    {
+      "head_entity": "荣誉称号",
+      "tail_entity": "管理机构",
+      "rel_type": "由...授予",
+      "description": "荣誉称号的授予机构"
+    },
+    {
+      "head_entity": "基础设施",
+      "tail_entity": "建造事件",
+      "rel_type": "因...更名",
+      "description": "因特定事件（如招商、重建）而更改名称"
+    },
+    {
+      "head_entity": "地理区域",
+      "tail_entity": "地理区域",
+      "rel_type": "相邻于",
+      "description": "两个地理区域接壤"
+    },
+    {
+      "head_entity": "行政辖区",
+      "tail_entity": "行政辖区",
+      "rel_type": "合并为",
+      "description": "行政区划合并"
+    }
+  ],
+  "events": [
+    {
+      "event_type": "建造",
+      "description": "",
+      "trigger_words": [
+        "建造",
+        "修建",
+        "新建",
+        "建设",
+        "兴建"
+      ],
+      "arguments": [
+        {
+          "role": "发起方",
+          "description": "负责发起并组织建造工程的一方，如政府、机构或个人",
+          "required": true
+        },
+        {
+          "role": "建造对象",
+          "description": "被建造的实体，如建筑、桥梁、水库等",
+          "required": true
+        },
+        {
+          "role": "地点",
+          "description": "建造工程发生的具体地理位置",
+          "required": true
+        },
+        {
+          "role": "时间",
+          "description": "建造工程发生或完成的时间节点",
+          "required": false
+        }
+      ]
+    },
+    {
+      "event_type": "命名",
+      "description": "",
+      "trigger_words": [
+        "命名",
+        "称为",
+        "俗称",
+        "原名",
+        "又名"
+      ],
+      "arguments": [
+        {
+          "role": "命名对象",
+          "description": "被赋予名称的实体，如地点、机构、建筑等",
+          "required": true
+        },
+        {
+          "role": "名称",
+          "description": "赋予对象的新名称、旧名称或别名",
+          "required": true
+        },
+        {
+          "role": "命名方",
+          "description": "进行命名行为的个人、组织或机构",
+          "required": false
+        }
+      ]
+    },
+    {
+      "event_type": "投资",
+      "description": "",
+      "trigger_words": [
+        "投资",
+        "引资",
+        "招商",
+        "总投资"
+      ],
+      "arguments": [
+        {
+          "role": "投资方",
+          "description": "提供资金的一方，如外商、企业、政府等",
+          "required": true
+        },
+        {
+          "role": "接收方",
+          "description": "接受投资的实体或项目",
+          "required": true
+        },
+        {
+          "role": "投资金额",
+          "description": "投资的数额",
+          "required": false
+        },
+        {
+          "role": "时间",
+          "description": "投资行为发生的时间节点",
+          "required": false
+        }
+      ]
+    },
+    {
+      "event_type": "指定/列入",
+      "description": "",
+      "trigger_words": [
+        "列为",
+        "列入",
+        "指定为",
+        "评为",
+        "批准为"
+      ],
+      "arguments": [
+        {
+          "role": "指定对象",
+          "description": "被授予特定称号或列入特定名单的实体，如景区、遗产等",
+          "required": true
+        },
+        {
+          "role": "指定称号",
+          "description": "被授予的称号或列入的名单名称，如“国家水利风景区”、“世界遗产”等",
+          "required": true
+        },
+        {
+          "role": "指定方",
+          "description": "进行指定行为的权威机构或组织，如政府部门",
+          "required": true
+        },
+        {
+          "role": "时间",
+          "description": "指定行为发生的时间节点",
+          "required": false
+        }
+      ]
+    },
+    {
+      "event_type": "设立/成立",
+      "description": "",
+      "trigger_words": [
+        "设立",
+        "成立",
+        "建立",
+        "创建",
+        "升格为"
+      ],
+      "arguments": [
+        {
+          "role": "设立对象",
+          "description": "新设立的机构、组织、行政区划或职位",
+          "required": true
+        },
+        {
+          "role": "设立方",
+          "description": "负责设立行为的上级机构或权威",
+          "required": false
+        },
+        {
+          "role": "地点",
+          "description": "设立对象所在或管辖的地点",
+          "required": false
+        },
+        {
+          "role": "时间",
+          "description": "设立行为发生的时间节点",
+          "required": false
+        }
+      ]
+    },
+    {
+      "event_type": "变更",
+      "description": "",
+      "trigger_words": [
+        "更名",
+        "改名",
+        "合并",
+        "重组",
+        "取代",
+        "替换"
+      ],
+      "arguments": [
+        {
+          "role": "变更对象",
+          "description": "发生变更的实体，如机构、地名、建筑等",
+          "required": true
+        },
+        {
+          "role": "变更前状态",
+          "description": "变更前的名称、归属或形态",
+          "required": false
+        },
+        {
+          "role": "变更后状态",
+          "description": "变更后的名称、归属或形态",
+          "required": true
+        },
+        {
+          "role": "时间",
+          "description": "变更发生的时间节点",
+          "required": false
+        }
+      ]
+    },
+    {
+      "event_type": "管理/运营",
+      "description": "",
+      "trigger_words": [
+        "管理",
+        "运营",
+        "经营",
+        "管辖",
+        "负责"
+      ],
+      "arguments": [
+        {
+          "role": "管理方",
+          "description": "负责管理或运营的个人、组织或机构",
+          "required": true
+        },
+        {
+          "role": "管理对象",
+          "description": "被管理或运营的实体，如机场、公园、教区等",
+          "required": true
+        },
+        {
+          "role": "管理职能",
+          "description": "管理或运营的具体内容或范围",
+          "required": false
+        }
+      ]
+    },
+    {
+      "event_type": "关闭与开放",
+      "description": "",
+      "trigger_words": [
+        "关闭",
+        "停用",
+        "废止",
+        "开放",
+        "启用",
+        "重新开放"
+      ],
+      "arguments": [
+        {
+          "role": "操作对象",
+          "description": "被关闭或开放的场所、设施或服务",
+          "required": true
+        },
+        {
+          "role": "操作方",
+          "description": "执行关闭或开放行为的责任方",
+          "required": false
+        },
+        {
+          "role": "操作类型",
+          "description": "具体操作，如关闭、开放、重新开放等",
+          "required": true
+        },
+        {
+          "role": "时间",
+          "description": "操作发生的时间节点",
+          "required": false
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,26 @@
+[
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "education degree",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "education institution",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "place of birth",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "place of death",
+    "tail_entity": "Entity"
+  }
+]

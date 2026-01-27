@@ -1,0 +1,16 @@
+dataset,task,lang,sample_entity_types_present,group_with_types,samples_with_types,total_samples
+instructIE_en,re,en,True,103,4667,4667
+instructIE_zh,re,zh,True,99,4783,4952
+duIE_zh,re,zh,True,55,286426,286426
+CMeIE,re,zh,True,53,27386,27386
+COAE2016,re,zh,NA,0,0,0
+IPRE,re,zh,NA,0,0,0
+SKE2020,re,zh,True,49,6136,6136
+ADE_corpus,re,en,NA,0,0,0
+GIDS,re,en,NA,0,0,0
+NYT11,re,en,NA,0,0,0
+New-York-Times-RE,re,en,NA,0,0,0
+SciERC,re,en,NA,0,0,0
+conll04,re,en,True,5,1561,1561
+kbp37,re,en,NA,0,0,0
+SemEval2010_task8,re,en,NA,0,0,0

@@ -1,0 +1,332 @@
+[
+  {
+    "edge_kind": "re",
+    "head_entity": "人物",
+    "rel_type": "丈夫",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "人物",
+    "rel_type": "国籍",
+    "tail_entity": "国家"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "人物",
+    "rel_type": "妻子",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "人物",
+    "rel_type": "母亲",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "人物",
+    "rel_type": "毕业院校",
+    "tail_entity": "学校"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "人物",
+    "rel_type": "父亲",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "人物",
+    "rel_type": "祖籍",
+    "tail_entity": "地点"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "企业",
+    "rel_type": "创始人",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "企业",
+    "rel_type": "总部地点",
+    "tail_entity": "地点"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "企业",
+    "rel_type": "注册资本",
+    "tail_entity": "Number"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "企业",
+    "rel_type": "董事长",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "企业/品牌",
+    "rel_type": "代言人",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "历史人物",
+    "rel_type": "号",
+    "tail_entity": "Text"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "历史人物",
+    "rel_type": "朝代",
+    "tail_entity": "Text"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "国家",
+    "rel_type": "官方语言",
+    "tail_entity": "语言"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "国家",
+    "rel_type": "首都",
+    "tail_entity": "城市"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "图书作品",
+    "rel_type": "作者",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "地点",
+    "rel_type": "海拔",
+    "tail_entity": "Number"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "娱乐人物",
+    "rel_type": "获奖",
+    "tail_entity": "Date"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "娱乐人物",
+    "rel_type": "获奖",
+    "tail_entity": "Number"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "娱乐人物",
+    "rel_type": "获奖",
+    "tail_entity": "作品"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "娱乐人物",
+    "rel_type": "获奖",
+    "tail_entity": "奖项"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "娱乐人物",
+    "rel_type": "配音",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "娱乐人物",
+    "rel_type": "配音",
+    "tail_entity": "影视作品"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "娱乐人物",
+    "rel_type": "饰演",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "娱乐人物",
+    "rel_type": "饰演",
+    "tail_entity": "影视作品"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "学校",
+    "rel_type": "校长",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "学科专业",
+    "rel_type": "专业代码",
+    "tail_entity": "Text"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "学科专业",
+    "rel_type": "修业年限",
+    "tail_entity": "Number"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "影视作品",
+    "rel_type": "上映时间",
+    "tail_entity": "Date"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "影视作品",
+    "rel_type": "上映时间",
+    "tail_entity": "地点"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "影视作品",
+    "rel_type": "主演",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "影视作品",
+    "rel_type": "主题曲",
+    "tail_entity": "歌曲"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "影视作品",
+    "rel_type": "出品公司",
+    "tail_entity": "企业"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "影视作品",
+    "rel_type": "制片人",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "影视作品",
+    "rel_type": "导演",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "影视作品",
+    "rel_type": "改编自",
+    "tail_entity": "作品"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "影视作品",
+    "rel_type": "票房",
+    "tail_entity": "Number"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "影视作品",
+    "rel_type": "票房",
+    "tail_entity": "地点"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "影视作品",
+    "rel_type": "编剧",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "文学作品",
+    "rel_type": "主角",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "景点",
+    "rel_type": "所在城市",
+    "tail_entity": "城市"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "机构",
+    "rel_type": "占地面积",
+    "tail_entity": "Number"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "机构",
+    "rel_type": "成立日期",
+    "tail_entity": "Date"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "机构",
+    "rel_type": "简称",
+    "tail_entity": "Text"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "歌曲",
+    "rel_type": "作曲",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "歌曲",
+    "rel_type": "作词",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "歌曲",
+    "rel_type": "所属专辑",
+    "tail_entity": "音乐专辑"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "歌曲",
+    "rel_type": "歌手",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "电视综艺",
+    "rel_type": "主持人",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "电视综艺",
+    "rel_type": "嘉宾",
+    "tail_entity": "人物"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "行政区",
+    "rel_type": "人口数量",
+    "tail_entity": "Number"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "行政区",
+    "rel_type": "气候",
+    "tail_entity": "气候"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "行政区",
+    "rel_type": "邮政编码",
+    "tail_entity": "Text"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "行政区",
+    "rel_type": "面积",
+    "tail_entity": "Number"
+  }
+]

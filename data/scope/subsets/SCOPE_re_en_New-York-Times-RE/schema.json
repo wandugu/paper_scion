@@ -1,0 +1,146 @@
+[
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "administrative division of country",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "children",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "company advisors",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "company founded place",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "company founders",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "company industry",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "company major shareholders",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "company shareholder among major shareholders",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "country of administrative divisions",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "country of capital",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "ethnicity",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "ethnicity of people",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "geographic distribution",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "location contains",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "nationality",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "neighborhood of",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "person of company",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "place lived",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "place of birth",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "place of death",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "profession",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "religion",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "sports team location of teams",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "sports team of location",
+    "tail_entity": "Entity"
+  }
+]

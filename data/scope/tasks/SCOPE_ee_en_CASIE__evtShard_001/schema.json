@@ -1,0 +1,92 @@
+[
+  {
+    "edge_kind": "ee",
+    "event_type": "discover vulnerability",
+    "role": "capabilities"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "discover vulnerability",
+    "role": "common vulnerabilities and exposures"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "discover vulnerability",
+    "role": "discoverer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "discover vulnerability",
+    "role": "supported platform"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "discover vulnerability",
+    "role": "time"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "discover vulnerability",
+    "role": "vulnerability"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "discover vulnerability",
+    "role": "vulnerable system"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "discover vulnerability",
+    "role": "vulnerable system owner"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "discover vulnerability",
+    "role": "vulnerable system version"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "phishing",
+    "role": "attack pattern"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "phishing",
+    "role": "attacker"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "phishing",
+    "role": "damage amount"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "phishing",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "phishing",
+    "role": "purpose"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "phishing",
+    "role": "time"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "phishing",
+    "role": "tool"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "phishing",
+    "role": "trusted entity"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "phishing",
+    "role": "victim"
+  }
+]

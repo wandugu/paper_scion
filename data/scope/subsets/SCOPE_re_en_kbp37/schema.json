@@ -1,0 +1,110 @@
+[
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "alternate names",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "cities of residence",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "city of headquarters",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "countries of residence",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "country of birth",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "country of headquarters",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "else",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "employee of",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "founded",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "founded by",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "members",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "origin",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "spouse",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "state or province of headquarters",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "state or provinces of residence",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "subsidiaries",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "title of person",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "top members employees",
+    "tail_entity": "Entity"
+  }
+]

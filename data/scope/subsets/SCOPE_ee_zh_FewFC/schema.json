@@ -1,0 +1,147 @@
+[
+  {
+    "edge_kind": "ee",
+    "event_type": "中标",
+    "role": "中标方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "中标",
+    "role": "中标日期"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "中标",
+    "role": "中标金额"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "中标",
+    "role": "招标方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "判决",
+    "role": "判决日期"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "判决",
+    "role": "判决金额"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "判决",
+    "role": "原告"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "判决",
+    "role": "被告"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "判决",
+    "role": "裁判单位"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "担保",
+    "role": "受担保公司"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "担保",
+    "role": "担保人"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "担保",
+    "role": "担保公司"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "担保",
+    "role": "担保方式"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "担保",
+    "role": "担保日期"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "担保",
+    "role": "担保金额"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "收购",
+    "role": "收购公司"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "收购",
+    "role": "收购方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "收购",
+    "role": "收购方式"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "收购",
+    "role": "收购日期"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "收购",
+    "role": "收购股份数量"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "收购",
+    "role": "收购股份比例"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "收购",
+    "role": "收购金额"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "收购",
+    "role": "被收购公司"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "签署合同",
+    "role": "发起合同签署的组织或单位"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "签署合同",
+    "role": "发起合同签署的自然人"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "签署合同",
+    "role": "成交额"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "签署合同",
+    "role": "接受合同签署的组织或单位"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "签署合同",
+    "role": "接受合同签署的自然人"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "签署合同",
+    "role": "日期"
+  }
+]

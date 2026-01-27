@@ -1,0 +1,1087 @@
+[
+  {
+    "edge_kind": "ee",
+    "event_type": "交往-会见",
+    "role": "会见主体"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "交往-会见",
+    "role": "会见对象"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "交往-会见",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "交往-会见",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "交往-感谢",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "交往-感谢",
+    "role": "致谢人"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "交往-感谢",
+    "role": "被感谢人"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "交往-探班",
+    "role": "探班主体"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "交往-探班",
+    "role": "探班对象"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "交往-探班",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "交往-点赞",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "交往-点赞",
+    "role": "点赞对象"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "交往-点赞",
+    "role": "点赞方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "交往-道歉",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "交往-道歉",
+    "role": "道歉对象"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "交往-道歉",
+    "role": "道歉者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "产品行为-上映",
+    "role": "上映影视"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "产品行为-上映",
+    "role": "上映方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "产品行为-上映",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "产品行为-下架",
+    "role": "下架产品"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "产品行为-下架",
+    "role": "下架方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "产品行为-下架",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "产品行为-下架",
+    "role": "被下架方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "产品行为-发布",
+    "role": "发布产品"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "产品行为-发布",
+    "role": "发布方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "产品行为-发布",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "产品行为-召回",
+    "role": "召回内容"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "产品行为-召回",
+    "role": "召回方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "产品行为-召回",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "产品行为-获奖",
+    "role": "奖项"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "产品行为-获奖",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "产品行为-获奖",
+    "role": "获奖人"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "产品行为-获奖",
+    "role": "颁奖机构"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-产子/女",
+    "role": "产子者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-产子/女",
+    "role": "出生者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-产子/女",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-出轨",
+    "role": "出轨对象"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-出轨",
+    "role": "出轨方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-出轨",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-分手",
+    "role": "分手双方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-分手",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-失联",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-失联",
+    "role": "失联者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-失联",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-婚礼",
+    "role": "参礼人员"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-婚礼",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-婚礼",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-婚礼",
+    "role": "结婚双方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-庆生",
+    "role": "庆祝方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-庆生",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-庆生",
+    "role": "生日方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-庆生",
+    "role": "生日方年龄"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-怀孕",
+    "role": "怀孕者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-怀孕",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-死亡",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-死亡",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-死亡",
+    "role": "死者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-死亡",
+    "role": "死者年龄"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-求婚",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-求婚",
+    "role": "求婚对象"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-求婚",
+    "role": "求婚者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-离婚",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-离婚",
+    "role": "离婚双方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-结婚",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-结婚",
+    "role": "结婚双方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-订婚",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "人生-订婚",
+    "role": "订婚主体"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-举报",
+    "role": "举报发起方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-举报",
+    "role": "举报对象"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-举报",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-入狱",
+    "role": "入狱者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-入狱",
+    "role": "刑期"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-入狱",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-开庭",
+    "role": "开庭案件"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-开庭",
+    "role": "开庭法院"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-开庭",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-拘捕",
+    "role": "拘捕者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-拘捕",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-拘捕",
+    "role": "被拘捕者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-立案",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-立案",
+    "role": "立案对象"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-立案",
+    "role": "立案机构"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-约谈",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-约谈",
+    "role": "约谈发起方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-约谈",
+    "role": "约谈对象"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-罚款",
+    "role": "执法机构"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-罚款",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-罚款",
+    "role": "罚款对象"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-罚款",
+    "role": "罚款金额"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-起诉",
+    "role": "原告"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-起诉",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "司法行为-起诉",
+    "role": "被告"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-地震",
+    "role": "受伤人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-地震",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-地震",
+    "role": "死亡人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-地震",
+    "role": "震中"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-地震",
+    "role": "震源深度"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-地震",
+    "role": "震级"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-坍/垮塌",
+    "role": "受伤人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-坍/垮塌",
+    "role": "坍塌主体"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-坍/垮塌",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-坍/垮塌",
+    "role": "死亡人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-坠机",
+    "role": "受伤人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-坠机",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-坠机",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-坠机",
+    "role": "死亡人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-洪灾",
+    "role": "受伤人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-洪灾",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-洪灾",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-洪灾",
+    "role": "死亡人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-爆炸",
+    "role": "受伤人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-爆炸",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-爆炸",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-爆炸",
+    "role": "死亡人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-袭击",
+    "role": "受伤人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-袭击",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-袭击",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-袭击",
+    "role": "死亡人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-袭击",
+    "role": "袭击对象"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-袭击",
+    "role": "袭击者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-起火",
+    "role": "受伤人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-起火",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-起火",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-起火",
+    "role": "死亡人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-车祸",
+    "role": "受伤人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-车祸",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-车祸",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "灾害/意外-车祸",
+    "role": "死亡人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-夺冠",
+    "role": "冠军"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-夺冠",
+    "role": "夺冠赛事"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-夺冠",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-晋级",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-晋级",
+    "role": "晋级方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-晋级",
+    "role": "晋级赛事"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-禁赛",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-禁赛",
+    "role": "禁赛时长"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-禁赛",
+    "role": "禁赛机构"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-禁赛",
+    "role": "被禁赛人员"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-胜负",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-胜负",
+    "role": "胜者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-胜负",
+    "role": "败者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-胜负",
+    "role": "赛事名称"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-退役",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-退役",
+    "role": "退役者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-退赛",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-退赛",
+    "role": "退赛方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "竞赛行为-退赛",
+    "role": "退赛赛事"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-停职",
+    "role": "停职人员"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-停职",
+    "role": "所属组织"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-停职",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-加盟",
+    "role": "加盟者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-加盟",
+    "role": "所加盟组织"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-加盟",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-裁员",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-裁员",
+    "role": "裁员人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-裁员",
+    "role": "裁员方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-解散",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-解散",
+    "role": "解散方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-解约",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-解约",
+    "role": "被解约方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-解约",
+    "role": "解约方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-解雇",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-解雇",
+    "role": "被解雇人员"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-解雇",
+    "role": "解雇方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-辞/离职",
+    "role": "原所属组织"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-辞/离职",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-辞/离职",
+    "role": "离职者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-退出",
+    "role": "原所属组织"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-退出",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织关系-退出",
+    "role": "退出方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织行为-开幕",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织行为-开幕",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织行为-开幕",
+    "role": "活动名称"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织行为-游行",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织行为-游行",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织行为-游行",
+    "role": "游行人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织行为-游行",
+    "role": "游行组织"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织行为-罢工",
+    "role": "所属组织"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织行为-罢工",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织行为-罢工",
+    "role": "罢工人员"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织行为-罢工",
+    "role": "罢工人数"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织行为-闭幕",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织行为-闭幕",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "组织行为-闭幕",
+    "role": "活动名称"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-上市",
+    "role": "上市企业"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-上市",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-上市",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-上市",
+    "role": "融资金额"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-出售/收购",
+    "role": "交易物"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-出售/收购",
+    "role": "出售价格"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-出售/收购",
+    "role": "出售方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-出售/收购",
+    "role": "收购方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-出售/收购",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-加息",
+    "role": "加息幅度"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-加息",
+    "role": "加息机构"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-加息",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-涨价",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-涨价",
+    "role": "涨价幅度"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-涨价",
+    "role": "涨价方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-涨价",
+    "role": "涨价物"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-涨停",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-涨停",
+    "role": "涨停股票"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-融资",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-融资",
+    "role": "融资方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-融资",
+    "role": "融资轮次"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-融资",
+    "role": "融资金额"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-融资",
+    "role": "跟投方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-融资",
+    "role": "领投方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-跌停",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-跌停",
+    "role": "跌停股票"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-降价",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-降价",
+    "role": "降价幅度"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-降价",
+    "role": "降价方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-降价",
+    "role": "降价物"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-降息",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-降息",
+    "role": "降息幅度"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "财经/交易-降息",
+    "role": "降息机构"
+  }
+]

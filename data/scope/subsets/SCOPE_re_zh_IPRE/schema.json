@@ -1,0 +1,422 @@
+[
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "NA",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_NA_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_侄女_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_侄子_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_儿媳_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_儿子_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_公公_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_前夫_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_前妻_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_叔伯_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_哥哥_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_喜欢_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_外公_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_女儿_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_女婿_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_奶奶_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_妹妹_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_姐姐_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_姑妈_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_嫂子_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_孙女_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_孙子_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_学生_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_岳父_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_弟弟_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_恋人_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_朋友_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_未婚夫_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_未婚妻_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_爷爷_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_现夫_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_现妻_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_生母_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_生父_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_老师_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "_舅舅_",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "侄女",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "侄子",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "儿媳",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "儿子",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "公公",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "前夫",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "前妻",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "叔伯",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "哥哥",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "喜欢",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "外公",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "女儿",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "女婿",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "奶奶",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "妹妹",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "姐姐",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "姑妈",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "嫂子",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "孙女",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "孙子",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "学生",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "岳父",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "弟弟",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "恋人",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "朋友",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "未婚夫",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "未婚妻",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "爷爷",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "现夫",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "现妻",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "生母",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "生父",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "老师",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "舅舅",
+    "tail_entity": "Entity"
+  }
+]

@@ -1,0 +1,576 @@
+[
+  {
+    "dataset_name": "instructIE_en",
+    "task": "re",
+    "lang": "en",
+    "format": "instructie",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_instructIE_en.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_instructIE_en.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/InstructIE-en/train_en.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/InstructIE-en/valid_en.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/InstructIE-en/test_en.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/InstructIE-en/schema_en.json"
+    ],
+    "output_samples_count": 4667,
+    "raw_records_count": 188679,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "instructIE_zh",
+    "task": "re",
+    "lang": "zh",
+    "format": "instructie",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_instructIE_zh.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_instructIE_zh.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/InstructIE-zh/train_zh.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/InstructIE-zh/valid_zh.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/InstructIE-zh/test_zh.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/InstructIE-zh/schema_zh.json"
+    ],
+    "output_samples_count": 4952,
+    "raw_records_count": 173477,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "duIE_zh",
+    "task": "re",
+    "lang": "zh",
+    "format": "duie",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_duIE_zh.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_duIE_zh.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/duIE/train.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/duIE/dev.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/duIE/schema.json"
+    ],
+    "output_samples_count": 286426,
+    "raw_records_count": 191967,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "CMeIE",
+    "task": "re",
+    "lang": "zh",
+    "format": "cmeie",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_CMeIE_zh.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_CMeIE_zh.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/CMeIE/CMeIE_train.jsonl",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/CMeIE/CMeIE_dev.jsonl",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/CMeIE/CMeIE_test.jsonl"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/CMeIE/53_schemas.jsonl"
+    ],
+    "output_samples_count": 27386,
+    "raw_records_count": 22406,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "COAE2016",
+    "task": "re",
+    "lang": "zh",
+    "format": "coae2016",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_COAE2016_zh.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_COAE2016_zh.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/COAE2016/train.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/COAE2016/dev.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/COAE2016/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/COAE2016/schema.json"
+    ],
+    "output_samples_count": 971,
+    "raw_records_count": 971,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "IPRE",
+    "task": "re",
+    "lang": "zh",
+    "format": "ipre",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_IPRE_zh.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_IPRE_zh.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/IPRE/train.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/IPRE/dev.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/IPRE/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/IPRE/schema.json"
+    ],
+    "output_samples_count": 3340,
+    "raw_records_count": 3340,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "SKE2020",
+    "task": "re",
+    "lang": "zh",
+    "format": "ske2020",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_SKE2020_zh.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_SKE2020_zh.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/SKE2020/train.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/SKE2020/dev.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/SKE2020/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-zh/SKE2020/schema.json"
+    ],
+    "output_samples_count": 6136,
+    "raw_records_count": 3601,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "ADE_corpus",
+    "task": "re",
+    "lang": "en",
+    "format": "ade_corpus",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_ADE_corpus_en.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_ADE_corpus_en.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/ADE_corpus/train.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/ADE_corpus/dev.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/ADE_corpus/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/ADE_corpus/schema.json"
+    ],
+    "output_samples_count": 4271,
+    "raw_records_count": 4271,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "GIDS",
+    "task": "re",
+    "lang": "en",
+    "format": "gids",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_GIDS_en.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_GIDS_en.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/GIDS/train.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/GIDS/dev.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/GIDS/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/GIDS/schema.json"
+    ],
+    "output_samples_count": 14248,
+    "raw_records_count": 14249,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "NYT11",
+    "task": "re",
+    "lang": "en",
+    "format": "nyt11",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_NYT11_en.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_NYT11_en.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/NYT11/train.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/NYT11/dev.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/NYT11/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/NYT11/schema.json"
+    ],
+    "output_samples_count": 71031,
+    "raw_records_count": 61273,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "New-York-Times-RE",
+    "task": "re",
+    "lang": "en",
+    "format": "new_york_times_re",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_New-York-Times-RE_en.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_New-York-Times-RE_en.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/New-York-Times-RE/train.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/New-York-Times-RE/dev.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/New-York-Times-RE/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/New-York-Times-RE/schema.json"
+    ],
+    "output_samples_count": 93644,
+    "raw_records_count": 64372,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "SciERC",
+    "task": "re",
+    "lang": "en",
+    "format": "scierc",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_SciERC_en.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_SciERC_en.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SciERC/train.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SciERC/dev.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SciERC/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SciERC/schema.json"
+    ],
+    "output_samples_count": 3026,
+    "raw_records_count": 1950,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "conll04",
+    "task": "re",
+    "lang": "en",
+    "format": "conll04",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_conll04_en.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_conll04_en.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/conll04/train.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/conll04/dev.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/conll04/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/conll04/schema.json"
+    ],
+    "output_samples_count": 1561,
+    "raw_records_count": 1391,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "kbp37",
+    "task": "re",
+    "lang": "en",
+    "format": "kbp37",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_kbp37_en.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_kbp37_en.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/kbp37/train.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/kbp37/dev.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/kbp37/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/kbp37/schema.json"
+    ],
+    "output_samples_count": 20893,
+    "raw_records_count": 21039,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "SemEval2010_task8",
+    "task": "re",
+    "lang": "en",
+    "format": "semeval2010",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_schema_SemEval2010_task8_en.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/re/golden_input_SemEval2010_task8_en.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_training/TRAIN_FILE.TXT",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_testing/TEST_FILE.txt"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/answer_key1.txt",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/answer_key2.txt",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/answer_key3.txt",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/answer_key5.txt",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer1.txt",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer2.txt",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer3.txt",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer4.txt",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/re/re-en/SemEval2010_task8_all_data/SemEval2010_task8_scorer-v1.2/proposed_answer5.txt"
+    ],
+    "output_samples_count": 10689,
+    "raw_records_count": 10717,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "CASIE",
+    "task": "ee",
+    "lang": "en",
+    "format": "casie",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_schema_CASIE_en.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_input_CASIE_en.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/CASIE/train.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/CASIE/dev.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/CASIE/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/CASIE/schema.json"
+    ],
+    "output_samples_count": 6001,
+    "raw_records_count": 6001,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "CrudeOilNews",
+    "task": "ee",
+    "lang": "en",
+    "format": "crudeoilnews",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_schema_CrudeOilNews_en.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_input_CrudeOilNews_en.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/CrudeOilNews/train.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/CrudeOilNews/dev.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/CrudeOilNews/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/CrudeOilNews/schema.json"
+    ],
+    "output_samples_count": 563,
+    "raw_records_count": 356,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "PHEE",
+    "task": "ee",
+    "lang": "en",
+    "format": "phee",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_schema_PHEE_en.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_input_PHEE_en.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/PHEE/train.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/PHEE/dev.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/PHEE/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/PHEE/schema.json"
+    ],
+    "output_samples_count": 4825,
+    "raw_records_count": 4825,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "RAMS",
+    "task": "ee",
+    "lang": "en",
+    "format": "rams",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_schema_RAMS_en.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_input_RAMS_en.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/conflict/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/contact/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/justice/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/artifactexistence/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/government/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/transaction/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/disaster/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/manufacture/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/inspection/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/movement/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/life/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/personnel/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/conflict/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/contact/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/justice/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/artifactexistence/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/government/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/transaction/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/disaster/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/manufacture/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/inspection/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/movement/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/life/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/RAMS/personnel/schema.json"
+    ],
+    "output_samples_count": 611,
+    "raw_records_count": 887,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "WikiEvents",
+    "task": "ee",
+    "lang": "en",
+    "format": "wikievents",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_schema_WikiEvents_en.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_input_WikiEvents_en.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Contact/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Control/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Medical/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Cognitive/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/GenericCrime/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Life/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Transaction/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/ArtifactExistence/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Movement/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Conflict/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Personnel/test.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Justice/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Contact/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Control/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Medical/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Cognitive/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/GenericCrime/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Life/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Transaction/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/ArtifactExistence/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Movement/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Conflict/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Personnel/schema.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-en/WikiEvents/Justice/schema.json"
+    ],
+    "output_samples_count": 159,
+    "raw_records_count": 249,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "ccf_law",
+    "task": "ee",
+    "lang": "zh",
+    "format": "ccf_law",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_schema_ccf_law_zh.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_input_ccf_law_zh.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/ccf_law/train.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/ccf_law/dev.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/ccf_law/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/ccf_law/schema.json"
+    ],
+    "output_samples_count": 4151,
+    "raw_records_count": 971,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "DuEE1.0",
+    "task": "ee",
+    "lang": "zh",
+    "format": "duee1.0",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_schema_DuEE1.0_zh.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_input_DuEE1.0_zh.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/DuEE1.0/train.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/DuEE1.0/dev.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/DuEE1.0/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/DuEE1.0/schema.json"
+    ],
+    "output_samples_count": 15519,
+    "raw_records_count": 13400,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "DuEE-fin",
+    "task": "ee",
+    "lang": "zh",
+    "format": "duee_fin",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_schema_DuEE-fin_zh.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_input_DuEE-fin_zh.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/DuEE-fin/train.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/DuEE-fin/dev.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/DuEE-fin/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/DuEE-fin/schema.json"
+    ],
+    "output_samples_count": 9242,
+    "raw_records_count": 8186,
+    "include_input": false,
+    "samples_limit": 0
+  },
+  {
+    "dataset_name": "FewFC",
+    "task": "ee",
+    "lang": "zh",
+    "format": "fewfc",
+    "schema_count": 0,
+    "schema_roles": 0,
+    "schema_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_schema_FewFC_zh.json",
+    "samples_output_path": "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/input/ee/golden_input_FewFC_zh.json",
+    "data_files": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/FewFC/train.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/FewFC/dev.json",
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/FewFC/test.json"
+    ],
+    "schema_paths": [
+      "/home/iie4bu/hmb/code/hmb_6_graph_maker/data/dataset_public/ee/ee-zh/FewFC/schema.json"
+    ],
+    "output_samples_count": 3203,
+    "raw_records_count": 2879,
+    "include_input": false,
+    "samples_limit": 0
+  }
+]

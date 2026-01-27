@@ -1,0 +1,152 @@
+[
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "alternate names",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "employee of",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "founded",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "origin",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "title of person",
+    "tail_entity": "Entity"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "adverse event",
+    "role": "Subject"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "adverse event",
+    "role": "Treatment.Dosage"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "adverse event",
+    "role": "Combination.Drug"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "adverse event",
+    "role": "Treatment.Route"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "adverse event",
+    "role": "Subject.Population"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "adverse event",
+    "role": "Subject.Gender"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "adverse event",
+    "role": "Subject.Age"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "adverse event",
+    "role": "Treatment"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "adverse event",
+    "role": "Subject.Race"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "adverse event",
+    "role": "Treatment.Drug"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "adverse event",
+    "role": "Treatment.Time_elapsed"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "adverse event",
+    "role": "Effect"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "potential therapeutic event",
+    "role": "Subject"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "potential therapeutic event",
+    "role": "Subject.Age"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "potential therapeutic event",
+    "role": "Treatment.Drug"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "potential therapeutic event",
+    "role": "Treatment.Dosage"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "potential therapeutic event",
+    "role": "Treatment"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "potential therapeutic event",
+    "role": "Effect"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "potential therapeutic event",
+    "role": "Subject.Gender"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "potential therapeutic event",
+    "role": "Subject.Disorder"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "potential therapeutic event",
+    "role": "Subject.Race"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "potential therapeutic event",
+    "role": "Treatment.Time_elapsed"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "potential therapeutic event",
+    "role": "Treatment.Disorder"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "potential therapeutic event",
+    "role": "Treatment.Duration"
+  }
+]

@@ -1,0 +1,457 @@
+[
+  {
+    "edge_kind": "ee",
+    "event_type": "中标",
+    "role": "中标公司"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "中标",
+    "role": "中标日期"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "中标",
+    "role": "中标标的"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "中标",
+    "role": "中标金额"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "中标",
+    "role": "披露日期"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "中标",
+    "role": "招标方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "亏损",
+    "role": "亏损变化"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "亏损",
+    "role": "公司名称"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "亏损",
+    "role": "净亏损"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "亏损",
+    "role": "披露时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "亏损",
+    "role": "财报周期"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业收购",
+    "role": "交易金额"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业收购",
+    "role": "披露时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业收购",
+    "role": "收购完成时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业收购",
+    "role": "收购方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业收购",
+    "role": "收购标的"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业收购",
+    "role": "被收购方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业破产",
+    "role": "债务规模"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业破产",
+    "role": "债权人"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业破产",
+    "role": "披露时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业破产",
+    "role": "破产公司"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业破产",
+    "role": "破产时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业融资",
+    "role": "事件时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业融资",
+    "role": "投资方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业融资",
+    "role": "披露时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业融资",
+    "role": "融资轮次"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业融资",
+    "role": "融资金额"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业融资",
+    "role": "被投资方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "企业融资",
+    "role": "领投方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "公司上市",
+    "role": "上市公司"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "公司上市",
+    "role": "事件时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "公司上市",
+    "role": "募资金额"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "公司上市",
+    "role": "发行价格"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "公司上市",
+    "role": "市值"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "公司上市",
+    "role": "披露时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "公司上市",
+    "role": "环节"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "公司上市",
+    "role": "证券代码"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股东减持",
+    "role": "交易完成时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股东减持",
+    "role": "交易股票/股份数量"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股东减持",
+    "role": "交易金额"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股东减持",
+    "role": "减持方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股东减持",
+    "role": "减持部分占总股本比例"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股东减持",
+    "role": "减持部分占所持比例"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股东减持",
+    "role": "披露时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股东减持",
+    "role": "每股交易价格"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股东减持",
+    "role": "股票简称"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股东增持",
+    "role": "交易完成时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股东增持",
+    "role": "交易股票/股份数量"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股东增持",
+    "role": "交易金额"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股东增持",
+    "role": "增持方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股东增持",
+    "role": "增持部分占总股本比例"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股东增持",
+    "role": "披露时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股东增持",
+    "role": "每股交易价格"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股东增持",
+    "role": "股票简称"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股份回购",
+    "role": "交易金额"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股份回购",
+    "role": "占公司总股本比例"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股份回购",
+    "role": "回购完成时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股份回购",
+    "role": "回购方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股份回购",
+    "role": "回购股份数量"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股份回购",
+    "role": "披露时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "股份回购",
+    "role": "每股交易价格"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "被约谈",
+    "role": "公司名称"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "被约谈",
+    "role": "披露时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "被约谈",
+    "role": "约谈机构"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "被约谈",
+    "role": "被约谈时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "解除质押",
+    "role": "事件时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "解除质押",
+    "role": "披露时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "解除质押",
+    "role": "质押方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "解除质押",
+    "role": "质押物"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "解除质押",
+    "role": "质押物占总股比"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "解除质押",
+    "role": "质押物占持股比"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "解除质押",
+    "role": "质押物所属公司"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "解除质押",
+    "role": "质押股票/股份数量"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "解除质押",
+    "role": "质权方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "质押",
+    "role": "事件时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "质押",
+    "role": "披露时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "质押",
+    "role": "质押方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "质押",
+    "role": "质押物"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "质押",
+    "role": "质押物占总股比"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "质押",
+    "role": "质押物占持股比"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "质押",
+    "role": "质押物所属公司"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "质押",
+    "role": "质押股票/股份数量"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "质押",
+    "role": "质权方"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "高管变动",
+    "role": "事件时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "高管变动",
+    "role": "任职公司"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "高管变动",
+    "role": "变动后公司名称"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "高管变动",
+    "role": "变动后职位"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "高管变动",
+    "role": "变动类型"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "高管变动",
+    "role": "披露日期"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "高管变动",
+    "role": "高管姓名"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "高管变动",
+    "role": "高管职位"
+  }
+]

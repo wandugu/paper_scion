@@ -1,0 +1,9 @@
+{
+  "task_id": "SCOPE_all_en__mix_rel001_evt001",
+  "case_id": "K1000_seed1_coverage__fuse_r0.3",
+  "texts_path": "induction_texts.jsonl",
+  "schema_in_path": "schema_in.partial.json",
+  "schema_in_mode": "fuse",
+  "schema_in_mask_ratio": 0.3,
+  "schema_out_path": "gold_full.schema.json"
+}

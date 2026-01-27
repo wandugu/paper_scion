@@ -1,0 +1,8 @@
+[
+  {
+    "edge_kind": "re",
+    "head_entity": "Entity",
+    "rel_type": "adverse effect",
+    "tail_entity": "Entity"
+  }
+]

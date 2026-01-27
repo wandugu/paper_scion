@@ -1,0 +1,12 @@
+{
+  "run_id": "ontology_generate:default",
+  "calls": 2,
+  "prompt_tokens": 2450,
+  "completion_tokens": 2379,
+  "prompt_chars": 9795,
+  "completion_chars": 9510,
+  "elapsed_total_s": 79.971,
+  "elapsed_wall_s": 87.449,
+  "min_elapsed_s": 38.662,
+  "max_elapsed_s": 41.31
+}

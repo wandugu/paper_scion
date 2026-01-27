@@ -1,0 +1,407 @@
+[
+  {
+    "edge_kind": "ee",
+    "event_type": "Arresting, jailing, or detaining",
+    "role": "Detainee"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Arresting, jailing, or detaining",
+    "role": "Jailer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Arresting, jailing, or detaining",
+    "role": "Place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Attack",
+    "role": "Attacker"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Attack",
+    "role": "Instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Attack",
+    "role": "Place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Attack",
+    "role": "Target"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Broadcast",
+    "role": "Communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Charging or indicting",
+    "role": "Defendant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Charging or indicting",
+    "role": "Prosecutor"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Conducting a trial or hearing",
+    "role": "Defendant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Conducting a trial or hearing",
+    "role": "JudgeCourt"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Conducting a trial or hearing",
+    "role": "Place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Contact",
+    "role": "Participant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Contact",
+    "role": "Place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Contact",
+    "role": "Topic"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence",
+    "role": "Communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence",
+    "role": "Recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Correspondence",
+    "role": "Topic"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Damage",
+    "role": "Artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Damage",
+    "role": "Damager"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Damage",
+    "role": "Place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Demonstrate",
+    "role": "Demonstrator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Destroy",
+    "role": "Artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Destroy",
+    "role": "Destroyer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Destroy",
+    "role": "Place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Detonating or causing an explosion",
+    "role": "Attacker"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Detonating or causing an explosion",
+    "role": "ExplosiveDevice"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Detonating or causing an explosion",
+    "role": "Instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Detonating or causing an explosion",
+    "role": "Place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Detonating or causing an explosion",
+    "role": "Target"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Die",
+    "role": "Killer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Die",
+    "role": "Place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Die",
+    "role": "Victim"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Disabling or defusing",
+    "role": "Artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Disabling or defusing",
+    "role": "Disabler"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Dismantle",
+    "role": "Artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Dismantle",
+    "role": "Dismantler"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Dismantle",
+    "role": "Instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Exchanging, buying, or selling",
+    "role": "AcquiredEntity"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Exchanging, buying, or selling",
+    "role": "Giver"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Exchanging, buying, or selling",
+    "role": "Recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Generic crime",
+    "role": "Perpetrator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Generic crime",
+    "role": "Place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Generic crime",
+    "role": "Victim"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Identifying or categorizing",
+    "role": "IdentifiedObject"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Identifying or categorizing",
+    "role": "Identifier"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Identifying or categorizing",
+    "role": "Place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Illegal transportation",
+    "role": "Destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Illegal transportation",
+    "role": "PassengerArtifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Illegal transportation",
+    "role": "Transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Illegal transportation",
+    "role": "Vehicle"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Impeding or interfering with",
+    "role": "Impeder"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Injure",
+    "role": "Injurer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Injure",
+    "role": "Instrument"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Injure",
+    "role": "Victim"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Intervention",
+    "role": "Patient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Intervention",
+    "role": "Treater"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Investigating a crime",
+    "role": "Investigator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Legal transportation",
+    "role": "Destination"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Legal transportation",
+    "role": "Origin"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Legal transportation",
+    "role": "PassengerArtifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Legal transportation",
+    "role": "Transporter"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Manufacturing or assembling",
+    "role": "Artifact"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Manufacturing or assembling",
+    "role": "ManufacturerAssembler"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Manufacturing or assembling",
+    "role": "Place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meet",
+    "role": "Participant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meet",
+    "role": "Place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Meet",
+    "role": "Topic"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Observing through sensory perception",
+    "role": "ObservedEntity"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Observing through sensory perception",
+    "role": "Observer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "RequestCommand",
+    "role": "Communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "RequestCommand",
+    "role": "Recipient"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Research",
+    "role": "Researcher"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Sentence",
+    "role": "Defendant"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "Sentence",
+    "role": "JudgeCourt"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "StartPosition",
+    "role": "Employee"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "StartPosition",
+    "role": "Place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "StartPosition",
+    "role": "Position"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "ThreatenCoerce",
+    "role": "Communicator"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "ThreatenCoerce",
+    "role": "Recipient"
+  }
+]

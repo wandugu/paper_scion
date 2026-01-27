@@ -1,0 +1,522 @@
+[
+  {
+    "edge_kind": "ee",
+    "event_type": "CAUSE-MOVEMENT-DOWN-LOSS",
+    "role": "ATTRIBUTE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CAUSE-MOVEMENT-DOWN-LOSS",
+    "role": "DIFFERENCE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CAUSE-MOVEMENT-DOWN-LOSS",
+    "role": "FINAL_VALUE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CAUSE-MOVEMENT-DOWN-LOSS",
+    "role": "FORECAST"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CAUSE-MOVEMENT-DOWN-LOSS",
+    "role": "FORECASTER"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CAUSE-MOVEMENT-DOWN-LOSS",
+    "role": "INITIAL_REFERENCE_POINT"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CAUSE-MOVEMENT-DOWN-LOSS",
+    "role": "INITIAL_VALUE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CAUSE-MOVEMENT-DOWN-LOSS",
+    "role": "ITEM"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CAUSE-MOVEMENT-DOWN-LOSS",
+    "role": "PLACE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CAUSE-MOVEMENT-DOWN-LOSS",
+    "role": "REFERENCE_POINT_TIME"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CAUSE-MOVEMENT-DOWN-LOSS",
+    "role": "SUPPLIER_CONSUMER"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CAUSE-MOVEMENT-DOWN-LOSS",
+    "role": "TYPE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CAUSE-MOVEMENT-UP-GAIN",
+    "role": "ATTRIBUTE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CAUSE-MOVEMENT-UP-GAIN",
+    "role": "DIFFERENCE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CAUSE-MOVEMENT-UP-GAIN",
+    "role": "FINAL_VALUE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CAUSE-MOVEMENT-UP-GAIN",
+    "role": "ITEM"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CAUSE-MOVEMENT-UP-GAIN",
+    "role": "REFERENCE_POINT_TIME"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CAUSE-MOVEMENT-UP-GAIN",
+    "role": "SUPPLIER_CONSUMER"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CIVIL-UNREST",
+    "role": "PLACE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CIVIL-UNREST",
+    "role": "REFERENCE_POINT_TIME"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CRISIS",
+    "role": "PARTICIPATING_COUNTRIES"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "CRISIS",
+    "role": "PLACE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "EMBARGO",
+    "role": "ATTRIBUTE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "EMBARGO",
+    "role": "IMPOSEE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "EMBARGO",
+    "role": "IMPOSER"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "EMBARGO",
+    "role": "ITEM"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "EMBARGO",
+    "role": "REFERENCE_POINT_TIME"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "GEOPOLITICAL-TENSION",
+    "role": "IMPACTED_COUNTRIES"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "GEOPOLITICAL-TENSION",
+    "role": "PARTICIPATING_COUNTRIES"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "GROW-STRONG",
+    "role": "ATTRIBUTE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "GROW-STRONG",
+    "role": "FINAL_VALUE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "GROW-STRONG",
+    "role": "FORECAST"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "GROW-STRONG",
+    "role": "ITEM"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "GROW-STRONG",
+    "role": "REFERENCE_POINT_TIME"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "GROW-STRONG",
+    "role": "SUPPLIER_CONSUMER"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-DOWN-LOSS",
+    "role": "ATTRIBUTE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-DOWN-LOSS",
+    "role": "CONTRACT_DATE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-DOWN-LOSS",
+    "role": "DIFFERENCE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-DOWN-LOSS",
+    "role": "DURATION"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-DOWN-LOSS",
+    "role": "FINAL_VALUE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-DOWN-LOSS",
+    "role": "FORECAST"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-DOWN-LOSS",
+    "role": "FORECASTER"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-DOWN-LOSS",
+    "role": "INITIAL_REFERENCE_POINT"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-DOWN-LOSS",
+    "role": "INITIAL_VALUE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-DOWN-LOSS",
+    "role": "ITEM"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-DOWN-LOSS",
+    "role": "PLACE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-DOWN-LOSS",
+    "role": "Place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-DOWN-LOSS",
+    "role": "REFERENCE_POINT_TIME"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-DOWN-LOSS",
+    "role": "SUPPLIER_CONSUMER"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-DOWN-LOSS",
+    "role": "TYPE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-FLAT",
+    "role": "ATTRIBUTE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-FLAT",
+    "role": "FINAL_VALUE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-FLAT",
+    "role": "INITIAL_REFERENCE_POINT"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-FLAT",
+    "role": "ITEM"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-FLAT",
+    "role": "REFERENCE_POINT_TIME"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-FLAT",
+    "role": "SUPPLIER_CONSUMER"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-FLAT",
+    "role": "TYPE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-UP-GAIN",
+    "role": "ATTRIBUTE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-UP-GAIN",
+    "role": "CONTRACT_DATE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-UP-GAIN",
+    "role": "DIFFERENCE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-UP-GAIN",
+    "role": "DURATION"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-UP-GAIN",
+    "role": "FINAL_VALUE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-UP-GAIN",
+    "role": "FORECAST"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-UP-GAIN",
+    "role": "FORECASTER"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-UP-GAIN",
+    "role": "INITIAL_REFERENCE_POINT"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-UP-GAIN",
+    "role": "INITIAL_VALUE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-UP-GAIN",
+    "role": "ITEM"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-UP-GAIN",
+    "role": "PLACE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-UP-GAIN",
+    "role": "REFERENCE_POINT_TIME"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-UP-GAIN",
+    "role": "SUPPLIER_CONSUMER"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "MOVEMENT-UP-GAIN",
+    "role": "TYPE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "NEGATIVE_SENTIMENT",
+    "role": "ATTRIBUTE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "NEGATIVE_SENTIMENT",
+    "role": "ITEM"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "NEGATIVE_SENTIMENT",
+    "role": "SUPPLIER_CONSUMER"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "NEGATIVE_SENTIMENT",
+    "role": "TYPE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "OVERSUPPLY",
+    "role": "ATTRIBUTE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "OVERSUPPLY",
+    "role": "FORECAST"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "OVERSUPPLY",
+    "role": "ITEM"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "OVERSUPPLY",
+    "role": "PLACE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "POSITION-HIGH",
+    "role": "ATTRIBUTE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "POSITION-HIGH",
+    "role": "DURATION"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "POSITION-HIGH",
+    "role": "FINAL_VALUE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "POSITION-HIGH",
+    "role": "INITIAL_REFERENCE_POINT"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "POSITION-HIGH",
+    "role": "ITEM"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "POSITION-HIGH",
+    "role": "REFERENCE_POINT_TIME"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "POSITION-HIGH",
+    "role": "SUPPLIER_CONSUMER"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "POSITION-LOW",
+    "role": "ATTRIBUTE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "POSITION-LOW",
+    "role": "DURATION"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "POSITION-LOW",
+    "role": "FINAL_VALUE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "POSITION-LOW",
+    "role": "INITIAL_REFERENCE_POINT"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "POSITION-LOW",
+    "role": "ITEM"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "POSITION-LOW",
+    "role": "REFERENCE_POINT_TIME"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "POSITION-LOW",
+    "role": "TYPE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "PROHIBITING",
+    "role": "ACTIVITY"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "SHORTAGE",
+    "role": "FINAL_VALUE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "SHORTAGE",
+    "role": "FORECAST"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "SHORTAGE",
+    "role": "REFERENCE_POINT_TIME"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "SLOW-WEAK",
+    "role": "ATTRIBUTE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "SLOW-WEAK",
+    "role": "FORECASTER"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "SLOW-WEAK",
+    "role": "ITEM"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "SLOW-WEAK",
+    "role": "PLACE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "SLOW-WEAK",
+    "role": "SUPPLIER_CONSUMER"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "SLOW-WEAK",
+    "role": "TYPE"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "TRADE-FINANCIAL-TENSION",
+    "role": "PARTICIPATING_COUNTRIES"
+  }
+]

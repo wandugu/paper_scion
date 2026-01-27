@@ -1,0 +1,242 @@
+[
+  {
+    "edge_kind": "ee",
+    "event_type": "data breach",
+    "role": "attack pattern"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "data breach",
+    "role": "attacker"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "data breach",
+    "role": "compromised data"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "data breach",
+    "role": "damage amount"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "data breach",
+    "role": "number of data"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "data breach",
+    "role": "number of victim"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "data breach",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "data breach",
+    "role": "purpose"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "data breach",
+    "role": "time"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "data breach",
+    "role": "tool"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "data breach",
+    "role": "victim"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "discover vulnerability",
+    "role": "capabilities"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "discover vulnerability",
+    "role": "common vulnerabilities and exposures"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "discover vulnerability",
+    "role": "discoverer"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "discover vulnerability",
+    "role": "supported platform"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "discover vulnerability",
+    "role": "time"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "discover vulnerability",
+    "role": "vulnerability"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "discover vulnerability",
+    "role": "vulnerable system"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "discover vulnerability",
+    "role": "vulnerable system owner"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "discover vulnerability",
+    "role": "vulnerable system version"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "patch vulnerability",
+    "role": "common vulnerabilities and exposures"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "patch vulnerability",
+    "role": "issues addressed"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "patch vulnerability",
+    "role": "patch"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "patch vulnerability",
+    "role": "patch number"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "patch vulnerability",
+    "role": "releaser"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "patch vulnerability",
+    "role": "supported platform"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "patch vulnerability",
+    "role": "time"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "patch vulnerability",
+    "role": "vulnerability"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "patch vulnerability",
+    "role": "vulnerable system"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "patch vulnerability",
+    "role": "vulnerable system version"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "phishing",
+    "role": "attack pattern"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "phishing",
+    "role": "attacker"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "phishing",
+    "role": "damage amount"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "phishing",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "phishing",
+    "role": "purpose"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "phishing",
+    "role": "time"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "phishing",
+    "role": "tool"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "phishing",
+    "role": "trusted entity"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "phishing",
+    "role": "victim"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "ransom",
+    "role": "attack pattern"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "ransom",
+    "role": "attacker"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "ransom",
+    "role": "damage amount"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "ransom",
+    "role": "payment method"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "ransom",
+    "role": "place"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "ransom",
+    "role": "price"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "ransom",
+    "role": "time"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "ransom",
+    "role": "tool"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "ransom",
+    "role": "victim"
+  }
+]

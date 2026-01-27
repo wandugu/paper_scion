@@ -1,0 +1,32 @@
+[
+  {
+    "edge_kind": "re",
+    "head_entity": "Loc",
+    "rel_type": "Located_In",
+    "tail_entity": "Loc"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Org",
+    "rel_type": "OrgBased_In",
+    "tail_entity": "Loc"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Peop",
+    "rel_type": "Kill",
+    "tail_entity": "Peop"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Peop",
+    "rel_type": "Live_In",
+    "tail_entity": "Loc"
+  },
+  {
+    "edge_kind": "re",
+    "head_entity": "Peop",
+    "rel_type": "Work_For",
+    "tail_entity": "Org"
+  }
+]

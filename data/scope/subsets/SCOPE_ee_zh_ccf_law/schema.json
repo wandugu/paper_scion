@@ -1,0 +1,197 @@
+[
+  {
+    "edge_kind": "ee",
+    "event_type": "其他",
+    "role": "主体"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "其他",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "其他",
+    "role": "客体"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "其他",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "其他",
+    "role": "起因"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "养育",
+    "role": "孩子"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "养育",
+    "role": "看护者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "出生",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "出生",
+    "role": "孩子"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "出生",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "出轨",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "出轨",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "出轨",
+    "role": "欺骗者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "出轨",
+    "role": "第三者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "分居",
+    "role": "丈夫"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "分居",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "分居",
+    "role": "妻子"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "分居",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "同居",
+    "role": "丈夫"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "同居",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "同居",
+    "role": "女人"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "同居",
+    "role": "妻子"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "同居",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "同居",
+    "role": "男人"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "家暴",
+    "role": "受害者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "家暴",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "家暴",
+    "role": "工具"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "家暴",
+    "role": "施暴者"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "家暴",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "结婚",
+    "role": "丈夫"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "结婚",
+    "role": "地点"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "结婚",
+    "role": "妻子"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "结婚",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "起诉",
+    "role": "原告"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "起诉",
+    "role": "原因"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "起诉",
+    "role": "时间"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "起诉",
+    "role": "法院"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "起诉",
+    "role": "被告"
+  },
+  {
+    "edge_kind": "ee",
+    "event_type": "起诉",
+    "role": "诉求"
+  }
+]

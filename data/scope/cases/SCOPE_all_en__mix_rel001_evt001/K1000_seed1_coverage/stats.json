@@ -1,0 +1,11 @@
+{
+  "task_id": "SCOPE_all_en__mix_rel001_evt001",
+  "case_id": "K1000_seed1_coverage",
+  "k": 1000,
+  "seed": 1,
+  "sampling": "coverage",
+  "reachable_edges": 37,
+  "reachable_ratio": 1.0,
+  "avg_length": 165.509,
+  "doc_id_hash": "9a8be2aa9585c50fa63702cbb2f91150555480d8"
+}
