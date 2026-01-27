@@ -338,12 +338,6 @@ def _parse_args() -> argparse.Namespace:
         help="输出格式，text 为可直接填写表格的文本。",
     )
     parser.add_argument(
-        "--mode",
-        choices=("repro", "controllability"),
-        default="repro",
-        help="统计模式：repro 输出复现实验参数；controllability 输出 controllability 汇总。",
-    )
-    parser.add_argument(
         "--output",
         type=str,
         default=None,
@@ -358,37 +352,85 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main() -> None:
-    args = _parse_args()
-    config_path = resolve_project_path(args.config) if args.config else None
-    LOGGER.debug("加载配置文件: %s", config_path or "config/config.yaml")
-    cfg = load_yaml_config(config_path)
-    if args.mode == "controllability":
-        input_dir = _resolve_controllability_input_dir(cfg, args.input_dir)
-        expected_datasets = _load_expected_datasets(cfg)
-        summary = collect_controllability_summary(cfg, input_dir, expected_datasets)
-        precision = int(_controllability_summary_cfg(cfg).get("rate_precision", 4))
-        if args.format == "json":
-            payload = json.dumps(summary, ensure_ascii=False, indent=2)
-        else:
-            payload = format_controllability_rows(summary, precision)
-        output_dir = _resolve_controllability_output_dir(cfg)
-        output_filename = _default_controllability_filename(cfg, args.format)
+def _resolve_para_stat_modes(cfg: Dict[str, Any]) -> List[str]:
+    """解析统计模式配置（支持模式: repro / controllability / all）。"""
+    modes_cfg = _get_nested(cfg, "stats", "para_stat", "modes", default=[])
+    if isinstance(modes_cfg, str):
+        modes = [modes_cfg]
+    elif isinstance(modes_cfg, list):
+        modes = [str(item).strip() for item in modes_cfg]
     else:
-        settings = collect_repro_settings(cfg)
-        if args.format == "json":
-            payload = json.dumps(settings, ensure_ascii=False, indent=2)
-        else:
-            payload = format_text(settings)
-        output_dir = _default_output_dir(cfg)
-        output_filename = _default_output_filename(cfg, args.format)
+        modes = []
 
+    normalized = []
+    for mode in modes:
+        if not mode:
+            continue
+        normalized.append(mode.lower())
+
+    if not normalized or "all" in normalized:
+        LOGGER.debug("para_stat 模式配置为空或包含 all，默认运行全部模式。")
+        return ["repro", "controllability"]
+
+    supported = {"repro", "controllability"}
+    selected = [mode for mode in normalized if mode in supported]
+    skipped = [mode for mode in normalized if mode not in supported]
+    if skipped:
+        LOGGER.debug("忽略不支持的 para_stat 模式: %s", skipped)
+    if not selected:
+        LOGGER.debug("未配置有效 para_stat 模式，默认运行全部模式。")
+        return ["repro", "controllability"]
+    return selected
+
+
+def _run_repro(cfg: Dict[str, Any], args: argparse.Namespace) -> None:
+    settings = collect_repro_settings(cfg)
+    if args.format == "json":
+        payload = json.dumps(settings, ensure_ascii=False, indent=2)
+    else:
+        payload = format_text(settings)
+    output_dir = _default_output_dir(cfg)
+    output_filename = _default_output_filename(cfg, args.format)
+    _write_payload(payload, args, output_dir, output_filename, "repro")
+
+
+def _run_controllability(cfg: Dict[str, Any], args: argparse.Namespace) -> None:
+    input_dir = _resolve_controllability_input_dir(cfg, args.input_dir)
+    expected_datasets = _load_expected_datasets(cfg)
+    summary = collect_controllability_summary(cfg, input_dir, expected_datasets)
+    precision = int(_controllability_summary_cfg(cfg).get("rate_precision", 4))
+    if args.format == "json":
+        payload = json.dumps(summary, ensure_ascii=False, indent=2)
+    else:
+        payload = format_controllability_rows(summary, precision)
+    output_dir = _resolve_controllability_output_dir(cfg)
+    output_filename = _default_controllability_filename(cfg, args.format)
+    _write_payload(payload, args, output_dir, output_filename, "controllability")
+
+
+def _write_payload(
+    payload: str, args: argparse.Namespace, output_dir: Path, output_filename: str, mode: str
+) -> None:
     print(payload)
 
     output_path = resolve_project_path(args.output) if args.output else output_dir / output_filename
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(payload, encoding="utf-8")
-    LOGGER.debug("参数统计已写入: %s", output_path)
+    LOGGER.debug("[%s] 参数统计已写入: %s", mode, output_path)
+
+
+def main() -> None:
+    args = _parse_args()
+    config_path = resolve_project_path(args.config) if args.config else None
+    LOGGER.debug("加载配置文件: %s", config_path or "config/config.yaml")
+    cfg = load_yaml_config(config_path)
+    modes = _resolve_para_stat_modes(cfg)
+    LOGGER.debug("para_stat 将运行模式: %s", modes)
+    for mode in modes:
+        if mode == "repro":
+            _run_repro(cfg, args)
+        elif mode == "controllability":
+            _run_controllability(cfg, args)
 
 
 if __name__ == "__main__":
