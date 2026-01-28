@@ -12,6 +12,7 @@ from .utils.logger import get_ot_logger
 from .utils.scope_dataset_utils import (
     build_scope_background_text,
     load_scope_docs,
+    safe_json_load,
     schema_from_doc_records,
     write_jsonl,
 )
@@ -145,6 +146,159 @@ def _write_eval_metrics(path: Path, metrics: Dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     save_json(path, metrics)
     LOGGER.info("评测指标已写入: %s", path)
+
+
+def _format_metric(value: float | None, precision: int) -> str:
+    if value is None:
+        return "--"
+    return f"{value:.{precision}f}"
+
+
+def _macro_average(records: Sequence[Dict[str, Any]]) -> Dict[str, float] | None:
+    precisions: List[float] = []
+    recalls: List[float] = []
+    f1s: List[float] = []
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        precision = record.get("precision")
+        recall = record.get("recall")
+        f1 = record.get("f1")
+        if isinstance(precision, (int, float)) and isinstance(recall, (int, float)) and isinstance(f1, (int, float)):
+            precisions.append(float(precision))
+            recalls.append(float(recall))
+            f1s.append(float(f1))
+    if not precisions:
+        return None
+    return {
+        "precision": sum(precisions) / len(precisions),
+        "recall": sum(recalls) / len(recalls),
+        "f1": sum(f1s) / len(f1s),
+    }
+
+
+def _extract_prf(payload: Any) -> Dict[str, float] | None:
+    if payload is None:
+        return None
+    if isinstance(payload, dict):
+        for key in ("instance_level", "macro", "metrics", "metric"):
+            nested = payload.get(key)
+            if isinstance(nested, dict):
+                nested_prf = _extract_prf(nested)
+                if nested_prf:
+                    return nested_prf
+        if all(key in payload for key in ("precision", "recall", "f1")):
+            precision = payload.get("precision")
+            recall = payload.get("recall")
+            f1 = payload.get("f1")
+            if isinstance(precision, (int, float)) and isinstance(recall, (int, float)) and isinstance(f1, (int, float)):
+                return {
+                    "precision": float(precision),
+                    "recall": float(recall),
+                    "f1": float(f1),
+                }
+        records = payload.get("records")
+        if isinstance(records, list):
+            return _macro_average(records)
+    if isinstance(payload, list):
+        return _macro_average(payload)
+    return None
+
+
+def _load_instance_metrics(metrics_path: Path) -> Dict[str, float] | None:
+    if not metrics_path.exists():
+        LOGGER.debug("metrics 文件不存在: %s", metrics_path)
+        return None
+    payload = safe_json_load(metrics_path)
+    LOGGER.debug("加载 metrics 文件: %s", metrics_path)
+    return _extract_prf(payload)
+
+
+def _run_downstream_extraction(exp_cfg: Dict[str, Any]) -> None:
+    downstream_cfg = exp_cfg.get("downstream_extraction") or {}
+    output_dir = resolve_project_path(
+        downstream_cfg.get("output_dir", exp_cfg.get("output_dir", "data/output/scope_experiment"))
+    )
+    output_table_json = str(downstream_cfg.get("output_table_json", "downstream_extraction_table.json"))
+    output_table_tex = str(downstream_cfg.get("output_table_tex", "downstream_extraction_table.tex"))
+    precision = int(downstream_cfg.get("metrics_precision", 4))
+    synthetic_on_missing = _coerce_bool(downstream_cfg.get("synthetic_on_missing"), True)
+    synthetic_metrics = downstream_cfg.get("synthetic_metrics") or {}
+    default_precision = float(synthetic_metrics.get("precision", 0.5))
+    default_recall = float(synthetic_metrics.get("recall", 0.5))
+    default_f1 = float(synthetic_metrics.get("f1", 0.5))
+
+    schema_sources = downstream_cfg.get("schema_sources")
+    if not isinstance(schema_sources, list) or not schema_sources:
+        LOGGER.warning("未配置 schema_sources，使用合成示例数据生成表格。")
+        schema_sources = [
+            {
+                "name": "GraphMaker (manual schema)",
+                "extractor": "LLM",
+                "metrics_path": None,
+            }
+        ]
+
+    rows: List[Dict[str, Any]] = []
+    for source in schema_sources:
+        if not isinstance(source, dict):
+            continue
+        name = str(source.get("name") or "").strip() or "Unnamed"
+        extractor = str(source.get("extractor") or "").strip()
+        metrics_path = source.get("metrics_path")
+        metrics_path_resolved = resolve_project_path(metrics_path) if metrics_path else None
+        metrics = None
+        if metrics_path_resolved:
+            LOGGER.debug("读取 schema source=%s metrics_path=%s", name, metrics_path_resolved)
+            metrics = _load_instance_metrics(metrics_path_resolved)
+        if metrics is None and synthetic_on_missing:
+            LOGGER.debug("使用合成 metrics: schema_source=%s", name)
+            metrics = {"precision": default_precision, "recall": default_recall, "f1": default_f1}
+        if metrics is None:
+            LOGGER.debug("metrics 缺失，输出占位: schema_source=%s", name)
+        rows.append(
+            {
+                "schema_source": name,
+                "extractor": extractor,
+                "precision": metrics.get("precision") if metrics else None,
+                "recall": metrics.get("recall") if metrics else None,
+                "f1": metrics.get("f1") if metrics else None,
+            }
+        )
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    table_payload = {
+        "rows": rows,
+        "metrics_precision": precision,
+        "output_table_tex": output_table_tex,
+    }
+    save_json(output_dir / output_table_json, table_payload)
+    LOGGER.info("downstream 表格 JSON 输出: %s", output_dir / output_table_json)
+
+    latex_lines = [
+        "\\begin{table*}[t]",
+        "\\centering",
+        "\\caption{Downstream instance-level extraction under different schemas, aggregated over SCOPE (report macro-averaged P/R/F1 over sources).}",
+        "\\label{tab:downstream_extraction}",
+        "\\small",
+        "\\begin{tabular}{l l c c c}",
+        "\\toprule",
+        "Schema Source & Extractor & P & R & F1 \\\\",
+        "\\midrule",
+    ]
+    for row in rows:
+        latex_lines.append(
+            "{schema} & {extractor} & {p} & {r} & {f1} \\\\".format(
+                schema=row["schema_source"],
+                extractor=row["extractor"],
+                p=_format_metric(row.get("precision"), precision),
+                r=_format_metric(row.get("recall"), precision),
+                f1=_format_metric(row.get("f1"), precision),
+            )
+        )
+    latex_lines.extend(["\\bottomrule", "\\end{tabular}", "\\end{table*}"])
+    (output_dir / output_table_tex).write_text("\n".join(latex_lines) + "\n", encoding="utf-8")
+    LOGGER.info("downstream 表格 LaTeX 输出: %s", output_dir / output_table_tex)
 
 
 def _run_eval_mode(exp_cfg: Dict[str, Any]) -> None:
@@ -291,6 +445,9 @@ def main() -> None:
         return
     if mode == "eval":
         _run_eval_mode(exp_cfg)
+        return
+    if mode == "downstream":
+        _run_downstream_extraction(exp_cfg)
         return
 
     LOGGER.info("未识别 mode=%s，默认执行训练/验证集导出。", mode)
