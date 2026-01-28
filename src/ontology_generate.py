@@ -28,6 +28,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 from dataclasses import dataclass
@@ -39,7 +40,7 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
+CONFIG_PATH = Path(os.getenv("OT_CONFIG_PATH", str(PROJECT_ROOT / "config" / "config.yaml")))
 BACKGROUND_SNIPPET_MAX_CHARS = 4000
 
 from .utils.common import load_yaml_config, resolve_project_path, save_json
@@ -504,6 +505,19 @@ def selected_dataset_name() -> str:
 
     input_cfg = CONFIG.get("input") or {}
     dataset = input_cfg.get("dataset_name")
+    return str(dataset).strip() if dataset else ""
+
+
+def selected_run_dataset_name(input_cfg: Dict[str, Any]) -> str:
+    input_type = _normalized_input_type(input_cfg)
+    if input_type == "dataset":
+        return selected_dataset_name()
+    if input_type == "scope":
+        scope_cfg = input_cfg.get("scope") or {}
+        dataset = scope_cfg.get("name") or input_cfg.get("dataset_name")
+        if dataset:
+            return str(dataset).strip()
+    dataset = (CONFIG.get("dataset") or {}).get("name")
     return str(dataset).strip() if dataset else ""
 
 
@@ -1523,7 +1537,8 @@ def maybe_save_to_neo4j(edges: Sequence[Edge]):
 
 def main():
     input_cfg = CONFIG.get("input", {})
-    dataset_name = selected_dataset_name() if _normalized_input_type(input_cfg) == "dataset" else ""
+    input_type = _normalized_input_type(input_cfg)
+    dataset_name = selected_run_dataset_name(input_cfg)
     output_paths = ensure_output_paths(dataset_name or None)
     existing_schema, _ = load_existing_ontology_schema()
     golden_schema, _ = load_golden_schema_for_eval(dataset_name)
@@ -1532,7 +1547,7 @@ def main():
         run_id = f"ontology_generate:{dataset_name or 'default'}"
         ensure_llm_run_stats(CONFIG, run_id=run_id)
     relation_only_dataset = False
-    if dataset_name:
+    if dataset_name and input_type == "dataset":
         try:
             relation_only_dataset = dataset_is_relation_only(CONFIG, dataset_name)
         except Exception as exc:  # noqa: BLE001
