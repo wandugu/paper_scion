@@ -550,6 +550,25 @@ stats:
       source_label: "EntityA"
       target_label: "EntityB"
       relation: "equivalent"
+  scope_dataset:
+    output_dir: data/output/scope_experiment
+    text_filename: scope_dataset_stats.txt
+    json_filename: scope_dataset_stats.json
+    dataset_label: "SCOPE"
+    chunk_size: null
+    synthetic_on_missing: true
+    synthetic_doc:
+      doc_id: "synthetic-1"
+      text: "Synthetic scope doc for self-test."
+    scope:
+      root_dir: data/scope
+      part: scope
+      name: SCOPE
+      split: train
+      max_docs: null
+      text_fields:
+        - text
+        - input
   para_stat:
     # 支持模式: repro / controllability / all
     modes:
@@ -557,6 +576,7 @@ stats:
       - controllability
       - efficiency_cost
       - human_audit
+      - scope_dataset
 dataset_conversion:
   output_dir: data/input
   include_input: false

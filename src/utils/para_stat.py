@@ -280,6 +280,12 @@ def _human_audit_cfg(cfg: Dict[str, Any]) -> Dict[str, Any]:
     return audit_cfg if isinstance(audit_cfg, dict) else {}
 
 
+def _scope_dataset_cfg(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    stats_cfg = cfg.get("stats") or {}
+    scope_cfg = stats_cfg.get("scope_dataset") or {}
+    return scope_cfg if isinstance(scope_cfg, dict) else {}
+
+
 def _resolve_controllability_input_dir(cfg: Dict[str, Any], input_dir: str | None = None) -> Path:
     summary_cfg = _controllability_summary_cfg(cfg)
     path_value = (
@@ -338,6 +344,14 @@ def _resolve_human_audit_output_dir(cfg: Dict[str, Any]) -> Path:
     return resolved
 
 
+def _resolve_scope_dataset_output_dir(cfg: Dict[str, Any]) -> Path:
+    scope_cfg = _scope_dataset_cfg(cfg)
+    output_dir = scope_cfg.get("output_dir") or "data/output/scope_experiment"
+    resolved = resolve_project_path(output_dir)
+    LOGGER.debug("Scope dataset 输出目录: %s", resolved)
+    return resolved
+
+
 def _default_controllability_filename(cfg: Dict[str, Any], fmt: str) -> str:
     summary_cfg = _controllability_summary_cfg(cfg)
     if fmt == "json":
@@ -357,6 +371,13 @@ def _default_human_audit_filename(cfg: Dict[str, Any], fmt: str) -> str:
     if fmt == "json":
         return audit_cfg.get("json_filename") or "human_audit.json"
     return audit_cfg.get("text_filename") or "human_audit.txt"
+
+
+def _default_scope_dataset_filename(cfg: Dict[str, Any], fmt: str) -> str:
+    scope_cfg = _scope_dataset_cfg(cfg)
+    if fmt == "json":
+        return scope_cfg.get("json_filename") or "scope_dataset_stats.json"
+    return scope_cfg.get("text_filename") or "scope_dataset_stats.txt"
 
 
 def _load_expected_datasets(cfg: Dict[str, Any]) -> List[str]:
@@ -548,6 +569,145 @@ def collect_efficiency_cost_summary(cfg: Dict[str, Any], input_dir: Path) -> Dic
         "stats": aggregates,
     }
     LOGGER.debug("Efficiency/cost 汇总结果: %s", summary)
+    return summary
+
+
+def _resolve_scope_dataset_chunk_size(cfg: Dict[str, Any]) -> int:
+    scope_cfg = _scope_dataset_cfg(cfg)
+    chunk_size = scope_cfg.get("chunk_size")
+    if chunk_size is None:
+        chunk_size = _get_nested(cfg, "input", "chunk_size")
+    if chunk_size is None:
+        chunk_size = _get_nested(cfg, "repro_settings", "chunking", "max_tokens_per_chunk")
+    if chunk_size is None:
+        LOGGER.debug("未配置 chunk_size，回退为 0")
+        return 0
+    try:
+        chunk_size_int = int(chunk_size)
+    except (TypeError, ValueError):
+        LOGGER.debug("chunk_size 无法解析为整数: %s，回退为 0", chunk_size)
+        return 0
+    return chunk_size_int
+
+
+def _scope_dataset_text_fields(cfg: Dict[str, Any]) -> List[str]:
+    scope_cfg = _scope_dataset_cfg(cfg)
+    scope_override = scope_cfg.get("scope") if isinstance(scope_cfg.get("scope"), dict) else {}
+    text_fields = scope_override.get("text_fields")
+    if not text_fields:
+        text_fields = _get_nested(cfg, "input", "scope", "text_fields")
+    if isinstance(text_fields, list) and text_fields:
+        return [str(item) for item in text_fields if str(item).strip()]
+    return ["text", "input"]
+
+
+def _scope_dataset_source_cfg(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    scope_cfg = _scope_dataset_cfg(cfg)
+    override = scope_cfg.get("scope")
+    if isinstance(override, dict) and override:
+        return override
+    return _get_nested(cfg, "input", "scope", default={}) or {}
+
+
+def _scope_dataset_synthetic_doc(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    scope_cfg = _scope_dataset_cfg(cfg)
+    synthetic_doc = scope_cfg.get("synthetic_doc") or {}
+    if not isinstance(synthetic_doc, dict):
+        synthetic_doc = {}
+    text_fields = _scope_dataset_text_fields(cfg)
+    default_field = text_fields[0] if text_fields else "text"
+    text_value = synthetic_doc.get("text") or "Synthetic scope doc for self-test."
+    return {
+        "doc_id": synthetic_doc.get("doc_id") or "synthetic-1",
+        default_field: text_value,
+    }
+
+
+def _chunk_text(text: str, chunk_size: int) -> List[str]:
+    text = text.strip()
+    if not text:
+        return []
+    if chunk_size <= 0:
+        LOGGER.debug("chunk_size=%s 无效，按整段文本计为 1 个 chunk", chunk_size)
+        return [text]
+    words = text.split()
+    chunks: List[str] = []
+    current: List[str] = []
+    length = 0
+    for word in words:
+        current.append(word)
+        length += len(word) + 1
+        if length >= chunk_size:
+            chunks.append(" ".join(current))
+            current = []
+            length = 0
+    if current:
+        chunks.append(" ".join(current))
+    return chunks
+
+
+def collect_scope_dataset_summary(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    from .scope_dataset_utils import build_scope_background_text, load_scope_docs
+
+    scope_cfg = _scope_dataset_cfg(cfg)
+    dataset_label = scope_cfg.get("dataset_label") or "SCOPE"
+    source_cfg = _scope_dataset_source_cfg(cfg)
+    scope_root = source_cfg.get("root_dir") or "data/scope"
+    part = source_cfg.get("part", "scope")
+    name = source_cfg.get("name")
+    split = source_cfg.get("split", "train")
+    max_docs = source_cfg.get("max_docs")
+    text_fields = _scope_dataset_text_fields(cfg)
+    chunk_size = _resolve_scope_dataset_chunk_size(cfg)
+    synthetic_on_missing = bool(scope_cfg.get("synthetic_on_missing", True))
+
+    scope_root_path = resolve_project_path(scope_root)
+    LOGGER.debug(
+        "Scope dataset 统计参数: root=%s part=%s name=%s split=%s max_docs=%s chunk_size=%s text_fields=%s",
+        scope_root_path,
+        part,
+        name,
+        split,
+        max_docs,
+        chunk_size,
+        text_fields,
+    )
+
+    docs: List[Dict[str, Any]] = []
+    try:
+        docs = load_scope_docs(scope_root_path, part, name, split, max_docs=max_docs)
+    except FileNotFoundError as exc:
+        LOGGER.warning("scope 文档不存在: %s", exc)
+        if synthetic_on_missing:
+            docs = [_scope_dataset_synthetic_doc(cfg)]
+
+    if not docs and synthetic_on_missing:
+        LOGGER.warning("scope 文档为空，使用合成样本进行自测。")
+        docs = [_scope_dataset_synthetic_doc(cfg)]
+
+    background_text = build_scope_background_text(docs, text_fields)
+    if not background_text and synthetic_on_missing:
+        synthetic_doc = _scope_dataset_synthetic_doc(cfg)
+        background_text = str(next(iter(synthetic_doc.values()), "")).strip()
+        LOGGER.debug("scope 文本为空，使用合成文本: %s", background_text)
+
+    chunks = _chunk_text(background_text, chunk_size)
+    summary = {
+        "dataset_label": dataset_label,
+        "scope": {
+            "root_dir": str(scope_root_path),
+            "part": part,
+            "name": name,
+            "split": split,
+            "max_docs": max_docs,
+            "text_fields": text_fields,
+            "chunk_size": chunk_size,
+        },
+        "docs": len(docs),
+        "chunks": len(chunks),
+        "text_chars": len(background_text),
+    }
+    LOGGER.debug("Scope dataset 汇总结果: %s", summary)
     return summary
 
 
@@ -857,6 +1017,27 @@ def format_human_audit_text(summary: Dict[str, Any]) -> str:
     )
 
 
+def format_scope_dataset_text(summary: Dict[str, Any]) -> str:
+    dataset_label = summary.get("dataset_label", "SCOPE")
+    scope_meta = summary.get("scope") or {}
+    docs = summary.get("docs", 0)
+    chunks = summary.get("chunks", 0)
+    chunk_size = scope_meta.get("chunk_size", 0)
+    scope_desc = (
+        f"part={scope_meta.get('part')} name={scope_meta.get('name')} split={scope_meta.get('split')}"
+    )
+    return "\n".join(
+        [
+            f"Scope dataset: {dataset_label}",
+            f"- docs: {docs}",
+            f"- chunks: {chunks}",
+            f"- chunk_size: {chunk_size}",
+            f"- scope: {scope_desc}",
+            f"- latex_row: {dataset_label} & {docs} & {chunks} \\\\",
+        ]
+    )
+
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="统计复现实验参数。")
     parser.add_argument("--config", type=str, default=None, help="配置文件路径（默认读取 config/config.yaml）")
@@ -911,9 +1092,16 @@ def _resolve_para_stat_modes(cfg: Dict[str, Any]) -> List[str]:
 
     if not normalized or "all" in normalized:
         LOGGER.debug("para_stat 模式配置为空或包含 all，默认运行全部模式。")
-        return ["repro", "controllability", "efficiency_cost"]
+        return ["repro", "controllability", "efficiency_cost", "scope_dataset"]
 
-    supported = {"repro", "controllability", "controllability_batch", "efficiency_cost", "human_audit"}
+    supported = {
+        "repro",
+        "controllability",
+        "controllability_batch",
+        "efficiency_cost",
+        "human_audit",
+        "scope_dataset",
+    }
     selected = [mode for mode in normalized if mode in supported]
     skipped = [mode for mode in normalized if mode not in supported]
     if skipped:
@@ -1046,6 +1234,17 @@ def _run_human_audit(cfg: Dict[str, Any], args: argparse.Namespace) -> None:
     _write_payload(payload, args, output_dir, output_filename, "human_audit")
 
 
+def _run_scope_dataset(cfg: Dict[str, Any], args: argparse.Namespace) -> None:
+    summary = collect_scope_dataset_summary(cfg)
+    if args.format == "json":
+        payload = json.dumps(summary, ensure_ascii=False, indent=2)
+    else:
+        payload = format_scope_dataset_text(summary)
+    output_dir = _resolve_scope_dataset_output_dir(cfg)
+    output_filename = _default_scope_dataset_filename(cfg, args.format)
+    _write_payload(payload, args, output_dir, output_filename, "scope_dataset")
+
+
 def _write_payload(
     payload: str, args: argparse.Namespace, output_dir: Path, output_filename: str, mode: str
 ) -> None:
@@ -1075,6 +1274,8 @@ def main() -> None:
             _run_efficiency_cost(cfg, args)
         elif mode == "human_audit":
             _run_human_audit(cfg, args)
+        elif mode == "scope_dataset":
+            _run_scope_dataset(cfg, args)
 
 
 if __name__ == "__main__":
