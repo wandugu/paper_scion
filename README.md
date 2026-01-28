@@ -37,6 +37,10 @@
    ```bash
    python -m src.utils.para_stat
    ```
+   - 如需一键生成 controllability 全量统计，请在 `config/config.yaml` 中将
+     `stats.para_stat.modes` 加入 `controllability_batch` 并配置
+     `stats.controllability_batch`（支持批量循环运行 + 自动归档
+     `controllability_stats.json`），然后继续执行该命令即可。
 
 ## 项目结构与运行方式
 

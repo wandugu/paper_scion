@@ -3,12 +3,19 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import random
+import os
+import shutil
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
-from .common import load_yaml_config, resolve_project_path
+import yaml
+
+from .common import load_yaml_config, resolve_project_path, save_json
 from .logger import get_ot_logger
 
 
@@ -167,6 +174,98 @@ def _controllability_summary_cfg(cfg: Dict[str, Any]) -> Dict[str, Any]:
     stats_cfg = cfg.get("stats") or {}
     summary_cfg = stats_cfg.get("controllability_summary") or {}
     return summary_cfg if isinstance(summary_cfg, dict) else {}
+
+
+def _controllability_batch_cfg(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    stats_cfg = cfg.get("stats") or {}
+    batch_cfg = stats_cfg.get("controllability_batch") or {}
+    return batch_cfg if isinstance(batch_cfg, dict) else {}
+
+
+def _resolve_controllability_batch_output_dir(cfg: Dict[str, Any]) -> Path:
+    batch_cfg = _controllability_batch_cfg(cfg)
+    output_dir = batch_cfg.get("output_dir")
+    if not output_dir:
+        output_dir = _controllability_summary_cfg(cfg).get("input_dir")
+    return resolve_project_path(output_dir or "data/dataset_stat/para_stat/controllability_runs")
+
+
+def _resolve_controllability_batch_config_dir(cfg: Dict[str, Any]) -> Path:
+    batch_cfg = _controllability_batch_cfg(cfg)
+    config_dir = batch_cfg.get("config_dir") or "_configs"
+    output_dir = _resolve_controllability_batch_output_dir(cfg)
+    config_path = Path(config_dir)
+    if config_path.is_absolute():
+        return config_path
+    return output_dir / config_path
+
+
+def _controllability_batch_datasets(cfg: Dict[str, Any], expected: List[str]) -> List[str]:
+    batch_cfg = _controllability_batch_cfg(cfg)
+    datasets = batch_cfg.get("datasets")
+    if isinstance(datasets, list) and datasets:
+        return [str(item).strip() for item in datasets if str(item).strip()]
+    return expected
+
+
+def _write_yaml_config(path: Path, data: Dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(yaml.safe_dump(data, allow_unicode=True, sort_keys=False), encoding="utf-8")
+    LOGGER.debug("批处理配置已写入: %s", path)
+
+
+def _prepare_batch_config(base_cfg: Dict[str, Any], dataset_name: str, batch_cfg: Dict[str, Any]) -> Dict[str, Any]:
+    cfg = copy.deepcopy(base_cfg)
+    cfg.setdefault("dataset", {})["name"] = dataset_name
+    input_cfg = cfg.setdefault("input", {})
+    input_cfg["dataset_name"] = dataset_name
+    input_cfg.setdefault("scope", {})
+    input_type = str(batch_cfg.get("input_type") or input_cfg.get("type") or "scope").strip()
+    input_cfg["type"] = input_type
+    if input_type == "scope":
+        scope_cfg = input_cfg.setdefault("scope", {})
+        scope_cfg["part"] = batch_cfg.get("scope_part", scope_cfg.get("part", "subsets"))
+        scope_cfg["name"] = dataset_name
+        scope_cfg["split"] = batch_cfg.get("scope_split", scope_cfg.get("split", "train"))
+        if batch_cfg.get("max_docs") is not None:
+            scope_cfg["max_docs"] = batch_cfg.get("max_docs")
+    input_cfg["source_label"] = batch_cfg.get("source_label", dataset_name)
+
+    runtime_cfg = cfg.setdefault("runtime", {})
+    runtime_cfg["graph_extraction_enabled"] = batch_cfg.get("graph_extraction_enabled", False)
+
+    eval_cfg = cfg.setdefault("evaluation", {})
+    eval_cfg["enabled"] = batch_cfg.get("evaluation_enabled", False)
+    eval_cfg["dataset_name"] = dataset_name
+
+    stats_cfg = cfg.setdefault("stats", {})
+    stats_cfg.setdefault("controllability", {})["enabled"] = True
+    stats_cfg["output_dir"] = str(batch_cfg.get("stats_output_dir") or "")
+    if not stats_cfg["output_dir"]:
+        stats_cfg["output_dir"] = str(_resolve_controllability_batch_output_dir(base_cfg) / dataset_name)
+    llm_run_cfg = stats_cfg.setdefault("llm_run", {})
+    llm_run_cfg["enabled"] = batch_cfg.get("llm_run_enabled", False)
+    return cfg
+
+
+def _simulate_controllability_stats(dataset_name: str, output_path: Path) -> None:
+    payload = {
+        "dataset": dataset_name,
+        "timestamp": "simulated",
+        "json_parse": {
+            "ontology": {"attempts": 1, "success": 1, "success_rate": 1.0},
+            "events": {"attempts": 1, "success": 1, "success_rate": 1.0},
+            "overall": {"attempts": 2, "success": 2, "success_rate": 1.0},
+        },
+        "fallback": {
+            "ontology": {"count": 0, "rate": 0.0, "reasons": []},
+            "events": {"count": 0, "rate": 0.0, "reasons": []},
+            "overall": {"count": 0, "rate": 0.0},
+        },
+    }
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    save_json(output_path, payload)
+    LOGGER.debug("已写入模拟 controllability_stats: %s", output_path)
 
 
 def _efficiency_cost_cfg(cfg: Dict[str, Any]) -> Dict[str, Any]:
@@ -572,7 +671,9 @@ def collect_controllability_summary(
     cfg: Dict[str, Any], input_dir: Path, expected_datasets: List[str]
 ) -> Dict[str, Any]:
     summary_cfg = _controllability_summary_cfg(cfg)
-    dataset_label = summary_cfg.get("dataset_label") or "SCOPE (24)"
+    dataset_label = summary_cfg.get("dataset_label") or "SCOPE"
+    dataset_label_template = summary_cfg.get("dataset_label_template")
+    expected_count = len(expected_datasets)
     totals = {
         "ontology": {"attempts": 0, "success": 0, "fallback": 0},
         "events": {"attempts": 0, "success": 0, "fallback": 0},
@@ -609,7 +710,31 @@ def collect_controllability_summary(
                 totals[section]["fallback"],
             )
 
-    LOGGER.debug("统计完成: files=%s datasets=%s", len(files), len(datasets))
+    observed_count = len(datasets)
+    missing_datasets = [name for name in expected_datasets if name not in datasets]
+    coverage_rate = round(observed_count / expected_count, 6) if expected_count else 0.0
+    if dataset_label_template:
+        try:
+            dataset_label = dataset_label_template.format(
+                observed=observed_count, expected=expected_count
+            )
+        except KeyError as exc:
+            LOGGER.debug("dataset_label_template 占位符缺失: %s", exc)
+    LOGGER.debug(
+        "Controllability 覆盖率: observed=%s expected=%s rate=%s",
+        observed_count,
+        expected_count,
+        coverage_rate,
+    )
+    if missing_datasets:
+        LOGGER.debug("未命中 controllability stats 的数据集: %s", missing_datasets)
+    LOGGER.debug(
+        "统计完成: files=%s datasets=%s expected=%s label=%s",
+        len(files),
+        observed_count,
+        expected_count,
+        dataset_label,
+    )
     overall_attempts = totals["ontology"]["attempts"] + totals["events"]["attempts"]
     overall_success = totals["ontology"]["success"] + totals["events"]["success"]
     overall_fallback = totals["ontology"]["fallback"] + totals["events"]["fallback"]
@@ -620,7 +745,11 @@ def collect_controllability_summary(
     summary = {
         "dataset_label": dataset_label,
         "expected_datasets": expected_datasets,
+        "expected_count": expected_count,
         "observed_datasets": datasets,
+        "observed_count": observed_count,
+        "missing_datasets": missing_datasets,
+        "coverage_rate": coverage_rate,
         "files": files,
         "module_stats": {
             "ontology": {
@@ -765,7 +894,7 @@ def _parse_args() -> argparse.Namespace:
 
 
 def _resolve_para_stat_modes(cfg: Dict[str, Any]) -> List[str]:
-    """解析统计模式配置（支持模式: repro / controllability / efficiency_cost / all）。"""
+    """解析统计模式配置（支持模式: repro / controllability / controllability_batch / efficiency_cost / all）。"""
     modes_cfg = _get_nested(cfg, "stats", "para_stat", "modes", default=[])
     if isinstance(modes_cfg, str):
         modes = [modes_cfg]
@@ -784,7 +913,7 @@ def _resolve_para_stat_modes(cfg: Dict[str, Any]) -> List[str]:
         LOGGER.debug("para_stat 模式配置为空或包含 all，默认运行全部模式。")
         return ["repro", "controllability", "efficiency_cost"]
 
-    supported = {"repro", "controllability", "efficiency_cost", "human_audit"}
+    supported = {"repro", "controllability", "controllability_batch", "efficiency_cost", "human_audit"}
     selected = [mode for mode in normalized if mode in supported]
     skipped = [mode for mode in normalized if mode not in supported]
     if skipped:
@@ -818,6 +947,79 @@ def _run_controllability(cfg: Dict[str, Any], args: argparse.Namespace) -> None:
     output_dir = _resolve_controllability_output_dir(cfg)
     output_filename = _default_controllability_filename(cfg, args.format)
     _write_payload(payload, args, output_dir, output_filename, "controllability")
+
+
+def _run_controllability_batch(cfg: Dict[str, Any], args: argparse.Namespace) -> None:
+    batch_cfg = _controllability_batch_cfg(cfg)
+    if batch_cfg.get("enabled") is False:
+        LOGGER.debug("controllability_batch 已禁用，跳过执行。")
+        return
+    expected_datasets = _load_expected_datasets(cfg)
+    datasets = _controllability_batch_datasets(cfg, expected_datasets)
+    output_dir = _resolve_controllability_batch_output_dir(cfg)
+    config_dir = _resolve_controllability_batch_config_dir(cfg)
+    stats_filename = str(
+        _get_nested(cfg, "stats", "controllability", "filename", default="controllability_stats.json")
+    )
+    script_path = resolve_project_path(batch_cfg.get("ontology_script") or "src/ontology_generate.py")
+    stop_on_error = bool(batch_cfg.get("stop_on_error", False))
+    overwrite = bool(batch_cfg.get("overwrite", False))
+    simulate = bool(batch_cfg.get("simulate", False))
+    LOGGER.debug(
+        "批处理开始: datasets=%s output_dir=%s config_dir=%s simulate=%s",
+        len(datasets),
+        output_dir,
+        config_dir,
+        simulate,
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
+    config_dir.mkdir(parents=True, exist_ok=True)
+
+    for dataset_name in datasets:
+        dataset_label = str(dataset_name).strip()
+        if not dataset_label:
+            continue
+        target_dir = output_dir / dataset_label
+        output_path = target_dir / stats_filename
+        if output_path.exists() and not overwrite:
+            LOGGER.debug("已存在统计文件，跳过: %s", output_path)
+            continue
+
+        temp_cfg = _prepare_batch_config(cfg, dataset_label, batch_cfg)
+        temp_config_path = config_dir / f"{dataset_label}.yaml"
+        _write_yaml_config(temp_config_path, temp_cfg)
+
+        if simulate:
+            _simulate_controllability_stats(dataset_label, output_path)
+            continue
+
+        env = os.environ.copy()
+        env["OT_CONFIG_PATH"] = str(temp_config_path)
+        LOGGER.debug("运行 ontology_generate: dataset=%s config=%s", dataset_label, temp_config_path)
+        result = subprocess.run(
+            [sys.executable, str(script_path)],
+            cwd=str(resolve_project_path(".")),
+            env=env,
+            check=False,
+        )
+        if result.returncode != 0:
+            LOGGER.warning("生成失败: dataset=%s returncode=%s", dataset_label, result.returncode)
+            if stop_on_error:
+                raise RuntimeError(f"ontology_generate failed for {dataset_label}")
+            continue
+
+        stats_source = resolve_project_path(temp_cfg.get("stats", {}).get("output_dir", "")) / stats_filename
+        if not stats_source.exists():
+            LOGGER.warning("未找到 controllability_stats: %s", stats_source)
+            if stop_on_error:
+                raise FileNotFoundError(f"missing stats for {dataset_label}")
+            continue
+        target_dir.mkdir(parents=True, exist_ok=True)
+        if stats_source.resolve() != output_path.resolve():
+            shutil.copy2(stats_source, output_path)
+            LOGGER.debug("已归档 controllability_stats: %s -> %s", stats_source, output_path)
+        else:
+            LOGGER.debug("统计文件已在目标目录: %s", output_path)
 
 
 def _run_efficiency_cost(cfg: Dict[str, Any], args: argparse.Namespace) -> None:
@@ -867,6 +1069,8 @@ def main() -> None:
             _run_repro(cfg, args)
         elif mode == "controllability":
             _run_controllability(cfg, args)
+        elif mode == "controllability_batch":
+            _run_controllability_batch(cfg, args)
         elif mode == "efficiency_cost":
             _run_efficiency_cost(cfg, args)
         elif mode == "human_audit":

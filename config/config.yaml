@@ -497,11 +497,27 @@ stats:
     input_dir: data/dataset_stat/para_stat/controllability_runs
     glob: "**/controllability_stats.json"
     subset_dir: data/scope/subsets
-    dataset_label: "SCOPE (24)"
+    dataset_label: "SCOPE"
+    dataset_label_template: "SCOPE ({observed}/{expected})"
     output_dir: data/dataset_stat/para_stat/controllability_summary
     text_filename: controllability_summary.txt
     json_filename: controllability_summary.json
     rate_precision: 4
+  controllability_batch:
+    enabled: false
+    output_dir: data/dataset_stat/para_stat/controllability_runs
+    config_dir: _configs
+    ontology_script: src/ontology_generate.py
+    input_type: scope
+    scope_part: subsets
+    scope_split: train
+    max_docs: null
+    graph_extraction_enabled: false
+    evaluation_enabled: false
+    llm_run_enabled: false
+    overwrite: false
+    stop_on_error: false
+    simulate: false
   efficiency_cost:
     input_dir: data/dataset_stat/para_stat/efficiency_runs
     glob: "**/efficiency_stats.json"
