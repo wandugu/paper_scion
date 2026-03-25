@@ -1,0 +1,2 @@
+variant,seed_count,mean_reward,std_reward,invalid_output_rate,collapse_observed
+rl_full,3,0.73,0.04,0.07,False

@@ -1,0 +1,13 @@
+{
+  "command": "python src/rebuttal/scripts/E9_run.py",
+  "config": "src/rebuttal/configs/E9_scion_rl_ablation.yaml",
+  "seed": 42,
+  "timestamp_utc": "2026-03-25T05:32:00.935344+00:00",
+  "git_commit": "9fbeda3736bac579eba1a34a584e94c60a47faf0",
+  "environment": {
+    "timestamp_utc": "2026-03-25T05:32:00.955395+00:00",
+    "python": "3.12.12 (main, Jan 12 2026, 17:43:59) [GCC 13.3.0]",
+    "platform": "Linux-6.12.47-x86_64-with-glibc2.39",
+    "git_commit": "9fbeda3736bac579eba1a34a584e94c60a47faf0"
+  }
+}

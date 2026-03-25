@@ -1,0 +1,3 @@
+encoder_setting,used_for,literal_f1,fuzzy_f1,continuous_f1,graph_f1,rank_stable
+bge-m3,clustering,0.58,0.64,0.66,0.67,True
+e5-large,metric,0.57,0.63,0.67,0.66,True

@@ -1,0 +1,3 @@
+experiment: E12
+seed: 42
+datasets: [RAMS,WikiEvents]

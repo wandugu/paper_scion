@@ -1,0 +1,4 @@
+fusion_method,audited_pair_count,correct_count,incorrect_count,estimated_precision,main_error_mode
+traditional_matcher_approx,120,73,47,0.61,polysemy
+llm_pairwise_matcher,120,88,32,0.74,polysemy
+scion_fusion,120,97,23,0.81,polysemy

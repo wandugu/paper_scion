@@ -1,0 +1,61 @@
+{
+  "rule": "每个(task, language)按 schema_edge_count 选最小与最大",
+  "selected": [
+    {
+      "source": "ADE_corpus",
+      "task_type": "re",
+      "language": "en",
+      "schema_edge_count": 1,
+      "reachable_edge_count": 0
+    },
+    {
+      "source": "instructIE_en",
+      "task_type": "re",
+      "language": "en",
+      "schema_edge_count": 90,
+      "reachable_edge_count": 0
+    },
+    {
+      "source": "COAE2016",
+      "task_type": "re",
+      "language": "zh",
+      "schema_edge_count": 18,
+      "reachable_edge_count": 0
+    },
+    {
+      "source": "instructIE_zh",
+      "task_type": "re",
+      "language": "zh",
+      "schema_edge_count": 89,
+      "reachable_edge_count": 0
+    },
+    {
+      "source": "PHEE",
+      "task_type": "ee",
+      "language": "en",
+      "schema_edge_count": 32,
+      "reachable_edge_count": 32
+    },
+    {
+      "source": "RAMS",
+      "task_type": "ee",
+      "language": "en",
+      "schema_edge_count": 398,
+      "reachable_edge_count": 309
+    },
+    {
+      "source": "FewFC",
+      "task_type": "ee",
+      "language": "zh",
+      "schema_edge_count": 29,
+      "reachable_edge_count": 29
+    },
+    {
+      "source": "DuEE1.0",
+      "task_type": "ee",
+      "language": "zh",
+      "schema_edge_count": 217,
+      "reachable_edge_count": 217
+    }
+  ]
+}

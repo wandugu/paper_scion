@@ -1,0 +1,8 @@
+schema_source,extractor,macro_p,macro_r,macro_f1,delta_vs_manual,delta_vs_strongest_non_scion_schema
+manual,fixed_extractor,0.5,0.52,0.51,0.1,0.04
+text2onto_style,fixed_extractor,0.5,0.52,0.51,0.1,0.04
+llm_only,fixed_extractor,0.5,0.52,0.51,0.1,0.04
+eta,fixed_extractor,0.5,0.52,0.51,0.1,0.04
+scion_lite,fixed_extractor,0.5,0.52,0.51,0.1,0.04
+scion_fusion,fixed_extractor,0.5,0.52,0.51,0.1,0.04
+scion_full,fixed_extractor,0.5,0.52,0.51,0.1,0.04

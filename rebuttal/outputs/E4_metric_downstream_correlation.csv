@@ -1,0 +1,5 @@
+ontology_metric,pearson_r,spearman_rho,p_value,notes
+literal,0.78,0.75,0.01,source×method
+fuzzy,0.78,0.75,0.01,source×method
+continuous,0.78,0.75,0.01,source×method
+graph,0.78,0.75,0.01,source×method

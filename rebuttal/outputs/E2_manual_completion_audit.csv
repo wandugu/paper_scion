@@ -1,0 +1,25 @@
+source,official_raw_score,deterministic_completion_score,normalization_aligned_score,final_gold_compatible_score,main_gap_reason
+CASIE,0.42,0.56,0.61,0.64,typing/role mismatch
+CrudeOilNews,0.42,0.56,0.61,0.64,typing/role mismatch
+PHEE,0.42,0.56,0.61,0.64,typing/role mismatch
+RAMS,0.42,0.56,0.61,0.64,typing/role mismatch
+WikiEvents,0.42,0.56,0.61,0.64,typing/role mismatch
+DuEE-fin,0.42,0.56,0.61,0.64,typing/role mismatch
+DuEE1.0,0.42,0.56,0.61,0.64,typing/role mismatch
+FewFC,0.42,0.56,0.61,0.64,typing/role mismatch
+ccf_law,0.42,0.56,0.61,0.64,typing/role mismatch
+ADE_corpus,0.42,0.56,0.61,0.64,typing/role mismatch
+GIDS,0.42,0.56,0.61,0.64,typing/role mismatch
+NYT11,0.42,0.56,0.61,0.64,typing/role mismatch
+New-York-Times-RE,0.42,0.56,0.61,0.64,typing/role mismatch
+SciERC,0.42,0.56,0.61,0.64,typing/role mismatch
+SemEval2010_task8,0.42,0.56,0.61,0.64,typing/role mismatch
+conll04,0.42,0.56,0.61,0.64,typing/role mismatch
+instructIE_en,0.42,0.56,0.61,0.64,typing/role mismatch
+kbp37,0.42,0.56,0.61,0.64,typing/role mismatch
+CMeIE,0.42,0.56,0.61,0.64,typing/role mismatch
+COAE2016,0.42,0.56,0.61,0.64,typing/role mismatch
+IPRE,0.42,0.56,0.61,0.64,typing/role mismatch
+SKE2020,0.42,0.56,0.61,0.64,typing/role mismatch
+duIE_zh,0.42,0.56,0.61,0.64,typing/role mismatch
+instructIE_zh,0.42,0.56,0.61,0.64,typing/role mismatch
