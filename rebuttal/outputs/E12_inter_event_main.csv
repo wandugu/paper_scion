@@ -1,0 +1,3 @@
+dataset,inter_event_link_type_count,representation,literal_f1,graph_f1,mapping_precision,notes
+RAMS,3,event_pair_edges,0.31,0.39,0.52,pilot only
+WikiEvents,3,event_pair_edges,0.29,0.36,0.49,pilot only

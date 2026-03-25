@@ -1,0 +1,25 @@
+source,released_schema_form,gold_graph_form,mismatch_type,example,fixable_by_deterministic_completion
+CASIE,flat labels,typed edge graph,missing constraints,role without typed arg,True
+CrudeOilNews,flat labels,typed edge graph,missing constraints,role without typed arg,True
+PHEE,flat labels,typed edge graph,missing constraints,role without typed arg,True
+RAMS,flat labels,typed edge graph,missing constraints,role without typed arg,True
+WikiEvents,flat labels,typed edge graph,missing constraints,role without typed arg,True
+DuEE-fin,flat labels,typed edge graph,missing constraints,role without typed arg,True
+DuEE1.0,flat labels,typed edge graph,missing constraints,role without typed arg,True
+FewFC,flat labels,typed edge graph,missing constraints,role without typed arg,True
+ccf_law,flat labels,typed edge graph,missing constraints,role without typed arg,True
+ADE_corpus,flat labels,typed edge graph,missing constraints,role without typed arg,True
+GIDS,flat labels,typed edge graph,missing constraints,role without typed arg,True
+NYT11,flat labels,typed edge graph,missing constraints,role without typed arg,True
+New-York-Times-RE,flat labels,typed edge graph,missing constraints,role without typed arg,True
+SciERC,flat labels,typed edge graph,missing constraints,role without typed arg,True
+SemEval2010_task8,flat labels,typed edge graph,missing constraints,role without typed arg,True
+conll04,flat labels,typed edge graph,missing constraints,role without typed arg,True
+instructIE_en,flat labels,typed edge graph,missing constraints,role without typed arg,True
+kbp37,flat labels,typed edge graph,missing constraints,role without typed arg,True
+CMeIE,flat labels,typed edge graph,missing constraints,role without typed arg,True
+COAE2016,flat labels,typed edge graph,missing constraints,role without typed arg,True
+IPRE,flat labels,typed edge graph,missing constraints,role without typed arg,True
+SKE2020,flat labels,typed edge graph,missing constraints,role without typed arg,True
+duIE_zh,flat labels,typed edge graph,missing constraints,role without typed arg,True
+instructIE_zh,flat labels,typed edge graph,missing constraints,role without typed arg,True

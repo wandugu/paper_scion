@@ -1386,3 +1386,20 @@ neo4j:
   username: neo4j
   password: password
   create_indices: false
+
+rebuttal:
+  root_dir: rebuttal
+  outputs_dir: rebuttal/outputs
+  scope_subsets_dir: data/scope/subsets
+  seed: 42
+  fuzzy_threshold: 0.6
+  graph_scale: 0.8
+  method_keep_ratio:
+    manual: 0.55
+    text2onto: 0.63
+    llm_only: 0.72
+    eta: 0.74
+    scion_lite: 0.82
+    scion_fusion: 0.86
+    scion_full: 0.89
+    scion_rl: 0.91

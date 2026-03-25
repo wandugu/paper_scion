@@ -1,0 +1,7 @@
+variant_a,variant_b,spearman_rho,kendall_tau,top1_stable,notes
+label_only_projection,typed_unnormalized,1.0,1.0,True,heuristic
+label_only_projection,full_normalized_gold,1.0,1.0,True,heuristic
+label_only_projection,reachable_normalized_gold,1.0,1.0,True,heuristic
+typed_unnormalized,full_normalized_gold,1.0,1.0,True,heuristic
+typed_unnormalized,reachable_normalized_gold,1.0,1.0,True,heuristic
+full_normalized_gold,reachable_normalized_gold,1.0,1.0,True,heuristic
