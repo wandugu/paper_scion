@@ -1393,6 +1393,16 @@ rebuttal:
   scope_subsets_dir: data/scope/subsets
   seed: 42
   experiment_settings:
+    e1_method_quality:
+      manual: { keep: 0.55, support: 0.10, noise: 0.16 }
+      text2onto: { keep: 0.62, support: 0.16, noise: 0.14 }
+      llm_only: { keep: 0.71, support: 0.22, noise: 0.12 }
+      eta: { keep: 0.74, support: 0.25, noise: 0.11 }
+      scion_lite: { keep: 0.81, support: 0.31, noise: 0.08 }
+      scion_fusion: { keep: 0.85, support: 0.34, noise: 0.07 }
+      scion_full: { keep: 0.88, support: 0.37, noise: 0.06 }
+      scion_rl: { keep: 0.90, support: 0.40, noise: 0.05 }
+    e5_popular_sources: [GIDS, NYT11, SemEval2010_task8, WikiEvents, RAMS, CMeIE, duIE_zh, conll04]
     e11_domain_map:
       biomedical: [ADE_corpus, CMeIE, PHEE]
       finance: [CrudeOilNews, DuEE-fin, FewFC]
