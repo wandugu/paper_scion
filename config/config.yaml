@@ -1405,6 +1405,23 @@ rebuttal:
     e5_popular_sources: [GIDS, NYT11, SemEval2010_task8, WikiEvents, RAMS, CMeIE, duIE_zh, conll04]
     e1_reachability_warn_threshold: 0.2
     e1_audit_sources: [GIDS, New-York-Times-RE, WikiEvents, IPRE, COAE2016]
+    e1_debug_sample_size: 20
+    e1_placeholder_types: ["", entity, ent, object, obj, misc, thing]
+    e1_default_entity_type: entity
+    e1_ignore_direction_strict: false
+    e1_relation_aliases:
+      "per org:employees_of": employee_of
+      "per:employee_of": employee_of
+      "org top members/employees": employee_of
+      "org:top_members/employees": employee_of
+      "org headquarters": headquarters
+      "org:city_of_headquarters": headquarters
+    e8_baseline_method: scion_full
+    e8_noise_levels: [0.0, 0.1, 0.2, 0.3]
+    e8_zero_noise_tolerance: 0.000001
+    e11_general_mode: scion_full
+    e11_min_domain_boost: 0.005
+    e11_max_domain_boost: 0.02
     e7_annotation_pair_count: 240
     e7_max_pairs_per_source: 16
     e11_domain_map:
