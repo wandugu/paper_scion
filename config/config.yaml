@@ -1407,6 +1407,9 @@ rebuttal:
     logs_dir: rebuttal/outputs/run_logs
     result_jsonl: rebuttal/outputs/E0_run_all_results.jsonl
     summary_md: rebuttal/outputs/E0_run_all_summary.md
+    output_md: rebuttal/outputs/E0_run_all_output.md
+    output_preview_char_limit: 20000
+    output_include_suffixes: [".csv", ".json", ".md"]
     scripts:
       - id: E0
         script: src/rebuttal/scripts/E0_phase0_setup.py

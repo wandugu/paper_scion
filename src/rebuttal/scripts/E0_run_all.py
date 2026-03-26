@@ -82,6 +82,47 @@ def _resolve_many(paths: List[str]) -> List[Path]:
     return [resolve_project_path(p) for p in paths]
 
 
+def _read_text_preview(path: Path, max_chars: int) -> str:
+    if not path.exists() or not path.is_file():
+        return "(missing)"
+    content = path.read_text(encoding="utf-8", errors="replace")
+    if len(content) <= max_chars:
+        return content
+    truncated = content[:max_chars]
+    return f"{truncated}\n\n... (truncated, total_chars={len(content)}, max_chars={max_chars})"
+
+
+def _detect_llm_signal(log_text: str) -> dict:
+    lowered = log_text.lower()
+    keywords = [
+        "openai",
+        "deepseek",
+        "groq",
+        "chat.completions",
+        "responses.create",
+        "api_key",
+        "http",
+        "llm",
+    ]
+    hits = [k for k in keywords if k in lowered]
+    return {"detected": bool(hits), "keywords": hits}
+
+
+def _collect_experiment_output_files(out_dir: Path, exp_id: str, include_suffixes: List[str]) -> List[Path]:
+    prefixes = (f"{exp_id}_", f"{exp_id}.")
+    suffixes = tuple(include_suffixes)
+    files: List[Path] = []
+    for item in sorted(out_dir.iterdir() if out_dir.exists() else []):
+        if not item.is_file():
+            continue
+        if not item.name.startswith(prefixes):
+            continue
+        if suffixes and item.suffix.lower() not in suffixes:
+            continue
+        files.append(item)
+    return files
+
+
 def run_all() -> int:
     specs = _load_specs()
     out_dir = outputs_dir()
@@ -92,7 +133,13 @@ def run_all() -> int:
     logs_dir.mkdir(parents=True, exist_ok=True)
 
     summary_md_path = resolve_project_path(run_all_cfg.get("summary_md", "rebuttal/outputs/E0_run_all_summary.md"))
+    output_md_path = resolve_project_path(run_all_cfg.get("output_md", "rebuttal/outputs/E0_run_all_output.md"))
     result_jsonl_path = resolve_project_path(run_all_cfg.get("result_jsonl", "rebuttal/outputs/E0_run_all_results.jsonl"))
+    output_preview_char_limit = int(run_all_cfg.get("output_preview_char_limit", 20000))
+    output_include_suffixes = run_all_cfg.get("output_include_suffixes", [".csv", ".json", ".md"])
+    if not isinstance(output_include_suffixes, list):
+        output_include_suffixes = [".csv", ".json", ".md"]
+    output_include_suffixes = [str(x).lower() for x in output_include_suffixes]
 
     project_root = resolve_project_path(".")
 
@@ -120,7 +167,9 @@ def run_all() -> int:
         LOGGER.debug("%s 输入检查: %s", spec.exp_id, inputs_status)
 
         proc = subprocess.run(cmd, cwd=project_root, env=env, text=True, capture_output=True)
-        log_path.write_text((proc.stdout or "") + "\n\n# STDERR\n" + (proc.stderr or ""), encoding="utf-8")
+        log_text = (proc.stdout or "") + "\n\n# STDERR\n" + (proc.stderr or "")
+        log_path.write_text(log_text, encoding="utf-8")
+        llm_signal = _detect_llm_signal(log_text)
 
         after = _collect_files(out_dir)
         created = sorted(after - before)
@@ -140,6 +189,8 @@ def run_all() -> int:
             "stderr_lines": len((proc.stderr or "").splitlines()),
             "log_file": str(log_path.relative_to(project_root)),
             "io_logged": bool(proc.stdout or proc.stderr),
+            "llm_signal_detected": llm_signal["detected"],
+            "llm_signal_keywords": llm_signal["keywords"],
         }
         records.append(record)
 
@@ -164,6 +215,7 @@ def run_all() -> int:
         f"- failed: {failed}",
         f"- outputs_dir: `{out_dir}`",
         f"- result_jsonl: `{result_jsonl_path}`",
+        f"- output_md: `{output_md_path}`",
         f"- logs_dir: `{logs_dir}`",
         "",
         "## Overall New Output Files",
@@ -179,6 +231,8 @@ def run_all() -> int:
             f"- io_logged(stdout/stderr): `{rec['io_logged']}`",
             f"- stdout_lines: `{rec['stdout_lines']}`, stderr_lines: `{rec['stderr_lines']}`",
             f"- log_file: `{rec['log_file']}`",
+            f"- llm_signal_detected: `{rec['llm_signal_detected']}`",
+            f"- llm_signal_keywords: `{', '.join(rec['llm_signal_keywords']) if rec['llm_signal_keywords'] else "(none)"}`",
             "- inputs:",
         ])
         for item in rec["inputs"]:
@@ -195,6 +249,41 @@ def run_all() -> int:
 
     summary_md_path.write_text("\n".join(lines), encoding="utf-8")
     LOGGER.debug("汇总文件已写入: %s", summary_md_path)
+
+    output_lines = [
+        "# E0 Run All Output Details",
+        "",
+        f"- generated_by: `src/rebuttal/scripts/E0_run_all.py`",
+        f"- output_preview_char_limit: `{output_preview_char_limit}`",
+        "",
+    ]
+
+    for rec in records:
+        exp_id = rec["exp_id"]
+        if exp_id == "E0":
+            continue
+        output_lines.extend([f"## {exp_id}", ""])
+        exp_files = _collect_experiment_output_files(out_dir, exp_id, output_include_suffixes)
+        if not exp_files:
+            output_lines.append("(no output files found)")
+            output_lines.append("")
+            continue
+        for file_path in exp_files:
+            rel = file_path.relative_to(project_root)
+            output_lines.extend([
+                f"### 源文件: `{rel.name}`",
+                "",
+                f"- 路径: `{rel}`",
+                f"- 文件大小(bytes): `{file_path.stat().st_size}`",
+                "",
+                "```text",
+                _read_text_preview(file_path, output_preview_char_limit).rstrip("\n"),
+                "```",
+                "",
+            ])
+
+    output_md_path.write_text("\n".join(output_lines), encoding="utf-8")
+    LOGGER.debug("详细输出汇总已写入: %s", output_md_path)
 
     return 1 if failed else 0
 
