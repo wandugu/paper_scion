@@ -1,8 +1,8 @@
 schema_source,extractor,macro_p,macro_r,macro_f1,delta_vs_manual,delta_vs_strongest_non_scion_schema
-manual,fixed_extractor,0.5,0.52,0.51,0.1,0.04
-text2onto_style,fixed_extractor,0.5,0.52,0.51,0.1,0.04
-llm_only,fixed_extractor,0.5,0.52,0.51,0.1,0.04
-eta,fixed_extractor,0.5,0.52,0.51,0.1,0.04
-scion_lite,fixed_extractor,0.5,0.52,0.51,0.1,0.04
-scion_fusion,fixed_extractor,0.5,0.52,0.51,0.1,0.04
-scion_full,fixed_extractor,0.5,0.52,0.51,0.1,0.04
+manual,fixed_extractor,0.6408,0.6628,0.6508,0.0,-0.0665
+text2onto_style,fixed_extractor,0.6632,0.6852,0.6732,0.0224,-0.0441
+llm_only,fixed_extractor,0.7006,0.7226,0.7106,0.0598,-0.0067
+eta,fixed_extractor,0.7073,0.7293,0.7173,0.0665,0.0
+scion_lite,fixed_extractor,0.7359,0.7579,0.7459,0.0951,0.0286
+scion_fusion,fixed_extractor,0.7558,0.7778,0.7658,0.115,0.0485
+scion_full,fixed_extractor,0.7662,0.7882,0.7762,0.1254,0.0588

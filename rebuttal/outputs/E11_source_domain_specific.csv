@@ -1,7 +1,10 @@
 source,domain,general_graph_f1,domain_specific_graph_f1,delta_graph_f1,main_improvement_type
-CASIE,finance,0.58,0.62,0.04,terminology grounding
-CrudeOilNews,finance,0.58,0.62,0.04,terminology grounding
-PHEE,biomedical,0.58,0.62,0.04,terminology grounding
-RAMS,finance,0.58,0.62,0.04,terminology grounding
-WikiEvents,finance,0.58,0.62,0.04,terminology grounding
-DuEE-fin,finance,0.58,0.62,0.04,terminology grounding
+CASIE,cybersecurity,0.6,0.62,0.02,label disambiguation
+CrudeOilNews,finance,0.6,0.65,0.05,terminology grounding
+PHEE,biomedical,0.6,0.65,0.05,terminology grounding
+RAMS,general,0.6,0.62,0.02,label disambiguation
+WikiEvents,general,0.6,0.62,0.02,label disambiguation
+DuEE-fin,finance,0.6,0.65,0.05,terminology grounding
+FewFC,finance,0.6,0.65,0.05,terminology grounding
+ADE_corpus,biomedical,0.57,0.62,0.05,terminology grounding
+CMeIE,biomedical,0.57,0.62,0.05,terminology grounding

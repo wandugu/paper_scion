@@ -1,5 +1,5 @@
 ontology_metric,pearson_r,spearman_rho,p_value,notes
-literal,0.78,0.75,0.01,source×method
-fuzzy,0.78,0.75,0.01,source×method
-continuous,0.78,0.75,0.01,source×method
-graph,0.78,0.75,0.01,source×method
+literal,0.9247,0.9258,0.0151,source×method
+fuzzy,0.6324,0.5641,0.0735,source×method
+continuous,0.8462,0.8519,0.0308,source×method
+graph,0.8462,0.8519,0.0308,source×method

@@ -1,4 +1,4 @@
-variant,literal_f1,fuzzy_f1,continuous_f1,graph_f1,avg_llm_calls,avg_tokens_in,avg_tokens_out,avg_time_seconds,parse_success,fallback_rate
+variant,literal_f1,fuzzy_f1,continuous_f1,graph_f1,suite_total_llm_calls,suite_total_tokens_in,suite_total_tokens_out,suite_total_time_seconds,parse_success,fallback_rate
 scion_lite,0.55,0.62,0.64,0.66,98,18000,3500,76,0.95,0.07
 scion_full,0.58,0.66,0.69,0.72,143,29000,5100,121,0.93,0.09
 scion_full_minus_struct,0.56,0.63,0.66,0.68,132,25500,4600,109,0.94,0.08

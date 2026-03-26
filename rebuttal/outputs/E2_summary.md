@@ -18,7 +18,7 @@
 
 ## key findings
 - 不同 target_variant 排序稳定性已输出
-- official/manual gap 给出可解释原因
+- manual gap 改为 source-specific 审计
 
 ## Suggested rebuttal sentence
 优势在多种规范化设定下保持一致，manual/official 的主要差距来自表示不对齐。

@@ -17,7 +17,7 @@
 
 ## key findings
 - ETA 基线已纳入
-- sourcewise 对比已导出
+- 成本列显式标注为 suite_total_*
 
 ## Suggested rebuttal sentence
 加入 ETA 强基线后，SCION-lite 在结构相关指标上仍保持优势。

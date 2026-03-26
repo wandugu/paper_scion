@@ -1,4 +1,4 @@
 fusion_method,equivalent_count,broader_count,narrower_count,related_count,rejected_count,demoted_to_extension_count
-traditional_matcher_approx,320,110,90,181,290,35
-llm_pairwise_matcher,320,110,90,181,290,35
-scion_fusion,320,110,90,181,290,35
+traditional_lexical_embedding_matcher,426,139,98,157,4180,41
+llm_pairwise_matcher,340,133,96,171,4260,37
+scion_fusion,287,133,98,183,4299,35

@@ -114,17 +114,34 @@ def load_schema_edges(schema_path: Path) -> List[tuple]:
     edges = []
     for edge in payload:
         if edge.get("edge_kind") == "re":
+            head_type = (
+                edge.get("head_type")
+                or edge.get("head_entity")
+                or edge.get("subject_type")
+                or edge.get("subj_type")
+                or "entity"
+            )
+            rel_type = edge.get("rel_type") or edge.get("predicate") or edge.get("relation") or ""
+            tail_type = (
+                edge.get("tail_type")
+                or edge.get("tail_entity")
+                or edge.get("object_type")
+                or edge.get("obj_type")
+                or "entity"
+            )
             edges.append((
                 "re",
-                str(edge.get("head_type", "")).lower(),
-                str(edge.get("rel_type", "")).lower(),
-                str(edge.get("tail_type", "")).lower(),
+                str(head_type).lower(),
+                str(rel_type).lower(),
+                str(tail_type).lower(),
             ))
         elif edge.get("edge_kind") == "ee":
+            evt_type = edge.get("event_type") or edge.get("event") or ""
+            role = edge.get("role") or edge.get("arg_role") or edge.get("argument_role") or ""
             edges.append((
                 "ee",
-                str(edge.get("event_type", "")).lower(),
-                str(edge.get("role", "")).lower(),
+                str(evt_type).lower(),
+                str(role).lower(),
             ))
     return sorted(set(edges))
 
@@ -147,18 +164,23 @@ def load_train_reachable_edges(source: SourceInfo) -> List[tuple]:
                 continue
 
             for rel in item.get("relations", []) or []:
+                head = rel.get("head", {}) if isinstance(rel.get("head"), dict) else {}
+                tail = rel.get("tail", {}) if isinstance(rel.get("tail"), dict) else {}
+                head_type = rel.get("head_type") or head.get("type") or rel.get("head_entity") or "entity"
+                rel_type = rel.get("rel_type") or rel.get("predicate") or rel.get("relation") or ""
+                tail_type = rel.get("tail_type") or tail.get("type") or rel.get("tail_entity") or "entity"
                 edges.add((
                     "re",
-                    str(rel.get("head_type", "")).lower(),
-                    str(rel.get("rel_type", "")).lower(),
-                    str(rel.get("tail_type", "")).lower(),
+                    str(head_type).lower(),
+                    str(rel_type).lower(),
+                    str(tail_type).lower(),
                 ))
 
-            evt_type = ""
             for evt in item.get("events", []) or []:
                 evt_type = str(evt.get("event_type", "")).lower()
                 for arg in evt.get("arguments", []) or []:
-                    edges.add(("ee", evt_type, str(arg.get("role", "")).lower()))
+                    role = arg.get("role") or arg.get("arg_role") or arg.get("name") or ""
+                    edges.add(("ee", evt_type, str(role).lower()))
 
     return sorted(edges)
 
@@ -245,6 +267,10 @@ def perturb_edges(edges: Sequence[tuple], method: str, seed: int | None = None) 
 def macro_avg(rows: Sequence[dict], key: str) -> float:
     vals = [float(r.get(key, 0.0)) for r in rows]
     return sum(vals) / len(vals) if vals else 0.0
+
+
+def safe_div(numerator: float, denominator: float) -> float:
+    return numerator / denominator if denominator else 0.0
 
 
 def paired_pvalue(deltas: Sequence[float]) -> float:

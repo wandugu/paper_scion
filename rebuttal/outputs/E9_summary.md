@@ -17,7 +17,7 @@
 
 ## key findings
 - SFT/RL 指标对比可审计
-- 奖励项消融可复核
+- 奖励项消融按 term 差异化输出
 
 ## Suggested rebuttal sentence
 RL 变体在结构约束与有效输出方面表现更优。
