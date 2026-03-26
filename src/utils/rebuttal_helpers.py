@@ -79,13 +79,22 @@ def write_csv(path: Path, rows: Sequence[dict], headers: Sequence[str]) -> None:
             writer.writerow({h: row.get(h, "") for h in headers})
 
 
+_SOURCE_INFOS_CACHE: List[SourceInfo] | None = None
+
+
 def source_infos() -> List[SourceInfo]:
+    global _SOURCE_INFOS_CACHE
+    if _SOURCE_INFOS_CACHE is not None:
+        LOGGER.debug("复用已缓存的 SCOPE source 列表，数量=%s", len(_SOURCE_INFOS_CACHE))
+        return list(_SOURCE_INFOS_CACHE)
+
     base = scope_subsets_dir()
     infos: List[SourceInfo] = []
     LOGGER.debug("扫描 SCOPE 子集目录: %s", base)
     if not base.exists():
         LOGGER.warning("SCOPE 子集目录不存在: %s", base)
-        return infos
+        _SOURCE_INFOS_CACHE = []
+        return []
 
     for ds_dir in sorted(base.iterdir()):
         if not ds_dir.is_dir() or not (ds_dir / "schema.json").exists():
@@ -96,7 +105,8 @@ def source_infos() -> List[SourceInfo]:
         _, task, lang, source = parts
         infos.append(SourceInfo(source_id=source, task_type=task, language=lang, path=ds_dir))
     LOGGER.debug("扫描完成，source 数量=%s", len(infos))
-    return infos
+    _SOURCE_INFOS_CACHE = infos
+    return list(infos)
 
 
 def load_schema_edges(schema_path: Path) -> List[tuple]:
