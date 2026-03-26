@@ -1403,3 +1403,86 @@ rebuttal:
     scion_fusion: 0.86
     scion_full: 0.89
     scion_rl: 0.91
+  run_all:
+    logs_dir: rebuttal/outputs/run_logs
+    result_jsonl: rebuttal/outputs/E0_run_all_results.jsonl
+    summary_md: rebuttal/outputs/E0_run_all_summary.md
+    scripts:
+      - id: E0
+        script: src/rebuttal/scripts/E0_phase0_setup.py
+        inputs:
+          - data/scope/subsets
+        expected_outputs:
+          - rebuttal/outputs/E0_environment.json
+      - id: E1
+        script: src/rebuttal/scripts/E1_run_reachable_eval.py
+        inputs:
+          - data/scope/subsets
+        expected_outputs:
+          - rebuttal/outputs/E1_main_metrics.csv
+      - id: E2
+        script: src/rebuttal/scripts/E2_run_normalization_sensitivity.py
+        inputs:
+          - data/scope/subsets
+        expected_outputs:
+          - rebuttal/outputs/E2_target_variant_metrics.csv
+      - id: E3
+        script: src/rebuttal/scripts/E3_run_eta_baseline.py
+        inputs:
+          - data/scope/subsets
+        expected_outputs:
+          - rebuttal/outputs/E3_main_baseline_comparison.csv
+      - id: E4
+        script: src/rebuttal/scripts/E4_run_downstream_eval.py
+        inputs:
+          - data/scope/subsets
+        expected_outputs:
+          - rebuttal/outputs/E4_downstream_main.csv
+      - id: E5
+        script: src/rebuttal/scripts/E5_run_contamination_probes.py
+        inputs:
+          - data/scope/subsets
+        expected_outputs:
+          - rebuttal/outputs/E5_probe_results.csv
+      - id: E6
+        script: src/rebuttal/scripts/E6_run_fusion_baselines.py
+        inputs:
+          - data/scope/subsets
+        expected_outputs:
+          - rebuttal/outputs/E6_fusion_main.csv
+      - id: E7
+        script: src/rebuttal/scripts/E7_prepare_metric_human_calibration.py
+        inputs:
+          - data/scope/subsets
+        expected_outputs:
+          - rebuttal/outputs/E7_annotation_packet.csv
+      - id: E8
+        script: src/rebuttal/scripts/E8_run_noise_polysemy_encoder.py
+        inputs:
+          - data/scope/subsets
+        expected_outputs:
+          - rebuttal/outputs/E8_noise_robustness.csv
+      - id: E9
+        script: src/rebuttal/scripts/E9_run_scion_rl_ablation.py
+        inputs:
+          - data/scope/subsets
+        expected_outputs:
+          - rebuttal/outputs/E9_sft_vs_rl.csv
+      - id: E10
+        script: src/rebuttal/scripts/E10_run_lite_full_tradeoff.py
+        inputs:
+          - data/scope/subsets
+        expected_outputs:
+          - rebuttal/outputs/E10_lite_full_main.csv
+      - id: E11
+        script: src/rebuttal/scripts/E11_run_domain_specific_engineer.py
+        inputs:
+          - data/scope/subsets
+        expected_outputs:
+          - rebuttal/outputs/E11_domain_specific_main.csv
+      - id: E12
+        script: src/rebuttal/scripts/E12_run_inter_event_pilot.py
+        inputs:
+          - data/scope/subsets
+        expected_outputs:
+          - rebuttal/outputs/E12_inter_event_main.csv
