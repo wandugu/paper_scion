@@ -1403,6 +1403,10 @@ rebuttal:
       scion_full: { keep: 0.88, support: 0.37, noise: 0.06 }
       scion_rl: { keep: 0.90, support: 0.40, noise: 0.05 }
     e5_popular_sources: [GIDS, NYT11, SemEval2010_task8, WikiEvents, RAMS, CMeIE, duIE_zh, conll04]
+    e1_reachability_warn_threshold: 0.2
+    e1_audit_sources: [GIDS, New-York-Times-RE, WikiEvents, IPRE, COAE2016]
+    e7_annotation_pair_count: 240
+    e7_max_pairs_per_source: 16
     e11_domain_map:
       biomedical: [ADE_corpus, CMeIE, PHEE]
       finance: [CrudeOilNews, DuEE-fin, FewFC]
