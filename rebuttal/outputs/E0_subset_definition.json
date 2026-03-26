@@ -6,28 +6,28 @@
       "task_type": "re",
       "language": "en",
       "schema_edge_count": 1,
-      "reachable_edge_count": 0
+      "reachable_edge_count": 1
     },
     {
       "source": "instructIE_en",
       "task_type": "re",
       "language": "en",
-      "schema_edge_count": 90,
-      "reachable_edge_count": 0
+      "schema_edge_count": 116,
+      "reachable_edge_count": 103
     },
     {
       "source": "COAE2016",
       "task_type": "re",
       "language": "zh",
       "schema_edge_count": 18,
-      "reachable_edge_count": 0
+      "reachable_edge_count": 9
     },
     {
       "source": "instructIE_zh",
       "task_type": "re",
       "language": "zh",
-      "schema_edge_count": 89,
-      "reachable_edge_count": 0
+      "schema_edge_count": 115,
+      "reachable_edge_count": 98
     },
     {
       "source": "PHEE",

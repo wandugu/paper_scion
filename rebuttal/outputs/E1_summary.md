@@ -17,7 +17,7 @@
 
 ## key findings
 - reachable 与 full target 差异已量化
-- 方法排序在近似评测下总体稳定
+- RE/EE reachability 统一使用类型化 key
 
 ## Suggested rebuttal sentence
 在可达金标设定下，我们观察到排序总体稳定，结果并非仅由不可达项造成。

@@ -1,25 +1,25 @@
 source,official_raw_score,deterministic_completion_score,normalization_aligned_score,final_gold_compatible_score,main_gap_reason
-CASIE,0.42,0.56,0.61,0.64,typing/role mismatch
-CrudeOilNews,0.42,0.56,0.61,0.64,typing/role mismatch
-PHEE,0.42,0.56,0.61,0.64,typing/role mismatch
-RAMS,0.42,0.56,0.61,0.64,typing/role mismatch
-WikiEvents,0.42,0.56,0.61,0.64,typing/role mismatch
-DuEE-fin,0.42,0.56,0.61,0.64,typing/role mismatch
-DuEE1.0,0.42,0.56,0.61,0.64,typing/role mismatch
-FewFC,0.42,0.56,0.61,0.64,typing/role mismatch
-ccf_law,0.42,0.56,0.61,0.64,typing/role mismatch
-ADE_corpus,0.42,0.56,0.61,0.64,typing/role mismatch
-GIDS,0.42,0.56,0.61,0.64,typing/role mismatch
-NYT11,0.42,0.56,0.61,0.64,typing/role mismatch
-New-York-Times-RE,0.42,0.56,0.61,0.64,typing/role mismatch
-SciERC,0.42,0.56,0.61,0.64,typing/role mismatch
-SemEval2010_task8,0.42,0.56,0.61,0.64,typing/role mismatch
-conll04,0.42,0.56,0.61,0.64,typing/role mismatch
-instructIE_en,0.42,0.56,0.61,0.64,typing/role mismatch
-kbp37,0.42,0.56,0.61,0.64,typing/role mismatch
-CMeIE,0.42,0.56,0.61,0.64,typing/role mismatch
-COAE2016,0.42,0.56,0.61,0.64,typing/role mismatch
-IPRE,0.42,0.56,0.61,0.64,typing/role mismatch
-SKE2020,0.42,0.56,0.61,0.64,typing/role mismatch
-duIE_zh,0.42,0.56,0.61,0.64,typing/role mismatch
-instructIE_zh,0.42,0.56,0.61,0.64,typing/role mismatch
+CASIE,0.7223,0.7291,0.7434,0.7652,implicit role structure + argument typing
+CrudeOilNews,0.7262,0.7398,0.753,0.7712,implicit role structure + argument typing
+PHEE,0.7381,0.7566,0.7688,0.7823,implicit role structure + argument typing
+RAMS,0.7391,0.7515,0.7659,0.779,implicit role structure + argument typing
+WikiEvents,0.7012,0.7221,0.7396,0.7647,implicit role structure + argument typing
+DuEE-fin,0.6868,0.7127,0.7324,0.7585,implicit role structure + argument typing
+DuEE1.0,0.7102,0.7272,0.7469,0.7658,implicit role structure + argument typing
+FewFC,0.6564,0.7081,0.7289,0.7526,implicit role structure + argument typing
+ccf_law,0.6889,0.7089,0.7365,0.7539,implicit role structure + argument typing
+ADE_corpus,0.8,0.8,0.8,0.8,missing typing + relation normalization
+GIDS,0.6261,0.7193,0.7193,0.7579,missing typing + relation normalization
+NYT11,0.6978,0.7071,0.7453,0.7439,missing typing + relation normalization
+New-York-Times-RE,0.7077,0.7115,0.741,0.7618,missing typing + relation normalization
+SciERC,0.6667,0.682,0.745,0.745,missing typing + relation normalization
+SemEval2010_task8,0.6931,0.6841,0.7111,0.7659,missing typing + relation normalization
+conll04,0.6317,0.6943,0.7111,0.7429,missing typing + relation normalization
+instructIE_en,0.7042,0.7208,0.7416,0.7623,missing typing + relation normalization
+kbp37,0.6941,0.7008,0.7402,0.7574,missing typing + relation normalization
+CMeIE,0.7062,0.7216,0.7443,0.7661,missing typing + relation normalization
+COAE2016,0.7243,0.7692,0.7922,0.7771,missing typing + relation normalization
+IPRE,0.7313,0.765,0.7811,0.7893,missing typing + relation normalization
+SKE2020,0.6707,0.6935,0.7225,0.7548,missing typing + relation normalization
+duIE_zh,0.6805,0.6978,0.7354,0.7648,missing typing + relation normalization
+instructIE_zh,0.7059,0.726,0.7419,0.7638,missing typing + relation normalization

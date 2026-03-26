@@ -1392,6 +1392,12 @@ rebuttal:
   outputs_dir: rebuttal/outputs
   scope_subsets_dir: data/scope/subsets
   seed: 42
+  experiment_settings:
+    e11_domain_map:
+      biomedical: [ADE_corpus, CMeIE, PHEE]
+      finance: [CrudeOilNews, DuEE-fin, FewFC]
+      cybersecurity: [CASIE]
+      general: [RAMS, WikiEvents]
   fuzzy_threshold: 0.6
   graph_scale: 0.8
   method_keep_ratio:

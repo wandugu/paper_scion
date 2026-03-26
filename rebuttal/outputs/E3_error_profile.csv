@@ -1,4 +1,4 @@
 method,type_explosion_rate,alias_duplication_rate,unsupported_item_rate,avg_pred_item_count,avg_evidence_density
-llm_only,0.08,0.07,0.05,180,0.62
-eta,0.08,0.07,0.05,180,0.62
-scion_lite,0.08,0.07,0.05,180,0.62
+llm_only,0.0906,0.0729,0.0553,51.58,0.7109
+eta,0.0907,0.073,0.0553,52.58,0.7106
+scion_lite,0.0883,0.0712,0.0541,56.67,0.7176

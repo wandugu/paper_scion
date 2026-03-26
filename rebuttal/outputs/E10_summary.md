@@ -17,7 +17,7 @@
 
 ## key findings
 - 性能-成本对比完成
-- train fraction 曲线已输出
+- 成本列显式标注为 suite_total_*
 
 ## Suggested rebuttal sentence
 SCION-lite 在低成本下提供稳定性能，是实用默认。

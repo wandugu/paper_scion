@@ -17,7 +17,7 @@
 
 ## key findings
 - 固定 extractor 下完成 schema_source 对比
-- 相关性统计已输出
+- 相关性由真实 source×method pairing 计算
 
 ## Suggested rebuttal sentence
 本体级指标与下游抽取性能存在稳定正相关。

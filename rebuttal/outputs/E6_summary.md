@@ -4,7 +4,7 @@
 - fusion baseline comparison
 
 ## methods compared
-- traditional_matcher_approx,llm_pairwise_matcher,scion_fusion
+- traditional_lexical_embedding_matcher,llm_pairwise_matcher,scion_fusion
 
 ## dataset scope
 - fixed candidate budget
@@ -17,7 +17,7 @@
 
 ## key findings
 - 三种融合方法同预算对比完成
-- mapping audit 文件已输出
+- mapping type distribution 按方法独立统计
 
 ## Suggested rebuttal sentence
 在同预算下，SCION fusion 具备更好的精度-冲突率折中。
