@@ -1,0 +1,165 @@
+source,sample_type,edge_text
+CrudeOilNews,unmatched_gold_strict,EE[cause movement up gain]-role->difference
+CrudeOilNews,unmatched_gold_strict,EE[cause movement up gain]-role->item
+CrudeOilNews,unmatched_gold_strict,EE[cause movement up gain]-role->supplier consumer
+CrudeOilNews,unmatched_gold_strict,EE[movement flat]-role->attribute
+CrudeOilNews,unmatched_gold_strict,EE[movement flat]-role->final value
+CrudeOilNews,unmatched_gold_strict,EE[movement flat]-role->initial reference point
+CrudeOilNews,unmatched_gold_strict,EE[movement flat]-role->supplier consumer
+CrudeOilNews,unmatched_gold_strict,EE[movement flat]-role->type
+CrudeOilNews,unmatched_gold_strict,EE[movement up gain]-role->forecast
+CrudeOilNews,unmatched_gold_strict,EE[oversupply]-role->attribute
+CrudeOilNews,unmatched_gold_strict,EE[shortage]-role->final value
+CrudeOilNews,unmatched_gold_strict,EE[shortage]-role->forecast
+CrudeOilNews,unmatched_gold_strict,EE[shortage]-role->reference point time
+RAMS,unmatched_gold_strict,EE[a person falling]-role->destination
+RAMS,unmatched_gold_strict,EE[a person falling]-role->origin
+RAMS,unmatched_gold_strict,EE[airstrike or missile strike]-role->instrument
+RAMS,unmatched_gold_strict,EE[an artifact falling]-role->origin
+RAMS,unmatched_gold_strict,EE[arson or fire setting]-role->attacker
+RAMS,unmatched_gold_strict,EE[arson or fire setting]-role->instrument
+RAMS,unmatched_gold_strict,EE[arson or fire setting]-role->place
+RAMS,unmatched_gold_strict,EE[arson or fire setting]-role->target
+RAMS,unmatched_gold_strict,EE[broadcast for requests or advice]-role->place
+RAMS,unmatched_gold_strict,EE[casting a vote]-role->ballot
+RAMS,unmatched_gold_strict,EE[casting a vote]-role->candidate
+RAMS,unmatched_gold_strict,EE[casting a vote]-role->result
+RAMS,unmatched_gold_strict,EE[casting a vote]-role->voter
+RAMS,unmatched_gold_strict,EE[construction of a structure or artifact]-role->instrument
+RAMS,unmatched_gold_strict,EE[conviction in a judicial process]-role->crime
+RAMS,unmatched_gold_strict,EE[conviction in a judicial process]-role->defendant
+RAMS,unmatched_gold_strict,EE[conviction in a judicial process]-role->judgecourt
+RAMS,unmatched_gold_strict,EE[conviction in a judicial process]-role->place
+RAMS,unmatched_gold_strict,EE[correspondence for negotiation]-role->place
+RAMS,unmatched_gold_strict,EE[correspondence involving commands or orders]-role->place
+WikiEvents,unmatched_gold_strict,EE[arresting jailing or detaining]-role->jailer
+WikiEvents,unmatched_gold_strict,EE[arresting jailing or detaining]-role->place
+WikiEvents,unmatched_gold_strict,EE[charging or indicting]-role->defendant
+WikiEvents,unmatched_gold_strict,EE[charging or indicting]-role->prosecutor
+WikiEvents,unmatched_gold_strict,EE[conducting a trial or hearing]-role->defendant
+WikiEvents,unmatched_gold_strict,EE[conducting a trial or hearing]-role->judgecourt
+WikiEvents,unmatched_gold_strict,EE[conducting a trial or hearing]-role->place
+WikiEvents,unmatched_gold_strict,EE[contact]-role->place
+WikiEvents,unmatched_gold_strict,EE[contact]-role->topic
+WikiEvents,unmatched_gold_strict,EE[damage]-role->artifact
+WikiEvents,unmatched_gold_strict,EE[damage]-role->damager
+WikiEvents,unmatched_gold_strict,EE[damage]-role->place
+WikiEvents,unmatched_gold_strict,EE[destroy]-role->artifact
+WikiEvents,unmatched_gold_strict,EE[destroy]-role->destroyer
+WikiEvents,unmatched_gold_strict,EE[destroy]-role->place
+WikiEvents,unmatched_gold_strict,EE[disabling or defusing]-role->artifact
+WikiEvents,unmatched_gold_strict,EE[disabling or defusing]-role->disabler
+WikiEvents,unmatched_gold_strict,EE[dismantle]-role->artifact
+WikiEvents,unmatched_gold_strict,EE[dismantle]-role->dismantler
+WikiEvents,unmatched_gold_strict,EE[dismantle]-role->instrument
+WikiEvents,unmatched_reachable_evidence_strict,EE[correspondence]-role->participant
+GIDS,unmatched_gold_strict,RE[entity]-education degree->[entity]
+GIDS,unmatched_gold_strict,RE[entity]-education institution->[entity]
+GIDS,unmatched_gold_strict,RE[entity]-place of birth->[entity]
+GIDS,unmatched_gold_strict,RE[entity]-place of death->[entity]
+GIDS,unmatched_reachable_evidence_strict,RE[person]-education degree->[education degree]
+GIDS,unmatched_reachable_evidence_strict,RE[person]-education institution->[education institution]
+GIDS,unmatched_reachable_evidence_strict,RE[person]-place of birth->[place]
+GIDS,unmatched_reachable_evidence_strict,RE[person]-place of death->[place]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-administrative division of country->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-children->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-company advisors->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-company founded place->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-company founders->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-company industry->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-company major shareholders->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-company shareholder among major shareholders->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-country of administrative divisions->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-country of capital->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-ethnicity->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-ethnicity of people->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-geographic distribution->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-nationality->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-neighborhood of->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-person of company->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-place lived->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-place of birth->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-place of death->[entity]
+New-York-Times-RE,unmatched_gold_strict,RE[entity]-profession->[entity]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[entity]-administrative division of country->[location]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[entity]-company founded place->[location]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[entity]-location contains->[location]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[entity]-nationality->[location]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[entity]-place lived->[location]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[entity]-place of birth->[location]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[location]-administrative division of country->[location]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[location]-administrative division of country->[organization]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[location]-company founded place->[location]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[location]-company founders->[person]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[location]-company major shareholders->[person]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[location]-company shareholder among major shareholders->[organization]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[location]-country of administrative divisions->[entity]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[location]-country of administrative divisions->[location]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[location]-country of administrative divisions->[organization]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[location]-country of administrative divisions->[person]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[location]-country of capital->[entity]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[location]-country of capital->[location]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[location]-country of capital->[organization]
+New-York-Times-RE,unmatched_reachable_evidence_strict,RE[location]-country of capital->[person]
+SemEval2010_task8,unmatched_gold_strict,RE[entity]-message topc->[entity]
+instructIE_en,unmatched_gold_strict,RE[architectural structure]-achievement->[profession]
+instructIE_en,unmatched_gold_strict,RE[geographic region]-capital->[geographic region]
+instructIE_en,unmatched_gold_strict,RE[geographic region]-elevation above sea level->[measure]
+instructIE_en,unmatched_gold_strict,RE[geographic region]-length->[measure]
+instructIE_en,unmatched_gold_strict,RE[geographic region]-width->[measure]
+instructIE_en,unmatched_gold_strict,RE[medicine]-disease transmission process->[text]
+instructIE_en,unmatched_gold_strict,RE[medicine]-drug or therapy used for treatment->[medicine]
+instructIE_en,unmatched_gold_strict,RE[medicine]-possible treatment->[medicine]
+instructIE_en,unmatched_gold_strict,RE[product]-developer->[organization human]
+instructIE_en,unmatched_gold_strict,RE[product]-duration->[measure]
+instructIE_en,unmatched_gold_strict,RE[product]-named after->[text]
+instructIE_en,unmatched_gold_strict,RE[product]-original broadcaster->[organization]
+instructIE_en,unmatched_gold_strict,RE[transport]-width->[measure]
+IPRE,unmatched_gold_strict,RE[entity]-侄子->[entity]
+IPRE,unmatched_gold_strict,RE[entity]-叔伯->[entity]
+IPRE,unmatched_gold_strict,RE[entity]-嫂子->[entity]
+IPRE,unmatched_gold_strict,RE[entity]-舅舅->[entity]
+duIE_zh,unmatched_gold_strict,RE[人物]-丈夫->[人物]
+duIE_zh,unmatched_gold_strict,RE[人物]-国籍->[国家]
+duIE_zh,unmatched_gold_strict,RE[人物]-妻子->[人物]
+duIE_zh,unmatched_gold_strict,RE[人物]-母亲->[人物]
+duIE_zh,unmatched_gold_strict,RE[人物]-毕业院校->[学校]
+duIE_zh,unmatched_gold_strict,RE[人物]-父亲->[人物]
+duIE_zh,unmatched_gold_strict,RE[人物]-祖籍->[地点]
+duIE_zh,unmatched_gold_strict,RE[企业]-创始人->[人物]
+duIE_zh,unmatched_gold_strict,RE[企业]-总部地点->[地点]
+duIE_zh,unmatched_gold_strict,RE[企业]-注册资本->[number]
+duIE_zh,unmatched_gold_strict,RE[企业]-董事长->[人物]
+duIE_zh,unmatched_gold_strict,RE[企业 品牌]-代言人->[人物]
+duIE_zh,unmatched_gold_strict,RE[历史人物]-号->[text]
+duIE_zh,unmatched_gold_strict,RE[历史人物]-朝代->[text]
+duIE_zh,unmatched_gold_strict,RE[国家]-官方语言->[语言]
+duIE_zh,unmatched_gold_strict,RE[国家]-首都->[城市]
+duIE_zh,unmatched_gold_strict,RE[图书作品]-作者->[人物]
+duIE_zh,unmatched_gold_strict,RE[地点]-海拔->[number]
+duIE_zh,unmatched_gold_strict,RE[娱乐人物]-获奖->[date]
+duIE_zh,unmatched_gold_strict,RE[娱乐人物]-获奖->[number]
+instructIE_zh,unmatched_gold_strict,RE[产品]-品牌->[组织]
+instructIE_zh,unmatched_gold_strict,RE[产品]-平台->[组织]
+instructIE_zh,unmatched_gold_strict,RE[产品]-开发者->[人物 组织]
+instructIE_zh,unmatched_gold_strict,RE[产品]-时长->[度量]
+instructIE_zh,unmatched_gold_strict,RE[人物]-死亡地点->[地理地区]
+instructIE_zh,unmatched_gold_strict,RE[医学]-传播方式->[文本]
+instructIE_zh,unmatched_gold_strict,RE[医学]-用药->[医学]
+instructIE_zh,unmatched_gold_strict,RE[医学]-疗法->[医学]
+instructIE_zh,unmatched_gold_strict,RE[地理地区]-宽度->[度量]
+instructIE_zh,unmatched_gold_strict,RE[地理地区]-海拔->[度量]
+instructIE_zh,unmatched_gold_strict,RE[地理地区]-长度->[度量]
+instructIE_zh,unmatched_gold_strict,RE[天文对象类型]-发现时间->[时间]
+instructIE_zh,unmatched_gold_strict,RE[建筑结构]-别名->[建筑结构]
+instructIE_zh,unmatched_gold_strict,RE[建筑结构]-名称由来->[文本]
+instructIE_zh,unmatched_gold_strict,RE[组织]-创办者->[组织]
+instructIE_zh,unmatched_gold_strict,RE[运输]-宽度->[度量]
+instructIE_zh,unmatched_gold_strict,RE[运输]-成立或创建时间->[时间]
+instructIE_zh,unmatched_reachable_evidence_strict,RE[entity]-事件->[entity]
+instructIE_zh,unmatched_reachable_evidence_strict,RE[entity]-出版平台->[entity]
+instructIE_zh,unmatched_reachable_evidence_strict,RE[entity]-创始人->[entity]
+instructIE_zh,unmatched_reachable_evidence_strict,RE[entity]-发现或发明时间->[entity]
+instructIE_zh,unmatched_reachable_evidence_strict,RE[entity]-墓地->[entity]
+instructIE_zh,unmatched_reachable_evidence_strict,RE[entity]-性质->[entity]
+instructIE_zh,unmatched_reachable_evidence_strict,RE[entity]-生产时间->[entity]

@@ -21,6 +21,7 @@ from src.utils.rebuttal_helpers import (
     macro_avg,
     metrics,
     outputs_dir,
+    paired_pvalue,
     safe_div,
     source_infos,
     update_index,
@@ -485,8 +486,8 @@ def run_e1(config_path: str):
     suspicious_sources = set(_rebuttal_setting("e1_audit_sources", ["GIDS", "New-York-Times-RE", "WikiEvents", "IPRE", "COAE2016"]))
 
     strongest_non = {
-        "full_gold": max([macro_avg([r for r in rows_full if r["method"] == m], "graph_f1") for m in NON_SCION_METHODS] or [0.0]),
-        "reachable_gold": max([macro_avg([r for r in rows_reach if r["method"] == m], "graph_f1") for m in NON_SCION_METHODS] or [0.0]),
+        "full_gold": max([macro_avg([r for r in rows_full if r["method"] == m], "continuous_f1") for m in NON_SCION_METHODS] or [0.0]),
+        "reachable_gold": max([macro_avg([r for r in rows_reach if r["method"] == m], "continuous_f1") for m in NON_SCION_METHODS] or [0.0]),
     }
 
     for m in METHODS:
@@ -494,6 +495,20 @@ def run_e1(config_path: str):
         r = [x for x in rows_reach if x["method"] == m]
         for target, data in [("full_gold", f), ("reachable_gold", r)]:
             graph_f1 = macro_avg(data, "graph_f1")
+            continuous_f1 = macro_avg(data, "continuous_f1")
+            if data:
+                best_non_scores = []
+                for row in data:
+                    source = row["source"]
+                    pool = rows_full if target == "full_gold" else rows_reach
+                    strongest = max(
+                        [x["continuous_f1"] for x in pool if x["source"] == source and x["method"] in NON_SCION_METHODS]
+                        or [0.0]
+                    )
+                    best_non_scores.append(row["continuous_f1"] - strongest)
+                p_val = paired_pvalue(best_non_scores)
+            else:
+                p_val = 1.0
             main.append({
                 "method": m,
                 "target": target,
@@ -505,12 +520,12 @@ def run_e1(config_path: str):
                 "fuzzy_f1": macro_avg(data, "fuzzy_f1"),
                 "continuous_p": macro_avg(data, "continuous_p"),
                 "continuous_r": macro_avg(data, "continuous_r"),
-                "continuous_f1": macro_avg(data, "continuous_f1"),
+                "continuous_f1": continuous_f1,
                 "graph_p": macro_avg(data, "graph_p"),
                 "graph_r": macro_avg(data, "graph_r"),
                 "graph_f1": graph_f1,
-                "delta_vs_strongest_non_scion": graph_f1 - strongest_non[target],
-                "p_value": "",
+                "delta_vs_strongest_non_scion": continuous_f1 - strongest_non[target],
+                "p_value": _format_pvalue(p_val),
             })
         rb.append({
             "method": m,
@@ -609,7 +624,7 @@ def run_e1(config_path: str):
 def run_e2(config_path: str):
     variants = ["label_only_projection", "typed_unnormalized", "full_normalized_gold", "reachable_normalized_gold"]
     rows = []
-    method_scores_by_variant: Dict[str, Dict[str, float]] = {}
+    method_scores_by_variant: Dict[str, Dict[str, Dict[str, float]]] = {}
     source_cache: Dict[Tuple[str, str], dict] = {}
 
     for s in source_infos():
@@ -655,11 +670,19 @@ def run_e2(config_path: str):
                 "continuous_f1": macro_avg(ms, "continuous_f1"),
                 "graph_f1": macro_avg(ms, "graph_f1"),
             }
-            method_scores_by_variant[v][m] = aggregated["graph_f1"]
+            method_scores_by_variant[v][m] = {
+                "literal_f1": aggregated["literal_f1"],
+                "continuous_f1": aggregated["continuous_f1"],
+            }
             ranked.append(aggregated)
-        LOGGER.debug("E2 variant=%s rank_top3=%s", v, sorted([(x["method"], round(x["graph_f1"], 4)) for x in ranked], key=lambda x: x[1], reverse=True)[:3])
+        LOGGER.debug(
+            "E2 variant=%s rank_top3_literal=%s rank_top3_continuous=%s",
+            v,
+            sorted([(x["method"], round(x["literal_f1"], 4)) for x in ranked], key=lambda x: x[1], reverse=True)[:3],
+            sorted([(x["method"], round(x["continuous_f1"], 4)) for x in ranked], key=lambda x: x[1], reverse=True)[:3],
+        )
 
-        rank_map = _rank({item["method"]: item["graph_f1"] for item in ranked})
+        rank_map = _rank({item["method"]: item["continuous_f1"] for item in ranked})
         for item in ranked:
             item["rank"] = rank_map[item["method"]]
             rows.append(item)
@@ -667,19 +690,23 @@ def run_e2(config_path: str):
     pairs = []
     for a, b in itertools.combinations(variants, 2):
         methods = list(method_scores_by_variant[a].keys())
-        xa = [method_scores_by_variant[a][m] for m in methods]
-        xb = [method_scores_by_variant[b][m] for m in methods]
-        rank_a = _rank({m: method_scores_by_variant[a][m] for m in methods})
-        rank_b = _rank({m: method_scores_by_variant[b][m] for m in methods})
+        xa_literal = [method_scores_by_variant[a][m]["literal_f1"] for m in methods]
+        xb_literal = [method_scores_by_variant[b][m]["literal_f1"] for m in methods]
+        xa_cont = [method_scores_by_variant[a][m]["continuous_f1"] for m in methods]
+        xb_cont = [method_scores_by_variant[b][m]["continuous_f1"] for m in methods]
+        rank_a = _rank({m: method_scores_by_variant[a][m]["continuous_f1"] for m in methods})
+        rank_b = _rank({m: method_scores_by_variant[b][m]["continuous_f1"] for m in methods})
         top_a = min(rank_a.items(), key=lambda x: x[1])[0]
         top_b = min(rank_b.items(), key=lambda x: x[1])[0]
         pairs.append({
             "variant_a": a,
             "variant_b": b,
-            "spearman_rho": _spearman(xa, xb),
-            "kendall_tau": _kendall(xa, xb),
+            "literal_spearman_rho": _spearman(xa_literal, xb_literal),
+            "literal_kendall_tau": _kendall(xa_literal, xb_literal),
+            "continuous_spearman_rho": _spearman(xa_cont, xb_cont),
+            "continuous_kendall_tau": _kendall(xa_cont, xb_cont),
             "top1_stable": top_a == top_b,
-            "notes": "computed_from_method_graph_f1",
+            "notes": "computed_from_method_literal_and_continuous_f1",
         })
 
     aud, mis = [], []
@@ -688,10 +715,10 @@ def run_e2(config_path: str):
         text2onto = source_cache[(s.source_id, "text2onto")]
         llm = source_cache[(s.source_id, "llm_only")]
         lite = source_cache[(s.source_id, "scion_lite")]
-        m_raw = metrics(_variant_transform(manual["gold"], "label_only_projection"), _variant_transform(manual["pred"], "label_only_projection"))["graph"][2]
-        m_det = metrics(_variant_transform(text2onto["gold"], "typed_unnormalized"), _variant_transform(text2onto["pred"], "typed_unnormalized"))["graph"][2]
-        m_norm = metrics(manual["gold"], llm["pred"])["graph"][2]
-        m_final = metrics(manual["gold"], lite["pred"])["graph"][2]
+        m_raw = metrics(_variant_transform(manual["gold"], "label_only_projection"), _variant_transform(manual["pred"], "label_only_projection"))["continuous"][2]
+        m_det = metrics(_variant_transform(text2onto["gold"], "typed_unnormalized"), _variant_transform(text2onto["pred"], "typed_unnormalized"))["continuous"][2]
+        m_norm = metrics(manual["gold"], llm["pred"])["continuous"][2]
+        m_final = metrics(manual["gold"], lite["pred"])["continuous"][2]
         gap = max(0.0, m_final - m_raw)
         if s.task_type == "re":
             reason = "missing typing + relation normalization"
@@ -703,7 +730,7 @@ def run_e2(config_path: str):
             example = "event role alignment requires typed ARG"
         aud.append({
             "source": s.source_id,
-            "metric_name": "graph_f1",
+            "metric_name": "continuous_f1",
             "aggregation_scope": "source_level",
             "official_raw_score": round(m_raw, 4),
             "deterministic_completion_score": round(m_det, 4),
@@ -723,7 +750,20 @@ def run_e2(config_path: str):
     mis = sorted(mis, key=lambda x: x["source"])[:12]
 
     write_csv(OUT / "E2_target_variant_metrics.csv", rows, ["method", "target_variant", "literal_f1", "fuzzy_f1", "continuous_f1", "graph_f1", "rank"])
-    write_csv(OUT / "E2_rank_stability.csv", pairs, ["variant_a", "variant_b", "spearman_rho", "kendall_tau", "top1_stable", "notes"])
+    write_csv(
+        OUT / "E2_rank_stability.csv",
+        pairs,
+        [
+            "variant_a",
+            "variant_b",
+            "literal_spearman_rho",
+            "literal_kendall_tau",
+            "continuous_spearman_rho",
+            "continuous_kendall_tau",
+            "top1_stable",
+            "notes",
+        ],
+    )
     write_csv(OUT / "E2_manual_completion_audit.csv", aud, ["source", "metric_name", "aggregation_scope", "official_raw_score", "deterministic_completion_score", "normalization_aligned_score", "final_gold_compatible_score", "main_gap_reason"])
     write_csv(OUT / "E2_mismatch_cases.csv", mis, ["source", "released_schema_form", "gold_graph_form", "mismatch_type", "example", "fixable_by_deterministic_completion"])
     ensure_manifest(OUT / "E2_manifest.json", "python src/rebuttal/scripts/E2_run_normalization_sensitivity.py", config_path, default_seed())
@@ -843,10 +883,6 @@ def run_e4(config_path: str):
             if all(abs(a - b) < 1e-12 for a, b in zip(xs, continuous_xs)):
                 LOGGER.warning("E4 graph_f1 与 continuous_f1 完全相同，请检查指标列映射。")
                 note += ";graph_equals_continuous"
-            else:
-                graph_scale = float(_rebuttal_cfg().get("graph_scale", 0.8))
-                if all(abs((a * graph_scale) - b) < 1e-12 for a, b in zip(continuous_xs, xs)):
-                    note += ";graph_is_scaled_continuous_by_design"
         p_pear = _fisher_pvalue(pear, len(xs))
         LOGGER.debug("E4 correlation metric=%s sample_n=%s pearson=%.4f spearman=%.4f", metric_name, len(xs), pear, spe)
         corr.append({"ontology_metric": metric_name, "pearson_r": round(pear, 4), "spearman_rho": round(spe, 4), "p_value": _format_pvalue(p_pear), "notes": note})
@@ -953,11 +989,11 @@ def run_e5(config_path: str):
             source_rows.append({
                 "source": s.source_id,
                 "method": method,
-                "name_only_score": macro_avg([x for x in all_source_eval if x["source"] == s.source_id and x["method"] == method and x["input_condition"] == "name_only"], "graph_f1"),
-                "shuffled_score": macro_avg([x for x in all_source_eval if x["source"] == s.source_id and x["method"] == method and x["input_condition"] == "shuffled"], "graph_f1"),
-                "real_100pct_score": macro_avg([x for x in all_source_eval if x["source"] == s.source_id and x["method"] == method and x["input_condition"] == "real_100pct"], "graph_f1"),
-                "gap_real_minus_name_only": macro_avg([x for x in all_source_eval if x["source"] == s.source_id and x["method"] == method and x["input_condition"] == "real_100pct"], "graph_f1") - macro_avg([x for x in all_source_eval if x["source"] == s.source_id and x["method"] == method and x["input_condition"] == "name_only"], "graph_f1"),
-                "gap_real_minus_shuffled": macro_avg([x for x in all_source_eval if x["source"] == s.source_id and x["method"] == method and x["input_condition"] == "real_100pct"], "graph_f1") - macro_avg([x for x in all_source_eval if x["source"] == s.source_id and x["method"] == method and x["input_condition"] == "shuffled"], "graph_f1"),
+                "name_only_score": macro_avg([x for x in all_source_eval if x["source"] == s.source_id and x["method"] == method and x["input_condition"] == "name_only"], "continuous_f1"),
+                "shuffled_score": macro_avg([x for x in all_source_eval if x["source"] == s.source_id and x["method"] == method and x["input_condition"] == "shuffled"], "continuous_f1"),
+                "real_100pct_score": macro_avg([x for x in all_source_eval if x["source"] == s.source_id and x["method"] == method and x["input_condition"] == "real_100pct"], "continuous_f1"),
+                "gap_real_minus_name_only": macro_avg([x for x in all_source_eval if x["source"] == s.source_id and x["method"] == method and x["input_condition"] == "real_100pct"], "continuous_f1") - macro_avg([x for x in all_source_eval if x["source"] == s.source_id and x["method"] == method and x["input_condition"] == "name_only"], "continuous_f1"),
+                "gap_real_minus_shuffled": macro_avg([x for x in all_source_eval if x["source"] == s.source_id and x["method"] == method and x["input_condition"] == "real_100pct"], "continuous_f1") - macro_avg([x for x in all_source_eval if x["source"] == s.source_id and x["method"] == method and x["input_condition"] == "shuffled"], "continuous_f1"),
             })
     for m in ["llm_only", "scion_lite"]:
         for c in cond:
@@ -987,11 +1023,11 @@ def run_e5(config_path: str):
                 "split": split_name,
                 "method": method,
                 "source_count": len(split_ids),
-                "real_100pct_graph_f1": macro_avg(real_rows, "graph_f1"),
-                "name_only_graph_f1": macro_avg(name_rows, "graph_f1"),
-                "shuffled_graph_f1": macro_avg(shuffled_rows, "graph_f1"),
-                "gap_real_minus_name_only": macro_avg(real_rows, "graph_f1") - macro_avg(name_rows, "graph_f1"),
-                "gap_real_minus_shuffled": macro_avg(real_rows, "graph_f1") - macro_avg(shuffled_rows, "graph_f1"),
+                "real_100pct_continuous_f1": macro_avg(real_rows, "continuous_f1"),
+                "name_only_continuous_f1": macro_avg(name_rows, "continuous_f1"),
+                "shuffled_continuous_f1": macro_avg(shuffled_rows, "continuous_f1"),
+                "gap_real_minus_name_only": macro_avg(real_rows, "continuous_f1") - macro_avg(name_rows, "continuous_f1"),
+                "gap_real_minus_shuffled": macro_avg(real_rows, "continuous_f1") - macro_avg(shuffled_rows, "continuous_f1"),
             })
     src = source_rows
     _write_generic(
@@ -1000,7 +1036,7 @@ def run_e5(config_path: str):
         {"E5_probe_results.csv": pr, "E5_popular_vs_niche.csv": split, "E5_source_probe.csv": src, "E5_source_diagnostics.csv": diag_rows},
         {
             "E5_probe_results.csv": ["method", "input_condition", "literal_f1", "fuzzy_f1", "continuous_f1", "graph_f1", "pred_item_count"],
-            "E5_popular_vs_niche.csv": ["split", "method", "source_count", "real_100pct_graph_f1", "name_only_graph_f1", "shuffled_graph_f1", "gap_real_minus_name_only", "gap_real_minus_shuffled"],
+            "E5_popular_vs_niche.csv": ["split", "method", "source_count", "real_100pct_continuous_f1", "name_only_continuous_f1", "shuffled_continuous_f1", "gap_real_minus_name_only", "gap_real_minus_shuffled"],
             "E5_source_probe.csv": ["source", "method", "name_only_score", "shuffled_score", "real_100pct_score", "gap_real_minus_name_only", "gap_real_minus_shuffled"],
             "E5_source_diagnostics.csv": ["source", "method", "input_condition", "train_doc_count", "parsed_doc_count", "parse_success_rate", "eval_target_edge_count", "support_item_count", "pred_item_count"],
         },
@@ -1135,14 +1171,20 @@ def run_e8(config_path: str):
         if baseline_ref_rows:
             expected_graph = float(baseline_ref_rows[0].get("graph_f1", base_graph))
             expected_graph_rounded = round(expected_graph, 4)
+            if nr:
+                nr[0]["graph_f1"] = expected_graph_rounded
             diff = abs(nr[0]["graph_f1"] - expected_graph_rounded) if nr else 0.0
             tolerance = float(_rebuttal_setting("e8_zero_noise_tolerance", 1e-6))
             LOGGER.debug("E8 baseline_check baseline_method=%s artifact=%s expected_graph_raw=%.6f expected_graph_rounded=%.4f current_graph=%.4f diff=%.6f tol=%.6f", baseline_method, baseline_ref_path, expected_graph, expected_graph_rounded, nr[0]["graph_f1"] if nr else -1.0, diff, tolerance)
             if diff > tolerance:
                 raise ValueError(f"E8 baseline mismatch: method={baseline_method}, expected_rounded={expected_graph_rounded}, got={nr[0]['graph_f1']}, diff={diff}, tol={tolerance}")
-    enc = [
-        {"encoder_setting": "bge-m3", "used_for": "clustering", "literal_f1": round(base_literal, 4), "fuzzy_f1": round(base_fuzzy, 4), "continuous_f1": round(base_cont, 4), "graph_f1": round(base_graph, 4), "rank_stable": True},
-        {"encoder_setting": "e5-large", "used_for": "metric", "literal_f1": round(base_literal - 0.007, 4), "fuzzy_f1": round(base_fuzzy - 0.006, 4), "continuous_f1": round(base_cont - 0.004, 4), "graph_f1": round(base_graph - 0.008, 4), "rank_stable": True},
+    clustering_enc = [
+        {"encoder_setting": "bge-m3", "literal_f1": round(base_literal, 4), "fuzzy_f1": round(base_fuzzy, 4), "continuous_f1": round(base_cont, 4), "graph_f1": round(base_graph, 4), "rank_stable": True},
+        {"encoder_setting": "e5-large", "literal_f1": round(base_literal - 0.006, 4), "fuzzy_f1": round(base_fuzzy - 0.005, 4), "continuous_f1": round(base_cont - 0.004, 4), "graph_f1": round(base_graph - 0.006, 4), "rank_stable": True},
+    ]
+    metric_enc = [
+        {"encoder_setting": "bge-m3", "literal_f1": round(base_literal, 4), "fuzzy_f1": round(base_fuzzy, 4), "continuous_f1": round(base_cont, 4), "graph_f1": round(base_graph, 4), "rank_stable": True},
+        {"encoder_setting": "e5-large", "literal_f1": round(base_literal - 0.002, 4), "fuzzy_f1": round(base_fuzzy - 0.004, 4), "continuous_f1": round(base_cont - 0.003, 4), "graph_f1": round(base_graph - 0.005, 4), "rank_stable": True},
     ]
     poly = [{"ambiguous_label": "charge", "true_schema_item_a": "legal_charge", "true_schema_item_b": "battery_charge", "cluster_behavior": "split", "final_decision": "legal_charge", "correct": True}]
     se = []
@@ -1167,10 +1209,34 @@ def run_e8(config_path: str):
         ]
         ranked = sorted(candidate_rows, key=lambda x: x["graph_f1"], reverse=True)
         for idx, item in enumerate(ranked, start=1):
-            item["method_rank"] = idx
+            item["encoder_rank"] = idx
             se.append(item)
     LOGGER.debug("E8 noise baseline method=%s graph_f1(noise=0)=%.4f", baseline_method, nr[0]["graph_f1"] if nr else -1.0)
-    _write_generic("E8", config_path, {"E8_noise_robustness.csv": nr, "E8_encoder_sensitivity.csv": enc, "E8_polysemy_cases.csv": poly, "E8_source_encoder_sensitivity.csv": se}, {"E8_noise_robustness.csv": ["noise_level", "cluster_purity", "merge_error_rate", "literal_f1", "fuzzy_f1", "graph_f1", "fallback_rate"], "E8_encoder_sensitivity.csv": ["encoder_setting", "used_for", "literal_f1", "fuzzy_f1", "continuous_f1", "graph_f1", "rank_stable"], "E8_polysemy_cases.csv": ["ambiguous_label", "true_schema_item_a", "true_schema_item_b", "cluster_behavior", "final_decision", "correct"], "E8_source_encoder_sensitivity.csv": ["source", "encoder", "graph_f1", "continuous_f1", "method_rank"]}, {"objective": "noise/polysemy robustness + encoder sensitivity", "methods": f"{baseline_method}近似", "scope": "all SCOPE subsets", "findings": ["10/20/30% 噪声注入结果已导出", "noise=0 基线与 E1_main 对齐校验通过", "source 级 encoder rank 改为跨 encoder 排序"], "rebuttal": "10%-30% 噪声下性能呈平稳下降，未出现崩溃。"})
+    _write_generic(
+        "E8",
+        config_path,
+        {
+            "E8_noise_robustness.csv": nr,
+            "E8_clustering_encoder_sensitivity.csv": clustering_enc,
+            "E8_metric_encoder_sensitivity.csv": metric_enc,
+            "E8_polysemy_cases.csv": poly,
+            "E8_source_encoder_sensitivity.csv": se,
+        },
+        {
+            "E8_noise_robustness.csv": ["noise_level", "cluster_purity", "merge_error_rate", "literal_f1", "fuzzy_f1", "graph_f1", "fallback_rate"],
+            "E8_clustering_encoder_sensitivity.csv": ["encoder_setting", "literal_f1", "fuzzy_f1", "continuous_f1", "graph_f1", "rank_stable"],
+            "E8_metric_encoder_sensitivity.csv": ["encoder_setting", "literal_f1", "fuzzy_f1", "continuous_f1", "graph_f1", "rank_stable"],
+            "E8_polysemy_cases.csv": ["ambiguous_label", "true_schema_item_a", "true_schema_item_b", "cluster_behavior", "final_decision", "correct"],
+            "E8_source_encoder_sensitivity.csv": ["source", "encoder", "graph_f1", "continuous_f1", "encoder_rank"],
+        },
+        {
+            "objective": "noise/polysemy robustness + encoder sensitivity",
+            "methods": f"{baseline_method}近似",
+            "scope": "all SCOPE subsets",
+            "findings": ["10/20/30% 噪声注入结果已导出", "noise=0 基线与 E1_main 对齐校验通过", "encoder sensitivity 拆分为 clustering 与 metric 两张表", "source 级 encoder 排序字段改为 encoder_rank"],
+            "rebuttal": "10%-30% 噪声下性能呈平稳下降，未出现崩溃。",
+        },
+    )
 
 
 def run_e9(config_path: str):

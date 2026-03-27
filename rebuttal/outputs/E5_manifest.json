@@ -2,12 +2,12 @@
   "command": "python src/rebuttal/scripts/E5_run.py",
   "config": "src/rebuttal/configs/E5_contamination_probes.yaml",
   "seed": 42,
-  "timestamp_utc": "2026-03-26T12:59:11.598468+00:00",
-  "git_commit": "6728f7f1d53a2b95d153c9ed073e51526a5fe852",
+  "timestamp_utc": "2026-03-27T15:48:40.207385+00:00",
+  "git_commit": "a6debaac0f02e727db73c7479706803e497ff696",
   "environment": {
-    "timestamp_utc": "2026-03-26T12:59:11.611196+00:00",
+    "timestamp_utc": "2026-03-27T15:48:40.215409+00:00",
     "python": "3.12.12 (main, Jan 12 2026, 17:43:59) [GCC 13.3.0]",
     "platform": "Linux-6.12.47-x86_64-with-glibc2.39",
-    "git_commit": "6728f7f1d53a2b95d153c9ed073e51526a5fe852"
+    "git_commit": "a6debaac0f02e727db73c7479706803e497ff696"
   }
 }
