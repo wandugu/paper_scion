@@ -123,6 +123,24 @@ def _collect_experiment_output_files(out_dir: Path, exp_id: str, include_suffixe
     return files
 
 
+def _clean_experiment_output_files(out_dir: Path, exp_id: str, include_suffixes: List[str]) -> List[Path]:
+    prefixes = (f"{exp_id}_", f"{exp_id}.")
+    suffixes = tuple(include_suffixes)
+    removed: List[Path] = []
+    if not out_dir.exists():
+        return removed
+    for item in sorted(out_dir.iterdir()):
+        if not item.is_file():
+            continue
+        if not item.name.startswith(prefixes):
+            continue
+        if suffixes and item.suffix.lower() not in suffixes:
+            continue
+        item.unlink()
+        removed.append(item)
+    return removed
+
+
 def run_all() -> int:
     specs = _load_specs()
     out_dir = outputs_dir()
@@ -140,6 +158,7 @@ def run_all() -> int:
     if not isinstance(output_include_suffixes, list):
         output_include_suffixes = [".csv", ".json", ".md"]
     output_include_suffixes = [str(x).lower() for x in output_include_suffixes]
+    clean_old_outputs = bool(run_all_cfg.get("clean_old_outputs", True))
 
     project_root = resolve_project_path(".")
 
@@ -165,6 +184,9 @@ def run_all() -> int:
 
         LOGGER.debug("开始执行 %s: script=%s", spec.exp_id, script_path)
         LOGGER.debug("%s 输入检查: %s", spec.exp_id, inputs_status)
+        if clean_old_outputs and spec.exp_id != "E0":
+            removed_files = _clean_experiment_output_files(out_dir, spec.exp_id, output_include_suffixes)
+            LOGGER.debug("%s 预清理旧产物数量=%s", spec.exp_id, len(removed_files))
 
         proc = subprocess.run(cmd, cwd=project_root, env=env, text=True, capture_output=True)
         log_text = (proc.stdout or "") + "\n\n# STDERR\n" + (proc.stderr or "")

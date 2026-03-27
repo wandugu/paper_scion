@@ -1422,9 +1422,13 @@ rebuttal:
     e8_baseline_method: scion_full
     e8_noise_levels: [0.0, 0.1, 0.2, 0.3]
     e8_zero_noise_tolerance: 0.000001
+    e4_extractor_snapshot: fixed_extractor_current
+    e4_submission_extractor_snapshot: submission_snapshot_v1
+    e4_heldout_protocol: source_level_proxy
     e11_general_mode: scion_full
     e11_min_domain_boost: 0.005
     e11_max_domain_boost: 0.02
+    e11_soft_domain_boost_scale: 0.75
     e7_annotation_pair_count: 240
     e7_max_pairs_per_source: 16
     e11_domain_map:
@@ -1453,6 +1457,7 @@ rebuttal:
     summary_md: rebuttal/outputs/E0_run_all_summary.md
     output_md: rebuttal/outputs/E0_run_all_output.md
     output_preview_char_limit: 20000
+    clean_old_outputs: true
     output_include_suffixes: [".csv", ".json", ".md"]
     scripts:
       - id: E0
