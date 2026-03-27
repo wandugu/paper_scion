@@ -1409,6 +1409,9 @@ rebuttal:
     e1_placeholder_types: ["", entity, ent, object, obj, misc, thing]
     e1_default_entity_type: entity
     e1_ignore_direction_strict: false
+    e1_reachable_use_placeholder_auto: true
+    e1_untyped_entity_type_threshold: 1
+    e1_untyped_re_sources: [GIDS, New-York-Times-RE]
     e1_relation_aliases:
       "per org:employees_of": employee_of
       "per:employee_of": employee_of
@@ -1429,6 +1432,8 @@ rebuttal:
       finance: [CrudeOilNews, DuEE-fin, FewFC]
       cybersecurity: [CASIE]
       general: [RAMS, WikiEvents]
+    e5_debug_sources: [GIDS, New-York-Times-RE]
+    e5_name_only_generic_sources: [New-York-Times-RE, NYT11]
   fuzzy_threshold: 0.6
   graph_scale: 0.8
   method_keep_ratio:

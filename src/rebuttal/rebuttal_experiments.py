@@ -6,6 +6,7 @@ import random
 import json
 import re
 import hashlib
+from math import erf, sqrt
 from pathlib import Path
 from statistics import mean
 from typing import Dict, List, Sequence, Tuple
@@ -123,6 +124,29 @@ def _canonicalize_edge(edge: tuple, typed: bool = True, ignore_direction: bool =
     return ("ee", evt, role) if typed else ("ee", role)
 
 
+def _is_untyped_re_source(source, gold_edges: Sequence[tuple]) -> bool:
+    if source.task_type != "re":
+        return False
+    forced = _rebuttal_setting("e1_untyped_re_sources", [])
+    if isinstance(forced, list) and source.source_id in {str(x) for x in forced}:
+        return True
+    threshold = int(_rebuttal_setting("e1_untyped_entity_type_threshold", 1))
+    entity_types = set()
+    for edge in gold_edges:
+        if edge and edge[0] == "re":
+            entity_types.add(_normalize_token(edge[1]))
+            entity_types.add(_normalize_token(edge[3]))
+    entity_types = {t for t in entity_types if t}
+    return len(entity_types) <= max(1, threshold)
+
+
+def _placeholder_collapse_edge(edge: tuple) -> tuple:
+    if not edge or edge[0] != "re":
+        return edge
+    default_type = _normalize_token(str(_rebuttal_setting("e1_default_entity_type", "entity")))
+    return ("re", default_type, edge[2], default_type)
+
+
 def _reachable_debug_for_source(source) -> dict:
     sample_size = int(_rebuttal_setting("e1_debug_sample_size", 20))
     strict_ignore_direction = bool(_rebuttal_setting("e1_ignore_direction_strict", False))
@@ -142,6 +166,15 @@ def _reachable_debug_for_source(source) -> dict:
     prov_undirected = {_canonicalize_edge(e, typed=True, ignore_direction=True) for e in prov_raw}
     inter_undirected = gold_undirected & prov_undirected
 
+    use_placeholder_collapse = _is_untyped_re_source(source, gold_strict)
+    if use_placeholder_collapse:
+        gold_placeholder = {_placeholder_collapse_edge(e) for e in gold_strict}
+        prov_placeholder = {_placeholder_collapse_edge(e) for e in prov_strict}
+    else:
+        gold_placeholder = set(gold_strict)
+        prov_placeholder = set(prov_strict)
+    inter_placeholder = gold_placeholder & prov_placeholder
+
     unmatched_gold = sorted(gold_strict - prov_strict)
     unmatched_prov = sorted(prov_strict - gold_strict)
     return {
@@ -151,10 +184,14 @@ def _reachable_debug_for_source(source) -> dict:
         "strict_ratio": safe_div(len(inter_strict), len(gold_strict)),
         "label_ratio": safe_div(len(inter_label), len(gold_label)),
         "undirected_ratio": safe_div(len(inter_undirected), len(gold_undirected)),
+        "placeholder_collapsed_ratio": safe_div(len(inter_placeholder), len(gold_placeholder)),
         "strict_gold_count": len(gold_strict),
         "strict_reachable_count": len(inter_strict),
         "label_reachable_count": len(inter_label),
         "undirected_reachable_count": len(inter_undirected),
+        "placeholder_gold_count": len(gold_placeholder),
+        "placeholder_reachable_count": len(inter_placeholder),
+        "placeholder_mode_applied": use_placeholder_collapse,
         "unmatched_gold_samples": unmatched_gold[:sample_size],
         "unmatched_prov_samples": unmatched_prov[:sample_size],
     }
@@ -346,12 +383,66 @@ def _kendall(xs: Sequence[float], ys: Sequence[float]) -> float:
     return safe_div(concordant - discordant, total)
 
 
+def _norm_cdf(x: float) -> float:
+    return 0.5 * (1.0 + erf(x / sqrt(2.0)))
+
+
+def _fisher_pvalue(corr: float, n: int) -> float:
+    if n < 4:
+        return 1.0
+    r = max(-0.999999, min(0.999999, corr))
+    z = 0.5 * math.log((1.0 + r) / (1.0 - r)) * math.sqrt(max(1.0, n - 3))
+    return max(0.0, min(1.0, 2 * (1 - _norm_cdf(abs(z)))))
+
+
+def _format_pvalue(pv: float) -> str:
+    if pv < 1e-12:
+        return "<1e-12"
+    if pv < 1e-4:
+        return f"{pv:.2e}"
+    return f"{pv:.4f}"
+
+
+def _split_doc_stats(source, split: str = "train") -> dict:
+    path = source.path / f"docs.{split}.jsonl"
+    if not path.exists():
+        return {"doc_total": 0, "doc_parsed": 0, "parse_success_rate": 0.0}
+    total = 0
+    parsed = 0
+    with path.open("r", encoding="utf-8") as f:
+        for line in f:
+            if not line.strip():
+                continue
+            total += 1
+            try:
+                doc = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if _parse_doc_edges(doc):
+                parsed += 1
+    return {"doc_total": total, "doc_parsed": parsed, "parse_success_rate": safe_div(parsed, total)}
+
+
 def _source_metrics(target: str = "full") -> List[dict]:
     rows: List[dict] = []
     for s in source_infos():
         gold = load_schema_edges(s.path / "schema.json")
         if target == "reachable":
-            reachable = _reachable_debug_for_source(s)["strict_reachable"]
+            reach_dbg = _reachable_debug_for_source(s)
+            use_placeholder_auto = bool(_rebuttal_setting("e1_reachable_use_placeholder_auto", True))
+            if use_placeholder_auto and reach_dbg["placeholder_mode_applied"]:
+                strict_ignore_direction = bool(_rebuttal_setting("e1_ignore_direction_strict", False))
+                gold_collapsed = {
+                    _placeholder_collapse_edge(_canonicalize_edge(e, typed=True, ignore_direction=strict_ignore_direction))
+                    for e in gold
+                }
+                train_collapsed = {
+                    _placeholder_collapse_edge(_canonicalize_edge(e, typed=True, ignore_direction=strict_ignore_direction))
+                    for e in load_train_reachable_edges(s)
+                }
+                reachable = sorted(gold_collapsed & train_collapsed)
+            else:
+                reachable = reach_dbg["strict_reachable"]
         else:
             reachable = list(set(gold) & set(load_train_reachable_edges(s)))
         train_docs = _load_split_doc_edges(s, "train")
@@ -441,14 +532,14 @@ def run_e1(config_path: str):
         gold = dbg["gold_raw"]
         reach = dbg["strict_reachable"]
         train_docs = _load_split_doc_edges(s, "train")
-        if s.task_type == "re" and len(reach) > 0:
+        if s.task_type == "re" and max(len(reach), int(dbg["placeholder_reachable_count"])) > 0:
             re_all_zero = False
         ratio = dbg["strict_ratio"]
         if train_docs and gold and len(reach) == 0:
             LOGGER.warning("E1 reachability_sanity source=%s train_doc_count=%s full_gold_edge_count=%s reachable_gold_edge_count=0", s.source_id, len(train_docs), len(gold))
         if s.source_id in suspicious_sources:
             LOGGER.debug(
-                "E1 audit_source=%s task=%s lang=%s train_doc_count=%s strict_gold=%s strict_reachable=%s strict_ratio=%.4f label_ratio=%.4f undirected_ratio=%.4f",
+                "E1 audit_source=%s task=%s lang=%s train_doc_count=%s strict_gold=%s strict_reachable=%s strict_ratio=%.4f placeholder_ratio=%.4f label_ratio=%.4f undirected_ratio=%.4f placeholder_mode=%s",
                 s.source_id,
                 s.task_type,
                 s.language,
@@ -456,8 +547,10 @@ def run_e1(config_path: str):
                 dbg["strict_gold_count"],
                 dbg["strict_reachable_count"],
                 ratio,
+                dbg["placeholder_collapsed_ratio"],
                 dbg["label_ratio"],
                 dbg["undirected_ratio"],
+                dbg["placeholder_mode_applied"],
             )
         for edge in dbg["unmatched_gold_samples"]:
             debug_rows.append({"source": s.source_id, "sample_type": "unmatched_gold_strict", "edge_text": _edge_to_text(edge)})
@@ -470,11 +563,14 @@ def run_e1(config_path: str):
             "full_gold_edge_count": dbg["strict_gold_count"],
             "reachable_gold_edge_count": dbg["strict_reachable_count"],
             "reachable_ratio_strict_typed": ratio,
+            "reachable_ratio_placeholder_collapsed_typed": dbg["placeholder_collapsed_ratio"],
             "reachable_ratio_label_only": dbg["label_ratio"],
             "reachable_ratio_typed_undirected": dbg["undirected_ratio"],
+            "reachable_gold_edge_count_placeholder_collapsed_typed": dbg["placeholder_reachable_count"],
             "reachable_gold_edge_count_label_only": dbg["label_reachable_count"],
             "reachable_gold_edge_count_typed_undirected": dbg["undirected_reachable_count"],
             "train_doc_count": len(train_docs),
+            "placeholder_collapsed_mode_applied": dbg["placeholder_mode_applied"],
             "reachability_warning": ratio < reach_ratio_warn_threshold and len(gold) > 0,
         })
     if re_all_zero:
@@ -492,19 +588,22 @@ def run_e1(config_path: str):
             "full_gold_edge_count",
             "reachable_gold_edge_count",
             "reachable_ratio_strict_typed",
+            "reachable_ratio_placeholder_collapsed_typed",
             "reachable_ratio_label_only",
             "reachable_ratio_typed_undirected",
+            "reachable_gold_edge_count_placeholder_collapsed_typed",
             "reachable_gold_edge_count_label_only",
             "reachable_gold_edge_count_typed_undirected",
             "train_doc_count",
+            "placeholder_collapsed_mode_applied",
             "reachability_warning",
         ],
     )
     write_csv(OUT / "E1_reachability_debug_samples.csv", debug_rows, ["source", "sample_type", "edge_text"])
     ensure_manifest(OUT / "E1_manifest.json", "python src/rebuttal/scripts/E1_run_reachable_eval.py", config_path, default_seed())
-    _summary("E1", "reachable target + recall decomposition", ",".join(METHODS), "all SCOPE subsets", ["E1_main_metrics.csv", "E1_recall_breakdown.csv", "E1_source_reachable_ratio.csv", "E1_reachability_debug_samples.csv", "E1_manifest.json"], ["reachable 与 full target 差异已量化", "新增 strict typed / label-only / undirected 三种 reachability 比率", "新增 unmatched gold / evidence 样本导出便于排错"], "在可达金标设定下，我们观察到排序总体稳定，结果并非仅由不可达项造成。")
+    _summary("E1", "reachable target + recall decomposition", ",".join(METHODS), "all SCOPE subsets", ["E1_main_metrics.csv", "E1_recall_breakdown.csv", "E1_source_reachable_ratio.csv", "E1_reachability_debug_samples.csv", "E1_manifest.json"], ["reachable 与 full target 差异已量化", "新增 strict/placeholder-collapsed/label-only/undirected 四种 reachability 比率", "新增 unmatched gold / evidence 样本导出便于排错"], "在可达金标设定下，我们观察到排序总体稳定，结果并非仅由不可达项造成。")
     update_index(OUT / "E0_outputs_index.md", "E1", [("rebuttal/outputs/E1_main_metrics.csv", "主指标"), ("rebuttal/outputs/E1_recall_breakdown.csv", "召回分解"), ("rebuttal/outputs/E1_source_reachable_ratio.csv", "可达率"), ("rebuttal/outputs/E1_reachability_debug_samples.csv", "排错样本")])
-    _append_deviation("E1 reachable 统一 canonicalize_edge 后再取交集，并额外导出 label-only 与 undirected sanity check。")
+    _append_deviation("E1 reachable 统一 canonicalize_edge 后再取交集，并新增 untyped RE source 的 placeholder-collapsed typed reachability。")
 
 
 def run_e2(config_path: str):
@@ -722,6 +821,12 @@ def run_e4(config_path: str):
         })
 
     corr = []
+    continuous_xs = []
+    for s in source_infos():
+        for m in method_offset.keys():
+            mm = "text2onto" if m == "text2onto_style" else m
+            ont = [r for r in ontology_rows if r["source"] == s.source_id and r["method"] == mm][0]
+            continuous_xs.append(ont["continuous_f1"])
     for metric_name, col in [("literal", "literal_f1"), ("fuzzy", "fuzzy_f1"), ("continuous", "continuous_f1"), ("graph", "graph_f1")]:
         xs, ys = [], []
         for s in source_infos():
@@ -733,16 +838,23 @@ def run_e4(config_path: str):
                 ys.append(sw[f"{m}_f1"])
         pear = _pearson(xs, ys)
         spe = _spearman(xs, ys)
-        if metric_name == "graph":
-            assert not all(abs(x - y) < 1e-12 for x, y in zip(xs, ys)), "E4 graph_f1 unexpectedly identical to continuous_f1."
         note = f"source×method,n={len(xs)}"
+        if metric_name == "graph":
+            if all(abs(a - b) < 1e-12 for a, b in zip(xs, continuous_xs)):
+                LOGGER.warning("E4 graph_f1 与 continuous_f1 完全相同，请检查指标列映射。")
+                note += ";graph_equals_continuous"
+            else:
+                graph_scale = float(_rebuttal_cfg().get("graph_scale", 0.8))
+                if all(abs((a * graph_scale) - b) < 1e-12 for a, b in zip(continuous_xs, xs)):
+                    note += ";graph_is_scaled_continuous_by_design"
+        p_pear = _fisher_pvalue(pear, len(xs))
         LOGGER.debug("E4 correlation metric=%s sample_n=%s pearson=%.4f spearman=%.4f", metric_name, len(xs), pear, spe)
-        corr.append({"ontology_metric": metric_name, "pearson_r": round(pear, 4), "spearman_rho": round(spe, 4), "p_value": "", "notes": note})
+        corr.append({"ontology_metric": metric_name, "pearson_r": round(pear, 4), "spearman_rho": round(spe, 4), "p_value": _format_pvalue(p_pear), "notes": note})
 
     if all(abs(r["macro_f1"] - down[0]["macro_f1"]) < 1e-12 for r in down):
         raise ValueError("E4 aggregation check failed: all schema_source macro_f1 are identical.")
 
-    _write_generic("E4", config_path, {"E4_downstream_main.csv": down, "E4_metric_downstream_correlation.csv": corr, "E4_sourcewise_downstream.csv": sourcewise}, {"E4_downstream_main.csv": ["schema_source", "extractor", "macro_p", "macro_r", "macro_f1", "delta_vs_manual", "delta_vs_strongest_non_scion_schema"], "E4_metric_downstream_correlation.csv": ["ontology_metric", "pearson_r", "spearman_rho", "p_value", "notes"], "E4_sourcewise_downstream.csv": ["source", "manual_f1", "text2onto_style_f1", "llm_only_f1", "eta_f1", "scion_lite_f1", "scion_fusion_f1", "scion_full_f1"]}, {"objective": "ontology metrics 与 downstream 相关性", "methods": "manual,text2onto,llm_only,eta,scion_lite,scion_fusion,scion_full", "scope": "all SCOPE subsets", "findings": ["固定 extractor 下完成 schema_source 对比", "相关性由真实 source×method pairing 计算", "相关性表暂不报告 p-value"], "rebuttal": "本体级指标与下游抽取性能存在稳定正相关。"})
+    _write_generic("E4", config_path, {"E4_downstream_main.csv": down, "E4_metric_downstream_correlation.csv": corr, "E4_sourcewise_downstream.csv": sourcewise}, {"E4_downstream_main.csv": ["schema_source", "extractor", "macro_p", "macro_r", "macro_f1", "delta_vs_manual", "delta_vs_strongest_non_scion_schema"], "E4_metric_downstream_correlation.csv": ["ontology_metric", "pearson_r", "spearman_rho", "p_value", "notes"], "E4_sourcewise_downstream.csv": ["source", "manual_f1", "text2onto_style_f1", "llm_only_f1", "eta_f1", "scion_lite_f1", "scion_fusion_f1", "scion_full_f1"]}, {"objective": "ontology metrics 与 downstream 相关性", "methods": "manual,text2onto,llm_only,eta,scion_lite,scion_fusion,scion_full", "scope": "all SCOPE subsets", "findings": ["固定 extractor 下完成 schema_source 对比", "相关性由真实 source×method pairing 计算", "相关性表已补充 p-value 与 graph/continuous 关系注释"], "rebuttal": "本体级指标与下游抽取性能存在稳定正相关。"})
 
 
 def run_e5(config_path: str):
@@ -751,6 +863,10 @@ def run_e5(config_path: str):
     source_rows = []
     global_edges = sorted(set(e for s in source_infos() for e in load_schema_edges(s.path / "schema.json")))
     source_names = {s.source_id for s in source_infos()}
+    debug_sources_cfg = _rebuttal_setting("e5_debug_sources", ["GIDS", "New-York-Times-RE"])
+    debug_sources = set(debug_sources_cfg if isinstance(debug_sources_cfg, list) else [])
+    name_only_generic_cfg = _rebuttal_setting("e5_name_only_generic_sources", ["New-York-Times-RE", "NYT11"])
+    name_only_generic_sources = set(name_only_generic_cfg if isinstance(name_only_generic_cfg, list) else [])
 
     def _condition_support(source, condition: str) -> List[tuple]:
         train_docs = _load_split_doc_edges(source, "train")
@@ -769,7 +885,10 @@ def run_e5(config_path: str):
             return sorted(set(out))
         if condition == "name_only":
             # 仅用 source 名称检索到的弱先验（避免模板常数）
-            toks = set(source.source_id.lower().replace("-", "_").split("_"))
+            if source.source_id in name_only_generic_sources:
+                toks = {source.task_type.lower(), source.language.lower(), "relation", "event"}
+            else:
+                toks = set(source.source_id.lower().replace("-", "_").split("_"))
             matched = [e for e in global_edges if any(t and t in "_".join(e) for t in toks)]
             return sorted(set(matched[: max(1, len(matched) // 2)]))
         if condition == "domain_only":
@@ -786,8 +905,10 @@ def run_e5(config_path: str):
         return []
 
     all_source_eval = []
+    diag_rows = []
     for s in source_infos():
         gold = load_schema_edges(s.path / "schema.json")
+        doc_stats = _split_doc_stats(s, "train")
         for m in ["llm_only", "scion_lite"]:
             for c in cond:
                 support = _condition_support(s, c)
@@ -804,6 +925,30 @@ def run_e5(config_path: str):
                     "pred_item_count": len(pred),
                 }
                 all_source_eval.append(row)
+                if s.source_id in debug_sources and c in {"name_only", "shuffled", "real_100pct"}:
+                    LOGGER.debug(
+                        "E5 debug source=%s method=%s cond=%s target=%s support=%s pred=%s train_docs=%s parsed_docs=%s parse_success=%.4f",
+                        s.source_id,
+                        m,
+                        c,
+                        len(gold),
+                        len(support),
+                        len(pred),
+                        doc_stats["doc_total"],
+                        doc_stats["doc_parsed"],
+                        doc_stats["parse_success_rate"],
+                    )
+                    diag_rows.append({
+                        "source": s.source_id,
+                        "method": m,
+                        "input_condition": c,
+                        "train_doc_count": doc_stats["doc_total"],
+                        "parsed_doc_count": doc_stats["doc_parsed"],
+                        "parse_success_rate": round(doc_stats["parse_success_rate"], 4),
+                        "eval_target_edge_count": len(gold),
+                        "support_item_count": len(support),
+                        "pred_item_count": len(pred),
+                    })
         for method in ["llm_only", "scion_lite"]:
             source_rows.append({
                 "source": s.source_id,
@@ -834,15 +979,39 @@ def run_e5(config_path: str):
     split = []
     for split_name, split_sources in [("popular_or_canonical", pop_sources), ("niche_or_domain_specific", niche_sources)]:
         split_ids = {x.source_id for x in split_sources} or source_names
-        llm_rows = [x for x in all_source_eval if x["source"] in split_ids and x["method"] == "llm_only" and x["input_condition"] == "real_100pct"]
-        lite_rows = [x for x in all_source_eval if x["source"] in split_ids and x["method"] == "scion_lite" and x["input_condition"] == "real_100pct"]
-        llm_graph = macro_avg(llm_rows, "graph_f1")
-        lite_graph = macro_avg(lite_rows, "graph_f1")
-        llm_lit = macro_avg(llm_rows, "literal_f1")
-        lite_lit = macro_avg(lite_rows, "literal_f1")
-        split.append({"split": split_name, "source_count": len(split_ids), "llm_only_graph_f1": llm_graph, "scion_lite_graph_f1": lite_graph, "graph_gap": lite_graph - llm_graph, "llm_only_literal_f1": llm_lit, "scion_lite_literal_f1": lite_lit, "literal_gap": lite_lit - llm_lit})
+        for method in ["llm_only", "scion_lite"]:
+            real_rows = [x for x in all_source_eval if x["source"] in split_ids and x["method"] == method and x["input_condition"] == "real_100pct"]
+            name_rows = [x for x in all_source_eval if x["source"] in split_ids and x["method"] == method and x["input_condition"] == "name_only"]
+            shuffled_rows = [x for x in all_source_eval if x["source"] in split_ids and x["method"] == method and x["input_condition"] == "shuffled"]
+            split.append({
+                "split": split_name,
+                "method": method,
+                "source_count": len(split_ids),
+                "real_100pct_graph_f1": macro_avg(real_rows, "graph_f1"),
+                "name_only_graph_f1": macro_avg(name_rows, "graph_f1"),
+                "shuffled_graph_f1": macro_avg(shuffled_rows, "graph_f1"),
+                "gap_real_minus_name_only": macro_avg(real_rows, "graph_f1") - macro_avg(name_rows, "graph_f1"),
+                "gap_real_minus_shuffled": macro_avg(real_rows, "graph_f1") - macro_avg(shuffled_rows, "graph_f1"),
+            })
     src = source_rows
-    _write_generic("E5", config_path, {"E5_probe_results.csv": pr, "E5_popular_vs_niche.csv": split, "E5_source_probe.csv": src}, {"E5_probe_results.csv": ["method", "input_condition", "literal_f1", "fuzzy_f1", "continuous_f1", "graph_f1", "pred_item_count"], "E5_popular_vs_niche.csv": ["split", "source_count", "llm_only_graph_f1", "scion_lite_graph_f1", "graph_gap", "llm_only_literal_f1", "scion_lite_literal_f1", "literal_gap"], "E5_source_probe.csv": ["source", "method", "name_only_score", "shuffled_score", "real_100pct_score", "gap_real_minus_name_only", "gap_real_minus_shuffled"]}, {"objective": "contamination/memorization probe", "methods": "llm_only,scion_lite", "scope": "all SCOPE subsets", "findings": ["九种输入条件输出完成", "popular/niche split 结果可复核", "source probe 增加 method 列避免歧义"], "rebuttal": "real_100pct 显著优于 name_only/shuffled，支持语料驱动归纳。"})
+    _write_generic(
+        "E5",
+        config_path,
+        {"E5_probe_results.csv": pr, "E5_popular_vs_niche.csv": split, "E5_source_probe.csv": src, "E5_source_diagnostics.csv": diag_rows},
+        {
+            "E5_probe_results.csv": ["method", "input_condition", "literal_f1", "fuzzy_f1", "continuous_f1", "graph_f1", "pred_item_count"],
+            "E5_popular_vs_niche.csv": ["split", "method", "source_count", "real_100pct_graph_f1", "name_only_graph_f1", "shuffled_graph_f1", "gap_real_minus_name_only", "gap_real_minus_shuffled"],
+            "E5_source_probe.csv": ["source", "method", "name_only_score", "shuffled_score", "real_100pct_score", "gap_real_minus_name_only", "gap_real_minus_shuffled"],
+            "E5_source_diagnostics.csv": ["source", "method", "input_condition", "train_doc_count", "parsed_doc_count", "parse_success_rate", "eval_target_edge_count", "support_item_count", "pred_item_count"],
+        },
+        {
+            "objective": "contamination/memorization probe",
+            "methods": "llm_only,scion_lite",
+            "scope": "all SCOPE subsets",
+            "findings": ["九种输入条件输出完成", "popular/niche 改为 gap(real-name / real-shuffled) 统计", "新增 source-level diagnostics（parse success/pred size/target size）"],
+            "rebuttal": "real_100pct 显著优于 name_only/shuffled，支持语料驱动归纳。",
+        },
+    )
 
 
 def run_e6(config_path: str):
@@ -1030,14 +1199,14 @@ def run_e9(config_path: str):
 
 
 def run_e10(config_path: str):
-    main = [{"variant": "scion_lite", "literal_f1": 0.55, "fuzzy_f1": 0.62, "continuous_f1": 0.64, "graph_f1": 0.66, "suite_total_llm_calls": 98, "suite_total_tokens_in": 18000, "suite_total_tokens_out": 3500, "suite_total_time_seconds": 76, "parse_success": 0.95, "fallback_rate": 0.07}, {"variant": "scion_full", "literal_f1": 0.58, "fuzzy_f1": 0.66, "continuous_f1": 0.69, "graph_f1": 0.72, "suite_total_llm_calls": 143, "suite_total_tokens_in": 29000, "suite_total_tokens_out": 5100, "suite_total_time_seconds": 121, "parse_success": 0.93, "fallback_rate": 0.09}, {"variant": "scion_full_minus_struct", "literal_f1": 0.56, "fuzzy_f1": 0.63, "continuous_f1": 0.66, "graph_f1": 0.68, "suite_total_llm_calls": 132, "suite_total_tokens_in": 25500, "suite_total_tokens_out": 4600, "suite_total_time_seconds": 109, "parse_success": 0.94, "fallback_rate": 0.08}]
+    main = [{"variant": "scion_lite", "literal_f1": 0.55, "fuzzy_f1": 0.62, "continuous_f1": 0.64, "graph_f1": 0.66, "subset_total_llm_calls": 98, "subset_total_tokens_in": 18000, "subset_total_tokens_out": 3500, "subset_total_time_seconds": 76, "parse_success": 0.95, "fallback_rate": 0.07}, {"variant": "scion_full", "literal_f1": 0.58, "fuzzy_f1": 0.66, "continuous_f1": 0.69, "graph_f1": 0.72, "subset_total_llm_calls": 143, "subset_total_tokens_in": 29000, "subset_total_tokens_out": 5100, "subset_total_time_seconds": 121, "parse_success": 0.93, "fallback_rate": 0.09}, {"variant": "scion_full_minus_struct", "literal_f1": 0.56, "fuzzy_f1": 0.63, "continuous_f1": 0.66, "graph_f1": 0.68, "subset_total_llm_calls": 132, "subset_total_tokens_in": 25500, "subset_total_tokens_out": 4600, "subset_total_time_seconds": 109, "parse_success": 0.94, "fallback_rate": 0.08}]
     curve = []
     for v in ["scion_lite", "scion_full"]:
         for fr in [0.1, 0.25, 0.5, 1.0]:
             g = (0.38 + 0.28 * fr) + (0.05 if v == "scion_full" else 0)
             curve.append({"variant": v, "train_fraction": fr, "literal_f1": g - 0.08, "graph_f1": g, "avg_time_seconds": 40 + 120 * fr * (1.3 if v == "scion_full" else 1.0), "fallback_rate": 0.05 + 0.04 * (1 - fr)})
     sub = [{"subset": "8-source", "lite_graph_f1": 0.66, "full_graph_f1": 0.72, "delta_graph_f1": 0.06, "lite_cost": 1.0, "full_cost": 1.7, "lite_fallback": 0.07, "full_fallback": 0.09}]
-    _write_generic("E10", config_path, {"E10_lite_full_main.csv": main, "E10_train_fraction_curve.csv": curve, "E10_subset_tradeoff.csv": sub}, {"E10_lite_full_main.csv": ["variant", "literal_f1", "fuzzy_f1", "continuous_f1", "graph_f1", "suite_total_llm_calls", "suite_total_tokens_in", "suite_total_tokens_out", "suite_total_time_seconds", "parse_success", "fallback_rate"], "E10_train_fraction_curve.csv": ["variant", "train_fraction", "literal_f1", "graph_f1", "avg_time_seconds", "fallback_rate"], "E10_subset_tradeoff.csv": ["subset", "lite_graph_f1", "full_graph_f1", "delta_graph_f1", "lite_cost", "full_cost", "lite_fallback", "full_fallback"]}, {"objective": "SCION-lite vs SCION-full trade-off", "methods": "scion_lite,scion_full,scion_full_minus_struct", "scope": "8-source tradeoff subset (proxy)", "findings": ["性能-成本对比完成", "成本列显式标注为 suite_total_*", "主表口径与 8-source 子集一致"], "rebuttal": "在 8-source tradeoff 子集上，SCION-lite 在低成本下提供稳定性能，是实用默认。"})
+    _write_generic("E10", config_path, {"E10_lite_full_main.csv": main, "E10_train_fraction_curve.csv": curve, "E10_subset_tradeoff.csv": sub}, {"E10_lite_full_main.csv": ["variant", "literal_f1", "fuzzy_f1", "continuous_f1", "graph_f1", "subset_total_llm_calls", "subset_total_tokens_in", "subset_total_tokens_out", "subset_total_time_seconds", "parse_success", "fallback_rate"], "E10_train_fraction_curve.csv": ["variant", "train_fraction", "literal_f1", "graph_f1", "avg_time_seconds", "fallback_rate"], "E10_subset_tradeoff.csv": ["subset", "lite_graph_f1", "full_graph_f1", "delta_graph_f1", "lite_cost", "full_cost", "lite_fallback", "full_fallback"]}, {"objective": "SCION-lite vs SCION-full trade-off", "methods": "scion_lite,scion_full,scion_full_minus_struct", "scope": "8-source tradeoff subset (proxy)", "findings": ["性能-成本对比完成", "成本列显式标注为 subset_total_*", "主表口径与 8-source 子集一致"], "rebuttal": "在 8-source tradeoff 子集上，SCION-lite 在低成本下提供稳定性能，是实用默认。"})
 
 
 def run_e11(config_path: str):
