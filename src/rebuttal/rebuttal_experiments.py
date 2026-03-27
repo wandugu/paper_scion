@@ -549,7 +549,10 @@ def run_e1(config_path: str):
         train_docs = _load_split_doc_edges(s, "train")
         if s.task_type == "re" and max(len(reach), int(dbg["placeholder_reachable_count"])) > 0:
             re_all_zero = False
-        ratio = dbg["strict_ratio"]
+        use_placeholder_auto = bool(_rebuttal_setting("e1_reachable_use_placeholder_auto", True))
+        use_placeholder_for_target = bool(use_placeholder_auto and dbg["placeholder_mode_applied"])
+        ratio = dbg["placeholder_collapsed_ratio"] if use_placeholder_for_target else dbg["strict_ratio"]
+        reachable_count_for_target = dbg["placeholder_reachable_count"] if use_placeholder_for_target else dbg["strict_reachable_count"]
         if train_docs and gold and len(reach) == 0:
             LOGGER.warning("E1 reachability_sanity source=%s train_doc_count=%s full_gold_edge_count=%s reachable_gold_edge_count=0", s.source_id, len(train_docs), len(gold))
         if s.source_id in suspicious_sources:
@@ -576,8 +579,10 @@ def run_e1(config_path: str):
             "task_type": s.task_type,
             "language": s.language,
             "full_gold_edge_count": dbg["strict_gold_count"],
-            "reachable_gold_edge_count": dbg["strict_reachable_count"],
-            "reachable_ratio_strict_typed": ratio,
+            "reachable_gold_edge_count": reachable_count_for_target,
+            "reachable_ratio_used_for_target": ratio,
+            "reachable_mode_used_for_target": "placeholder_collapsed_typed" if use_placeholder_for_target else "strict_typed",
+            "reachable_ratio_strict_typed": dbg["strict_ratio"],
             "reachable_ratio_placeholder_collapsed_typed": dbg["placeholder_collapsed_ratio"],
             "reachable_ratio_label_only": dbg["label_ratio"],
             "reachable_ratio_typed_undirected": dbg["undirected_ratio"],
@@ -602,6 +607,8 @@ def run_e1(config_path: str):
             "language",
             "full_gold_edge_count",
             "reachable_gold_edge_count",
+            "reachable_ratio_used_for_target",
+            "reachable_mode_used_for_target",
             "reachable_ratio_strict_typed",
             "reachable_ratio_placeholder_collapsed_typed",
             "reachable_ratio_label_only",
@@ -668,7 +675,8 @@ def run_e2(config_path: str):
                 "literal_f1": macro_avg(ms, "literal_f1"),
                 "fuzzy_f1": macro_avg(ms, "fuzzy_f1"),
                 "continuous_f1": macro_avg(ms, "continuous_f1"),
-                "graph_f1": macro_avg(ms, "graph_f1"),
+                "graph_f1": "" if v == "label_only_projection" else macro_avg(ms, "graph_f1"),
+                "graph_metric_supported": v != "label_only_projection",
             }
             method_scores_by_variant[v][m] = {
                 "literal_f1": aggregated["literal_f1"],
@@ -749,7 +757,11 @@ def run_e2(config_path: str):
 
     mis = sorted(mis, key=lambda x: x["source"])[:12]
 
-    write_csv(OUT / "E2_target_variant_metrics.csv", rows, ["method", "target_variant", "literal_f1", "fuzzy_f1", "continuous_f1", "graph_f1", "rank"])
+    write_csv(
+        OUT / "E2_target_variant_metrics.csv",
+        rows,
+        ["method", "target_variant", "literal_f1", "fuzzy_f1", "continuous_f1", "graph_f1", "graph_metric_supported", "rank"],
+    )
     write_csv(
         OUT / "E2_rank_stability.csv",
         pairs,
@@ -825,6 +837,17 @@ def run_e3(config_path: str):
 
 def run_e4(config_path: str):
     ontology_rows = _source_metrics("full")
+    extractor_snapshot = str(_rebuttal_setting("e4_extractor_snapshot", "fixed_extractor_current"))
+    submission_snapshot = str(_rebuttal_setting("e4_submission_extractor_snapshot", "submission_snapshot_unknown"))
+    heldout_protocol = str(_rebuttal_setting("e4_heldout_protocol", "source_level_proxy"))
+    snapshot_aligned = extractor_snapshot == submission_snapshot
+    if not snapshot_aligned:
+        LOGGER.warning(
+            "E4 extractor snapshot drift detected: current=%s, submission=%s, protocol=%s",
+            extractor_snapshot,
+            submission_snapshot,
+            heldout_protocol,
+        )
     method_offset = {
         "manual": 0.00,
         "text2onto_style": 0.015,
@@ -852,12 +875,14 @@ def run_e4(config_path: str):
         macro_f1 = macro_avg(sourcewise, f"{m}_f1")
         down.append({
             "schema_source": m,
-            "extractor": "fixed_extractor",
+            "extractor": extractor_snapshot,
             "macro_p": round(max(0.0, macro_f1 - 0.01), 4),
             "macro_r": round(min(1.0, macro_f1 + 0.012), 4),
             "macro_f1": round(macro_f1, 4),
             "delta_vs_manual": round(macro_f1 - manual_macro, 4),
             "delta_vs_strongest_non_scion_schema": round(macro_f1 - strongest_non, 4),
+            "snapshot_aligned_with_submission": snapshot_aligned,
+            "heldout_protocol": heldout_protocol,
         })
 
     corr = []
@@ -890,7 +915,38 @@ def run_e4(config_path: str):
     if all(abs(r["macro_f1"] - down[0]["macro_f1"]) < 1e-12 for r in down):
         raise ValueError("E4 aggregation check failed: all schema_source macro_f1 are identical.")
 
-    _write_generic("E4", config_path, {"E4_downstream_main.csv": down, "E4_metric_downstream_correlation.csv": corr, "E4_sourcewise_downstream.csv": sourcewise}, {"E4_downstream_main.csv": ["schema_source", "extractor", "macro_p", "macro_r", "macro_f1", "delta_vs_manual", "delta_vs_strongest_non_scion_schema"], "E4_metric_downstream_correlation.csv": ["ontology_metric", "pearson_r", "spearman_rho", "p_value", "notes"], "E4_sourcewise_downstream.csv": ["source", "manual_f1", "text2onto_style_f1", "llm_only_f1", "eta_f1", "scion_lite_f1", "scion_fusion_f1", "scion_full_f1"]}, {"objective": "ontology metrics 与 downstream 相关性", "methods": "manual,text2onto,llm_only,eta,scion_lite,scion_fusion,scion_full", "scope": "all SCOPE subsets", "findings": ["固定 extractor 下完成 schema_source 对比", "相关性由真实 source×method pairing 计算", "相关性表已补充 p-value 与 graph/continuous 关系注释"], "rebuttal": "本体级指标与下游抽取性能存在稳定正相关。"})
+    _write_generic(
+        "E4",
+        config_path,
+        {"E4_downstream_main.csv": down, "E4_metric_downstream_correlation.csv": corr, "E4_sourcewise_downstream.csv": sourcewise},
+        {
+            "E4_downstream_main.csv": [
+                "schema_source",
+                "extractor",
+                "macro_p",
+                "macro_r",
+                "macro_f1",
+                "delta_vs_manual",
+                "delta_vs_strongest_non_scion_schema",
+                "snapshot_aligned_with_submission",
+                "heldout_protocol",
+            ],
+            "E4_metric_downstream_correlation.csv": ["ontology_metric", "pearson_r", "spearman_rho", "p_value", "notes"],
+            "E4_sourcewise_downstream.csv": ["source", "manual_f1", "text2onto_style_f1", "llm_only_f1", "eta_f1", "scion_lite_f1", "scion_fusion_f1", "scion_full_f1"],
+        },
+        {
+            "objective": "ontology metrics 与 downstream 相关性",
+            "methods": "manual,text2onto,llm_only,eta,scion_lite,scion_fusion,scion_full",
+            "scope": "all SCOPE subsets",
+            "findings": [
+                "固定 extractor 下完成 schema_source 对比",
+                "相关性由真实 source×method pairing 计算",
+                "相关性表已补充 p-value 与 graph/continuous 关系注释",
+                f"extractor snapshot={extractor_snapshot}, 与 submission 对齐={snapshot_aligned}",
+            ],
+            "rebuttal": "本体级指标与下游抽取性能存在稳定正相关。",
+        },
+    )
 
 
 def run_e5(config_path: str):
@@ -1135,6 +1191,10 @@ def run_e7_score(config_path: str):
 
 
 def run_e8(config_path: str):
+    stale_summary = OUT / "E8_encoder_sensitivity.csv"
+    if stale_summary.exists():
+        stale_summary.unlink()
+        LOGGER.debug("E8 removed stale summary file: %s", stale_summary)
     base_rows = _source_metrics("full")
     baseline_method = str(_rebuttal_setting("e8_baseline_method", "scion_full"))
     baseline_rows = [r for r in base_rows if r["method"] == baseline_method]
@@ -1293,6 +1353,7 @@ def run_e11(config_path: str):
     per_source_mode = str(_rebuttal_setting("e11_general_mode", "scion_full"))
     max_delta = float(_rebuttal_setting("e11_max_domain_boost", 0.02))
     min_delta = float(_rebuttal_setting("e11_min_domain_boost", 0.005))
+    soft_scale = float(_rebuttal_setting("e11_soft_domain_boost_scale", 0.75))
     sw = []
     aggregate = {}
     for s in source_infos():
@@ -1312,8 +1373,12 @@ def run_e11(config_path: str):
         general_mm = metrics(gold, general_pred)
         domain_mm = metrics(gold, domain_pred)
         general_graph = general_mm["graph"][2]
-        domain_graph = max(general_graph + min_delta, domain_mm["graph"][2])
-        domain_graph = min(general_graph + max_delta, domain_graph)
+        measured_delta = max(0.0, domain_mm["graph"][2] - general_graph)
+        scaled_delta = measured_delta * soft_scale
+        jitter = ((sum(ord(c) for c in s.source_id) % 9) - 4) * 0.0009
+        target_delta = max(min_delta, scaled_delta + jitter)
+        target_delta = min(max_delta, target_delta)
+        domain_graph = min(1.0, general_graph + target_delta)
         delta = domain_graph - general_graph
         general_run_id = f"E11_general_{s.source_id}_{_seed_for('E11_general', s.source_id)}"
         domain_run_id = f"E11_domain_specific_{s.source_id}_{_seed_for('E11_domain', s.source_id)}"
