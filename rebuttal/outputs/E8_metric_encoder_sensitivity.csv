@@ -1,0 +1,3 @@
+encoder_setting,literal_f1,fuzzy_f1,continuous_f1,graph_f1,rank_stable
+bge-m3,0.869,0.9615,0.9587,0.9398,True
+e5-large,0.867,0.9575,0.9557,0.9348,True

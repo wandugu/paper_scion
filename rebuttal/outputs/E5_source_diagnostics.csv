@@ -1,0 +1,13 @@
+source,method,input_condition,train_doc_count,parsed_doc_count,parse_success_rate,eval_target_edge_count,support_item_count,pred_item_count
+GIDS,llm_only,name_only,11388,11388,1.0,4,0,0
+GIDS,llm_only,shuffled,11388,11388,1.0,4,28,0
+GIDS,llm_only,real_100pct,11388,11388,1.0,4,4,0
+GIDS,scion_lite,name_only,11388,11388,1.0,4,0,0
+GIDS,scion_lite,shuffled,11388,11388,1.0,4,28,2
+GIDS,scion_lite,real_100pct,11388,11388,1.0,4,4,2
+New-York-Times-RE,llm_only,name_only,51408,51408,1.0,24,456,7
+New-York-Times-RE,llm_only,shuffled,51408,51408,1.0,24,385,7
+New-York-Times-RE,llm_only,real_100pct,51408,51408,1.0,24,104,8
+New-York-Times-RE,scion_lite,name_only,51408,51408,1.0,24,456,8
+New-York-Times-RE,scion_lite,shuffled,51408,51408,1.0,24,385,8
+New-York-Times-RE,scion_lite,real_100pct,51408,51408,1.0,24,104,9

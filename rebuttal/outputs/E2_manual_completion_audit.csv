@@ -1,25 +1,25 @@
-source,official_raw_score,deterministic_completion_score,normalization_aligned_score,final_gold_compatible_score,main_gap_reason
-CASIE,0.7223,0.7291,0.7434,0.7652,implicit role structure + argument typing
-CrudeOilNews,0.7262,0.7398,0.753,0.7712,implicit role structure + argument typing
-PHEE,0.7381,0.7566,0.7688,0.7823,implicit role structure + argument typing
-RAMS,0.7391,0.7515,0.7659,0.779,implicit role structure + argument typing
-WikiEvents,0.7012,0.7221,0.7396,0.7647,implicit role structure + argument typing
-DuEE-fin,0.6868,0.7127,0.7324,0.7585,implicit role structure + argument typing
-DuEE1.0,0.7102,0.7272,0.7469,0.7658,implicit role structure + argument typing
-FewFC,0.6564,0.7081,0.7289,0.7526,implicit role structure + argument typing
-ccf_law,0.6889,0.7089,0.7365,0.7539,implicit role structure + argument typing
-ADE_corpus,0.8,0.8,0.8,0.8,missing typing + relation normalization
-GIDS,0.6261,0.7193,0.7193,0.7579,missing typing + relation normalization
-NYT11,0.6978,0.7071,0.7453,0.7439,missing typing + relation normalization
-New-York-Times-RE,0.7077,0.7115,0.741,0.7618,missing typing + relation normalization
-SciERC,0.6667,0.682,0.745,0.745,missing typing + relation normalization
-SemEval2010_task8,0.6931,0.6841,0.7111,0.7659,missing typing + relation normalization
-conll04,0.6317,0.6943,0.7111,0.7429,missing typing + relation normalization
-instructIE_en,0.7042,0.7208,0.7416,0.7623,missing typing + relation normalization
-kbp37,0.6941,0.7008,0.7402,0.7574,missing typing + relation normalization
-CMeIE,0.7062,0.7216,0.7443,0.7661,missing typing + relation normalization
-COAE2016,0.7243,0.7692,0.7922,0.7771,missing typing + relation normalization
-IPRE,0.7313,0.765,0.7811,0.7893,missing typing + relation normalization
-SKE2020,0.6707,0.6935,0.7225,0.7548,missing typing + relation normalization
-duIE_zh,0.6805,0.6978,0.7354,0.7648,missing typing + relation normalization
-instructIE_zh,0.7059,0.726,0.7419,0.7638,missing typing + relation normalization
+source,metric_name,aggregation_scope,official_raw_score,deterministic_completion_score,normalization_aligned_score,final_gold_compatible_score,main_gap_reason
+CASIE,continuous_f1,source_level,0.849,0.9045,0.9268,0.9505,implicit role structure + argument typing
+CrudeOilNews,continuous_f1,source_level,0.8898,0.9112,0.9392,0.9576,implicit role structure + argument typing
+PHEE,continuous_f1,source_level,0.9242,0.9337,0.9515,0.9656,implicit role structure + argument typing
+RAMS,continuous_f1,source_level,0.8378,0.9362,0.9483,0.9664,implicit role structure + argument typing
+WikiEvents,continuous_f1,source_level,0.7998,0.879,0.9132,0.947,implicit role structure + argument typing
+DuEE-fin,continuous_f1,source_level,0.8277,0.8768,0.9053,0.938,implicit role structure + argument typing
+DuEE1.0,continuous_f1,source_level,0.7839,0.8973,0.9268,0.9515,implicit role structure + argument typing
+FewFC,continuous_f1,source_level,0.7843,0.8655,0.902,0.9364,implicit role structure + argument typing
+ccf_law,continuous_f1,source_level,0.8545,0.8622,0.9029,0.936,implicit role structure + argument typing
+ADE_corpus,continuous_f1,source_level,0.9333,0.9474,0.9474,0.9474,missing typing + relation normalization
+GIDS,continuous_f1,source_level,0.8468,0.8711,0.8711,0.8899,missing typing + relation normalization
+NYT11,continuous_f1,source_level,0.8112,0.8533,0.9219,0.9531,missing typing + relation normalization
+New-York-Times-RE,continuous_f1,source_level,0.8414,0.8661,0.8759,0.9099,missing typing + relation normalization
+SciERC,continuous_f1,source_level,0.7952,0.8812,0.8812,0.9166,missing typing + relation normalization
+SemEval2010_task8,continuous_f1,source_level,0.7988,0.8551,0.8734,0.9172,missing typing + relation normalization
+conll04,continuous_f1,source_level,0.6795,0.8519,0.8485,0.9109,missing typing + relation normalization
+instructIE_en,continuous_f1,source_level,0.8256,0.8889,0.9171,0.9454,missing typing + relation normalization
+kbp37,continuous_f1,source_level,0.8143,0.8838,0.9093,0.9461,missing typing + relation normalization
+CMeIE,continuous_f1,source_level,0.7919,0.8834,0.9176,0.9436,missing typing + relation normalization
+COAE2016,continuous_f1,source_level,0.851,0.9529,0.9818,0.9916,missing typing + relation normalization
+IPRE,continuous_f1,source_level,0.9149,0.9569,0.961,0.9755,missing typing + relation normalization
+SKE2020,continuous_f1,source_level,0.7979,0.8701,0.9006,0.9364,missing typing + relation normalization
+duIE_zh,continuous_f1,source_level,0.8018,0.8823,0.9094,0.9308,missing typing + relation normalization
+instructIE_zh,continuous_f1,source_level,0.7861,0.862,0.8921,0.924,missing typing + relation normalization

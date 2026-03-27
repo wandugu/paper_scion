@@ -10,6 +10,7 @@ import csv
 import json
 import platform
 import random
+import re
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -17,8 +18,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Sequence, Tuple
 
+import numpy as np
+
 from .common import load_yaml_config, resolve_project_path
 from .logger import get_ot_logger
+from .ontology_graph import schema_dict_to_graph
 
 LOGGER = get_ot_logger()
 CONFIG = load_yaml_config()
@@ -207,6 +211,97 @@ def _best_match_scores(gold: Sequence[tuple], pred: Sequence[tuple]) -> List[flo
     return out
 
 
+class DeterministicHashEmbeddingModel:
+    """用于 rebuttal 离线评测的确定性向量编码器。"""
+
+    def __init__(self, dim: int = 256):
+        self.dim = max(64, int(dim))
+
+    def _encode_text(self, text: str) -> "np.ndarray":
+        vec = np.zeros(self.dim, dtype=np.float32)
+        normalized = re.sub(r"\s+", " ", (text or "").strip().lower())
+        tokens = [tok for tok in re.split(r"[^0-9a-zA-Z\u4e00-\u9fa5]+", normalized) if tok]
+        if not tokens:
+            tokens = ["<empty>"]
+        for tok in tokens:
+            bucket = hash(tok) % self.dim
+            vec[bucket] += 1.0
+        norm = float(np.linalg.norm(vec))
+        if norm > 0:
+            vec = vec / norm
+        return vec
+
+    def encode(
+        self,
+        sentences: Any,
+        normalize_embeddings: bool = True,
+        convert_to_numpy: bool = True,
+        show_progress_bar: bool = False,
+    ):
+        del show_progress_bar  # 与 sentence-transformers 接口保持一致
+        vectors = [self._encode_text(str(s)) for s in sentences]
+        if normalize_embeddings:
+            out = []
+            for vec in vectors:
+                norm = float(np.linalg.norm(vec))
+                out.append(vec / norm if norm > 0 else vec)
+            vectors = out
+        if convert_to_numpy:
+            return np.stack(vectors, axis=0)
+        return vectors
+
+
+def _edge_tuples_to_schema(edges: Sequence[tuple]) -> Dict[str, Any]:
+    entities = set()
+    relationships = []
+    events: Dict[str, Dict[str, Any]] = {}
+    for edge in edges:
+        if not edge:
+            continue
+        if edge[0] == "re" and len(edge) >= 4:
+            head, rel, tail = str(edge[1]), str(edge[2]), str(edge[3])
+            entities.update([head, tail])
+            relationships.append({"head_entity": head, "rel_type": rel, "tail_entity": tail})
+        elif edge[0] == "ee" and len(edge) >= 3:
+            evt_type, role = str(edge[1]), str(edge[2])
+            if evt_type not in events:
+                events[evt_type] = {"event_type": evt_type, "arguments": []}
+            events[evt_type]["arguments"].append({"role": role, "description": "", "required": False})
+    schema: Dict[str, Any] = {"entities": sorted(entities), "relationships": relationships}
+    if events:
+        schema["events"] = list(events.values())
+    return schema
+
+
+def _graph_metric_from_evaluator(gold: Sequence[tuple], pred: Sequence[tuple]) -> Tuple[float, float, float]:
+    from src.ontology_eval import compute_ontology_metrics
+
+    reb_cfg = rebuttal_cfg()
+    graph_rounds = int(reb_cfg.get("graph_smoothing_rounds", 2))
+    graph_alpha = float(reb_cfg.get("graph_smoothing_alpha", 0.5))
+    fuzzy_threshold = float(reb_cfg.get("fuzzy_threshold", 0.6))
+    hash_dim = int(reb_cfg.get("hash_embedding_dim", 256))
+
+    gold_graph = schema_dict_to_graph(_edge_tuples_to_schema(gold))
+    pred_graph = schema_dict_to_graph(_edge_tuples_to_schema(pred))
+    model = DeterministicHashEmbeddingModel(dim=hash_dim)
+    mm = compute_ontology_metrics(
+        gold_graph=gold_graph,
+        pred_graph=pred_graph,
+        emb_model="deterministic-hash-embedding",
+        threshold=fuzzy_threshold,
+        graph_smoothing_rounds=graph_rounds,
+        graph_smoothing_alpha=graph_alpha,
+        embedding_model=model,
+    )
+    graph_metric = mm.get("graph", {})
+    return (
+        float(graph_metric.get("precision", 0.0)),
+        float(graph_metric.get("recall", 0.0)),
+        float(graph_metric.get("f1", 0.0)),
+    )
+
+
 def metrics(gold: Sequence[tuple], pred: Sequence[tuple]) -> dict:
     gset, pset = set(gold), set(pred)
     tp = len(gset & pset)
@@ -226,10 +321,7 @@ def metrics(gold: Sequence[tuple], pred: Sequence[tuple]) -> dict:
     cont_p = sum(best_pred) / len(best_pred) if best_pred else 0.0
     cont_f = 2 * cont_p * cont_r / (cont_p + cont_r) if (cont_p + cont_r) else 0.0
 
-    graph_scale = float(rebuttal_cfg().get("graph_scale", 0.8))
-    graph_p = cont_p * graph_scale
-    graph_r = cont_r * graph_scale
-    graph_f = 2 * graph_p * graph_r / (graph_p + graph_r) if (graph_p + graph_r) else 0.0
+    graph_p, graph_r, graph_f = _graph_metric_from_evaluator(gold, pred)
 
     return {
         "literal": (literal_p, literal_r, literal_f),

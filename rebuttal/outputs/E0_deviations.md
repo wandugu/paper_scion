@@ -14,3 +14,4 @@
 - E10 使用可复现近似实现。
 - E11 使用可复现近似实现。
 - E12 使用可复现近似实现。
+- E1 reachable 统一 canonicalize_edge 后再取交集，并新增 untyped RE source 的 placeholder-collapsed typed reachability。

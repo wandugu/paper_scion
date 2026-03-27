@@ -1435,7 +1435,9 @@ rebuttal:
     e5_debug_sources: [GIDS, New-York-Times-RE]
     e5_name_only_generic_sources: [New-York-Times-RE, NYT11]
   fuzzy_threshold: 0.6
-  graph_scale: 0.8
+  graph_smoothing_rounds: 2
+  graph_smoothing_alpha: 0.5
+  hash_embedding_dim: 256
   method_keep_ratio:
     manual: 0.55
     text2onto: 0.63

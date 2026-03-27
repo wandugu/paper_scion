@@ -1,3 +1,5 @@
-split,source_count,llm_only_graph_f1,scion_lite_graph_f1,graph_gap,llm_only_literal_f1,scion_lite_literal_f1,literal_gap
-popular_or_canonical,8,0.41,0.52,0.11,0.35,0.45,0.1
-niche_or_domain_specific,8,0.33,0.47,0.14,0.28,0.4,0.12
+split,method,source_count,real_100pct_continuous_f1,name_only_continuous_f1,shuffled_continuous_f1,gap_real_minus_name_only,gap_real_minus_shuffled
+popular_or_canonical,llm_only,8,0.6501744237834439,0.005389727984365209,0.40964027853667234,0.6447846957990787,0.24053414524677158
+popular_or_canonical,scion_lite,8,0.7299206910390503,0.0,0.479200707634882,0.7299206910390503,0.25071998340416835
+niche_or_domain_specific,llm_only,16,0.8969483704948161,0.031097341515185388,0.5189915008977177,0.8658510289796307,0.3779568695970984
+niche_or_domain_specific,scion_lite,16,0.9200498768996779,0.019714141060268326,0.5630615235245972,0.9003357358394095,0.3569883533750807
