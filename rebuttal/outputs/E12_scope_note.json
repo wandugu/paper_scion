@@ -1,0 +1,6 @@
+{
+  "pilot_only_flag": true,
+  "not_comparable_to_core_benchmark": true,
+  "scope_note": "feasibility_only",
+  "note": "E12 only addresses representational feasibility and should not be compared side-by-side with core benchmark tables."
+}

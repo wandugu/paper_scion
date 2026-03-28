@@ -12,13 +12,12 @@
 ## exact files produced
 - `E11_domain_specific_main.csv`
 - `E11_source_domain_specific.csv`
-- `E11_domain_mapping_used.json`
 - `E11_manifest.json`
 
 ## key findings
-- 主表仅聚合高价值领域 biomedical/finance
-- domain mapping 改为显式输出 E11_domain_mapping_used.json
-- 主表新增 source_count/cost_ratio/aggregation_mode，语义与 reviewer 问题对齐
+- 主表仅聚合高价值领域 biomedical/finance；cybersecurity/general 仅保留 source-level diagnostics
+- 主表新增 slice_only_flag/not_full_benchmark/benchmark_scope/source_list/source_count_checked guardrail 字段
+- 新增 E11_scope_note.json 明确这是 hoTR Q3 的 slice-only 补充，不等同 full-suite 结论
 
 ## Suggested rebuttal sentence
-这是高价值领域切片补充实验，不等同于全 benchmark 主结果。
+这是高价值领域切片补充实验（hoTR Q3），不等同于全 benchmark 主结果。

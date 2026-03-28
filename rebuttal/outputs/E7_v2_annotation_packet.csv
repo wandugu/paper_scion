@@ -1,0 +1,241 @@
+pair_id,source,task_type,language,method,metric,score,unit_type,pred_item_text,gold_item_text,pred_type,gold_type,score_bin,sample_role
+V2P0001,CASIE,ee,en,control_positive,continuous,1.0,edge,EE[data breach]-role->attack pattern,EE[data breach]-role->attack pattern,ee,ee,high,positive_control
+V2P0002,CrudeOilNews,ee,en,control_positive,continuous,1.0,edge,EE[cause movement down loss]-role->difference,EE[cause movement down loss]-role->difference,ee,ee,high,positive_control
+V2P0003,PHEE,ee,en,control_positive,continuous,1.0,edge,EE[adverse event]-role->subject,EE[adverse event]-role->subject,ee,ee,high,positive_control
+V2P0004,RAMS,ee,en,control_positive,continuous,1.0,edge,EE[acceptance of an agreement contract or ceasefire]-role->participant,EE[acceptance of an agreement contract or ceasefire]-role->participant,ee,ee,high,positive_control
+V2P0005,WikiEvents,ee,en,control_positive,continuous,1.0,edge,EE[attack]-role->instrument,EE[attack]-role->instrument,ee,ee,high,positive_control
+V2P0006,DuEE-fin,ee,zh,control_positive,continuous,1.0,edge,EE[中标]-role->招标方,EE[中标]-role->招标方,ee,ee,high,positive_control
+V2P0007,DuEE1.0,ee,zh,control_positive,continuous,1.0,edge,EE[交往 感谢]-role->被感谢人,EE[交往 感谢]-role->被感谢人,ee,ee,high,positive_control
+V2P0008,FewFC,ee,zh,control_positive,continuous,1.0,edge,EE[判决]-role->被告,EE[判决]-role->被告,ee,ee,high,positive_control
+V2P0009,ccf_law,ee,zh,control_positive,continuous,1.0,edge,EE[出生]-role->孩子,EE[出生]-role->孩子,ee,ee,high,positive_control
+V2P0010,ADE_corpus,re,en,control_positive,continuous,1.0,edge,RE[entity]-adverse effect->[entity],RE[entity]-adverse effect->[entity],re,re,high,positive_control
+V2P0011,GIDS,re,en,control_positive,continuous,1.0,edge,RE[entity]-place of birth->[entity],RE[entity]-place of birth->[entity],re,re,high,positive_control
+V2P0012,NYT11,re,en,control_positive,continuous,1.0,edge,RE[entity]-place of death->[entity],RE[entity]-place of death->[entity],re,re,high,positive_control
+V2P0013,CASIE,ee,en,control_negative,continuous,0.0,edge,CONTROL_NEGATIVE::unrelated_pred_item,CONTROL_NEGATIVE::unrelated_gold_item,control,control,low,negative_control
+V2P0014,CrudeOilNews,ee,en,control_negative,continuous,0.0,edge,CONTROL_NEGATIVE::unrelated_pred_item,CONTROL_NEGATIVE::unrelated_gold_item,control,control,low,negative_control
+V2P0015,PHEE,ee,en,control_negative,continuous,0.0,edge,CONTROL_NEGATIVE::unrelated_pred_item,CONTROL_NEGATIVE::unrelated_gold_item,control,control,low,negative_control
+V2P0016,RAMS,ee,en,control_negative,continuous,0.0,edge,CONTROL_NEGATIVE::unrelated_pred_item,CONTROL_NEGATIVE::unrelated_gold_item,control,control,low,negative_control
+V2P0017,WikiEvents,ee,en,control_negative,continuous,0.0,edge,CONTROL_NEGATIVE::unrelated_pred_item,CONTROL_NEGATIVE::unrelated_gold_item,control,control,low,negative_control
+V2P0018,DuEE-fin,ee,zh,control_negative,continuous,0.0,edge,CONTROL_NEGATIVE::unrelated_pred_item,CONTROL_NEGATIVE::unrelated_gold_item,control,control,low,negative_control
+V2P0019,DuEE1.0,ee,zh,control_negative,continuous,0.0,edge,CONTROL_NEGATIVE::unrelated_pred_item,CONTROL_NEGATIVE::unrelated_gold_item,control,control,low,negative_control
+V2P0020,FewFC,ee,zh,control_negative,continuous,0.0,edge,CONTROL_NEGATIVE::unrelated_pred_item,CONTROL_NEGATIVE::unrelated_gold_item,control,control,low,negative_control
+V2P0021,ccf_law,ee,zh,control_negative,continuous,0.0,edge,CONTROL_NEGATIVE::unrelated_pred_item,CONTROL_NEGATIVE::unrelated_gold_item,control,control,low,negative_control
+V2P0022,ADE_corpus,re,en,control_negative,continuous,0.0,edge,CONTROL_NEGATIVE::unrelated_pred_item,CONTROL_NEGATIVE::unrelated_gold_item,control,control,low,negative_control
+V2P0023,GIDS,re,en,control_negative,continuous,0.0,edge,CONTROL_NEGATIVE::unrelated_pred_item,CONTROL_NEGATIVE::unrelated_gold_item,control,control,low,negative_control
+V2P0024,NYT11,re,en,control_negative,continuous,0.0,edge,CONTROL_NEGATIVE::unrelated_pred_item,CONTROL_NEGATIVE::unrelated_gold_item,control,control,low,negative_control
+V2P0025,SemEval2010_task8,re,en,eta,fuzzy,1.0,edge,RE[entity]-message topic->[entity],RE[entity]-message topc->[entity],re,re,high,sampled
+V2P0026,FewFC,ee,zh,manual,continuous,1.0,edge,EE[判决]-role->原告,EE[判决]-role->原告,ee,ee,high,sampled
+V2P0027,FewFC,ee,zh,scion_fusion,fuzzy,1.0,edge,EE[签署合同]-role->日期,EE[签署合同]-role->接受合同签署的组织或单位,ee,ee,high,sampled
+V2P0028,ADE_corpus,re,en,scion_lite,fuzzy,1.0,edge,RE[entity]-adverse effect->[entity],RE[entity]-adverse effect->[entity],re,re,high,sampled
+V2P0029,ADE_corpus,re,en,llm_only,fuzzy,1.0,edge,RE[entity]-adverse effect->[entity],RE[entity]-adverse effect->[entity],re,re,high,sampled
+V2P0030,IPRE,re,zh,manual,fuzzy,1.0,edge,RE[entity]-现妻->[entity],RE[entity]-孙子->[entity],re,re,high,sampled
+V2P0031,conll04,re,en,llm_only,continuous,1.0,edge,RE[peop]-work for->[org],RE[peop]-work for->[org],re,re,high,sampled
+V2P0032,ADE_corpus,re,en,manual,fuzzy,1.0,edge,RE[entity]-adverse effect->[entity],RE[entity]-adverse effect->[entity],re,re,high,sampled
+V2P0033,SemEval2010_task8,re,en,scion_full,fuzzy,1.0,edge,RE[entity]-product producer->[entity],RE[entity]-product producer->[entity],re,re,high,sampled
+V2P0034,SciERC,re,en,manual,fuzzy,1.0,edge,RE[entity]-used for->[entity],RE[entity]-evaluate for->[entity],re,re,high,sampled
+V2P0035,conll04,re,en,text2onto,fuzzy,1.0,edge,RE[peop]-work for->[org],RE[peop]-work for->[org],re,re,high,sampled
+V2P0036,NYT11,re,en,scion_rl,fuzzy,1.0,edge,RE[entity]-company->[entity],RE[entity]-company founders->[entity],re,re,high,sampled
+V2P0037,ADE_corpus,re,en,scion_full,fuzzy,1.0,edge,RE[entity]-adverse effect->[entity],RE[entity]-adverse effect->[entity],re,re,high,sampled
+V2P0038,SciERC,re,en,eta,fuzzy,1.0,edge,RE[entity]-used for->[entity],RE[entity]-evaluate for->[entity],re,re,high,sampled
+V2P0039,COAE2016,re,zh,scion_rl,fuzzy,1.0,edge,RE[entity]-毕业院校->[entity],RE[entity]-创始人->[entity],re,re,high,sampled
+V2P0040,FewFC,ee,zh,scion_rl,continuous,1.0,edge,EE[中标]-role->中标金额,EE[中标]-role->中标金额,ee,ee,high,sampled
+V2P0041,instructIE_zh,re,zh,manual,fuzzy,1.0,edge,RE[天文对象类型]-别名->[天文对象类型],RE[事件]-别名->[事件],re,re,high,sampled
+V2P0042,instructIE_zh,re,zh,scion_full,fuzzy,1.0,edge,RE[建筑结构]-宽度->[度量],RE[地理地区]-宽度->[度量],re,re,high,sampled
+V2P0043,conll04,re,en,eta,continuous,1.0,edge,RE[peop]-work for->[org],RE[peop]-work for->[org],re,re,high,sampled
+V2P0044,CrudeOilNews,ee,en,scion_rl,continuous,1.0,edge,EE[cause movement down loss]-role->initial reference point,EE[cause movement down loss]-role->initial reference point,ee,ee,high,sampled
+V2P0045,SciERC,re,en,scion_fusion,fuzzy,1.0,edge,RE[entity]-evaluate for->[entity],RE[entity]-used for->[entity],re,re,high,sampled
+V2P0046,GIDS,re,en,text2onto,fuzzy,1.0,edge,RE[entity]-place of death->[entity],RE[entity]-place of birth->[entity],re,re,high,sampled
+V2P0047,conll04,re,en,scion_fusion,continuous,1.0,edge,RE[org]-orgbased in->[loc],RE[org]-orgbased in->[loc],re,re,high,sampled
+V2P0048,conll04,re,en,manual,fuzzy,1.0,edge,RE[peop]-kill->[peop],RE[peop]-kill->[peop],re,re,high,sampled
+V2P0049,IPRE,re,zh,scion_rl,fuzzy,1.0,edge,RE[entity]-现妻->[entity],RE[entity]-恋人->[entity],re,re,high,sampled
+V2P0050,SemEval2010_task8,re,en,eta,continuous,1.0,edge,RE[entity]-instrument agency->[entity],RE[entity]-instrument agency->[entity],re,re,high,sampled
+V2P0051,FewFC,ee,zh,scion_lite,fuzzy,1.0,edge,EE[担保]-role->担保金额,EE[担保]-role->担保公司,ee,ee,high,sampled
+V2P0052,kbp37,re,en,eta,fuzzy,1.0,edge,RE[entity]-subsidiaries->[entity],RE[entity]-members->[entity],re,re,high,sampled
+V2P0053,ADE_corpus,re,en,scion_lite,continuous,1.0,edge,RE[entity]-adverse effect->[entity],RE[entity]-adverse effect->[entity],re,re,high,sampled
+V2P0054,ADE_corpus,re,en,scion_rl,continuous,1.0,edge,RE[entity]-adverse effect->[entity],RE[entity]-adverse effect->[entity],re,re,high,sampled
+V2P0055,SciERC,re,en,text2onto,fuzzy,1.0,edge,RE[entity]-evaluate for->[entity],RE[entity]-used for->[entity],re,re,high,sampled
+V2P0056,ADE_corpus,re,en,eta,fuzzy,1.0,edge,RE[entity]-adverse effect->[entity],RE[entity]-adverse effect->[entity],re,re,high,sampled
+V2P0057,ADE_corpus,re,en,scion_full,fuzzy,1.0,edge,RE[entity]-adverse effect->[entity],RE[entity]-adverse effect->[entity],re,re,high,sampled
+V2P0058,IPRE,re,zh,scion_lite,fuzzy,1.0,edge,RE[entity]-未婚妻->[entity],RE[entity]-未婚夫->[entity],re,re,high,sampled
+V2P0059,conll04,re,en,manual,fuzzy,1.0,edge,RE[loc]-located in->[loc],RE[peop]-live in->[loc],re,re,high,sampled
+V2P0060,GIDS,re,en,scion_rl,continuous,1.0,edge,RE[entity]-education institution->[entity],RE[entity]-education institution->[entity],re,re,high,sampled
+V2P0061,kbp37,re,en,eta,fuzzy,1.0,edge,RE[entity]-members->[entity],RE[entity]-top members employees->[entity],re,re,high,sampled
+V2P0062,ADE_corpus,re,en,eta,fuzzy,1.0,edge,RE[entity]-adverse effect->[entity],RE[entity]-adverse effect->[entity],re,re,high,sampled
+V2P0063,New-York-Times-RE,re,en,text2onto,fuzzy,1.0,edge,RE[entity]-sports team location of teams->[entity],RE[entity]-sports team of location->[entity],re,re,high,sampled
+V2P0064,ccf_law,ee,zh,scion_fusion,fuzzy,1.0,edge,EE[分居]-role->地点,EE[其他]-role->地点,ee,ee,high,sampled
+V2P0065,ADE_corpus,re,en,scion_fusion,continuous,1.0,edge,RE[entity]-adverse effect->[entity],RE[entity]-adverse effect->[entity],re,re,high,sampled
+V2P0066,PHEE,ee,en,scion_full,continuous,0.7143,edge,EE[potential therapeutic event]-role->treatment drug,EE[potential therapeutic event]-role->treatment route,ee,ee,high,sampled
+V2P0067,ccf_law,ee,zh,text2onto,fuzzy,1.0,edge,EE[同居]-role->男人,EE[同居]-role->地点,ee,ee,high,sampled
+V2P0068,kbp37,re,en,scion_full,fuzzy,1.0,edge,RE[entity]-employee of->[entity],RE[entity]-cities of residence->[entity],re,re,high,sampled
+V2P0069,conll04,re,en,scion_full,continuous,1.0,edge,RE[peop]-kill->[peop],RE[peop]-kill->[peop],re,re,high,sampled
+V2P0070,NYT11,re,en,llm_only,continuous,1.0,edge,RE[entity]-location contains->[entity],RE[entity]-location contains->[entity],re,re,high,sampled
+V2P0071,SciERC,re,en,llm_only,fuzzy,1.0,edge,RE[entity]-conjunction->[entity],RE[entity]-compare->[entity],re,re,high,sampled
+V2P0072,kbp37,re,en,scion_lite,fuzzy,1.0,edge,RE[entity]-else->[entity],RE[entity]-subsidiaries->[entity],re,re,high,sampled
+V2P0073,PHEE,ee,en,scion_fusion,fuzzy,1.0,edge,EE[adverse event]-role->treatment dosage,EE[adverse event]-role->effect,ee,ee,high,sampled
+V2P0074,IPRE,re,zh,manual,fuzzy,1.0,edge,RE[entity]-孙女->[entity],RE[entity]-生父->[entity],re,re,high,sampled
+V2P0075,ADE_corpus,re,en,scion_rl,fuzzy,1.0,edge,RE[entity]-adverse effect->[entity],RE[entity]-adverse effect->[entity],re,re,high,sampled
+V2P0076,IPRE,re,zh,eta,fuzzy,1.0,edge,RE[entity]-姐姐->[entity],RE[entity]-前妻->[entity],re,re,high,sampled
+V2P0077,PHEE,ee,en,text2onto,fuzzy,1.0,edge,EE[adverse event]-role->subject gender,EE[adverse event]-role->effect,ee,ee,high,sampled
+V2P0078,kbp37,re,en,scion_full,fuzzy,1.0,edge,RE[entity]-subsidiaries->[entity],RE[entity]-origin->[entity],re,re,high,sampled
+V2P0079,PHEE,ee,en,scion_lite,continuous,0.8333,edge,EE[potential therapeutic event]-role->treatment,EE[potential therapeutic event]-role->treatment freq,ee,ee,high,sampled
+V2P0080,COAE2016,re,zh,scion_lite,continuous,1.0,edge,RE[entity]-出生日期->[entity],RE[entity]-出生日期->[entity],re,re,high,sampled
+V2P0081,IPRE,re,zh,scion_fusion,fuzzy,1.0,edge,RE[entity]-儿子->[entity],RE[entity]-姐姐->[entity],re,re,high,sampled
+V2P0082,FewFC,ee,zh,scion_fusion,continuous,1.0,edge,EE[签署合同]-role->发起合同签署的自然人,EE[签署合同]-role->发起合同签署的自然人,ee,ee,high,sampled
+V2P0083,IPRE,re,zh,text2onto,fuzzy,1.0,edge,RE[entity]-叔伯->[entity],RE[entity]-孙子->[entity],re,re,high,sampled
+V2P0084,COAE2016,re,zh,scion_fusion,fuzzy,1.0,edge,RE[entity]-员工数->[entity],RE[entity]-配偶->[entity],re,re,high,sampled
+V2P0085,DuEE1.0,ee,zh,eta,continuous,0.6667,edge,EE[财经 交易 融资]-role->融资金额,EE[财经 交易 融资]-role->时间,ee,ee,high,sampled
+V2P0086,ADE_corpus,re,en,manual,fuzzy,1.0,edge,RE[entity]-adverse effect->[entity],RE[entity]-adverse effect->[entity],re,re,high,sampled
+V2P0087,New-York-Times-RE,re,en,scion_fusion,fuzzy,1.0,edge,RE[entity]-profession->[entity],RE[entity]-nationality->[entity],re,re,high,sampled
+V2P0088,IPRE,re,zh,eta,fuzzy,1.0,edge,RE[entity]-生母->[entity],RE[entity]-前夫->[entity],re,re,high,sampled
+V2P0089,ADE_corpus,re,en,text2onto,continuous,1.0,edge,RE[entity]-adverse effect->[entity],RE[entity]-adverse effect->[entity],re,re,high,sampled
+V2P0090,CASIE,ee,en,scion_full,fuzzy,1.0,edge,EE[ransom]-role->attacker,EE[ransom]-role->place,ee,ee,high,sampled
+V2P0091,ccf_law,ee,zh,eta,fuzzy,1.0,edge,EE[结婚]-role->妻子,EE[同居]-role->妻子,ee,ee,high,sampled
+V2P0092,SemEval2010_task8,re,en,scion_lite,fuzzy,1.0,edge,RE[entity]-cause effect->[entity],RE[entity]-cause effect->[entity],re,re,high,sampled
+V2P0093,duIE_zh,re,zh,scion_fusion,fuzzy,1.0,edge,RE[影视作品]-制片人->[人物],RE[影视作品]-制片人->[人物],re,re,high,sampled
+V2P0094,PHEE,ee,en,scion_lite,fuzzy,1.0,edge,EE[potential therapeutic event]-role->subject race,EE[potential therapeutic event]-role->treatment,ee,ee,high,sampled
+V2P0095,IPRE,re,zh,eta,fuzzy,1.0,edge,RE[entity]-爷爷->[entity],RE[entity]-妹妹->[entity],re,re,high,sampled
+V2P0096,PHEE,ee,en,scion_fusion,fuzzy,1.0,edge,EE[adverse event]-role->treatment dosage,EE[adverse event]-role->subject,ee,ee,high,sampled
+V2P0097,COAE2016,re,zh,scion_lite,continuous,0.5,edge,RE[entity]-高管->[entity],RE[entity]-员工数->[entity],re,re,mid,sampled
+V2P0098,CMeIE,re,zh,scion_fusion,continuous,0.4,edge,RE[疾病]-相关 导致->[疾病],RE[疾病]-手术治疗->[手术治疗],re,re,mid,sampled
+V2P0099,SemEval2010_task8,re,en,text2onto,continuous,0.3333,edge,RE[entity]-message topc->[entity],RE[entity]-instrument agency->[entity],re,re,mid,sampled
+V2P0100,SemEval2010_task8,re,en,llm_only,continuous,0.4,edge,RE[entity]-message topc->[entity],RE[entity]-entity origin->[entity],re,re,mid,sampled
+V2P0101,COAE2016,re,zh,scion_rl,continuous,0.5,edge,RE[entity]-出生日期->[entity],RE[entity]-毕业院校->[entity],re,re,mid,sampled
+V2P0102,CMeIE,re,zh,text2onto,continuous,0.3333,edge,RE[疾病]-内窥镜检查->[检查],RE[疾病]-多发季节->[流行病学],re,re,mid,sampled
+V2P0103,SemEval2010_task8,re,en,scion_full,continuous,0.3333,edge,RE[entity]-instrument agency->[entity],RE[entity]-content container->[entity],re,re,mid,sampled
+V2P0104,instructIE_zh,re,zh,text2onto,continuous,0.3333,edge,RE[产品]-发现者或发明者->[人物 组织],RE[产品]-组成->[产品],re,re,mid,sampled
+V2P0105,CMeIE,re,zh,scion_full,continuous,0.3333,edge,RE[疾病]-化疗->[其他治疗],RE[疾病]-预防->[其他],re,re,mid,sampled
+V2P0106,SemEval2010_task8,re,en,scion_lite,continuous,0.3333,edge,RE[entity]-message topc->[entity],RE[entity]-member collection->[entity],re,re,mid,sampled
+V2P0107,DuEE1.0,ee,zh,llm_only,continuous,0.3333,edge,EE[产品行为 上映]-role->时间,EE[组织关系 加盟]-role->时间,ee,ee,mid,sampled
+V2P0108,NYT11,re,en,eta,continuous,0.3333,edge,RE[entity]-company founders->[entity],RE[entity]-location contains->[entity],re,re,mid,sampled
+V2P0109,PHEE,ee,en,scion_fusion,continuous,0.3333,edge,EE[adverse event]-role->treatment time elapsed,EE[potential therapeutic event]-role->treatment disorder,ee,ee,mid,sampled
+V2P0110,CMeIE,re,zh,manual,continuous,0.6,edge,RE[疾病]-相关 导致->[疾病],RE[疾病]-相关 转化->[疾病],re,re,mid,sampled
+V2P0111,IPRE,re,zh,scion_lite,continuous,0.5,edge,RE[entity]-侄女->[entity],RE[entity]-未婚妻->[entity],re,re,mid,sampled
+V2P0112,SKE2020,re,zh,llm_only,continuous,0.5,edge,RE[人物]-父亲->[人物],RE[人物]-丈夫->[人物],re,re,mid,sampled
+V2P0113,SemEval2010_task8,re,en,scion_rl,continuous,0.4,edge,RE[entity]-entity destination->[entity],RE[entity]-component whole->[entity],re,re,mid,sampled
+V2P0114,ccf_law,ee,zh,scion_rl,continuous,0.5,edge,EE[起诉]-role->时间,EE[出轨]-role->时间,ee,ee,mid,sampled
+V2P0115,IPRE,re,zh,scion_rl,continuous,0.5,edge,RE[entity]-弟弟->[entity],RE[entity]-儿媳->[entity],re,re,mid,sampled
+V2P0116,New-York-Times-RE,re,en,llm_only,continuous,0.3333,edge,RE[entity]-ethnicity->[entity],RE[entity]-country of capital->[entity],re,re,mid,sampled
+V2P0117,kbp37,re,en,scion_rl,continuous,0.4,edge,RE[entity]-else->[entity],RE[entity]-founded by->[entity],re,re,mid,sampled
+V2P0118,COAE2016,re,zh,eta,continuous,0.5,edge,RE[entity]-配偶->[entity],RE[entity]-子女->[entity],re,re,mid,sampled
+V2P0119,duIE_zh,re,zh,scion_fusion,continuous,0.4,edge,RE[人物]-丈夫->[人物],RE[人物]-毕业院校->[学校],re,re,mid,sampled
+V2P0120,SciERC,re,en,manual,continuous,0.3333,edge,RE[entity]-used for->[entity],RE[entity]-part of->[entity],re,re,mid,sampled
+V2P0121,IPRE,re,zh,text2onto,continuous,0.5,edge,RE[entity]-生母->[entity],RE[entity]-孙子->[entity],re,re,mid,sampled
+V2P0122,PHEE,ee,en,eta,continuous,0.625,edge,EE[potential therapeutic event]-role->treatment time elapsed,EE[potential therapeutic event]-role->treatment drug,ee,ee,mid,sampled
+V2P0123,New-York-Times-RE,re,en,scion_rl,continuous,0.4286,edge,RE[entity]-neighborhood of->[entity],RE[entity]-country of administrative divisions->[entity],re,re,mid,sampled
+V2P0124,New-York-Times-RE,re,en,text2onto,continuous,0.3333,edge,RE[entity]-place lived->[entity],RE[entity]-company founders->[entity],re,re,mid,sampled
+V2P0125,IPRE,re,zh,scion_fusion,continuous,0.5,edge,RE[entity]-侄子->[entity],RE[entity]-女婿->[entity],re,re,mid,sampled
+V2P0126,CASIE,ee,en,text2onto,continuous,0.5,edge,EE[ransom]-role->damage amount,EE[data breach]-role->damage amount,ee,ee,mid,sampled
+V2P0127,kbp37,re,en,llm_only,continuous,0.3333,edge,RE[entity]-members->[entity],RE[entity]-title of person->[entity],re,re,mid,sampled
+V2P0128,SciERC,re,en,text2onto,continuous,0.4,edge,RE[entity]-conjunction->[entity],RE[entity]-part of->[entity],re,re,mid,sampled
+V2P0129,IPRE,re,zh,scion_rl,continuous,0.5,edge,RE[entity]-朋友->[entity],RE[entity]-爷爷->[entity],re,re,mid,sampled
+V2P0130,COAE2016,re,zh,eta,continuous,0.5,edge,RE[entity]-高管->[entity],RE[entity]-员工数->[entity],re,re,mid,sampled
+V2P0131,CASIE,ee,en,scion_full,continuous,0.4,edge,EE[discover vulnerability]-role->capabilities,EE[patch vulnerability]-role->vulnerability,ee,ee,mid,sampled
+V2P0132,PHEE,ee,en,eta,continuous,0.4286,edge,EE[adverse event]-role->treatment drug,EE[potential therapeutic event]-role->treatment,ee,ee,mid,sampled
+V2P0133,PHEE,ee,en,scion_lite,continuous,0.375,edge,EE[adverse event]-role->treatment drug,EE[potential therapeutic event]-role->treatment route,ee,ee,mid,sampled
+V2P0134,PHEE,ee,en,scion_full,continuous,0.5714,edge,EE[adverse event]-role->treatment drug,EE[adverse event]-role->treatment time elapsed,ee,ee,mid,sampled
+V2P0135,New-York-Times-RE,re,en,scion_fusion,continuous,0.3333,edge,RE[entity]-company industry->[entity],RE[entity]-geographic distribution->[entity],re,re,mid,sampled
+V2P0136,SciERC,re,en,scion_full,continuous,0.3333,edge,RE[entity]-evaluate for->[entity],RE[entity]-hyponym of->[entity],re,re,mid,sampled
+V2P0137,New-York-Times-RE,re,en,manual,continuous,0.5,edge,RE[entity]-profession->[entity],RE[entity]-religion->[entity],re,re,mid,sampled
+V2P0138,IPRE,re,zh,llm_only,continuous,0.5,edge,RE[entity]-前夫->[entity],RE[entity]-生母->[entity],re,re,mid,sampled
+V2P0139,GIDS,re,en,scion_rl,continuous,0.4286,edge,RE[person]-place of death->[place],RE[entity]-place of birth->[entity],re,re,mid,sampled
+V2P0140,kbp37,re,en,eta,continuous,0.5,edge,RE[entity]-employee of->[entity],RE[entity]-title of person->[entity],re,re,mid,sampled
+V2P0141,SKE2020,re,zh,scion_lite,continuous,0.4,edge,RE[人物]-祖籍->[地点],RE[人物]-母亲->[人物],re,re,mid,sampled
+V2P0142,CASIE,ee,en,scion_rl,continuous,0.3333,edge,EE[patch vulnerability]-role->time,EE[discover vulnerability]-role->capabilities,ee,ee,mid,sampled
+V2P0143,IPRE,re,zh,scion_fusion,continuous,0.5,edge,RE[entity]-侄子->[entity],RE[entity]-公公->[entity],re,re,mid,sampled
+V2P0144,instructIE_en,re,en,llm_only,continuous,0.3333,edge,RE[organization]-has subsidiary->[organization],RE[organization]-alternative name->[organization],re,re,mid,sampled
+V2P0145,conll04,re,en,llm_only,continuous,0.5,edge,RE[loc]-located in->[loc],RE[peop]-live in->[loc],re,re,mid,sampled
+V2P0146,PHEE,ee,en,scion_lite,continuous,0.5714,edge,EE[adverse event]-role->treatment time elapsed,EE[adverse event]-role->treatment freq,ee,ee,mid,sampled
+V2P0147,kbp37,re,en,scion_rl,continuous,0.5,edge,RE[entity]-subsidiaries->[entity],RE[entity]-origin->[entity],re,re,mid,sampled
+V2P0148,IPRE,re,zh,scion_full,continuous,0.5,edge,RE[entity]-女儿->[entity],RE[entity]-岳父->[entity],re,re,mid,sampled
+V2P0149,NYT11,re,en,scion_fusion,continuous,0.4,edge,RE[entity]-country capital->[entity],RE[entity]-company->[entity],re,re,mid,sampled
+V2P0150,DuEE1.0,ee,zh,scion_lite,continuous,0.3333,edge,EE[交往 点赞]-role->时间,EE[交往 会见]-role->会见对象,ee,ee,mid,sampled
+V2P0151,SKE2020,re,zh,scion_full,continuous,0.3333,edge,RE[影视作品]-主演->[人物],RE[电视综艺]-嘉宾->[人物],re,re,mid,sampled
+V2P0152,COAE2016,re,zh,scion_lite,continuous,0.5,edge,RE[entity]-高管->[entity],RE[entity]-毕业院校->[entity],re,re,mid,sampled
+V2P0153,conll04,re,en,llm_only,continuous,0.5,edge,RE[loc]-located in->[loc],RE[org]-orgbased in->[loc],re,re,mid,sampled
+V2P0154,FewFC,ee,zh,scion_full,continuous,0.5,edge,EE[收购]-role->收购股份数量,EE[收购]-role->收购公司,ee,ee,mid,sampled
+V2P0155,NYT11,re,en,scion_lite,continuous,0.4,edge,RE[entity]-nationality->[entity],RE[entity]-neighborhood of->[entity],re,re,mid,sampled
+V2P0156,COAE2016,re,zh,scion_fusion,continuous,0.5,edge,RE[entity]-毕业院校->[entity],RE[entity]-出生日期->[entity],re,re,mid,sampled
+V2P0157,NYT11,re,en,scion_full,continuous,0.3333,edge,RE[entity]-country capital->[entity],RE[entity]-company founders->[entity],re,re,mid,sampled
+V2P0158,GIDS,re,en,scion_fusion,continuous,0.6,edge,RE[entity]-education degree->[entity],RE[entity]-education institution->[entity],re,re,mid,sampled
+V2P0159,kbp37,re,en,scion_full,continuous,0.5,edge,RE[entity]-employee of->[entity],RE[entity]-country of headquarters->[entity],re,re,mid,sampled
+V2P0160,IPRE,re,zh,manual,continuous,0.5,edge,RE[entity]-侄女->[entity],RE[entity]-儿子->[entity],re,re,mid,sampled
+V2P0161,kbp37,re,en,eta,continuous,0.5,edge,RE[entity]-members->[entity],RE[entity]-subsidiaries->[entity],re,re,mid,sampled
+V2P0162,duIE_zh,re,zh,manual,continuous,0.3333,edge,RE[人物]-国籍->[国家],RE[歌曲]-作词->[人物],re,re,mid,sampled
+V2P0163,SciERC,re,en,scion_fusion,continuous,0.4,edge,RE[entity]-hyponym of->[entity],RE[entity]-conjunction->[entity],re,re,mid,sampled
+V2P0164,NYT11,re,en,manual,continuous,0.375,edge,RE[entity]-place of birth->[entity],RE[entity]-country of administrative divisions->[entity],re,re,mid,sampled
+V2P0165,NYT11,re,en,scion_fusion,continuous,0.5,edge,RE[entity]-place of birth->[entity],RE[entity]-neighborhood of->[entity],re,re,mid,sampled
+V2P0166,SciERC,re,en,scion_lite,continuous,0.4,edge,RE[entity]-compare->[entity],RE[entity]-used for->[entity],re,re,mid,sampled
+V2P0167,NYT11,re,en,scion_rl,continuous,0.3333,edge,RE[entity]-country capital->[entity],RE[entity]-neighborhood of->[entity],re,re,mid,sampled
+V2P0168,NYT11,re,en,scion_rl,continuous,0.4286,edge,RE[entity]-neighborhood of->[entity],RE[entity]-country of administrative divisions->[entity],re,re,mid,sampled
+V2P0169,SKE2020,re,zh,manual,fuzzy,0.0,edge,RE[历史人物]-朝代->[text],RE[影视作品]-编剧->[人物],re,re,low,sampled
+V2P0170,NYT11,re,en,manual,continuous,0.2857,edge,RE[entity]-location contains->[entity],RE[entity]-place of death->[entity],re,re,low,sampled
+V2P0171,duIE_zh,re,zh,scion_full,fuzzy,0.0,edge,RE[影视作品]-改编自->[作品],RE[电视综艺]-主持人->[人物],re,re,low,sampled
+V2P0172,WikiEvents,ee,en,scion_full,continuous,0.1429,edge,EE[charging or indicting]-role->defendant,EE[correspondence]-role->communicator,ee,ee,low,sampled
+V2P0173,DuEE1.0,ee,zh,text2onto,fuzzy,0.0,edge,EE[司法行为 立案]-role->立案对象,EE[人生 死亡]-role->死者年龄,ee,ee,low,sampled
+V2P0174,NYT11,re,en,eta,fuzzy,0.0,edge,RE[entity]-country capital->[entity],RE[entity]-company->[entity],re,re,low,sampled
+V2P0175,CASIE,ee,en,manual,fuzzy,0.0,edge,EE[discover vulnerability]-role->vulnerable system,EE[ransom]-role->place,ee,ee,low,sampled
+V2P0176,DuEE-fin,ee,zh,scion_rl,continuous,0.2,edge,EE[股东减持]-role->减持部分占所持比例,EE[质押]-role->质押方,ee,ee,low,sampled
+V2P0177,instructIE_zh,re,zh,scion_fusion,continuous,0.2,edge,RE[生物]-学名->[生物],RE[人物]-配偶->[人物],re,re,low,sampled
+V2P0178,ccf_law,ee,zh,scion_rl,continuous,0.2,edge,EE[其他]-role->主体,EE[出生]-role->地点,ee,ee,low,sampled
+V2P0179,PHEE,ee,en,scion_rl,fuzzy,0.0,edge,EE[potential therapeutic event]-role->subject age,EE[adverse event]-role->treatment disorder,ee,ee,low,sampled
+V2P0180,SKE2020,re,zh,scion_rl,continuous,0.1429,edge,RE[企业]-总部地点->[地点],RE[歌曲]-所属专辑->[音乐专辑],re,re,low,sampled
+V2P0181,DuEE1.0,ee,zh,scion_fusion,continuous,0.125,edge,EE[组织行为 游行]-role->地点,EE[财经 交易 涨价]-role->时间,ee,ee,low,sampled
+V2P0182,SKE2020,re,zh,text2onto,continuous,0.1429,edge,RE[企业]-成立日期->[date],RE[行政区]-人口数量->[number],re,re,low,sampled
+V2P0183,CMeIE,re,zh,scion_rl,continuous,0.1667,edge,RE[疾病]-发病率->[流行病学],RE[检查]-同义词->[检查],re,re,low,sampled
+V2P0184,PHEE,ee,en,scion_full,fuzzy,0.0,edge,EE[adverse event]-role->combination drug,EE[potential therapeutic event]-role->subject disorder,ee,ee,low,sampled
+V2P0185,CrudeOilNews,ee,en,scion_fusion,fuzzy,0.0,edge,EE[slow weak]-role->forecaster,EE[civil unrest]-role->place,ee,ee,low,sampled
+V2P0186,RAMS,ee,en,scion_lite,fuzzy,0.0,edge,EE[investigation of a crime]-role->defendant,EE[receiving or importing an artifact]-role->origin,ee,ee,low,sampled
+V2P0187,NYT11,re,en,text2onto,fuzzy,0.0,edge,RE[entity]-administrative division of country->[entity],RE[entity]-country capital->[entity],re,re,low,sampled
+V2P0188,instructIE_en,re,en,eta,fuzzy,0.0,edge,RE[product]-original broadcaster->[organization],RE[product]-based on->[product],re,re,low,sampled
+V2P0189,New-York-Times-RE,re,en,scion_lite,continuous,0.2222,edge,RE[entity]-place lived->[entity],RE[entity]-company shareholder among major shareholders->[entity],re,re,low,sampled
+V2P0190,SKE2020,re,zh,manual,fuzzy,0.0,edge,RE[企业]-成立日期->[date],RE[人物]-出生地->[地点],re,re,low,sampled
+V2P0191,instructIE_zh,re,zh,eta,fuzzy,0.0,edge,RE[运输]-面积->[度量],RE[医学]-用药->[医学],re,re,low,sampled
+V2P0192,instructIE_en,re,en,text2onto,continuous,0.2857,edge,RE[product]-composer->[organization human],RE[organization]-dissolution time->[organization],re,re,low,sampled
+V2P0193,New-York-Times-RE,re,en,scion_rl,continuous,0.2,edge,RE[organization]-person of company->[organization],RE[entity]-sports team location of teams->[entity],re,re,low,sampled
+V2P0194,NYT11,re,en,scion_lite,fuzzy,0.0,edge,RE[entity]-place of birth->[entity],RE[entity]-company->[entity],re,re,low,sampled
+V2P0195,duIE_zh,re,zh,scion_rl,continuous,0.1429,edge,RE[人物]-毕业院校->[学校],RE[国家]-首都->[城市],re,re,low,sampled
+V2P0196,CASIE,ee,en,scion_rl,fuzzy,0.0,edge,EE[ransom]-role->attack pattern,EE[phishing]-role->victim,ee,ee,low,sampled
+V2P0197,RAMS,ee,en,eta,fuzzy,0.0,edge,EE[giving a gift grant or providing aid in a transaction]-role->beneficiary,EE[granting entry or asylum to a person]-role->granter,ee,ee,low,sampled
+V2P0198,WikiEvents,ee,en,scion_rl,continuous,0.125,edge,EE[legal transportation]-role->origin,EE[manufacturing or assembling]-role->place,ee,ee,low,sampled
+V2P0199,SemEval2010_task8,re,en,manual,fuzzy,0.0,edge,RE[entity]-content container->[entity],RE[entity]-instrument agency->[entity],re,re,low,sampled
+V2P0200,SemEval2010_task8,re,en,scion_full,fuzzy,0.0,edge,RE[entity]-other->[entity],RE[entity]-member collection->[entity],re,re,low,sampled
+V2P0201,ccf_law,ee,zh,scion_rl,continuous,0.2,edge,EE[同居]-role->地点,EE[分居]-role->丈夫,ee,ee,low,sampled
+V2P0202,NYT11,re,en,eta,fuzzy,0.0,edge,RE[entity]-country of administrative divisions->[entity],RE[entity]-children->[entity],re,re,low,sampled
+V2P0203,CASIE,ee,en,llm_only,continuous,0.1,edge,EE[patch vulnerability]-role->common vulnerabilities and exposures,EE[phishing]-role->trusted entity,ee,ee,low,sampled
+V2P0204,SemEval2010_task8,re,en,scion_rl,fuzzy,0.0,edge,RE[entity]-entity origin->[entity],RE[entity]-message topc->[entity],re,re,low,sampled
+V2P0205,ccf_law,ee,zh,text2onto,fuzzy,0.0,edge,EE[同居]-role->地点,EE[其他]-role->客体,ee,ee,low,sampled
+V2P0206,PHEE,ee,en,scion_full,continuous,0.2222,edge,EE[adverse event]-role->treatment freq,EE[potential therapeutic event]-role->subject disorder,ee,ee,low,sampled
+V2P0207,instructIE_zh,re,zh,scion_rl,continuous,0.125,edge,RE[建筑结构 地理地区]-位于->[地理地区],RE[事件]-获胜者->[人物 组织],re,re,low,sampled
+V2P0208,FewFC,ee,zh,scion_rl,continuous,0.2,edge,EE[担保]-role->担保方式,EE[收购]-role->收购公司,ee,ee,low,sampled
+V2P0209,duIE_zh,re,zh,scion_full,fuzzy,0.0,edge,RE[国家]-官方语言->[语言],RE[娱乐人物]-获奖->[作品],re,re,low,sampled
+V2P0210,ccf_law,ee,zh,llm_only,continuous,0.2,edge,EE[起诉]-role->原告,EE[分居]-role->妻子,ee,ee,low,sampled
+V2P0211,ccf_law,ee,zh,eta,continuous,0.2,edge,EE[起诉]-role->原告,EE[家暴]-role->受害者,ee,ee,low,sampled
+V2P0212,WikiEvents,ee,en,manual,fuzzy,0.0,edge,EE[startposition]-role->employee,EE[generic crime]-role->victim,ee,ee,low,sampled
+V2P0213,RAMS,ee,en,scion_lite,continuous,0.125,edge,EE[broadcast expressing commitment promise or intent]-role->communicator,EE[rejection or nullification of an agreement contract or ceasefire]-role->otherparticipant,ee,ee,low,sampled
+V2P0214,SciERC,re,en,scion_full,fuzzy,0.0,edge,RE[entity]-conjunction->[entity],RE[entity]-evaluate for->[entity],re,re,low,sampled
+V2P0215,conll04,re,en,scion_lite,continuous,0.25,edge,RE[peop]-work for->[org],RE[org]-orgbased in->[loc],re,re,low,sampled
+V2P0216,SKE2020,re,zh,scion_lite,fuzzy,0.0,edge,RE[人物]-民族->[text],RE[生物]-目->[目],re,re,low,sampled
+V2P0217,NYT11,re,en,llm_only,fuzzy,0.0,edge,RE[entity]-company->[entity],RE[entity]-country capital->[entity],re,re,low,sampled
+V2P0218,DuEE-fin,ee,zh,manual,fuzzy,0.0,edge,EE[股东减持]-role->减持部分占所持比例,EE[解除质押]-role->披露时间,ee,ee,low,sampled
+V2P0219,instructIE_en,re,en,scion_lite,continuous,0.1111,edge,RE[human]-ancestral home->[geographic region],RE[product]-achievement->[profession],re,re,low,sampled
+V2P0220,ccf_law,ee,zh,llm_only,fuzzy,0.0,edge,EE[分居]-role->妻子,EE[家暴]-role->地点,ee,ee,low,sampled
+V2P0221,RAMS,ee,en,manual,fuzzy,0.0,edge,EE[purchasing to transfer ownership]-role->place,EE[smuggling or extracting a person]-role->origin,ee,ee,low,sampled
+V2P0222,duIE_zh,re,zh,llm_only,continuous,0.1429,edge,RE[行政区]-面积->[number],RE[影视作品]-编剧->[人物],re,re,low,sampled
+V2P0223,duIE_zh,re,zh,eta,fuzzy,0.0,edge,RE[地点]-海拔->[number],RE[企业]-创始人->[人物],re,re,low,sampled
+V2P0224,CMeIE,re,zh,scion_rl,continuous,0.1667,edge,RE[疾病]-组织学检查->[检查],RE[药物]-同义词->[药物],re,re,low,sampled
+V2P0225,conll04,re,en,text2onto,fuzzy,0.0,edge,RE[peop]-kill->[peop],RE[peop]-live in->[loc],re,re,low,sampled
+V2P0226,SemEval2010_task8,re,en,scion_rl,fuzzy,0.0,edge,RE[entity]-instrument agency->[entity],RE[entity]-product producer->[entity],re,re,low,sampled
+V2P0227,RAMS,ee,en,scion_rl,continuous,0.1538,edge,EE[dispersing or separating an artifact]-role->destination,EE[meeting to issue commands or orders]-role->place,ee,ee,low,sampled
+V2P0228,NYT11,re,en,manual,fuzzy,0.0,edge,RE[entity]-place of birth->[entity],RE[entity]-location contains->[entity],re,re,low,sampled
+V2P0229,DuEE1.0,ee,zh,scion_fusion,fuzzy,0.0,edge,EE[竞赛行为 晋级]-role->晋级方,EE[产品行为 发布]-role->发布产品,ee,ee,low,sampled
+V2P0230,DuEE-fin,ee,zh,scion_rl,fuzzy,0.0,edge,EE[股份回购]-role->交易金额,EE[被约谈]-role->约谈机构,ee,ee,low,sampled
+V2P0231,RAMS,ee,en,eta,fuzzy,0.0,edge,EE[correspondence for negotiation]-role->participant,EE[self directed combat]-role->attacker,ee,ee,low,sampled
+V2P0232,duIE_zh,re,zh,scion_fusion,continuous,0.1429,edge,RE[行政区]-邮政编码->[text],RE[娱乐人物]-饰演->[人物],re,re,low,sampled
+V2P0233,New-York-Times-RE,re,en,scion_lite,continuous,0.1111,edge,RE[location]-geographic distribution->[location],RE[entity]-administrative division of country->[entity],re,re,low,sampled
+V2P0234,DuEE-fin,ee,zh,manual,fuzzy,0.0,edge,EE[解除质押]-role->质押物,EE[中标]-role->中标标的,ee,ee,low,sampled
+V2P0235,CASIE,ee,en,eta,fuzzy,0.0,edge,EE[ransom]-role->price,EE[data breach]-role->number of data,ee,ee,low,sampled
+V2P0236,instructIE_en,re,en,scion_rl,fuzzy,0.0,edge,RE[architectural structure]-named after->[text],RE[event]-has cause->[text],re,re,low,sampled
+V2P0237,SKE2020,re,zh,eta,fuzzy,0.0,edge,RE[影视作品]-编剧->[人物],RE[机构]-简称->[text],re,re,low,sampled
+V2P0238,DuEE1.0,ee,zh,text2onto,fuzzy,0.0,edge,EE[灾害 意外 洪灾]-role->地点,EE[人生 失联]-role->失联者,ee,ee,low,sampled
+V2P0239,DuEE-fin,ee,zh,manual,continuous,0.2,edge,EE[解除质押]-role->披露时间,EE[股份回购]-role->回购完成时间,ee,ee,low,sampled
+V2P0240,instructIE_zh,re,zh,llm_only,fuzzy,0.0,edge,RE[entity]-创始人->[entity],RE[产品]-出版商->[组织],re,re,low,sampled

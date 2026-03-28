@@ -1,0 +1,17 @@
+{
+  "sampling_pool": "clean_main_runs_only",
+  "excluded_noise_suffix": true,
+  "metrics": [
+    "fuzzy",
+    "continuous"
+  ],
+  "pair_count": 240,
+  "bin_counts": {
+    "high": 84,
+    "mid": 72,
+    "low": 84
+  },
+  "positive_controls": 12,
+  "negative_controls": 12,
+  "pending_human_labels": true
+}
