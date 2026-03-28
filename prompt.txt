@@ -657,3 +657,417 @@ def main():
 
 思路叙述完毕。
 4.如果没有层级结构，则退化为一个根节点（entitiy、relationships、events）下面是该结构的类型。执行3
+
+
+260120
+写一个py文件：src/utils/build_scope_dataset.py，实现“整合数据集为 SCOPE + 按 schema 拆分扩增任务/子集 + 生成论文统计信息”。
+
+========================
+【输入已存在的文件与格式】
+由
+data/input/ee 和 data/input/re下是public_dataset_conversion.py转换之后的数据集
+我有 ），每个数据集条目包含：
+- dataset_name, task(re/ee), language(zh/en), format
+- schema_output_path: .../golden_schema_*.json
+- samples_output_path: .../golden_input_*.json
+- data_files(list): 原始 train/dev/test 文件路径（可能可用也可能不可解析）
+- schema_paths(list): 外部 schema 文件路径（可能为空）
+并且 golden 文件格式如下：
+
+(1) RE 的 golden_input_*.json：按 schema edge 分组
+[
+  {
+    "head_entity_type": "...",
+    "rel_type": "...",
+    "tail_type": "...",
+    "samples": [
+      {
+        "id": 1000001,
+        "text": "...",
+        "head_entity": "...",
+        "head_entity_type": "...",
+        "tail_entity": "...",
+        "tail_entity_type": "...",
+        "relation": "...",
+        "category": "...(可选)",
+        "dataset": "...",
+        "language": "en|zh",
+        "task": "re"
+      }, ...
+    ]
+  }, ...
+]
+
+(2) RE 的 golden_schema_*.json
+{
+  "dataset": "...",
+  "language": "...",
+  "entities": [...],
+  "relationships": [
+    {"head_entity":"typeA","tail_entity":"typeB","rel_type":"r"}, ...
+  ]
+}
+
+(3) EE 的 golden_input_*.json：按 event_type 分组
+[
+  {
+    "event_type": "data breach",
+    "samples": [
+      {
+        "text": "...",
+        "event_type": "data breach",
+        "event_trigger": "release",
+        "arguments": [{"argument":"hackers","role":"attacker"}, ...],
+        "dataset": "CASIE",
+        "language": "en",
+        "task": "ee"
+      }, ...
+    ]
+  }, ...
+]
+
+(4) EE 的 golden_schema_*.json（至少包含）
+{
+  "dataset": "...",
+  "language": "...",
+  "event_types": [...],
+  "roles": [...]
+}
+（有的中文 EE schema 可能是 event_type->roles 映射或 edges 列表，需要自适应解析）
+整体逻辑以 现在 的public_dataset_conversion.py为准，上述仅供参考
+========================
+【总体目标】
+运行 build_scope_dataset.py：
+A) 生成 SCOPE 总库（统一 doc-level 格式，RE+EE 合并），并输出 SCOPE 的 train/dev/test 三个 split。
+B) 生成源数据集级子集：SCOPE_re_xx、SCOPE_ee_xx。
+C) 生成大量任务/子集（用于训练/测试扩增）：
+   - RE: rel_shards（按关系类型分桶）
+   - EE: evt_shards（按事件类型分桶）
+   - category_subsets（可选：若 doc 含 category）
+   - 联合任务：SCOPE_all_mix = rel_shard × evt_shard 组合（让 RE+EE 同时出现于语料集合）
+D) 为每个任务生成多个 case（K-sweep + seed-sweep + sampling + fusion mask）。
+E) 生成论文可用的统计信息（csv + png + md），输出到 stats/ 目录。
+
+========================
+【统一 doc-level 输出格式】（仅供参考，实际按现在的数据集格式，不要遗漏任何key）
+每行一个 doc(JSONL)：
+{
+  "doc_id": "...",
+  "text": "...",
+  "language": "en|zh",
+  "source_dataset": "...",
+  "category": null or "...",
+  "global_split": "train|dev|test",
+  "relations": [
+    {"head":{"text":"...","type":"..."}, "predicate":"...", "tail":{"text":"...","type":"..."}}
+  ],
+  "events": [
+    {"event_type":"...", "trigger":{"text":"...","pos":null}, "arguments":[{"role":"...","text":"..."}, ...]}
+  ]
+}
+
+注意：
+- RE-only doc：events=[]
+- EE-only doc：relations=[]
+- 同一 text 在同一 dataset 下出现多次（flatten）必须合并（去重 + union 标注），否则统计与抽样偏。
+- 对无实体类型的 RE 数据：统一用 type="Entity"，并给任务标 typed_flag=false。
+
+========================
+【命令行接口】
+python build_SCOPE_dataset.py \
+  --out_root /path/to/SCOPE_out \
+  --dedup_by_text true \
+  --cross_dataset_dedup false \
+  --global_split_ratios 0.8 0.1 0.1 \
+  --split_seed 42 \
+  --rel_shard_size 8 \
+  --evt_shard_size 3 \
+  --min_docs_per_type 200 \
+  --make_category_subsets true \
+  --category_min_docs 200 \
+  --mix_pairs 200 \
+  --mix_seed 7 \
+  --case_sizes 200 1000 5000 \
+  --case_seeds 1 2 3 4 5 \
+  --sampling random coverage \
+  --fusion_mask_ratios 0.3 0.6 \
+  --schema_explosion_guard true \
+  --explosion_edge_threshold 200
+
+以上所有参数 都要在config.yaml可配置，做到build_SCOPE_dataset.py后面不带参数直接可运行
+默认输出路径为 data/input/scope
+
+参数解释：
+- dedup_by_text：同一 dataset 内按 text_hash 去重并合并标注
+- cross_dataset_dedup：跨 dataset 的相同 text 是否合并（默认 false，避免不同标注体系冲突）
+- schema_explosion_guard：当发现某数据集 schema_edges 很大且 schema_paths 为空（或异常），自动降级为 untyped：
+  full schema edges = {(Entity, rel_label, Entity)}，rel_label 从 golden_input 推断（不要产生几百上千条伪 schema）
+
+========================
+【输出目录结构】
+out_root/
+  SCOPE/
+    docs.train.jsonl
+    docs.dev.jsonl
+    docs.test.jsonl
+    schema_full.json                 # RE edges ∪ EE edges
+    registry_docs.json               # doc_id -> meta
+  subsets/
+    SCOPE_re_<lang>_<dataset>/
+      docs.train.jsonl/dev/test.jsonl
+      schema.json
+    SCOPE_ee_<lang>_<dataset>/...
+  tasks/
+    <task_id>/
+      schema.json                    # 该任务 full gold schema（统一边表示）
+      docs.train.jsonl/dev/test.jsonl
+  cases/
+    <task_id>/
+      K<k>_seed<s>_<sampling>/
+        induction_texts.jsonl
+        induction_docs.jsonl
+        gold_full.schema.json
+        gold_reachable.schema.json
+        base_mask_0.3.schema.json
+        base_mask_0.6.schema.json
+        stats.json
+  manifest.jsonl                     # 每行一个 case，便于批量训练/评测
+  stats/
+    tables/
+      scope_overall_stats.csv
+      source_dataset_schema_stats.csv
+      source_dataset_corpus_stats.csv
+      source_dataset_coverage_stats.csv
+      task_stats.csv
+      case_stats.csv
+      extra_polysemy_support_stats.csv
+    figs/
+      schema_edges_hist.png
+      corpus_vs_schema_scatter.png
+      coverage_curve_example.png     # 可选：挑核心数据集画 K-coverage 曲线
+    anomaly_report.md
+    summary.md
+
+========================
+【任务/Case 生成规则（必须实现）】
+
+1) 构建 SCOPE 总库：
+- 从 registry 遍历每个 dataset：
+  - 读取 golden_input 与 golden_schema
+  - 还原 doc-level：以 (dataset, language, hash(text)) 为 doc_key 合并 relations/events
+  - 写入 doc list
+- 全局 split：
+  - 用 text_hash（或 dataset+text_hash）进行 deterministic 划分 train/dev/test（按 split_seed）
+  - 输出 SCOPE/docs.{train,dev,test}.jsonl
+
+2) 生成 subsets：
+- 每个源数据集输出一个子集目录（SCOPE_re_* 或 SCOPE_ee_*），继承 global_split
+
+3) 生成 tasks（用于扩增训练量）：
+- RE rel_shards：
+  - 对每个 SCOPE_re_* 子集：收集 rel_types
+  - 按 rel_shard_size 分桶（尽量按支持度平衡；不够则合并/跳过）
+  - task_id 形如：SCOPE_re_<lang>_<dataset>__relShard_XXX
+- EE evt_shards：
+  - 对每个 SCOPE_ee_* 子集：按 event_type 分桶
+  - task_id：SCOPE_ee_<lang>_<dataset>__evtShard_XXX
+- category_subsets（若 make_category_subsets=true 且 doc 有 category）：
+  - task_id：SCOPE_re_<lang>_<dataset>__cat_<category>
+  - category 内也可以继续做 rel_shards（加分）
+- 联合任务 mix（SCOPE_all）：
+  - 从 rel_shards 与 evt_shards 随机采样 mix_pairs 个组合
+  - task_id：SCOPE_all_<lang>__mix_relXXX_evtYYY
+  - docs = RE_docs ∪ EE_docs（保持 split 分开，不可混淆）
+  - schema = RE_schema ∪ EE_schema
+
+4) 生成 cases（每个 task 多个 case）：
+- 对每个 task 的 docs.train：
+  - K in case_sizes，seed in case_seeds
+  - sampling=random 或 coverage：
+    coverage=贪心 set cover（每次选能带来最多新 schema edge 的 doc；tie 用 seed 打散）
+- 每个 case 输出：
+  - induction_texts.jsonl（doc_id,text）
+  - induction_docs.jsonl（含 relations/events）
+  - gold_reachable：扫描 induction_docs 中出现过的边
+  - base_mask_<rho>：从 reachable 随机删边，保证：
+    RE：每个 rel_type 至少保留 1 条
+    EE：每个 event_type 至少保留 1 个 role 边
+  - stats.json：记录 K/seed/sampling、#reachable_edges、reachable_ratio、平均长度、抽样 doc_id hash
+
+========================
+【统计信息生成（必须实现，论文要用）】
+在 stats/ 目录生成：
+
+A) source_dataset_schema_stats.csv：
+- 每个源数据集：#RelTypes/#EntTypes/#SchemaEdges/typed_flag（RE）
+- #EventTypes/#RoleTypes/#EventRoleEdges（EE）
+- typed/untyped 比例、复合类型比例（type 含 "/"）
+
+B) source_dataset_corpus_stats.csv：
+- 每个源数据集：去重 doc 数、平均/中位/p90/p99 长度（chars + whitespace tokens）
+- RE：avg_triples_per_doc
+- EE：avg_events_per_doc, avg_args_per_event
+- 输出样本数 vs doc 数的重复率（flatten 指标）
+
+C) source_dataset_coverage_stats.csv：
+- full schema edge 数
+- reachable edges（在 train split 下，或 all）
+- reachable_ratio
+
+D) extra_polysemy_support_stats.csv：
+- RE polysemy：每个 rel_type 的 (domain,range) 组合数分位数、polysemous_rel_ratio
+- edge support 分布：support_p50/p90/p99、rare_edge_ratio(support<5)
+
+E) task_stats.csv / case_stats.csv：
+- task：#docs_train/#schema_edges/#typed_flag/#task_kind(relShard/evtShard/mix/cat)
+- case：K/seed/sampling/reachable_ratio/#base_edges_after_mask 等
+
+F) anomaly_report.md：
+- schema_explosion_guard 触发的数据集列表
+- reachable_ratio 很低的数据集/任务
+- split overlap（train-test 文本 hash 重叠）如果发现则报警
+
+G) 图：
+- schema_edges_hist.png（RE/EE 分开或同图）
+- corpus_vs_schema_scatter.png
+- coverage_curve_example.png：挑 1~2 个核心数据集画 K vs reachable_ratio
+
+H) summary.md：
+- SCOPE 总库规模：train/dev/test doc 数
+- RE-only/EE-only/BOTH doc 占比
+- 任务数量（rel_shards/evt_shards/mix/cat）
+- 推荐 core tasks（可按 reachable_ratio 高、规模适中）
+
+========================
+【工程要求】
+- 运行中单个数据集失败不能中断全局，记录到 logs/failed_datasets.txt
+- 所有随机必须可复现（seed 控制）
+- 代码写成单文件，但允许在文件内定义多个类/函数，结构清晰
+
+【验收标准】
+运行后 out_root 必须包含：
+SCOPE/docs.train.jsonl + dev + test
+SCOPE/schema_full.json
+subsets/ tasks/ cases/ manifest.jsonl
+stats/tables/*.csv stats/figs/*.png stats/summary.md stats/anomaly_report.md
+以及 logs/
+
+
+260128-1
+
+我要填写以下表格
+告诉我如何运行得到，或者如果不能，修改代码，增加utils/para_stat.py
+进行统计
+\begin{table*}[t]
+\centering
+\caption{Controllability statistics of the LLM-assisted induction stage, aggregated over the SCOPE core suite.
+Parse-Success is measured \emph{per LLM call / per module} (ontology vs.\ events) as successful JSON extraction and parsing.
+Fallback-Rate counts \emph{module-level} fallback to configuration-backed defaults (ontology/events/overall).}
+\label{tab:controllability_stats}
+\small
+\begin{tabular}{l l c c c}
+\toprule
+Subset & Module & \#Calls & Parse-Success & Fallback-Rate \\
+\midrule
+SCOPE (24) & Ontology module     & -- & -- & -- \\
+SCOPE (24) & Event-schema module & -- & -- & -- \\
+SCOPE (24) & Overall             & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+我要填写以下表格
+告诉我如何运行得到，或者如果不能，修改代码，在utils/para_stat.py中增加功能
+进行统计
+\subsection{Efficiency and cost template}
+\begin{table*}[t]
+\centering
+\caption{Efficiency and cost breakdown aggregated over SCOPE. Report totals and/or macro-averaged statistics over sources.}
+\label{tab:efficiency_cost}
+\small
+\begin{tabular}{l c c c c c}
+\toprule
+Setting & \#Docs & \#Chunks & \#LLM Calls & Tokens (in/out) & Time / Cost \\
+\midrule
+SCION{} (\(\mathcal{O}\))            & -- & -- & -- & -- & -- \\
+SCION{} (\(\mathcal{O}_{\text{fusion}}\)) & -- & -- & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+我要填写以下空格中的内容
+告诉我如何运行得到，或者如果不能，修改代码，在utils/para_stat.py中增加功能
+进行统计
+\paragraph{Human audit (estimated mapping precision).}
+To estimate mapping precision, we randomly sample \underline{\hspace{0.9cm}} mapping pairs per source (or \underline{\hspace{0.9cm}} overall) and manually label them as correct/incorrect.
+We report the estimated precision and common error modes (polysemy, overly-broad labels, cross-lingual ambiguity) together with conflict statistics.
+
+260128
+
+我现在需要得到以下表格的内容，可以按照如下思路帮我实现（仅供参考，以代码实际逻辑为准）
+表格内容如下
+\begin{table*}[t]
+\centering
+\caption{Downstream instance-level extraction under different schemas, aggregated over SCOPE (report macro-averaged P/R/F1 over sources).}
+\label{tab:downstream_extraction}
+\small
+\begin{tabular}{l l c c c}
+\toprule
+Schema Source & Extractor & P & R & F1 \\
+\midrule
+GraphMaker (manual schema)           &  & -- & -- & -- \\
+Text2Onto-style                      &  & -- & -- & -- \\
+LLM-only (ChatGPT5.2)                &  & -- & -- & -- \\
+LLM-only (DeepSeekV3.2)              &  & -- & -- & -- \\
+SCION{} (\(\mathcal{O}\))            &  & -- & -- & -- \\
+SCION{} (\(\mathcal{O}_{\text{fusion}}\)) &  & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+可参考的思路如下
+你这张表的核心要求是：同一个 extractor，仅改变 schema，看 instance-level extraction 的 P/R/F1 怎么变。
+
+A) LLM 作为统一 extractor（最贴合你现在的叙事）
+
+**固定：**同一个 LLM、同一个 extraction prompt、同一个 decoding/JSON contract、同一个 chunk policy
+**变化：**给它的 schema（manual / Text2Onto / LLM-induced / SCION / fused）
+
+步骤（每个 source dataset 独立跑）：
+
+取该 source 的 eval/test 文档集合（你 benchmark 里应该已经有）
+
+对每个 schema setting，构造 extraction prompt：
+
+输入：doc_text + schema（entity/relation/event inventory + domain/range/roles）
+
+输出：严格 JSON（triples 或 events+roles），你已有合约体系可以复用
+
+得到预测实例集合：
+
+RE：$(h_span, r_label, t_span)$ 或者 $(h_id,r,t_id)$
+
+EE：$(event_type, trigger_span, {role: arg_span})$
+
+用官方评测脚本（或你统一的 instance-level evaluator）算 P/R/F1
+
+对 24 个 source 做 macro-average（和 schema-level 一致）
+
+关键坑：label 名称不一致怎么处理？
+SCION/LLM-induced schema 可能会把 “WorkFor / EmployedBy / Employment” 叫成不同字符串，直接 strict match 会吃大亏，导致表格主要在测“命名对齐”而不是“抽取质量”。
+
+建议你用一个固定的 label mapping来做 downstream eval（强烈建议，审稿人也更容易接受）：
+
+在 schema-level 先做一次 predicted schema → gold schema 的匹配（你已经有 Hungarian/continuous matching 这套）
+
+得到映射 $M: \text{pred_label} \rightarrow \text{gold_label}$
+
+在 instance-level 评测前，把 extractor 输出的 label 先通过 $M$ 投影到 gold label 空间
+
+unmapped 的当 FP
+
+这样你的 downstream 表更像是在回答：
+“更好的 schema（结构与覆盖）是否能让 extractor 抽得更准、更一致？”
+而不是回答“你会不会取名字”。
+
+将结果输出到data/output/scope_experiment 下
