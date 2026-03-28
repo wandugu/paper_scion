@@ -1,2 +1,2 @@
-subset,lite_graph_f1,full_graph_f1,delta_graph_f1,lite_cost,full_cost,lite_fallback,full_fallback
-8-source,0.66,0.72,0.06,1.0,1.7,0.07,0.09
+subset,lite_graph_f1,full_graph_f1,delta_graph_f1,lite_cost,full_cost,lite_fallback,full_fallback,evaluation_scope,is_proxy_result
+subset_8,0.9214,0.9433,0.02190000000000003,1.0,1.4975332219304527,0.0587,0.0562,subset_8,False

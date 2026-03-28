@@ -1,3 +1,3 @@
-domain,general_graph_f1,domain_specific_graph_f1,delta_graph_f1,general_downstream_f1,domain_specific_downstream_f1,cost
-biomedical,0.58,0.63,0.05,0.51,0.56,1.1
-finance,0.6,0.65,0.05,0.53,0.58,1.08
+domain,general_graph_f1,domain_specific_graph_f1,delta_graph_f1,general_downstream_f1,domain_specific_downstream_f1,cost,general_mode,engineer_variant
+biomedical,0.9382,0.9509,0.0126,0.8682,0.8809,1.1,scion_full,general_vs_domain_specific
+finance,0.9505,0.9669,0.0164,0.8805,0.8969,1.08,scion_full,general_vs_domain_specific

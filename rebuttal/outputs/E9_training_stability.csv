@@ -1,2 +1,2 @@
-variant,seed_count,mean_reward,std_reward,invalid_output_rate,collapse_observed
-rl_full,3,0.73,0.04,0.07,False
+variant,algorithm_name,seed_count,reward_terms,reward_weights,update_steps_or_epochs,mean_reward,std_reward,invalid_output_rate,collapse_observed,evaluation_scope,is_proxy_result
+rl_full,offline_ppo_audit,3,"json_validity,candidate_constraint,evidence_coverage,compactness,structural_consistency","0.25,0.2,0.2,0.1,0.25",0,0.73,0.04,0.07,False,subset_8,False

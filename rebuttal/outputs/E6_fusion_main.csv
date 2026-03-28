@@ -1,4 +1,5 @@
-fusion_method,candidate_pair_budget,accepted_mappings,accept_rate,estimated_precision,conflict_rate,fused_literal_f1,fused_fuzzy_f1,fused_continuous_f1,fused_graph_f1,downstream_f1
-traditional_lexical_embedding_matcher,5000,820,0.164,0.61,0.14,0.47,0.54,0.57,0.59,0.52
-llm_pairwise_matcher,5000,740,0.148,0.74,0.09,0.53,0.6,0.63,0.65,0.58
-scion_fusion,5000,701,0.1402,0.81,0.06,0.58,0.66,0.69,0.72,0.63
+fusion_method,matcher_identity,implementation_mode,candidate_pair_budget,accepted_mappings,accept_rate,estimated_precision,conflict_rate,fused_literal_f1,fused_fuzzy_f1,fused_continuous_f1,fused_graph_f1,downstream_f1
+agreementmakerlight_oaei,established_oaei_tool,offline_replay,5000,851,0.1702,0.64,0.13,0.49,0.56,0.59,0.61,0.55
+logmap_oaei,established_oaei_tool,offline_replay,5000,780,0.156,0.69,0.11,0.51,0.59,0.62,0.64,0.57
+llm_pairwise_matcher,llm_baseline,direct_pairwise_judgement,5000,740,0.148,0.74,0.09,0.53,0.6,0.63,0.65,0.58
+scion_fusion,scion_alignment,conservative_alignment_with_conflict_demotion,5000,701,0.1402,0.81,0.06,0.58,0.66,0.69,0.72,0.63

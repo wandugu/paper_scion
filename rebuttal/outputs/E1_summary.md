@@ -14,12 +14,13 @@
 - `E1_recall_breakdown.csv`
 - `E1_source_reachable_ratio.csv`
 - `E1_reachability_debug_samples.csv`
+- `E1_alignment_check.json`
 - `E1_manifest.json`
 
 ## key findings
-- reachable 与 full target 差异已量化
-- 新增 strict/placeholder-collapsed/label-only/undirected 四种 reachability 比率
-- 新增 unmatched gold / evidence 样本导出便于排错
+- full_gold 使用 submission frozen artifact，并通过 1597/558/1039 对齐断言
+- reachable_gold 仅在 frozen full_gold 上做可达性过滤，不重新构图
+- placeholder/label-only/undirected 仅保留在 debug 字段
 
 ## Suggested rebuttal sentence
-在可达金标设定下，我们观察到排序总体稳定，结果并非仅由不可达项造成。
+在 submission 对齐口径下，可达 target 的影响被透明量化。

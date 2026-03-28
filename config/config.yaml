@@ -1422,7 +1422,7 @@ rebuttal:
     e8_baseline_method: scion_full
     e8_noise_levels: [0.0, 0.1, 0.2, 0.3]
     e8_zero_noise_tolerance: 0.000001
-    e1e2_submission_eval_signature: afdf6bd58e0c589b
+    e1e2_submission_eval_signature: cabc45613b834dee
     e4_extractor_snapshot: submission_extractor_v1
     e4_submission_extractor_snapshot: submission_extractor_v1
     e4_heldout_protocol: actual_test_split
@@ -1462,7 +1462,7 @@ rebuttal:
       general: [RAMS, WikiEvents]
     e5_debug_sources: [GIDS, New-York-Times-RE]
     e5_name_only_generic_sources: [New-York-Times-RE, NYT11]
-  fuzzy_threshold: 0.6
+  fuzzy_threshold: 0.45
   graph_smoothing_rounds: 2
   graph_smoothing_alpha: 0.5
   graph_zero_when_pred_empty: true

@@ -4,7 +4,7 @@
 - ontology metrics 与 downstream 相关性
 
 ## methods compared
-- manual,text2onto,llm_only,eta,scion_lite,scion_fusion,scion_full
+- manual,text2onto,llm_only,eta,scion_lite,scion_fusion
 
 ## dataset scope
 - all SCOPE subsets
@@ -16,8 +16,10 @@
 - `E4_manifest.json`
 
 ## key findings
-- 固定 extractor 下完成 schema_source 对比
-- 相关性由真实 source×method pairing 计算
+- 使用 actual_test_split 进行 held-out rerun（非 proxy）
+- 固定 extractor snapshot，仅替换 schema_source
+- 相关性由真实 source×method pairing 计算，含 p-value
+- extractor snapshot=submission_extractor_v1, 与 submission 对齐=True
 
 ## Suggested rebuttal sentence
 本体级指标与下游抽取性能存在稳定正相关。

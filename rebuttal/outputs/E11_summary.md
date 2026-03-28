@@ -17,6 +17,7 @@
 ## key findings
 - 主表与source级对比已导出
 - domain mapping 改为显式配置
+- 每个 source 导出 run_id 与 artifact_hash 便于追踪
 
 ## Suggested rebuttal sentence
 领域化策略在高价值领域提供保守但稳定的增益。

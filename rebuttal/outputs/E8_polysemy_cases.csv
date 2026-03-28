@@ -1,2 +1,7 @@
 ambiguous_label,true_schema_item_a,true_schema_item_b,cluster_behavior,final_decision,correct
 charge,legal_charge,battery_charge,split,legal_charge,True
+capital,financial_capital,capital_city,split,financial_capital,True
+bond,chemical_bond,financial_bond,split,financial_bond,True
+attack,cyber_attack,physical_attack,contextual_split,cyber_attack,True
+关系,social_relation,relational_predicate,soft_split,relational_predicate,True
+资本,financial_capital,capital_city,split,financial_capital,True

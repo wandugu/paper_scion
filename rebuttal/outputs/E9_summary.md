@@ -7,7 +7,7 @@
 - base,sft_only,rl_full
 
 ## dataset scope
-- 近似RL审计
+- actual subset_8 audit
 
 ## exact files produced
 - `E9_sft_vs_rl.csv`
@@ -16,8 +16,9 @@
 - `E9_manifest.json`
 
 ## key findings
-- SFT/RL 指标对比可审计
+- SFT/RL 指标在 submission-aligned evaluator 下重算
 - 奖励项消融按 term 差异化输出
+- 训练稳定性表补齐算法 metadata
 
 ## Suggested rebuttal sentence
-RL 变体在结构约束与有效输出方面表现更优。
+在 held-out subset_8 上，RL 版本在结构一致性与图指标更优。

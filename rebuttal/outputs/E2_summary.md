@@ -14,11 +14,13 @@
 - `E2_rank_stability.csv`
 - `E2_manual_completion_audit.csv`
 - `E2_mismatch_cases.csv`
+- `E2_alignment_check.json`
 - `E2_manifest.json`
 
 ## key findings
-- 不同 target_variant 排序稳定性已输出
-- manual gap 改为 source-specific 审计
+- full_normalized_gold 与 E1 frozen full_gold 完全对齐
+- manual completion audit 显式标注为 representation gap analysis
+- rank stability 建立在修复后的 target_variant 指标上
 
 ## Suggested rebuttal sentence
-优势在多种规范化设定下保持一致，manual/official 的主要差距来自表示不对齐。
+排序稳定性在 submission 对齐 target 下依然成立。
