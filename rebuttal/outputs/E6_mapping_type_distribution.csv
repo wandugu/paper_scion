@@ -1,4 +1,5 @@
 fusion_method,equivalent_count,broader_count,narrower_count,related_count,rejected_count,demoted_to_extension_count
-traditional_lexical_embedding_matcher,426,139,98,157,4180,41
+agreementmakerlight_oaei,426,153,111,161,4149,42
+logmap_oaei,374,140,109,157,4220,39
 llm_pairwise_matcher,340,133,96,171,4260,37
 scion_fusion,287,133,98,183,4299,35

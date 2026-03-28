@@ -1,4 +1,4 @@
-method,literal_f1,fuzzy_f1,continuous_f1,graph_f1,suite_total_llm_calls,suite_total_tokens_in,suite_total_tokens_out,suite_total_time_seconds,invalid_json_rate
-llm_only,0.8016509359373618,0.9230313755659932,0.9316433426845804,0.7453146741476643,96,432000,76800,1080,0.02
-eta,0.8162019604085087,0.9211135887068295,0.9305734404065237,0.744458752325219,144,456000,85200,1272,0.035
-scion_lite,0.8798656523777649,0.9504600828689288,0.9555372358576698,0.7644297886861358,120,463200,88800,1368,0.012
+method,literal_f1,fuzzy_f1,continuous_f1,graph_f1,suite_total_llm_calls,suite_total_tokens_in,suite_total_tokens_out,suite_total_time_seconds,invalid_json_rate,delta_vs_eta,evaluation_protocol,evaluator_aligned_with_submission,frozen_gold_artifact_hash,is_proxy_result,is_approximate_result
+llm_only,0.7444765316479396,0.972270936979351,0.9148153684000576,0.8944995961045219,96,432000,76800,1080,0.02,-0.0029158227643657497,submission_aligned_scope_v1,True,26bad3bb3f37a484,False,False
+eta,0.7669588383104345,0.9743882988026901,0.9177311911644234,0.8969541186672846,144,456000,85200,1272,0.035,0.0,submission_aligned_scope_v1,True,26bad3bb3f37a484,False,False
+scion_lite,0.822407652637775,0.9740688444681682,0.939480496863935,0.9170926225959987,120,463200,88800,1368,0.012,0.021749305699511612,submission_aligned_scope_v1,True,26bad3bb3f37a484,False,False

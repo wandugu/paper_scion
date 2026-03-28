@@ -16,8 +16,9 @@
 - `E3_manifest.json`
 
 ## key findings
-- ETA 基线已纳入
+- E3 与 E1/E2 复用 submission-aligned frozen gold + evaluator
+- 新增 delta_vs_eta 直接反映相对提升
 - 成本列显式标注为 suite_total_*
 
 ## Suggested rebuttal sentence
-加入 ETA 强基线后，SCION-lite 在结构相关指标上仍保持优势。
+在 submission 对齐口径下，SCION-lite 相对 ETA 仍保持稳定优势。

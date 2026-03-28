@@ -1,2 +1,2 @@
 split,pair_count,human_accept_rate,annotator_agreement,notes
-all,240,,,awaiting labels
+all,120,,,awaiting labels; packet contains real pred/gold/evidence

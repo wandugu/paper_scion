@@ -1,0 +1,11 @@
+{
+  "evaluation_scope": "subset_8",
+  "tables": {
+    "E8_noise_robustness.csv": "actual_rerun",
+    "E8_clustering_encoder_sensitivity.csv": "actual_rerun",
+    "E8_metric_encoder_sensitivity.csv": "scoring_only",
+    "E8_source_encoder_sensitivity.csv": "actual_rerun",
+    "E8_polysemy_cases.csv": "curated_set_from_config"
+  },
+  "is_approximate_result": false
+}

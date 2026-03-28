@@ -1,2 +1,10 @@
 metric,score_bin,pair_count,human_accept_rate
-fuzzy,0.0-0.2,30,
+fuzzy,low,34,
+fuzzy,mid,0,
+fuzzy,high,10,
+continuous,low,19,
+continuous,mid,17,
+continuous,high,3,
+graph,low,0,
+graph,mid,13,
+graph,high,24,

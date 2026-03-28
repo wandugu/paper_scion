@@ -2,12 +2,12 @@
   "command": "python src/rebuttal/scripts/E8_run.py",
   "config": "src/rebuttal/configs/E8_noise_polysemy_encoder.yaml",
   "seed": 42,
-  "timestamp_utc": "2026-03-27T15:46:20.969296+00:00",
-  "git_commit": "a6debaac0f02e727db73c7479706803e497ff696",
+  "timestamp_utc": "2026-03-28T10:21:59.797277+00:00",
+  "git_commit": "4bd79613ab2cda309bbf7554716eb0e6ab9c99d9",
   "environment": {
-    "timestamp_utc": "2026-03-27T15:46:20.977609+00:00",
+    "timestamp_utc": "2026-03-28T10:21:59.805023+00:00",
     "python": "3.12.12 (main, Jan 12 2026, 17:43:59) [GCC 13.3.0]",
     "platform": "Linux-6.12.47-x86_64-with-glibc2.39",
-    "git_commit": "a6debaac0f02e727db73c7479706803e497ff696"
+    "git_commit": "4bd79613ab2cda309bbf7554716eb0e6ab9c99d9"
   }
 }

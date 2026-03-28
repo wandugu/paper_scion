@@ -7,7 +7,7 @@
 - scion_full近似
 
 ## dataset scope
-- all SCOPE subsets
+- subset_8
 
 ## exact files produced
 - `E8_noise_robustness.csv`
@@ -18,10 +18,10 @@
 - `E8_manifest.json`
 
 ## key findings
-- 10/20/30% 噪声注入结果已导出
-- noise=0 基线与 E1_main 对齐校验通过
-- encoder sensitivity 拆分为 clustering 与 metric 两张表
+- 10/20/30% 噪声注入基于真实 rerun（candidate 注噪 + 重跑 consolidation/eval）
+- clustering encoder sensitivity 为 actual rerun
+- metric encoder sensitivity 为 scoring-only rerun
 - source 级 encoder 排序字段改为 encoder_rank
 
 ## Suggested rebuttal sentence
-10%-30% 噪声下性能呈平稳下降，未出现崩溃。
+在 subset_8 的真实 rerun 中，噪声鲁棒性与 encoder 敏感性结论稳定。

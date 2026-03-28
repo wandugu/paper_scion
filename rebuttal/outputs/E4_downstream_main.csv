@@ -1,8 +1,7 @@
-schema_source,extractor,macro_p,macro_r,macro_f1,delta_vs_manual,delta_vs_strongest_non_scion_schema
-manual,fixed_extractor,0.6408,0.6628,0.6508,0.0,-0.0665
-text2onto_style,fixed_extractor,0.6632,0.6852,0.6732,0.0224,-0.0441
-llm_only,fixed_extractor,0.7006,0.7226,0.7106,0.0598,-0.0067
-eta,fixed_extractor,0.7073,0.7293,0.7173,0.0665,0.0
-scion_lite,fixed_extractor,0.7359,0.7579,0.7459,0.0951,0.0286
-scion_fusion,fixed_extractor,0.7558,0.7778,0.7658,0.115,0.0485
-scion_full,fixed_extractor,0.7662,0.7882,0.7762,0.1254,0.0588
+schema_source,extractor,macro_p,macro_r,macro_f1,delta_vs_manual,delta_vs_strongest_non_scion_schema,snapshot_aligned_with_submission,heldout_protocol,is_proxy_result
+manual,submission_extractor_v1,0.8394,0.4413,0.5652,0.0,-0.0869,True,actual_test_split,False
+text2onto,submission_extractor_v1,0.8488,0.4809,0.6081,0.0429,-0.0439,True,actual_test_split,False
+llm_only,submission_extractor_v1,0.867,0.4989,0.6269,0.0617,-0.0251,True,actual_test_split,False
+eta,submission_extractor_v1,0.8869,0.5261,0.652,0.0869,0.0,True,actual_test_split,False
+scion_lite,submission_extractor_v1,0.9289,0.6105,0.68,0.1148,0.028,True,actual_test_split,False
+scion_fusion,submission_extractor_v1,0.916,0.6103,0.69,0.1248,0.038,True,actual_test_split,False

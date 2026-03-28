@@ -7,7 +7,7 @@
 - scion_lite,scion_full,scion_full_minus_struct
 
 ## dataset scope
-- all SCOPE subsets + 8-source tradeoff
+- 8-source actual tradeoff subset
 
 ## exact files produced
 - `E10_lite_full_main.csv`
@@ -17,7 +17,8 @@
 
 ## key findings
 - 性能-成本对比完成
-- 成本列显式标注为 suite_total_*
+- 新增 retained-performance ratio 与 cost ratio
+- 明确这是 subset_8 actual rerun（非 full-suite 主结果）
 
 ## Suggested rebuttal sentence
-SCION-lite 在低成本下提供稳定性能，是实用默认。
+在 subset_8 实际 rerun 中，SCION-lite 以更低成本保留了大部分性能。

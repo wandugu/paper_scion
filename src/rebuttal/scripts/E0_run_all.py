@@ -8,6 +8,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List
 
+from tqdm import tqdm
+
 from src.utils.common import load_yaml_config, resolve_project_path
 from src.utils.logger import get_ot_logger
 from src.utils.rebuttal_helpers import outputs_dir, scope_subsets_dir
@@ -149,6 +151,7 @@ def run_all() -> int:
     run_all_cfg = _rebuttal_run_all_cfg()
     logs_dir = resolve_project_path(run_all_cfg.get("logs_dir", "rebuttal/outputs/run_logs"))
     logs_dir.mkdir(parents=True, exist_ok=True)
+    combined_log_path = resolve_project_path(run_all_cfg.get("combined_log_path", str(logs_dir / "E0_run_all.log")))
 
     summary_md_path = resolve_project_path(run_all_cfg.get("summary_md", "rebuttal/outputs/E0_run_all_summary.md"))
     output_md_path = resolve_project_path(run_all_cfg.get("output_md", "rebuttal/outputs/E0_run_all_output.md"))
@@ -164,15 +167,18 @@ def run_all() -> int:
 
     LOGGER.debug("E0 run_all 启动，实验数量=%s, logs_dir=%s", len(specs), logs_dir)
     LOGGER.debug("SCOPE 子集目录=%s，存在=%s", scope_subsets_dir(), scope_subsets_dir().exists())
+    LOGGER.debug("E0 run_all 合并日志路径=%s", combined_log_path)
 
     before_all = _collect_files(out_dir)
     records: List[dict] = []
     failed = False
     result_jsonl_path.write_text("", encoding="utf-8")
+    combined_log_path.parent.mkdir(parents=True, exist_ok=True)
+    combined_log_path.write_text("# E0 Run All Combined Log\n\n", encoding="utf-8")
 
-    for spec in specs:
+    progress = tqdm(specs, desc="E0 run_all", unit="exp")
+    for idx, spec in enumerate(progress, start=1):
         script_path = resolve_project_path(spec.script)
-        log_path = logs_dir / f"{spec.exp_id}.log"
 
         inputs = _resolve_many(spec.inputs)
         inputs_status = [{"path": str(p), "exists": p.exists()} for p in inputs]
@@ -190,7 +196,12 @@ def run_all() -> int:
 
         proc = subprocess.run(cmd, cwd=project_root, env=env, text=True, capture_output=True)
         log_text = (proc.stdout or "") + "\n\n# STDERR\n" + (proc.stderr or "")
-        log_path.write_text(log_text, encoding="utf-8")
+        with combined_log_path.open("a", encoding="utf-8") as f:
+            f.write(f"## [{idx}/{len(specs)}] {spec.exp_id}\n")
+            f.write(f"- script: {spec.script}\n")
+            f.write(f"- cmd: {' '.join(cmd)}\n")
+            f.write(f"- return_code: {proc.returncode}\n\n")
+            f.write(log_text.rstrip() + "\n\n")
         llm_signal = _detect_llm_signal(log_text)
 
         after = _collect_files(out_dir)
@@ -209,7 +220,7 @@ def run_all() -> int:
             "new_output_files": created,
             "stdout_lines": len((proc.stdout or "").splitlines()),
             "stderr_lines": len((proc.stderr or "").splitlines()),
-            "log_file": str(log_path.relative_to(project_root)),
+            "log_file": str(combined_log_path.relative_to(project_root)),
             "io_logged": bool(proc.stdout or proc.stderr),
             "llm_signal_detected": llm_signal["detected"],
             "llm_signal_keywords": llm_signal["keywords"],
@@ -220,11 +231,13 @@ def run_all() -> int:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
         LOGGER.debug("%s 完成: rc=%s, new_files=%s, expected=%s", spec.exp_id, proc.returncode, created, expected_status)
+        progress.set_postfix({"exp": spec.exp_id, "rc": proc.returncode, "new": len(created)})
 
         if proc.returncode != 0:
             failed = True
-            LOGGER.error("%s 执行失败，详见日志: %s", spec.exp_id, log_path)
+            LOGGER.error("%s 执行失败，详见日志: %s", spec.exp_id, combined_log_path)
             break
+    progress.close()
 
     after_all = _collect_files(out_dir)
     overall_new = sorted(after_all - before_all)

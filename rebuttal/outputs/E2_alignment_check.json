@@ -1,0 +1,56 @@
+{
+  "variant_definitions": {
+    "label_only_projection": "edge label only, no typing",
+    "typed_unnormalized": "typed edges without canonical normalization",
+    "full_normalized_gold": "submission frozen target (main target)",
+    "reachable_normalized_gold": "reachable filter on submission frozen target"
+  },
+  "submission_main_target": "full_normalized_gold",
+  "manual_audit_gap_analysis_only": true,
+  "alignment": {
+    "expected": {
+      "RE_TOTAL": 558,
+      "EE_TOTAL": 1039,
+      "ALL_TOTAL": 1597,
+      "PER_SOURCE": {
+        "IPRE": 70,
+        "COAE2016": 18,
+        "CrudeOilNews": 104
+      }
+    },
+    "actual": {
+      "RE_TOTAL": 558,
+      "EE_TOTAL": 1039,
+      "ALL_TOTAL": 1597,
+      "PER_SOURCE": {
+        "CASIE": 48,
+        "CrudeOilNews": 104,
+        "PHEE": 32,
+        "RAMS": 398,
+        "WikiEvents": 81,
+        "DuEE-fin": 91,
+        "DuEE1.0": 217,
+        "FewFC": 29,
+        "ccf_law": 39,
+        "ADE_corpus": 1,
+        "GIDS": 4,
+        "NYT11": 12,
+        "New-York-Times-RE": 24,
+        "SciERC": 7,
+        "SemEval2010_task8": 11,
+        "conll04": 5,
+        "instructIE_en": 116,
+        "kbp37": 18,
+        "CMeIE": 53,
+        "COAE2016": 18,
+        "IPRE": 70,
+        "SKE2020": 49,
+        "duIE_zh": 55,
+        "instructIE_zh": 115
+      }
+    },
+    "per_source_mismatches": [],
+    "hard_mismatches": [],
+    "submission_alignment_passed": true
+  }
+}
