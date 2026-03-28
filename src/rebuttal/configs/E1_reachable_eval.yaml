@@ -1,3 +1,5 @@
 experiment: E1
 seed: 42
 use_subset: false
+reachable_target_policy: filter_gold_only_keep_full_predictions
+reachability_primary_mode: strict_typed_with_placeholder_matching_debug

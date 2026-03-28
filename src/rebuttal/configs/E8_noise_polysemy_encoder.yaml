@@ -1,3 +1,4 @@
 experiment: E8
 seed: 42
-noise_levels: [0.1,0.2,0.3]
+noise_levels: [0.0, 0.1, 0.2, 0.3]
+baseline_method: scion_full

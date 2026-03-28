@@ -1,2 +1,4 @@
 experiment: E3
 seed: 42
+target_variant: full_normalized_gold
+evaluation_protocol: submission_aligned_scope_v1

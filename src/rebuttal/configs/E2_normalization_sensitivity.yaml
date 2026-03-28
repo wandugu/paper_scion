@@ -1,2 +1,8 @@
 experiment: E2
 seed: 42
+target_variants:
+  - label_only_projection
+  - typed_unnormalized
+  - full_normalized_gold
+  - reachable_normalized_gold
+typed_unnormalized_source: released_pre_normalization_schema
