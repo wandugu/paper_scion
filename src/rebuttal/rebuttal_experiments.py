@@ -2017,7 +2017,18 @@ def run_e7(config_path: str):
     LOGGER.debug("E7 采样完成 pair_count=%s source_covered=%s", len(packet), len({x['source'] for x in packet}))
     write_csv(OUT / "E7_annotation_packet.csv", packet, ["pair_id", "source", "task_type", "language", "method", "metric", "score", "unit_type", "pred_item_text", "gold_item_text", "pred_type", "gold_type", "doc_split", "evidence_snippet", "evidence_doc_count"])
     (OUT / "E7_annotation_guidelines.md").write_text("# E7 Annotation Guidelines\n\n- 两名标注员独立标注。\n- 争议项进入 adjudication。\n", encoding="utf-8")
-    write_csv(OUT / "E7_annotation_template.csv", [{"pair_id": "P0001", "annotator_a": "", "annotator_b": "", "adjudicated": "", "notes": ""}], ["pair_id", "annotator_a", "annotator_b", "adjudicated", "notes"])
+    template_fields = ["pair_id", "annotator_a", "annotator_b", "adjudicated", "notes"]
+    template_rows = [{"pair_id": row["pair_id"], "annotator_a": "", "annotator_b": "", "adjudicated": "", "notes": ""} for row in packet]
+    if not template_rows:
+        template_rows = [{"pair_id": "P0001", "annotator_a": "", "annotator_b": "", "adjudicated": "", "notes": ""}]
+    write_csv(OUT / "E7_annotation_template.csv", template_rows, template_fields)
+    for template_name in ["E7_annotation_template_1.csv", "E7_annotation_template_2.csv"]:
+        template_path = OUT / template_name
+        if template_path.exists():
+            LOGGER.debug("E7 保留已有人工标注模板文件: %s", template_path)
+            continue
+        write_csv(template_path, template_rows, template_fields)
+        LOGGER.debug("E7 新建人工标注模板文件: %s rows=%s", template_path, len(template_rows))
     write_csv(OUT / "E7_metric_human_agreement.csv", [{"signal": "N/A", "unit_type": "edge", "threshold_or_score_use": "pending human labels", "precision_vs_human": "", "recall_vs_human": "", "f1_vs_human": "", "auroc": "", "auprc": ""}], ["signal", "unit_type", "threshold_or_score_use", "precision_vs_human", "recall_vs_human", "f1_vs_human", "auroc", "auprc"])
     write_csv(OUT / "E7_annotation_summary.csv", [{"split": "all", "pair_count": len(packet), "human_accept_rate": "", "annotator_agreement": "", "notes": "awaiting labels; packet contains real pred/gold/evidence"}], ["split", "pair_count", "human_accept_rate", "annotator_agreement", "notes"])
     score_bin_rows = []
@@ -2039,7 +2050,7 @@ def run_e7(config_path: str):
     )
     (OUT / "E7_STATUS_NOT_RUN.md").write_text("# E7 STATUS NOT RUN\n\n未找到可复用人工标注结果；已生成标注包与模板。\n", encoding="utf-8")
     ensure_manifest(OUT / "E7_manifest.json", "python src/rebuttal/scripts/E7_prepare_metric_human_calibration.py", config_path, default_seed())
-    _summary("E7", "human calibration package", ",".join(allowed_methods), "all SCOPE subsets sampled (core runs only)", "[E7_annotation_packet.csv,E7_annotation_guidelines.md,E7_annotation_template.csv,E7_metric_human_agreement.csv,E7_annotation_summary.csv,E7_score_bin_calibration.csv,E7_sampling_report.json,E7_STATUS_NOT_RUN.md,E7_manifest.json]".strip("[]").split(','), [f"生成 {len(packet)} 条待标注样本", "标注包仅来自 core runs，不含 noise/synthetic suffix", "pending human labels，未伪造人工标签"], "我们公开了可复现的人类校准包，当前版本仍 pending human labels。")
+    _summary("E7", "human calibration package", ",".join(allowed_methods), "all SCOPE subsets sampled (core runs only)", "[E7_annotation_packet.csv,E7_annotation_guidelines.md,E7_annotation_template.csv,E7_annotation_template_1.csv,E7_annotation_template_2.csv,E7_metric_human_agreement.csv,E7_annotation_summary.csv,E7_score_bin_calibration.csv,E7_sampling_report.json,E7_STATUS_NOT_RUN.md,E7_manifest.json]".strip("[]").split(','), [f"生成 {len(packet)} 条待标注样本", "标注包仅来自 core runs，不含 noise/synthetic suffix", "pending human labels，未伪造人工标签"], "我们公开了可复现的人类校准包，当前版本仍 pending human labels。")
     update_index(OUT / "E0_outputs_index.md", "E7", [("rebuttal/outputs/E7_annotation_packet.csv", "标注包"), ("rebuttal/outputs/E7_STATUS_NOT_RUN.md", "状态")])
     _append_deviation("E7 缺少人工标注文件，输出 STATUS_NOT_RUN 与完整准备包。")
 

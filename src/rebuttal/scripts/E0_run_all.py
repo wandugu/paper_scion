@@ -6,7 +6,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Set
 
 from tqdm import tqdm
 
@@ -85,6 +85,19 @@ def _resolve_many(paths: List[str]) -> List[Path]:
     return [resolve_project_path(p) for p in paths]
 
 
+def _collect_protected_output_inputs(specs: List[ExperimentSpec], out_dir: Path) -> Set[Path]:
+    """收集位于输出目录中的输入文件，避免被前置实验清理误删。"""
+    protected: Set[Path] = set()
+    for spec in specs:
+        for input_path in _resolve_many(spec.inputs):
+            try:
+                input_path.relative_to(out_dir)
+            except ValueError:
+                continue
+            protected.add(input_path)
+    return protected
+
+
 def _read_text_preview(path: Path, max_chars: int) -> str:
     if not path.exists() or not path.is_file():
         return "(missing)"
@@ -144,6 +157,32 @@ def _clean_experiment_output_files(out_dir: Path, exp_id: str, include_suffixes:
     return removed
 
 
+def _clean_experiment_output_files_safe(
+    out_dir: Path,
+    exp_id: str,
+    include_suffixes: List[str],
+    protected_paths: Set[Path],
+) -> List[Path]:
+    prefixes = (f"{exp_id}_", f"{exp_id}.")
+    suffixes = tuple(include_suffixes)
+    removed: List[Path] = []
+    if not out_dir.exists():
+        return removed
+    for item in sorted(out_dir.iterdir()):
+        if not item.is_file():
+            continue
+        if item in protected_paths:
+            LOGGER.debug("跳过受保护输入文件: %s", item)
+            continue
+        if not item.name.startswith(prefixes):
+            continue
+        if suffixes and item.suffix.lower() not in suffixes:
+            continue
+        item.unlink()
+        removed.append(item)
+    return removed
+
+
 def run_all() -> int:
     specs = _load_specs()
     out_dir = outputs_dir()
@@ -163,12 +202,21 @@ def run_all() -> int:
         output_include_suffixes = [".csv", ".json", ".md"]
     output_include_suffixes = [str(x).lower() for x in output_include_suffixes]
     clean_old_outputs = bool(run_all_cfg.get("clean_old_outputs", True))
+    protect_output_inputs = bool(run_all_cfg.get("protect_output_inputs", True))
 
     project_root = resolve_project_path(".")
 
     LOGGER.debug("E0 run_all 启动，实验数量=%s, logs_dir=%s", len(specs), logs_dir)
     LOGGER.debug("SCOPE 子集目录=%s，存在=%s", scope_subsets_dir(), scope_subsets_dir().exists())
     LOGGER.debug("E0 run_all 合并日志路径=%s", combined_log_path)
+    protected_paths = _collect_protected_output_inputs(specs, out_dir) if protect_output_inputs else set()
+    LOGGER.debug(
+        "E0 run_all 清理保护开关=%s, 受保护输入文件数量=%s",
+        protect_output_inputs,
+        len(protected_paths),
+    )
+    if protected_paths:
+        LOGGER.debug("E0 run_all 受保护输入文件=%s", sorted(str(p) for p in protected_paths))
 
     before_all = _collect_files(out_dir)
     records: List[dict] = []
@@ -192,7 +240,12 @@ def run_all() -> int:
         LOGGER.debug("开始执行 %s: script=%s", spec.exp_id, script_path)
         LOGGER.debug("%s 输入检查: %s", spec.exp_id, inputs_status)
         if clean_old_outputs and spec.exp_id != "E0":
-            removed_files = _clean_experiment_output_files(out_dir, spec.exp_id, output_include_suffixes)
+            removed_files = _clean_experiment_output_files_safe(
+                out_dir,
+                spec.exp_id,
+                output_include_suffixes,
+                protected_paths,
+            )
             LOGGER.debug("%s 预清理旧产物数量=%s", spec.exp_id, len(removed_files))
 
         proc = subprocess.run(cmd, cwd=project_root, env=env, text=True, capture_output=True)
