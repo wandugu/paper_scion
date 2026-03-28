@@ -1,13 +1,13 @@
 {
-  "command": "python src/rebuttal/scripts/E7_prepare_metric_human_calibration.py",
+  "command": "python src/rebuttal/scripts/E7_score_metric_human_calibration.py",
   "config": "src/rebuttal/configs/E7_metric_human_calibration.yaml",
   "seed": 42,
-  "timestamp_utc": "2026-03-28T10:20:23.949927+00:00",
-  "git_commit": "4bd79613ab2cda309bbf7554716eb0e6ab9c99d9",
+  "timestamp_utc": "2026-03-28T15:07:52.502553+00:00",
+  "git_commit": "1aa1e8c47be0239c4e155693e2f5085048865513",
   "environment": {
-    "timestamp_utc": "2026-03-28T10:20:23.956910+00:00",
+    "timestamp_utc": "2026-03-28T15:07:52.512700+00:00",
     "python": "3.12.12 (main, Jan 12 2026, 17:43:59) [GCC 13.3.0]",
     "platform": "Linux-6.12.47-x86_64-with-glibc2.39",
-    "git_commit": "4bd79613ab2cda309bbf7554716eb0e6ab9c99d9"
+    "git_commit": "1aa1e8c47be0239c4e155693e2f5085048865513"
   }
 }

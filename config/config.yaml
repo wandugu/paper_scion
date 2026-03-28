@@ -1463,6 +1463,11 @@ rebuttal:
     e11_soft_domain_boost_scale: 0.75
     e7_annotation_pair_count: 240
     e7_max_pairs_per_source: 16
+    e7_annotation_input_files:
+      - rebuttal/outputs/E7_annotation_template_1.csv
+      - rebuttal/outputs/E7_annotation_template_2.csv
+    e7_score_accept_threshold: 0.5
+    e7_default_adjudication_strategy: annotator_1
     e11_domain_map:
       biomedical: [ADE_corpus, CMeIE, PHEE]
       finance: [CrudeOilNews, DuEE-fin, FewFC]
@@ -1541,6 +1546,13 @@ rebuttal:
           - data/scope/subsets
         expected_outputs:
           - rebuttal/outputs/E7_annotation_packet.csv
+      - id: E7_SCORE
+        script: src/rebuttal/scripts/E7_score_metric_human_calibration.py
+        inputs:
+          - rebuttal/outputs/E7_annotation_template_1.csv
+          - rebuttal/outputs/E7_annotation_template_2.csv
+        expected_outputs:
+          - rebuttal/outputs/E7_metric_human_agreement.csv
       - id: E8
         script: src/rebuttal/scripts/E8_run_noise_polysemy_encoder.py
         inputs:

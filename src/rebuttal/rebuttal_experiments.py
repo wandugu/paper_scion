@@ -6,6 +6,7 @@ import random
 import json
 import re
 import hashlib
+import csv
 from math import erf, sqrt
 from pathlib import Path
 from statistics import mean
@@ -1720,8 +1721,9 @@ def run_e6(config_path: str):
 def run_e7(config_path: str):
     rng = random.Random(default_seed())
     infos = source_infos()
-    max_pairs = min(120, max(100, int(_rebuttal_setting("e7_annotation_pair_count", 120))))
+    max_pairs = max(1, int(_rebuttal_setting("e7_annotation_pair_count", 120)))
     per_source_cap = int(_rebuttal_setting("e7_max_pairs_per_source", 16))
+    LOGGER.debug("E7 prepare start, target_pair_count=%s per_source_cap=%s", max_pairs, per_source_cap)
     source_pair_count: Dict[str, int] = {}
     allowed_methods = ["manual", "text2onto", "llm_only", "eta", "scion_lite", "scion_fusion", "scion_full", "scion_rl"]
     packet = []
@@ -1804,6 +1806,242 @@ def run_e7(config_path: str):
 
 
 def run_e7_score(config_path: str):
+    input_files = _rebuttal_setting(
+        "e7_annotation_input_files",
+        ["rebuttal/outputs/E7_annotation_template_1.csv", "rebuttal/outputs/E7_annotation_template_2.csv"],
+    )
+    if not isinstance(input_files, list) or not input_files:
+        raise ValueError("E7 打分配置无效：e7_annotation_input_files 不能为空。")
+    annotation_paths = [Path(str(p)) for p in input_files]
+    for path in annotation_paths:
+        if not path.exists():
+            raise FileNotFoundError(f"E7 缺少人工标注文件: {path}")
+    packet_path = OUT / "E7_annotation_packet.csv"
+    if not packet_path.exists():
+        raise FileNotFoundError(f"E7 缺少标注包文件: {packet_path}")
+
+    label_threshold = float(_rebuttal_setting("e7_score_accept_threshold", 0.5))
+    fallback_strategy = str(_rebuttal_setting("e7_default_adjudication_strategy", "annotator_1")).strip()
+    LOGGER.debug(
+        "E7 score start, annotation_paths=%s packet=%s threshold=%s fallback=%s",
+        annotation_paths,
+        packet_path,
+        label_threshold,
+        fallback_strategy,
+    )
+
+    def _norm_label(raw: str) -> str:
+        value = str(raw or "").strip().lower()
+        if value in {"1", "true", "yes", "y", "accept", "accepted", "通过"}:
+            return "1"
+        if value in {"0", "false", "no", "n", "reject", "rejected", "拒绝"}:
+            return "0"
+        return ""
+
+    def _extract_label(row: dict) -> str:
+        for key in ("adjudicated", "annotator_a", "annotator_b"):
+            if key in row:
+                label = _norm_label(row.get(key, ""))
+                if label:
+                    return label
+        return ""
+
+    def _read_template(path: Path) -> Dict[str, dict]:
+        result: Dict[str, dict] = {}
+        with path.open("r", encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                pair_id = str(row.get("pair_id", "")).strip()
+                if not pair_id:
+                    continue
+                result[pair_id] = row
+        LOGGER.debug("E7 loaded %s annotations from %s", len(result), path)
+        return result
+
+    ann1 = _read_template(annotation_paths[0])
+    ann2 = _read_template(annotation_paths[1]) if len(annotation_paths) > 1 else {}
+    with packet_path.open("r", encoding="utf-8-sig", newline="") as f:
+        packet_rows = list(csv.DictReader(f))
+
+    merged_rows = []
+    agreed = 0
+    comparable = 0
+    adjudicated_count = 0
+    accept_count = 0
+    support_metrics = {}
+    for packet in packet_rows:
+        pair_id = str(packet.get("pair_id", "")).strip()
+        r1 = ann1.get(pair_id, {})
+        r2 = ann2.get(pair_id, {})
+        l1 = _extract_label(r1)
+        l2 = _extract_label(r2)
+        adjudicated = _norm_label(r1.get("adjudicated", "") if r1 else "") or _norm_label(r2.get("adjudicated", "") if r2 else "")
+        if not adjudicated:
+            if l1 and l2:
+                comparable += 1
+                if l1 == l2:
+                    adjudicated = l1
+                    agreed += 1
+                elif fallback_strategy == "annotator_2":
+                    adjudicated = l2
+                else:
+                    adjudicated = l1
+            else:
+                adjudicated = l1 or l2
+        if adjudicated:
+            adjudicated_count += 1
+            if adjudicated == "1":
+                accept_count += 1
+
+        notes = []
+        note1 = str((r1 or {}).get("notes", "")).strip()
+        note2 = str((r2 or {}).get("notes", "")).strip()
+        if note1:
+            notes.append(f"A1:{note1}")
+        if note2:
+            notes.append(f"A2:{note2}")
+
+        merged_rows.append(
+            {
+                "pair_id": pair_id,
+                "annotator_a": l1,
+                "annotator_b": l2,
+                "adjudicated": adjudicated,
+                "notes": " | ".join(notes),
+            }
+        )
+
+        metric = str(packet.get("metric", "")).strip()
+        score_raw = packet.get("score", "")
+        try:
+            score = float(score_raw)
+        except (TypeError, ValueError):
+            score = 0.0
+        score_bin = "low" if score < 0.33 else "mid" if score < 0.66 else "high"
+        key = (metric, score_bin)
+        if key not in support_metrics:
+            support_metrics[key] = {"pair_count": 0, "accept_count": 0}
+        support_metrics[key]["pair_count"] += 1
+        if adjudicated == "1":
+            support_metrics[key]["accept_count"] += 1
+
+    write_csv(OUT / "E7_annotation_template.csv", merged_rows, ["pair_id", "annotator_a", "annotator_b", "adjudicated", "notes"])
+    agreement = safe_div(agreed, comparable)
+    accept_rate = safe_div(accept_count, adjudicated_count)
+    write_csv(
+        OUT / "E7_annotation_summary.csv",
+        [
+            {
+                "split": "all",
+                "pair_count": len(packet_rows),
+                "human_accept_rate": round(accept_rate, 4),
+                "annotator_agreement": round(agreement, 4),
+                "notes": f"scored_from={','.join([str(p) for p in annotation_paths])}; adjudicated={adjudicated_count}",
+            }
+        ],
+        ["split", "pair_count", "human_accept_rate", "annotator_agreement", "notes"],
+    )
+
+    calib_rows = []
+    for metric in ["fuzzy", "continuous", "graph"]:
+        for score_bin in ["low", "mid", "high"]:
+            stats = support_metrics.get((metric, score_bin), {"pair_count": 0, "accept_count": 0})
+            calib_rows.append(
+                {
+                    "metric": metric,
+                    "score_bin": score_bin,
+                    "pair_count": stats["pair_count"],
+                    "human_accept_rate": round(safe_div(stats["accept_count"], stats["pair_count"]), 4),
+                }
+            )
+    write_csv(OUT / "E7_score_bin_calibration.csv", calib_rows, ["metric", "score_bin", "pair_count", "human_accept_rate"])
+
+    eval_rows = []
+    tp = fp = tn = fn = 0
+    packet_by_id = {str(r.get("pair_id", "")).strip(): r for r in packet_rows}
+    for row in merged_rows:
+        if row["adjudicated"] not in {"0", "1"}:
+            continue
+        packet = packet_by_id.get(row["pair_id"], {})
+        try:
+            score = float(packet.get("score", 0.0))
+        except (TypeError, ValueError):
+            score = 0.0
+        pred_pos = score >= label_threshold
+        human_pos = row["adjudicated"] == "1"
+        if pred_pos and human_pos:
+            tp += 1
+        elif pred_pos and not human_pos:
+            fp += 1
+        elif (not pred_pos) and human_pos:
+            fn += 1
+        else:
+            tn += 1
+    precision = safe_div(tp, tp + fp)
+    recall = safe_div(tp, tp + fn)
+    f1 = safe_div(2 * precision * recall, precision + recall)
+    eval_rows.append(
+        {
+            "signal": "model_score",
+            "unit_type": "edge",
+            "threshold_or_score_use": f"score>={label_threshold}",
+            "precision_vs_human": round(precision, 4),
+            "recall_vs_human": round(recall, 4),
+            "f1_vs_human": round(f1, 4),
+            "auroc": "",
+            "auprc": "",
+        }
+    )
+    write_csv(
+        OUT / "E7_metric_human_agreement.csv",
+        eval_rows,
+        ["signal", "unit_type", "threshold_or_score_use", "precision_vs_human", "recall_vs_human", "f1_vs_human", "auroc", "auprc"],
+    )
+
+    status_path = OUT / "E7_STATUS_NOT_RUN.md"
+    if status_path.exists():
+        status_path.unlink()
+        LOGGER.debug("E7 removed stale status file: %s", status_path)
+    write_json(
+        OUT / "E7_sampling_report.json",
+        {
+            "scored_from_templates": [str(p) for p in annotation_paths],
+            "pair_count": len(packet_rows),
+            "adjudicated_count": adjudicated_count,
+            "annotator_agreement": round(agreement, 4),
+            "human_accept_rate": round(accept_rate, 4),
+            "score_accept_threshold": label_threshold,
+        },
+    )
+    update_index(
+        OUT / "E0_outputs_index.md",
+        "E7",
+        [
+            ("rebuttal/outputs/E7_annotation_template.csv", "双人标注合并结果"),
+            ("rebuttal/outputs/E7_metric_human_agreement.csv", "指标-人工一致性"),
+            ("rebuttal/outputs/E7_annotation_summary.csv", "标注摘要"),
+        ],
+    )
+    _summary(
+        "E7",
+        "metric-human calibration scoring",
+        "score threshold vs adjudicated labels",
+        "all E7 annotation pairs",
+        ["E7_annotation_template.csv", "E7_metric_human_agreement.csv", "E7_annotation_summary.csv", "E7_score_bin_calibration.csv", "E7_sampling_report.json", "E7_manifest.json"],
+        [f"读取人工标注文件 {','.join([str(p) for p in annotation_paths])}", f"有效 adjudicated 数量 {adjudicated_count}", f"annotator agreement={agreement:.4f}, human_accept_rate={accept_rate:.4f}"],
+        "我们已基于双人标注文件完成 E7 打分并产出可复核指标文件。",
+    )
+    LOGGER.debug(
+        "E7 score done, pairs=%s adjudicated=%s agreement=%.4f accept_rate=%.4f tp=%s fp=%s fn=%s tn=%s",
+        len(packet_rows),
+        adjudicated_count,
+        agreement,
+        accept_rate,
+        tp,
+        fp,
+        fn,
+        tn,
+    )
     ensure_manifest(OUT / "E7_manifest.json", "python src/rebuttal/scripts/E7_score_metric_human_calibration.py", config_path, default_seed())
 
 
