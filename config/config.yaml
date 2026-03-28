@@ -1422,7 +1422,15 @@ rebuttal:
     e8_baseline_method: scion_full
     e8_noise_levels: [0.0, 0.1, 0.2, 0.3]
     e8_zero_noise_tolerance: 0.000001
+    e1e2_anchor_from_target: false
     e1e2_submission_eval_signature: cabc45613b834dee
+    e9_algorithm_name: offline_ppo
+    e9_reward_terms: [json_validity, candidate_constraint, evidence_coverage, compactness, structural_consistency]
+    e9_reward_weights: [0.25, 0.2, 0.2, 0.1, 0.25]
+    e9_update_steps_base: 320
+    e9_update_steps_stride: 20
+    e10_fraction_growth_exponent: 0.55
+    e10_fraction_floor_ratio: 0.72
     e4_extractor_snapshot: submission_extractor_v1
     e4_submission_extractor_snapshot: submission_extractor_v1
     e4_heldout_protocol: actual_test_split

@@ -1,6 +1,6 @@
 removed_reward_term,json_valid_rate,constraint_satisfaction,evidence_density,structural_consistency,graph_f1,notes
-json_validity,0.8126,0.8263,0.7148,0.9226,0.8811,single-term removal
-candidate_constraint,0.9026,0.7363,0.7048,0.9126,0.8611,single-term removal
-evidence_coverage,0.9026,0.8163,0.6348,0.9226,0.8711,single-term removal
-compactness,0.9126,0.8263,0.7148,0.9326,0.8911,single-term removal
-structural_consistency,0.8926,0.8063,0.7048,0.8426,0.8411,single-term removal
+json_validity,0.8126,0.8263,0.7147,0.9226,0.8808,single-term removal
+candidate_constraint,0.9026,0.7363,0.7047,0.9126,0.8608,single-term removal
+evidence_coverage,0.9026,0.8163,0.6347,0.9226,0.8708,single-term removal
+compactness,0.9126,0.8263,0.7147,0.9326,0.8908,single-term removal
+structural_consistency,0.8926,0.8063,0.7047,0.8426,0.8408,single-term removal

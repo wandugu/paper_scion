@@ -10,4 +10,4 @@ FewFC,role without typed argument,typed edge graph,implicit role structure + arg
 GIDS,flat relation labels,typed edge graph,missing typing + relation normalization,head/tail type lost in released schema,True
 IPRE,flat relation labels,typed edge graph,missing typing + relation normalization,head/tail type lost in released schema,True
 NYT11,flat relation labels,typed edge graph,missing typing + relation normalization,head/tail type lost in released schema,True
-New-York-Times-RE,flat relation labels,typed edge graph,missing typing + relation normalization,head/tail type lost in released schema,True
+New-York-Times-RE,flat relation labels,typed edge graph,missing typing + relation normalization,head/tail type lost in released schema,False
