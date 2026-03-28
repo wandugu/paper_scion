@@ -57,5 +57,6 @@
     "scion_lite": 0.8516994119578993
   },
   "accidental_equality_detected": false,
-  "stage_specific_artifact_assertion_passed": true
+  "stage_specific_artifact_assertion_passed": true,
+  "representation_gap_analysis_only": true
 }

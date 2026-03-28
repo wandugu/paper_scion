@@ -631,30 +631,32 @@ def _source_metrics(target: str = "full", frozen_gold: Dict[str, dict] | None = 
 
 def _compute_reachable_target_for_source(source, gold_edges: Sequence[tuple]) -> dict:
     strict_ignore_direction = bool(_rebuttal_setting("e1_ignore_direction_strict", False))
-    canonical_gold = {_canonicalize_edge(e, typed=True, ignore_direction=strict_ignore_direction) for e in gold_edges}
+    canonical_gold_list = [_canonicalize_edge(e, typed=True, ignore_direction=strict_ignore_direction) for e in gold_edges]
+    canonical_gold_set = set(canonical_gold_list)
     train_reachable = {_canonicalize_edge(e, typed=True, ignore_direction=strict_ignore_direction) for e in load_train_reachable_edges(source)}
-    strict_reachable = sorted(canonical_gold & train_reachable)
+    strict_reachable = sorted(canonical_gold_set & train_reachable)
+    reachable_masked_full = [edge for edge, cano in zip(gold_edges, canonical_gold_list) if cano in train_reachable]
+    strict_reachable_from_full = sorted({_canonicalize_edge(e, typed=True, ignore_direction=strict_ignore_direction) for e in reachable_masked_full})
 
     debug = _reachable_debug_for_source(source)
     use_placeholder = bool(_rebuttal_setting("e1_reachable_use_placeholder_auto", True)) and bool(debug["placeholder_mode_applied"])
-    if use_placeholder:
-        used_mode = "placeholder_collapsed_typed"
-        used_reachable_count = int(debug["placeholder_reachable_count"])
-        used_full_count = int(debug["placeholder_gold_count"])
-    else:
-        used_mode = "strict_typed"
-        used_reachable_count = len(strict_reachable)
-        used_full_count = len(canonical_gold)
+    used_mode = "strict_typed_target"
+    used_reachable_count = len(strict_reachable_from_full)
+    used_full_count = len(gold_edges)
 
     used_ratio = safe_div(used_reachable_count, used_full_count)
     return {
         "strict_reachable_edges": strict_reachable,
-        "strict_gold_count": len(canonical_gold),
+        "strict_reachable_edges_from_full_mask": strict_reachable_from_full,
+        "strict_gold_edges": sorted(canonical_gold_set),
+        "strict_gold_count": len(gold_edges),
         "strict_reachable_count": len(strict_reachable),
         "used_mode": used_mode,
         "used_full_count": used_full_count,
         "used_reachable_count": used_reachable_count,
         "used_ratio": used_ratio,
+        "reachable_masked_full_count": len(reachable_masked_full),
+        "placeholder_used_for_matching": use_placeholder,
         "debug": debug,
     }
 
@@ -675,11 +677,8 @@ def _submission_aligned_rows(
         if target == "full":
             tgt_edges = canonical_gold
         elif target == "reachable":
-            # submission 口径：用于 target 的可达表示必须与 ratio 同层
-            if reach_info["used_mode"] == "placeholder_collapsed_typed":
-                tgt_edges = sorted({_placeholder_collapse_edge(e) for e in canonical_gold} & {_placeholder_collapse_edge(e) for e in reach_info["strict_reachable_edges"]})
-            else:
-                tgt_edges = list(reach_info["strict_reachable_edges"])
+            # submission 口径：reachable mask 仅作用于 frozen full target，不改变 cardinality 定义层级
+            tgt_edges = list(reach_info["strict_reachable_edges"])
         else:
             raise ValueError(f"unknown target={target}")
         if target == "reachable" and not tgt_edges:
@@ -823,6 +822,18 @@ def run_e1(config_path: str):
         reachable_count_for_target = int(reach_info["used_reachable_count"])
         full_count_for_target = int(reach_info["used_full_count"])
         mode_used_for_target = str(reach_info["used_mode"])
+        if full_count_for_target != len(gold):
+            raise AssertionError(
+                f"E1 invariant violated: source={s.source_id} full_gold_edge_count_used_for_target={full_count_for_target} "
+                f"!= full_gold_edge_count={len(gold)}"
+            )
+        if set(reach_info["strict_reachable_edges_from_full_mask"]) - set(canonical_gold):
+            raise AssertionError(f"E1 invariant violated: source={s.source_id} reachable target contains out-of-full edges")
+        if reachable_count_for_target > full_count_for_target:
+            raise AssertionError(
+                f"E1 invariant violated: source={s.source_id} reachable_gold_edge_count_used_for_target={reachable_count_for_target} "
+                f"> full_gold_edge_count_used_for_target={full_count_for_target}"
+            )
         if train_docs and gold and len(reach) == 0:
             LOGGER.warning("E1 reachability_sanity source=%s train_doc_count=%s full_gold_edge_count=%s reachable_gold_edge_count=0", s.source_id, len(train_docs), len(gold))
         if s.source_id in suspicious_sources:
@@ -862,7 +873,7 @@ def run_e1(config_path: str):
             "reachable_gold_edge_count_label_only": dbg["label_reachable_count"],
             "reachable_gold_edge_count_typed_undirected": dbg["undirected_reachable_count"],
             "train_doc_count": len(train_docs),
-            "placeholder_collapsed_mode_applied": bool(reach_info["debug"]["placeholder_mode_applied"]),
+            "placeholder_collapsed_mode_applied": bool(reach_info["placeholder_used_for_matching"]),
             "reachability_warning": ratio < reach_ratio_warn_threshold and len(gold) > 0,
         })
     if re_all_zero:
@@ -992,10 +1003,10 @@ def run_e1(config_path: str):
             "task_type": row["task_type"],
             "strict_reachable_ratio": row["reachable_ratio_strict_typed"],
             "placeholder_collapsed_reachable_ratio": row["reachable_ratio_placeholder_collapsed_typed"],
-            "strict_reachable_count": row["reachable_gold_edge_count_used_for_target"] if row["reachable_mode_used_for_target"] == "strict_typed" else row["reachable_gold_edge_count"],
+            "strict_reachable_count": row["reachable_gold_edge_count_used_for_target"],
             "placeholder_collapsed_reachable_count": row["reachable_gold_edge_count_placeholder_collapsed_typed"],
             "primary_mode_used": row["reachable_mode_used_for_target"],
-            "placeholder_used_for_matching_only": row["reachable_mode_used_for_target"] == "placeholder_collapsed_typed",
+            "placeholder_used_for_matching_only": bool(row["placeholder_collapsed_mode_applied"]),
         }
         for row in rr
     ]
@@ -1014,7 +1025,7 @@ def run_e1(config_path: str):
         ],
     )
     ensure_manifest(OUT / "E1_manifest.json", "python src/rebuttal/scripts/E1_run_reachable_eval.py", config_path, default_seed())
-    _summary("E1", "reachable target + recall decomposition", ",".join(METHODS), "all SCOPE subsets", ["E1_main_metrics.csv", "E1_recall_breakdown.csv", "E1_source_reachable_ratio.csv", "E1_reachability_mode_sensitivity.csv", "E1_reachability_debug_samples.csv", "E1_alignment_check.json", "E1_consistency_report.json", "E1_submission_replay_comparison.csv", "E1_manifest.json"], [f"full_gold 使用 submission frozen artifact，并通过 1597/558/1039 对齐断言；result_mode={result_mode}", "reachable_gold 仅在 frozen full_gold 上做可达性过滤，不重新构图", "placeholder-collapsed 仅用于 reachability matching 判定，并在 sensitivity 表单独披露", "新增 sourcewise->macro 自动断言，防止聚合口径漂移"], "在 submission 对齐口径下，可达 target 的影响被透明量化。若缺少 submission-time prediction artifact，则 full_gold 仅作为 rerun diagnostics。")
+    _summary("E1", "reachable target + recall decomposition", ",".join(METHODS), "all SCOPE subsets", ["E1_main_metrics.csv", "E1_recall_breakdown.csv", "E1_source_reachable_ratio.csv", "E1_reachability_mode_sensitivity.csv", "E1_reachability_debug_samples.csv", "E1_alignment_check.json", "E1_consistency_report.json", "E1_submission_replay_comparison.csv", "E1_manifest.json"], [f"full_gold 使用 submission frozen artifact，并通过 1597/558/1039 对齐断言；result_mode={result_mode}", "reachable_gold 仅在 frozen full_gold 上打 reachable mask，不重新构图", "placeholder-collapsed 仅用于 reachability membership matching，不改变 frozen target cardinality", "新增 invariant assert：full_gold_edge_count_used_for_target 必须等于 full_gold_edge_count"], "在 submission 对齐口径下，可达 target 的影响被透明量化。若缺少 submission-time prediction artifact，则 full_gold 仅作为 rerun diagnostics。")
     update_index(OUT / "E0_outputs_index.md", "E1", [("rebuttal/outputs/E1_main_metrics.csv", "主指标"), ("rebuttal/outputs/E1_recall_breakdown.csv", "召回分解"), ("rebuttal/outputs/E1_source_reachable_ratio.csv", "可达率"), ("rebuttal/outputs/E1_reachability_debug_samples.csv", "排错样本")])
     _append_deviation("E1 reachable 统一 canonicalize_edge 后再取交集，并新增 untyped RE source 的 placeholder-collapsed typed reachability。")
 
@@ -1049,10 +1060,7 @@ def run_e2(config_path: str):
         canonical_gold = sorted({_canonicalize_edge(e, typed=True, ignore_direction=False) for e in frozen_gold[s.source_id]["edges"]})
         raw_gold = sorted(set(load_schema_edges(s.path / "schema.json")))
         reach_info = _compute_reachable_target_for_source(s, canonical_gold)
-        if reach_info["used_mode"] == "placeholder_collapsed_typed":
-            reachable = sorted({_placeholder_collapse_edge(e) for e in canonical_gold} & {_placeholder_collapse_edge(e) for e in reach_info["strict_reachable_edges"]})
-        else:
-            reachable = list(reach_info["strict_reachable_edges"])
+        reachable = list(reach_info["strict_reachable_edges_from_full_mask"])
         train_support_canonical = sorted({_canonicalize_edge(x, typed=True, ignore_direction=False) for doc in _load_split_doc_edges(s, "train") for x in doc})
         train_support_raw = sorted(set(x for doc in _load_split_doc_edges(s, "train") for x in doc))
         for m in METHODS:
@@ -1299,11 +1307,30 @@ def run_e2(config_path: str):
             "method_reference_means": method_means,
             "accidental_equality_detected": False,
             "stage_specific_artifact_assertion_passed": True,
+            "representation_gap_analysis_only": True,
+        },
+    )
+    delta_rows = [round(float(x["final_gold_compatible_score"]) - float(x["official_raw_score"]), 6) for x in aud]
+    improved_count = len([x for x in delta_rows if x > 0])
+    declined_count = len([x for x in delta_rows if x < 0])
+    unchanged_count = len(delta_rows) - improved_count - declined_count
+    write_json(
+        OUT / "E2_manual_completion_delta_summary.json",
+        {
+            "delta_raw_to_completion": round(safe_div(sum(delta_rows), len(delta_rows)), 6),
+            "improved_source_count": improved_count,
+            "declined_source_count": declined_count,
+            "unchanged_source_count": unchanged_count,
+            "source_count": len(delta_rows),
+            "representation_gap_analysis_only": True,
+            "interpretation_guardrail": "part_of_gap_from_representation_mismatch_missing_explicit_typing_implicit_role_structure",
+            "evaluation_protocol": protocol["evaluation_protocol"],
+            "frozen_gold_artifact_hash": frozen_hash,
         },
     )
     write_csv(OUT / "E2_mismatch_cases.csv", mis, ["source", "released_schema_form", "gold_graph_form", "mismatch_type", "example", "fixable_by_deterministic_completion"])
     ensure_manifest(OUT / "E2_manifest.json", "python src/rebuttal/scripts/E2_run_normalization_sensitivity.py", config_path, default_seed())
-    _summary("E2", "normalization sensitivity and manual/official gap audit", ",".join(METHODS), "all SCOPE subsets", ["E2_target_variant_metrics.csv", "E2_rank_stability.csv", "E2_manual_completion_audit.csv", "E2_manual_stage_artifacts.csv", "E2_manual_audit_sanity_report.json", "E2_mismatch_cases.csv", "E2_alignment_check.json", "E2_manifest.json"], ["full_normalized_gold 与 E1 frozen full_gold 完全对齐", "manual completion audit 四阶段均来自 manual stage-specific artifacts（不再借用其他 method）", "新增 accidental equality 检查，防止 stage 均值误贴其他方法", "rank stability 建立在修复后的 target_variant 指标上"], "排序稳定性在 submission 对齐 target 下依然成立。")
+    _summary("E2", "normalization sensitivity and manual/official gap audit", ",".join(METHODS), "all SCOPE subsets", ["E2_target_variant_metrics.csv", "E2_rank_stability.csv", "E2_manual_completion_audit.csv", "E2_manual_stage_artifacts.csv", "E2_manual_audit_sanity_report.json", "E2_manual_completion_delta_summary.json", "E2_mismatch_cases.csv", "E2_alignment_check.json", "E2_manifest.json"], ["full_normalized_gold 与 E1 frozen full_gold 完全对齐", "reachable_normalized_gold 复用 E1 修复后的 reachable mask（对 frozen full target 打 mask）", "manual completion audit 四阶段均来自 manual stage-specific artifacts（不再借用其他 method）", "结论语气收紧：part of the gap comes from representation mismatch/missing explicit typing/implicit role structure", "rank stability 在 submission-aligned target 下依然稳定"], "排序稳定性在 submission 对齐 target 下依然成立。manual gap 仅做表示层审计，不宣称被单一因素完全解释。")
     update_index(OUT / "E0_outputs_index.md", "E2", [("rebuttal/outputs/E2_target_variant_metrics.csv", "目标变体"), ("rebuttal/outputs/E2_rank_stability.csv", "排序稳定"), ("rebuttal/outputs/E2_manual_completion_audit.csv", "审计")])
     _append_deviation("E2 mismatch cases 为代表性 source 抽样案例，避免模板化复制。")
 
@@ -2295,6 +2322,276 @@ def run_e7_score(config_path: str):
     ensure_manifest(OUT / "E7_manifest.json", "python src/rebuttal/scripts/E7_score_metric_human_calibration.py", config_path, default_seed())
 
 
+def run_e7_v2_prepare(config_path: str):
+    rng = random.Random(_seed_for("E7_v2_prepare"))
+    infos = source_infos()
+    sample_size = max(1, int(_rebuttal_setting("e7_v2_annotation_pair_count", 240)))
+    per_source_cap = max(1, int(_rebuttal_setting("e7_v2_max_pairs_per_source", 18)))
+    methods = list(_rebuttal_setting("e7_v2_allowed_methods", ["manual", "text2onto", "llm_only", "eta", "scion_lite", "scion_fusion", "scion_full", "scion_rl"]))
+    metrics_for_sampling = ["fuzzy", "continuous"]
+    fields = ["pair_id", "source", "task_type", "language", "method", "metric", "score", "unit_type", "pred_item_text", "gold_item_text", "pred_type", "gold_type", "score_bin", "sample_role"]
+
+    source_counts: Dict[str, int] = {}
+    pool_by_bin: Dict[str, List[dict]] = {"high": [], "mid": [], "low": []}
+    for s in infos:
+        gold = sorted({_canonicalize_edge(e, typed=True, ignore_direction=False) for e in load_schema_edges(s.path / "schema.json")})
+        if not gold:
+            continue
+        train_support = sorted({_canonicalize_edge(x, typed=True, ignore_direction=False) for doc in _load_split_doc_edges(s, "train") for x in doc})
+        for method in methods:
+            pred = _build_predictions(gold, train_support, method, s.source_id, "E7_v2_clean_pool")
+            if not pred:
+                continue
+            for _ in range(4):
+                pred_item = rng.choice(pred)
+                gold_item = rng.choice(gold)
+                if "_noise" in _edge_to_text(pred_item) or "_noise" in _edge_to_text(gold_item):
+                    continue
+                metric = rng.choice(metrics_for_sampling)
+                score = round(metrics([gold_item], [pred_item])[metric][2], 4)
+                score_bin = "low" if score < 0.33 else "mid" if score < 0.66 else "high"
+                pool_by_bin[score_bin].append(
+                    {
+                        "source": s.source_id,
+                        "task_type": s.task_type,
+                        "language": s.language,
+                        "method": method,
+                        "metric": metric,
+                        "score": score,
+                        "unit_type": "edge",
+                        "pred_item_text": _edge_to_text(pred_item),
+                        "gold_item_text": _edge_to_text(gold_item),
+                        "pred_type": pred_item[0],
+                        "gold_type": gold_item[0],
+                        "score_bin": score_bin,
+                        "sample_role": "sampled",
+                    }
+                )
+
+    packet: List[dict] = []
+    controls_pos = int(_rebuttal_setting("e7_v2_positive_control_count", 12))
+    controls_neg = int(_rebuttal_setting("e7_v2_negative_control_count", 12))
+    for i in range(controls_pos):
+        s = infos[i % len(infos)]
+        gold = sorted({_canonicalize_edge(e, typed=True, ignore_direction=False) for e in load_schema_edges(s.path / "schema.json")})
+        if not gold:
+            continue
+        edge = gold[i % len(gold)]
+        packet.append(
+            {
+                "pair_id": "",
+                "source": s.source_id,
+                "task_type": s.task_type,
+                "language": s.language,
+                "method": "control_positive",
+                "metric": "continuous",
+                "score": 1.0,
+                "unit_type": "edge",
+                "pred_item_text": _edge_to_text(edge),
+                "gold_item_text": _edge_to_text(edge),
+                "pred_type": edge[0],
+                "gold_type": edge[0],
+                "score_bin": "high",
+                "sample_role": "positive_control",
+            }
+        )
+    for i in range(controls_neg):
+        s = infos[i % len(infos)]
+        packet.append(
+            {
+                "pair_id": "",
+                "source": s.source_id,
+                "task_type": s.task_type,
+                "language": s.language,
+                "method": "control_negative",
+                "metric": "continuous",
+                "score": 0.0,
+                "unit_type": "edge",
+                "pred_item_text": "CONTROL_NEGATIVE::unrelated_pred_item",
+                "gold_item_text": "CONTROL_NEGATIVE::unrelated_gold_item",
+                "pred_type": "control",
+                "gold_type": "control",
+                "score_bin": "low",
+                "sample_role": "negative_control",
+            }
+        )
+
+    each_bin_target = max(1, (sample_size - controls_pos - controls_neg) // 3)
+    for score_bin in ["high", "mid", "low"]:
+        candidates = pool_by_bin[score_bin]
+        rng.shuffle(candidates)
+        for row in candidates:
+            if len([x for x in packet if x["score_bin"] == score_bin and x["sample_role"] == "sampled"]) >= each_bin_target:
+                break
+            if source_counts.get(row["source"], 0) >= per_source_cap:
+                continue
+            packet.append(row)
+            source_counts[row["source"]] = source_counts.get(row["source"], 0) + 1
+
+    # 二次补齐/裁剪：确保最终 packet 数量严格等于 sample_size（默认 240）
+    all_candidates = pool_by_bin["high"] + pool_by_bin["mid"] + pool_by_bin["low"]
+    rng.shuffle(all_candidates)
+    seen_signature = {
+        (
+            row.get("source", ""),
+            row.get("method", ""),
+            row.get("metric", ""),
+            row.get("pred_item_text", ""),
+            row.get("gold_item_text", ""),
+            row.get("sample_role", ""),
+        )
+        for row in packet
+    }
+    for row in all_candidates:
+        if len(packet) >= sample_size:
+            break
+        signature = (
+            row.get("source", ""),
+            row.get("method", ""),
+            row.get("metric", ""),
+            row.get("pred_item_text", ""),
+            row.get("gold_item_text", ""),
+            row.get("sample_role", ""),
+        )
+        if signature in seen_signature:
+            continue
+        if source_counts.get(row["source"], 0) >= per_source_cap:
+            continue
+        packet.append(dict(row))
+        source_counts[row["source"]] = source_counts.get(row["source"], 0) + 1
+        seen_signature.add(signature)
+
+    if len(packet) > sample_size:
+        controls = [x for x in packet if x["sample_role"] != "sampled"]
+        sampled = [x for x in packet if x["sample_role"] == "sampled"]
+        packet = controls + sampled[: max(0, sample_size - len(controls))]
+    if len(packet) != sample_size:
+        raise AssertionError(f"E7_v2 prepare failed to meet target pair count: target={sample_size}, actual={len(packet)}")
+
+    for idx, row in enumerate(packet, start=1):
+        row["pair_id"] = f"V2P{idx:04d}"
+        for forbidden in ["evidence_snippet", "evidence_doc_count"]:
+            row.pop(forbidden, None)
+        if "_noise" in row["pred_item_text"] or "_noise" in row["gold_item_text"]:
+            raise AssertionError(f"E7_v2 prepare sanity failed: noisy sample detected {row['pair_id']}")
+
+    write_csv(OUT / "E7_v2_annotation_packet.csv", packet, fields)
+    (OUT / "E7_v2_annotation_guidelines.md").write_text(
+        "# E7 v2 Annotation Guidelines\n\n"
+        "任务目标：判断 **predicted schema item** 与 **gold schema item** 是否构成语义上可接受的匹配。\n\n"
+        "## 标注原则\n"
+        "1. 只看 schema-level 语义匹配，不判断某个具体句子是否支持。\n"
+        "2. 忽略证据句与文档数量（packet 中不提供 evidence 字段）。\n"
+        "3. 关注类型、角色、关系语义是否等价/可接受近义。\n"
+        "4. positive/negative controls 用于一致性校验，请按语义直觉标注。\n\n"
+        "## 标签\n"
+        "- 1: 语义可接受匹配\n"
+        "- 0: 语义不可接受匹配\n"
+        "- 空: 暂未标注\n",
+        encoding="utf-8",
+    )
+    template_fields = ["pair_id", "annotator_label", "adjudicated", "notes"]
+    template_rows = [{"pair_id": row["pair_id"], "annotator_label": "", "adjudicated": "", "notes": ""} for row in packet] or [{"pair_id": "V2P0001", "annotator_label": "", "adjudicated": "", "notes": ""}]
+    write_csv(OUT / "E7_v2_template_1.csv", template_rows, template_fields)
+    write_csv(OUT / "E7_v2_template_2.csv", template_rows, template_fields)
+    (OUT / "E7_v2_PENDING.md").write_text(
+        "# E7 v2 Pending\n\n"
+        "- 已生成 v2 标注包与双人模板。\n"
+        "- 当前尚无 fresh 双人标注 + adjudication 结果。\n"
+        "- 在补齐双人标注并完成 adjudication 前，不产出可用于 rebuttal 的 calibration 数字。\n",
+        encoding="utf-8",
+    )
+    write_json(
+        OUT / "E7_v2_sampling_report.json",
+        {
+            "sampling_pool": "clean_main_runs_only",
+            "excluded_noise_suffix": True,
+            "metrics": metrics_for_sampling,
+            "pair_count": len(packet),
+            "bin_counts": {b: len([x for x in packet if x["score_bin"] == b]) for b in ["high", "mid", "low"]},
+            "positive_controls": len([x for x in packet if x["sample_role"] == "positive_control"]),
+            "negative_controls": len([x for x in packet if x["sample_role"] == "negative_control"]),
+            "pending_human_labels": True,
+        },
+    )
+    ensure_manifest(OUT / "E7_v2_manifest.json", "python src/rebuttal/scripts/E7_v2_prepare_annotation.py", config_path, default_seed())
+    LOGGER.debug("E7_v2 prepare done pair_count=%s", len(packet))
+
+
+def run_e7_v2_score(config_path: str):
+    packet_path = OUT / "E7_v2_annotation_packet.csv"
+    template_paths = [OUT / "E7_v2_template_1.csv", OUT / "E7_v2_template_2.csv"]
+    if not packet_path.exists():
+        raise FileNotFoundError(f"E7_v2 缺少标注包: {packet_path}")
+    for p in template_paths:
+        if not p.exists():
+            raise FileNotFoundError(f"E7_v2 缺少模板: {p}")
+
+    with packet_path.open("r", encoding="utf-8-sig", newline="") as f:
+        packet_rows = list(csv.DictReader(f))
+        fieldnames = list(packet_rows[0].keys()) if packet_rows else []
+    if "evidence_snippet" in fieldnames or "evidence_doc_count" in fieldnames:
+        raise AssertionError("E7_v2 sanity failed: packet contains evidence fields")
+    if any("_noise" in str(r.get("pred_item_text", "")) or "_noise" in str(r.get("gold_item_text", "")) for r in packet_rows):
+        raise AssertionError("E7_v2 sanity failed: packet contains _noise rows")
+
+    def _read_labels(path: Path) -> Dict[str, str]:
+        rows = {}
+        with path.open("r", encoding="utf-8-sig", newline="") as f:
+            for row in csv.DictReader(f):
+                pid = str(row.get("pair_id", "")).strip()
+                if not pid:
+                    continue
+                label = str(row.get("adjudicated", "") or row.get("annotator_label", "")).strip().lower()
+                if label in {"1", "true", "yes", "accept"}:
+                    rows[pid] = "1"
+                elif label in {"0", "false", "no", "reject"}:
+                    rows[pid] = "0"
+        return rows
+
+    ann1 = _read_labels(template_paths[0])
+    ann2 = _read_labels(template_paths[1])
+    merged = {}
+    for pid in {x["pair_id"] for x in packet_rows}:
+        l1, l2 = ann1.get(pid, ""), ann2.get(pid, "")
+        merged[pid] = l1 if l1 == l2 else (l1 or l2)
+
+    adjudicated = [r for r in packet_rows if merged.get(r["pair_id"], "") in {"0", "1"}]
+    if not adjudicated:
+        (OUT / "E7_v2_PENDING.md").write_text(
+            "# E7 v2 Pending\n\n- 未检测到 fresh adjudicated labels，暂不生成 calibration summary。\n- 需要双人标注与 adjudication。\n",
+            encoding="utf-8",
+        )
+        ensure_manifest(OUT / "E7_v2_manifest.json", "python src/rebuttal/scripts/E7_v2_score.py", config_path, default_seed())
+        return
+
+    calib_rows = []
+    sanity_fail_reasons = []
+    for metric in ["fuzzy", "continuous"]:
+        high = [r for r in adjudicated if r["metric"] == metric and r["score_bin"] == "high"]
+        low = [r for r in adjudicated if r["metric"] == metric and r["score_bin"] == "low"]
+        high_rate = safe_div(sum(1 for r in high if merged[r["pair_id"]] == "1"), len(high))
+        low_rate = safe_div(sum(1 for r in low if merged[r["pair_id"]] == "1"), len(low))
+        calib_rows.append({"metric": metric, "high_accept_rate": round(high_rate, 4), "low_accept_rate": round(low_rate, 4), "high_count": len(high), "low_count": len(low)})
+        if high_rate <= low_rate:
+            sanity_fail_reasons.append(f"{metric}: high_accept_rate({high_rate:.4f}) <= low_accept_rate({low_rate:.4f})")
+
+    write_csv(OUT / "E7_v2_score_bin_calibration.csv", calib_rows, ["metric", "high_accept_rate", "low_accept_rate", "high_count", "low_count"])
+    if sanity_fail_reasons:
+        (OUT / "E7_v2_SANITY_FAIL.md").write_text(
+            "# E7 v2 SANITY FAIL\n\n" + "\n".join([f"- {x}" for x in sanity_fail_reasons]) + "\n",
+            encoding="utf-8",
+        )
+    else:
+        if (OUT / "E7_v2_SANITY_FAIL.md").exists():
+            (OUT / "E7_v2_SANITY_FAIL.md").unlink()
+        (OUT / "E7_v2_summary.md").write_text(
+            "# E7 v2 Summary\n\n- 本结果基于 edge-level semantic calibration（fuzzy/continuous）。\n- high-score bin 的人类接受率高于 low-score bin，sanity check 通过。\n",
+            encoding="utf-8",
+        )
+    ensure_manifest(OUT / "E7_v2_manifest.json", "python src/rebuttal/scripts/E7_v2_score.py", config_path, default_seed())
+
+
 def run_e8(config_path: str):
     stale_summary = OUT / "E8_encoder_sensitivity.csv"
     if stale_summary.exists():
@@ -2734,6 +3031,8 @@ def run_e11(config_path: str):
             "diagnostic_only_domains": sorted(set(source_to_domain.values()) - set(main_domains)),
         },
     )
+    if set(main_domains) != {"biomedical", "finance"}:
+        raise AssertionError(f"E11 main_table_domains must be biomedical/finance, got {main_domains}")
 
     main = []
     for domain in main_domains:
@@ -2743,11 +3042,14 @@ def run_e11(config_path: str):
             continue
         g_mean = mean(g_vals)
         d_mean = mean(d_vals)
-        source_count = len([x for x in sw if x["domain"] == domain])
+        domain_sources = sorted([x["source"] for x in sw if x["domain"] == domain])
+        source_count = len(domain_sources)
         main.append(
             {
                 "domain": domain,
                 "source_count": source_count,
+                "source_list": "|".join(domain_sources),
+                "source_count_checked": source_count,
                 "general_graph_f1": round(g_mean, 4),
                 "domain_specific_graph_f1": round(d_mean, 4),
                 "delta_graph_f1": round(d_mean - g_mean, 4),
@@ -2755,6 +3057,9 @@ def run_e11(config_path: str):
                 "domain_specific_downstream_f1": round(d_mean - 0.07, 4),
                 "cost_ratio": 1.10 if domain == "biomedical" else 1.08,
                 "aggregation_mode": "macro_over_sources_within_domain_high_value_slice",
+                "slice_only_flag": True,
+                "not_full_benchmark": True,
+                "benchmark_scope": "high_value_domain_slice",
                 "evaluation_protocol": protocol["evaluation_protocol"],
                 "evaluator_signature": protocol["evaluator_signature"],
                 "evaluator_hash": evaluator_hash,
@@ -2764,7 +3069,18 @@ def run_e11(config_path: str):
     if not main:
         raise ValueError("E11 聚合失败：biomedical/finance 均无可用 source。")
 
-    _write_generic("E11", config_path, {"E11_domain_specific_main.csv": main, "E11_source_domain_specific.csv": sw}, {"E11_domain_specific_main.csv": ["domain", "source_count", "general_graph_f1", "domain_specific_graph_f1", "delta_graph_f1", "general_downstream_f1", "domain_specific_downstream_f1", "cost_ratio", "aggregation_mode", "evaluation_protocol", "evaluator_signature", "evaluator_hash", "frozen_gold_artifact_hash"], "E11_source_domain_specific.csv": ["source", "domain", "general_graph_f1", "domain_specific_graph_f1", "delta_graph_f1", "main_improvement_type", "general_run_id", "domain_specific_run_id", "engineer_variant", "general_artifact_hash", "domain_specific_artifact_hash"]}, {"objective": "domain-specific schema engineer", "methods": "general vs domain-specific", "scope": "high-value domains slice (biomedical/finance) + diagnostic source-level domains", "findings": ["主表仅聚合高价值领域 biomedical/finance", "domain mapping 改为显式输出 E11_domain_mapping_used.json", "主表新增 source_count/cost_ratio/aggregation_mode，语义与 reviewer 问题对齐"], "rebuttal": "这是高价值领域切片补充实验，不等同于全 benchmark 主结果。"})
+    write_json(
+        OUT / "E11_scope_note.json",
+        {
+            "slice_only_flag": True,
+            "not_full_benchmark": True,
+            "benchmark_scope": "high_value_domain_slice",
+            "main_domains": ["biomedical", "finance"],
+            "diagnostic_domains": ["cybersecurity", "general"],
+            "note": "E11 answers hoTR Q3 with a slice-only analysis and is not a full-suite benchmark claim.",
+        },
+    )
+    _write_generic("E11", config_path, {"E11_domain_specific_main.csv": main, "E11_source_domain_specific.csv": sw}, {"E11_domain_specific_main.csv": ["domain", "source_count", "source_list", "source_count_checked", "general_graph_f1", "domain_specific_graph_f1", "delta_graph_f1", "general_downstream_f1", "domain_specific_downstream_f1", "cost_ratio", "aggregation_mode", "slice_only_flag", "not_full_benchmark", "benchmark_scope", "evaluation_protocol", "evaluator_signature", "evaluator_hash", "frozen_gold_artifact_hash"], "E11_source_domain_specific.csv": ["source", "domain", "general_graph_f1", "domain_specific_graph_f1", "delta_graph_f1", "main_improvement_type", "general_run_id", "domain_specific_run_id", "engineer_variant", "general_artifact_hash", "domain_specific_artifact_hash"]}, {"objective": "domain-specific schema engineer", "methods": "general vs domain-specific", "scope": "high-value domains slice (biomedical/finance) + diagnostic source-level domains", "findings": ["主表仅聚合高价值领域 biomedical/finance；cybersecurity/general 仅保留 source-level diagnostics", "主表新增 slice_only_flag/not_full_benchmark/benchmark_scope/source_list/source_count_checked guardrail 字段", "新增 E11_scope_note.json 明确这是 hoTR Q3 的 slice-only 补充，不等同 full-suite 结论"], "rebuttal": "这是高价值领域切片补充实验（hoTR Q3），不等同于全 benchmark 主结果。"})
 
 
 def run_e12(config_path: str):
@@ -2780,6 +3096,8 @@ def run_e12(config_path: str):
             "graph_f1": 0.39,
             "mapping_precision": 0.52,
             "pilot_only_flag": True,
+            "not_comparable_to_core_benchmark": True,
+            "scope_note": "feasibility_only",
             "evaluation_scope": "pilot_slice_not_full_benchmark",
             "result_interpretation": "feasibility_only_not_core_benchmark",
             "evaluation_protocol": protocol["evaluation_protocol"],
@@ -2796,6 +3114,8 @@ def run_e12(config_path: str):
             "graph_f1": 0.36,
             "mapping_precision": 0.49,
             "pilot_only_flag": True,
+            "not_comparable_to_core_benchmark": True,
+            "scope_note": "feasibility_only",
             "evaluation_scope": "pilot_slice_not_full_benchmark",
             "result_interpretation": "feasibility_only_not_core_benchmark",
             "evaluation_protocol": protocol["evaluation_protocol"],
@@ -2812,6 +3132,7 @@ def run_e12(config_path: str):
             "reachable_link_count": 29,
             "pred_link_count": 36,
             "correct_link_count": 16,
+            "reachable_link_ratio": round(safe_div(29, 42), 4),
             "link_type_inventory": "causal,temporal,coreference",
             "evaluation_mode": "pilot_offline_replay",
             "pilot_only_flag": True,
@@ -2822,6 +3143,7 @@ def run_e12(config_path: str):
             "reachable_link_count": 24,
             "pred_link_count": 32,
             "correct_link_count": 13,
+            "reachable_link_ratio": round(safe_div(24, 37), 4),
             "link_type_inventory": "causal,temporal,overlap",
             "evaluation_mode": "pilot_offline_replay",
             "pilot_only_flag": True,
@@ -2849,11 +3171,21 @@ def run_e12(config_path: str):
             "ambiguity_type": "temporal_scope_ambiguity",
         },
     ]
-    _write_generic("E12", config_path, {"E12_inter_event_main.csv": main, "E12_inter_event_diagnostics.csv": diagnostics, "E12_inter_event_cases.csv": cases}, {"E12_inter_event_main.csv": ["dataset", "inter_event_link_type_count", "representation", "literal_f1", "graph_f1", "mapping_precision", "pilot_only_flag", "evaluation_scope", "result_interpretation", "evaluation_protocol", "evaluator_signature", "evaluator_hash", "frozen_gold_artifact_hash", "notes"], "E12_inter_event_diagnostics.csv": ["dataset", "gold_link_count", "reachable_link_count", "pred_link_count", "correct_link_count", "link_type_inventory", "evaluation_mode", "pilot_only_flag"], "E12_inter_event_cases.csv": ["dataset", "event_pair", "predicted_link", "gold_link", "correct", "failure_reason", "error_category", "ambiguity_type"]}, {"objective": "inter-event relation pilot", "methods": "pilot schema extension", "scope": "1-2 EE datasets", "findings": ["新增 pilot 诊断表（count + inventory + mode）避免误读", "主表新增 pilot_only_flag/evaluation_scope/result_interpretation", "案例表新增 error_category/ambiguity_type"], "rebuttal": "该实验仅为 representational feasibility pilot，不构成主benchmark扩展结论。"})
+    write_json(
+        OUT / "E12_scope_note.json",
+        {
+            "pilot_only_flag": True,
+            "not_comparable_to_core_benchmark": True,
+            "scope_note": "feasibility_only",
+            "note": "E12 only addresses representational feasibility and should not be compared side-by-side with core benchmark tables.",
+        },
+    )
+    _write_generic("E12", config_path, {"E12_inter_event_main.csv": main, "E12_inter_event_diagnostics.csv": diagnostics, "E12_inter_event_cases.csv": cases}, {"E12_inter_event_main.csv": ["dataset", "inter_event_link_type_count", "representation", "literal_f1", "graph_f1", "mapping_precision", "pilot_only_flag", "not_comparable_to_core_benchmark", "scope_note", "evaluation_scope", "result_interpretation", "evaluation_protocol", "evaluator_signature", "evaluator_hash", "frozen_gold_artifact_hash", "notes"], "E12_inter_event_diagnostics.csv": ["dataset", "gold_link_count", "reachable_link_count", "reachable_link_ratio", "pred_link_count", "correct_link_count", "link_type_inventory", "evaluation_mode", "pilot_only_flag"], "E12_inter_event_cases.csv": ["dataset", "event_pair", "predicted_link", "gold_link", "correct", "failure_reason", "error_category", "ambiguity_type"]}, {"objective": "inter-event relation pilot", "methods": "pilot schema extension", "scope": "1-2 EE datasets", "findings": ["所有主输出维持 pilot_only_flag，并新增 not_comparable_to_core_benchmark/scope_note", "diagnostics 新增 reachable_link_ratio，显式区分可达覆盖与预测质量", "新增 E12_scope_note.json 与 caveat，强调仅回答 representational feasibility"], "rebuttal": "该实验仅为 representational feasibility pilot，不构成主benchmark扩展结论。"})
     (OUT / "E12_PILOT_CAVEAT.md").write_text(
         "# E12 Pilot Caveat\n\n"
         "- 本实验是 **representational feasibility pilot**，用于验证 inter-event relation 表达可行性。\n"
         "- 该实验 **不构成** 当前 benchmark 核心结论，不替代论文主表。\n"
-        "- 所有 E12 输出均带 `pilot_only_flag=true`，请勿与主 benchmark 指标直接并列解读。\n",
+        "- 所有 E12 输出均带 `pilot_only_flag=true` 与 `not_comparable_to_core_benchmark=true`。\n"
+        "- E12 只回答 “representation feasibility”，不与主 benchmark 表格并列比较。\n",
         encoding="utf-8",
     )

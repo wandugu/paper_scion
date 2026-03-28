@@ -1,0 +1,13 @@
+{
+  "command": "python src/rebuttal/scripts/E7_v2_prepare_annotation.py",
+  "config": "src/rebuttal/configs/E7_metric_human_calibration.yaml",
+  "seed": 42,
+  "timestamp_utc": "2026-03-28T17:38:23.222195+00:00",
+  "git_commit": "45412b8776d67783b773624f1c07a31851a89c36",
+  "environment": {
+    "timestamp_utc": "2026-03-28T17:38:23.232340+00:00",
+    "python": "3.12.12 (main, Jan 12 2026, 17:43:59) [GCC 13.3.0]",
+    "platform": "Linux-6.12.47-x86_64-with-glibc2.39",
+    "git_commit": "45412b8776d67783b773624f1c07a31851a89c36"
+  }
+}

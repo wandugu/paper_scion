@@ -1471,6 +1471,11 @@ rebuttal:
       - rebuttal/outputs/E7_annotation_template_2.csv
     e7_score_accept_threshold: 0.5
     e7_default_adjudication_strategy: annotator_1
+    e7_v2_annotation_pair_count: 240
+    e7_v2_max_pairs_per_source: 18
+    e7_v2_positive_control_count: 12
+    e7_v2_negative_control_count: 12
+    e7_v2_allowed_methods: [manual, text2onto, llm_only, eta, scion_lite, scion_fusion, scion_full, scion_rl]
     e11_domain_map:
       biomedical: [ADE_corpus, CMeIE, PHEE]
       finance: [CrudeOilNews, DuEE-fin, FewFC]

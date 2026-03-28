@@ -1,0 +1,14 @@
+{
+  "slice_only_flag": true,
+  "not_full_benchmark": true,
+  "benchmark_scope": "high_value_domain_slice",
+  "main_domains": [
+    "biomedical",
+    "finance"
+  ],
+  "diagnostic_domains": [
+    "cybersecurity",
+    "general"
+  ],
+  "note": "E11 answers hoTR Q3 with a slice-only analysis and is not a full-suite benchmark claim."
+}

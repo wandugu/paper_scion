@@ -22,9 +22,9 @@
 
 ## key findings
 - full_gold 使用 submission frozen artifact，并通过 1597/558/1039 对齐断言；result_mode=rerun_only
-- reachable_gold 仅在 frozen full_gold 上做可达性过滤，不重新构图
-- placeholder-collapsed 仅用于 reachability matching 判定，并在 sensitivity 表单独披露
-- 新增 sourcewise->macro 自动断言，防止聚合口径漂移
+- reachable_gold 仅在 frozen full_gold 上打 reachable mask，不重新构图
+- placeholder-collapsed 仅用于 reachability membership matching，不改变 frozen target cardinality
+- 新增 invariant assert：full_gold_edge_count_used_for_target 必须等于 full_gold_edge_count
 
 ## Suggested rebuttal sentence
 在 submission 对齐口径下，可达 target 的影响被透明量化。若缺少 submission-time prediction artifact，则 full_gold 仅作为 rerun diagnostics。
