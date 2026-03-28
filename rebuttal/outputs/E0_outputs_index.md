@@ -105,8 +105,9 @@
 - `rebuttal/outputs/E6_fusion_main.csv`: 融合基线比较
 
 ## E7
-- `rebuttal/outputs/E7_annotation_packet.csv`: 人工标注包
-
+- `rebuttal/outputs/E7_annotation_template.csv`: 双人标注合并结果
+- `rebuttal/outputs/E7_metric_human_agreement.csv`: 指标-人工一致性
+- `rebuttal/outputs/E7_annotation_summary.csv`: 标注摘要
 ## E9
 - `rebuttal/outputs/E9_sft_vs_rl.csv`: SFT vs RL
 

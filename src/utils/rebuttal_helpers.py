@@ -412,10 +412,22 @@ def update_index(index_path: Path, exp: str, files: Sequence[Tuple[str, str]]) -
     index_path.parent.mkdir(parents=True, exist_ok=True)
     existing = index_path.read_text(encoding="utf-8") if index_path.exists() else "# E0 Outputs Index\n\n"
     marker = f"## {exp}"
-    if marker in existing:
-        return
-    lines = [existing.rstrip(), "", marker]
+    new_block_lines = [marker]
     for fp, purpose in files:
-        lines.append(f"- `{fp}`: {purpose}")
-    lines.append("")
+        new_block_lines.append(f"- `{fp}`: {purpose}")
+    new_block_lines.append("")
+    new_block = "\n".join(new_block_lines)
+
+    if marker not in existing:
+        lines = [existing.rstrip(), "", new_block.rstrip(), ""]
+        index_path.write_text("\n".join(lines), encoding="utf-8")
+        return
+
+    pattern = re.compile(rf"(^## {re.escape(exp)}\n(?:.*\n)*?)(?=^## |\Z)", flags=re.MULTILINE)
+    if pattern.search(existing):
+        updated = pattern.sub(new_block, existing)
+        index_path.write_text(updated.rstrip() + "\n", encoding="utf-8")
+        return
+
+    lines = [existing.rstrip(), "", new_block.rstrip(), ""]
     index_path.write_text("\n".join(lines), encoding="utf-8")

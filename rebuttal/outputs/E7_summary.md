@@ -1,29 +1,26 @@
 # E7 Summary
 
 ## objective
-- human calibration package
+- metric-human calibration scoring
 
 ## methods compared
-- manual,text2onto,llm_only,eta,scion_lite,scion_fusion,scion_full,scion_rl
+- score threshold vs adjudicated labels
 
 ## dataset scope
-- all SCOPE subsets sampled (core runs only)
+- all E7 annotation pairs
 
 ## exact files produced
-- `E7_annotation_packet.csv`
-- `E7_annotation_guidelines.md`
 - `E7_annotation_template.csv`
 - `E7_metric_human_agreement.csv`
 - `E7_annotation_summary.csv`
 - `E7_score_bin_calibration.csv`
 - `E7_sampling_report.json`
-- `E7_STATUS_NOT_RUN.md`
 - `E7_manifest.json`
 
 ## key findings
-- 生成 120 条待标注样本
-- 标注包仅来自 core runs，不含 noise/synthetic suffix
-- pending human labels，未伪造人工标签
+- 读取人工标注文件 rebuttal/outputs/E7_annotation_template_1.csv,rebuttal/outputs/E7_annotation_template_2.csv
+- 有效 adjudicated 数量 235
+- annotator agreement=0.9362, human_accept_rate=0.0468
 
 ## Suggested rebuttal sentence
-我们公开了可复现的人类校准包，当前版本仍 pending human labels。
+我们已基于双人标注文件完成 E7 打分并产出可复核指标文件。

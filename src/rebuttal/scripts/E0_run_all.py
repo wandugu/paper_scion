@@ -45,6 +45,7 @@ def _default_specs() -> List[ExperimentSpec]:
         ExperimentSpec("E5", "src/rebuttal/scripts/E5_run_contamination_probes.py", ["data/scope/subsets"], ["rebuttal/outputs/E5_probe_results.csv"]),
         ExperimentSpec("E6", "src/rebuttal/scripts/E6_run_fusion_baselines.py", ["data/scope/subsets"], ["rebuttal/outputs/E6_fusion_main.csv"]),
         ExperimentSpec("E7", "src/rebuttal/scripts/E7_prepare_metric_human_calibration.py", ["data/scope/subsets"], ["rebuttal/outputs/E7_annotation_packet.csv"]),
+        ExperimentSpec("E7_SCORE", "src/rebuttal/scripts/E7_score_metric_human_calibration.py", ["rebuttal/outputs/E7_annotation_template_1.csv", "rebuttal/outputs/E7_annotation_template_2.csv"], ["rebuttal/outputs/E7_metric_human_agreement.csv"]),
         ExperimentSpec("E8", "src/rebuttal/scripts/E8_run_noise_polysemy_encoder.py", ["data/scope/subsets"], ["rebuttal/outputs/E8_noise_robustness.csv"]),
         ExperimentSpec("E9", "src/rebuttal/scripts/E9_run_scion_rl_ablation.py", ["data/scope/subsets"], ["rebuttal/outputs/E9_sft_vs_rl.csv"]),
         ExperimentSpec("E10", "src/rebuttal/scripts/E10_run_lite_full_tradeoff.py", ["data/scope/subsets"], ["rebuttal/outputs/E10_lite_full_main.csv"]),
