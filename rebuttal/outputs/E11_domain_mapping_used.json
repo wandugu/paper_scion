@@ -1,0 +1,21 @@
+{
+  "source_to_domain": {
+    "CASIE": "cybersecurity",
+    "CrudeOilNews": "finance",
+    "PHEE": "biomedical",
+    "RAMS": "general",
+    "WikiEvents": "general",
+    "DuEE-fin": "finance",
+    "FewFC": "finance",
+    "ADE_corpus": "biomedical",
+    "CMeIE": "biomedical"
+  },
+  "main_table_domains": [
+    "biomedical",
+    "finance"
+  ],
+  "diagnostic_only_domains": [
+    "cybersecurity",
+    "general"
+  ]
+}

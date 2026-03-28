@@ -2,12 +2,12 @@
   "command": "python src/rebuttal/scripts/E3_run.py",
   "config": "src/rebuttal/configs/E3_eta_baseline.yaml",
   "seed": 42,
-  "timestamp_utc": "2026-03-28T13:54:45.350233+00:00",
-  "git_commit": "a52f4640db8f1a8b3acfcb0b5018628dfb7aadc8",
+  "timestamp_utc": "2026-03-28T15:27:32.067710+00:00",
+  "git_commit": "1aa9141244486c6fb108a4e64d638d9903986c83",
   "environment": {
-    "timestamp_utc": "2026-03-28T13:54:45.359066+00:00",
+    "timestamp_utc": "2026-03-28T15:27:32.075788+00:00",
     "python": "3.12.12 (main, Jan 12 2026, 17:43:59) [GCC 13.3.0]",
     "platform": "Linux-6.12.47-x86_64-with-glibc2.39",
-    "git_commit": "a52f4640db8f1a8b3acfcb0b5018628dfb7aadc8"
+    "git_commit": "1aa9141244486c6fb108a4e64d638d9903986c83"
   }
 }

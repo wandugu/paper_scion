@@ -1,0 +1,9 @@
+method,paper_table_value,replay_value,rerun_value,abs_diff_replay_vs_rerun,artifact_mode
+manual,,,0.7678917883010962,,rerun_only
+text2onto,,,0.7905538925699486,,rerun_only
+llm_only,,,0.8080030647616075,,rerun_only
+eta,,,0.838212939264393,,rerun_only
+scion_lite,,,0.8520240292256783,,rerun_only
+scion_fusion,,,0.8636070700362622,,rerun_only
+scion_full,,,0.8668133711107758,,rerun_only
+scion_rl,,,0.8697912710756245,,rerun_only

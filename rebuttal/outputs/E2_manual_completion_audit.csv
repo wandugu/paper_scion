@@ -1,25 +1,25 @@
 source,metric_name,aggregation_scope,official_raw_score,deterministic_completion_score,normalization_aligned_score,final_gold_compatible_score,main_gap_reason,uses_frozen_submission_target,audit_mode
-CASIE,continuous_f1,source_level,0.8552,0.9042,0.9347,0.9575,implicit role structure + argument typing,True,representation_gap_analysis_only
-CrudeOilNews,continuous_f1,source_level,0.8809,0.9085,0.9358,0.9569,implicit role structure + argument typing,True,representation_gap_analysis_only
-PHEE,continuous_f1,source_level,0.9317,0.9404,0.9452,0.9706,implicit role structure + argument typing,True,representation_gap_analysis_only
-RAMS,continuous_f1,source_level,0.8334,0.9139,0.9328,0.9452,implicit role structure + argument typing,True,representation_gap_analysis_only
-WikiEvents,continuous_f1,source_level,0.7556,0.7307,0.7343,0.7362,implicit role structure + argument typing,True,representation_gap_analysis_only
-DuEE-fin,continuous_f1,source_level,0.8373,0.8765,0.9041,0.938,implicit role structure + argument typing,True,representation_gap_analysis_only
-DuEE1.0,continuous_f1,source_level,0.7967,0.9035,0.9281,0.9539,implicit role structure + argument typing,True,representation_gap_analysis_only
-FewFC,continuous_f1,source_level,0.7843,0.8655,0.902,0.9364,implicit role structure + argument typing,True,representation_gap_analysis_only
-ccf_law,continuous_f1,source_level,0.7921,0.876,0.9029,0.936,implicit role structure + argument typing,True,representation_gap_analysis_only
+CASIE,continuous_f1,source_level,0.8955,0.8803,0.8803,0.8803,implicit role structure + argument typing,True,representation_gap_analysis_only
+CrudeOilNews,continuous_f1,source_level,0.9,0.8869,0.8869,0.8869,implicit role structure + argument typing,True,representation_gap_analysis_only
+PHEE,continuous_f1,source_level,0.9023,0.917,0.917,0.917,implicit role structure + argument typing,True,representation_gap_analysis_only
+RAMS,continuous_f1,source_level,0.8225,0.8988,0.8988,0.8988,implicit role structure + argument typing,True,representation_gap_analysis_only
+WikiEvents,continuous_f1,source_level,0.7556,0.7297,0.7297,0.7297,implicit role structure + argument typing,True,representation_gap_analysis_only
+DuEE-fin,continuous_f1,source_level,0.835,0.8525,0.8525,0.8525,implicit role structure + argument typing,True,representation_gap_analysis_only
+DuEE1.0,continuous_f1,source_level,0.8282,0.8813,0.8813,0.8813,implicit role structure + argument typing,True,representation_gap_analysis_only
+FewFC,continuous_f1,source_level,0.7843,0.8426,0.8426,0.8426,implicit role structure + argument typing,True,representation_gap_analysis_only
+ccf_law,continuous_f1,source_level,0.7921,0.8479,0.8479,0.8479,implicit role structure + argument typing,True,representation_gap_analysis_only
 ADE_corpus,continuous_f1,source_level,0.9333,0.9474,0.9474,0.9474,missing typing + relation normalization,True,representation_gap_analysis_only
-GIDS,continuous_f1,source_level,0.0,0.0,0.0,0.4358,missing typing + relation normalization,True,representation_gap_analysis_only
-NYT11,continuous_f1,source_level,0.8137,0.875,0.9111,0.9224,missing typing + relation normalization,True,representation_gap_analysis_only
-New-York-Times-RE,continuous_f1,source_level,0.5577,0.5572,0.4882,0.504,missing typing + relation normalization,True,representation_gap_analysis_only
-SciERC,continuous_f1,source_level,0.739,0.8515,0.8554,0.9166,missing typing + relation normalization,True,representation_gap_analysis_only
-SemEval2010_task8,continuous_f1,source_level,0.783,0.8494,0.8734,0.9172,missing typing + relation normalization,True,representation_gap_analysis_only
-conll04,continuous_f1,source_level,0.7606,0.8201,0.8635,0.9139,missing typing + relation normalization,True,representation_gap_analysis_only
-instructIE_en,continuous_f1,source_level,0.8105,0.8887,0.9181,0.9424,missing typing + relation normalization,True,representation_gap_analysis_only
-kbp37,continuous_f1,source_level,0.8278,0.8848,0.9103,0.9405,missing typing + relation normalization,True,representation_gap_analysis_only
-CMeIE,continuous_f1,source_level,0.8059,0.8883,0.9181,0.9456,missing typing + relation normalization,True,representation_gap_analysis_only
-COAE2016,continuous_f1,source_level,0.752,0.8587,0.894,0.9271,missing typing + relation normalization,True,representation_gap_analysis_only
-IPRE,continuous_f1,source_level,0.7959,0.8727,0.8995,0.9398,missing typing + relation normalization,True,representation_gap_analysis_only
-SKE2020,continuous_f1,source_level,0.7849,0.8578,0.9066,0.9304,missing typing + relation normalization,True,representation_gap_analysis_only
+GIDS,continuous_f1,source_level,0.0,0.0,0.0,0.0,missing typing + relation normalization,True,representation_gap_analysis_only
+NYT11,continuous_f1,source_level,0.8179,0.854,0.854,0.854,missing typing + relation normalization,True,representation_gap_analysis_only
+New-York-Times-RE,continuous_f1,source_level,0.538,0.5719,0.5719,0.5719,missing typing + relation normalization,True,representation_gap_analysis_only
+SciERC,continuous_f1,source_level,0.7627,0.8015,0.8015,0.8015,missing typing + relation normalization,True,representation_gap_analysis_only
+SemEval2010_task8,continuous_f1,source_level,0.8142,0.8318,0.8318,0.8318,missing typing + relation normalization,True,representation_gap_analysis_only
+conll04,continuous_f1,source_level,0.7606,0.7816,0.7816,0.7816,missing typing + relation normalization,True,representation_gap_analysis_only
+instructIE_en,continuous_f1,source_level,0.8377,0.8534,0.8534,0.8534,missing typing + relation normalization,True,representation_gap_analysis_only
+kbp37,continuous_f1,source_level,0.8146,0.8614,0.8614,0.8614,missing typing + relation normalization,True,representation_gap_analysis_only
+CMeIE,continuous_f1,source_level,0.8025,0.8731,0.8731,0.8731,missing typing + relation normalization,True,representation_gap_analysis_only
+COAE2016,continuous_f1,source_level,0.9688,0.8206,0.8206,0.8206,missing typing + relation normalization,True,representation_gap_analysis_only
+IPRE,continuous_f1,source_level,0.9182,0.8506,0.8506,0.8506,missing typing + relation normalization,True,representation_gap_analysis_only
+SKE2020,continuous_f1,source_level,0.7949,0.8399,0.8399,0.8399,missing typing + relation normalization,True,representation_gap_analysis_only
 duIE_zh,continuous_f1,source_level,0.0,0.0,0.0,0.0,missing typing + relation normalization,True,representation_gap_analysis_only
-instructIE_zh,continuous_f1,source_level,0.7872,0.8713,0.8927,0.9269,missing typing + relation normalization,True,representation_gap_analysis_only
+instructIE_zh,continuous_f1,source_level,0.7872,0.8482,0.8482,0.8482,missing typing + relation normalization,True,representation_gap_analysis_only

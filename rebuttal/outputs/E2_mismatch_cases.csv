@@ -1,13 +1,13 @@
 source,released_schema_form,gold_graph_form,mismatch_type,example,fixable_by_deterministic_completion
 ADE_corpus,flat relation labels,typed edge graph,missing typing + relation normalization,head/tail type lost in released schema,False
-CASIE,role without typed argument,typed edge graph,implicit role structure + argument typing,event role alignment requires typed ARG,True
+CASIE,role without typed argument,typed edge graph,implicit role structure + argument typing,event role alignment requires typed ARG,False
 CMeIE,flat relation labels,typed edge graph,missing typing + relation normalization,head/tail type lost in released schema,True
-COAE2016,flat relation labels,typed edge graph,missing typing + relation normalization,head/tail type lost in released schema,True
-CrudeOilNews,role without typed argument,typed edge graph,implicit role structure + argument typing,event role alignment requires typed ARG,True
-DuEE-fin,role without typed argument,typed edge graph,implicit role structure + argument typing,event role alignment requires typed ARG,True
+COAE2016,flat relation labels,typed edge graph,missing typing + relation normalization,head/tail type lost in released schema,False
+CrudeOilNews,role without typed argument,typed edge graph,implicit role structure + argument typing,event role alignment requires typed ARG,False
+DuEE-fin,role without typed argument,typed edge graph,implicit role structure + argument typing,event role alignment requires typed ARG,False
 DuEE1.0,role without typed argument,typed edge graph,implicit role structure + argument typing,event role alignment requires typed ARG,True
 FewFC,role without typed argument,typed edge graph,implicit role structure + argument typing,event role alignment requires typed ARG,True
-GIDS,flat relation labels,typed edge graph,missing typing + relation normalization,head/tail type lost in released schema,True
-IPRE,flat relation labels,typed edge graph,missing typing + relation normalization,head/tail type lost in released schema,True
+GIDS,flat relation labels,typed edge graph,missing typing + relation normalization,head/tail type lost in released schema,False
+IPRE,flat relation labels,typed edge graph,missing typing + relation normalization,head/tail type lost in released schema,False
 NYT11,flat relation labels,typed edge graph,missing typing + relation normalization,head/tail type lost in released schema,True
-New-York-Times-RE,flat relation labels,typed edge graph,missing typing + relation normalization,head/tail type lost in released schema,False
+New-York-Times-RE,flat relation labels,typed edge graph,missing typing + relation normalization,head/tail type lost in released schema,True

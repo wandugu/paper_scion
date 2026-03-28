@@ -2,12 +2,12 @@
   "command": "python src/rebuttal/scripts/E12_run.py",
   "config": "src/rebuttal/configs/E12_inter_event_pilot.yaml",
   "seed": 42,
-  "timestamp_utc": "2026-03-28T10:23:55.578672+00:00",
-  "git_commit": "4bd79613ab2cda309bbf7554716eb0e6ab9c99d9",
+  "timestamp_utc": "2026-03-28T15:27:45.704916+00:00",
+  "git_commit": "1aa9141244486c6fb108a4e64d638d9903986c83",
   "environment": {
-    "timestamp_utc": "2026-03-28T10:23:55.587547+00:00",
+    "timestamp_utc": "2026-03-28T15:27:45.714467+00:00",
     "python": "3.12.12 (main, Jan 12 2026, 17:43:59) [GCC 13.3.0]",
     "platform": "Linux-6.12.47-x86_64-with-glibc2.39",
-    "git_commit": "4bd79613ab2cda309bbf7554716eb0e6ab9c99d9"
+    "git_commit": "1aa9141244486c6fb108a4e64d638d9903986c83"
   }
 }

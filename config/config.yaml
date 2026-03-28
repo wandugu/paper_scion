@@ -1424,6 +1424,8 @@ rebuttal:
     e8_zero_noise_tolerance: 0.000001
     e1e2_anchor_from_target: false
     e1e2_submission_eval_signature: cabc45613b834dee
+    e1_submission_prediction_artifact_dir: rebuttal/artifacts/submission_predictions
+    e1_paper_table_values: {}
     e9_algorithm_name: offline_ppo
     e9_reward_terms: [json_validity, candidate_constraint, evidence_coverage, compactness, structural_consistency]
     e9_reward_weights: [0.25, 0.2, 0.2, 0.1, 0.25]
@@ -1458,6 +1460,7 @@ rebuttal:
       - { ambiguous_label: 关系, true_schema_item_a: social_relation, true_schema_item_b: relational_predicate, cluster_behavior: soft_split, final_decision: relational_predicate, correct: true }
       - { ambiguous_label: 资本, true_schema_item_a: financial_capital, true_schema_item_b: capital_city, cluster_behavior: split, final_decision: financial_capital, correct: true }
     e11_general_mode: scion_full
+    e11_main_domains: [biomedical, finance]
     e11_min_domain_boost: 0.005
     e11_max_domain_boost: 0.02
     e11_soft_domain_boost_scale: 0.75
