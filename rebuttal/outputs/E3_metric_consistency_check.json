@@ -1,0 +1,35 @@
+{
+  "target_variant": "full_normalized_gold",
+  "evaluation_protocol": "submission_aligned_scope_v1",
+  "frozen_gold_artifact_hash": "26bad3bb3f37a484",
+  "main_vs_sourcewise_assertion_passed": true,
+  "cross_experiment_comparison": [
+    {
+      "method": "llm_only",
+      "literal_f1_e3": 0.6510604712281555,
+      "literal_f1_e2": 0.6513791061521965,
+      "continuous_f1_e3": 0.8080030647616075,
+      "continuous_f1_e2": 0.8082642622340234,
+      "graph_f1_e3": 0.7883190931617879,
+      "graph_f1_e2": 0.7859375413319553
+    },
+    {
+      "method": "eta",
+      "literal_f1_e3": 0.6733119314016158,
+      "literal_f1_e2": 0.6733573446622879,
+      "continuous_f1_e3": 0.838212939264393,
+      "continuous_f1_e2": 0.8350468334800261,
+      "graph_f1_e3": 0.8200853287315057,
+      "graph_f1_e2": 0.8135394975280636
+    },
+    {
+      "method": "scion_lite",
+      "literal_f1_e3": 0.7162305705545409,
+      "literal_f1_e2": 0.7162305705545409,
+      "continuous_f1_e3": 0.8520240292256783,
+      "continuous_f1_e2": 0.8516994119578993,
+      "graph_f1_e3": 0.8312264985219767,
+      "graph_f1_e2": 0.8313904574757581
+    }
+  ]
+}

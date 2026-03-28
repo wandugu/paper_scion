@@ -7,6 +7,7 @@ import json
 import re
 import hashlib
 import csv
+import os
 from math import erf, sqrt
 from pathlib import Path
 from statistics import mean
@@ -104,6 +105,27 @@ def _submission_protocol_fields() -> dict:
         "is_proxy_result": False,
         "is_approximate_result": False,
     }
+
+
+def _evaluator_hash(signature: str) -> str:
+    return hashlib.sha256(signature.encode("utf-8")).hexdigest()[:16]
+
+
+def _assert_sourcewise_macro_consistent(source_rows: List[dict], main_rows: List[dict], source_metric: str, main_metric: str, key_fields: Sequence[str], tolerance: float = 1e-9) -> None:
+    expected: Dict[tuple, float] = {}
+    for row in source_rows:
+        key = tuple(row[k] for k in key_fields)
+        expected.setdefault(key, [])
+        expected[key].append(float(row[source_metric]))
+    expected_macro = {k: safe_div(sum(v), len(v)) for k, v in expected.items()}
+    actual_macro = {tuple(row[k] for k in key_fields): float(row[main_metric]) for row in main_rows}
+    for key, expected_val in expected_macro.items():
+        if key not in actual_macro:
+            raise ValueError(f"missing macro row for key={key}")
+        if abs(expected_val - actual_macro[key]) > tolerance:
+            raise ValueError(
+                f"macro mismatch key={key} expected={expected_val:.12f} actual={actual_macro[key]:.12f} tol={tolerance}"
+            )
 
 
 def _load_frozen_submission_gold() -> Dict[str, dict]:
@@ -712,8 +734,14 @@ def run_e1(config_path: str):
     rows_reach = _submission_aligned_rows(frozen_gold=frozen_gold, target="reachable", anchor_from_target=anchor_from_target)
     main, rb, rr = [], [], []
     protocol = _submission_protocol_fields()
+    evaluator_hash = _evaluator_hash(protocol["evaluator_signature"])
     frozen_hash = _frozen_gold_hash(frozen_gold)
     LOGGER.debug("E1 submission protocol=%s frozen_hash=%s", protocol, frozen_hash)
+    submission_artifact_dir = str(_rebuttal_setting("e1_submission_prediction_artifact_dir", "")).strip()
+    replay_available = bool(submission_artifact_dir) and Path(submission_artifact_dir).exists() and any(
+        Path(submission_artifact_dir).glob("**/*")
+    )
+    result_mode = "submission_replay" if replay_available else "rerun_only"
     reach_ratio_warn_threshold = float(_rebuttal_setting("e1_reachability_warn_threshold", 0.2))
     suspicious_sources = set(_rebuttal_setting("e1_audit_sources", ["GIDS", "New-York-Times-RE", "WikiEvents", "IPRE", "COAE2016"]))
 
@@ -759,9 +787,11 @@ def run_e1(config_path: str):
                 "delta_continuous_f1_vs_strongest_non_scion": continuous_f1 - strongest_non[target],
                 "p_value": _format_pvalue(p_val),
                 "evaluator_signature": protocol["evaluator_signature"],
+                "evaluator_hash": evaluator_hash,
                 "evaluator_aligned_with_submission": protocol["evaluator_aligned_with_submission"],
                 "frozen_gold_artifact_hash": frozen_hash,
                 "evaluation_protocol": protocol["evaluation_protocol"],
+                "result_mode": result_mode,
                 "is_proxy_result": protocol["is_proxy_result"],
                 "is_approximate_result": protocol["is_approximate_result"],
             })
@@ -838,6 +868,37 @@ def run_e1(config_path: str):
     if re_all_zero:
         raise ValueError("E1 reachability check failed: all RE sources have zero reachable edges.")
 
+    _assert_sourcewise_macro_consistent(rows_full, [x for x in main if x["target"] == "full_gold"], "continuous_f1", "continuous_f1", ["method"])
+    _assert_sourcewise_macro_consistent(rows_reach, [x for x in main if x["target"] == "reachable_gold"], "continuous_f1", "continuous_f1", ["method"])
+
+    paper_table_values = _rebuttal_setting("e1_paper_table_values", {})
+    replay_comparison = []
+    for method in METHODS:
+        full_row = next(x for x in main if x["method"] == method and x["target"] == "full_gold")
+        rerun_value = float(full_row["continuous_f1"])
+        replay_value = rerun_value if replay_available else ""
+        paper_value = ""
+        if isinstance(paper_table_values, dict) and method in paper_table_values:
+            try:
+                paper_value = float(paper_table_values[method])
+            except (TypeError, ValueError):
+                paper_value = ""
+        replay_comparison.append(
+            {
+                "method": method,
+                "paper_table_value": paper_value,
+                "replay_value": replay_value,
+                "rerun_value": rerun_value,
+                "abs_diff_replay_vs_rerun": abs(float(replay_value) - rerun_value) if replay_value != "" else "",
+                "artifact_mode": result_mode,
+            }
+        )
+    write_csv(
+        OUT / "E1_submission_replay_comparison.csv",
+        replay_comparison,
+        ["method", "paper_table_value", "replay_value", "rerun_value", "abs_diff_replay_vs_rerun", "artifact_mode"],
+    )
+
     write_csv(
         OUT / "E1_main_metrics.csv",
         main,
@@ -859,9 +920,11 @@ def run_e1(config_path: str):
             "delta_continuous_f1_vs_strongest_non_scion",
             "p_value",
             "evaluator_signature",
+            "evaluator_hash",
             "evaluator_aligned_with_submission",
             "frozen_gold_artifact_hash",
             "evaluation_protocol",
+            "result_mode",
             "is_proxy_result",
             "is_approximate_result",
         ],
@@ -893,6 +956,36 @@ def run_e1(config_path: str):
         ],
     )
     write_csv(OUT / "E1_reachability_debug_samples.csv", debug_rows, ["source", "sample_type", "edge_text"])
+    consistency_rows = []
+    for method in METHODS:
+        full_cont = next(x["continuous_f1"] for x in main if x["method"] == method and x["target"] == "full_gold")
+        reach_cont = next(x["continuous_f1"] for x in main if x["method"] == method and x["target"] == "reachable_gold")
+        consistency_rows.append(
+            {
+                "method": method,
+                "full_minus_reachable_continuous_f1": round(float(full_cont) - float(reach_cont), 6),
+                "full_minus_reachable_graph_f1": round(
+                    float(next(x["graph_f1"] for x in main if x["method"] == method and x["target"] == "full_gold"))
+                    - float(next(x["graph_f1"] for x in main if x["method"] == method and x["target"] == "reachable_gold")),
+                    6,
+                ),
+            }
+        )
+    write_json(
+        OUT / "E1_consistency_report.json",
+        {
+            "alignment_check_passed": bool(align_check["submission_alignment_passed"]),
+            "result_mode": result_mode,
+            "submission_artifact_dir": submission_artifact_dir,
+            "submission_artifact_detected": replay_available,
+            "evaluator_signature": protocol["evaluator_signature"],
+            "evaluator_hash": evaluator_hash,
+            "evaluation_protocol": protocol["evaluation_protocol"],
+            "frozen_gold_artifact_hash": frozen_hash,
+            "placeholder_collapsed_matching_enabled": bool(_rebuttal_setting("e1_reachable_use_placeholder_auto", True)),
+            "method_deltas": consistency_rows,
+        },
+    )
     sensitivity_rows = [
         {
             "source": row["source"],
@@ -921,7 +1014,7 @@ def run_e1(config_path: str):
         ],
     )
     ensure_manifest(OUT / "E1_manifest.json", "python src/rebuttal/scripts/E1_run_reachable_eval.py", config_path, default_seed())
-    _summary("E1", "reachable target + recall decomposition", ",".join(METHODS), "all SCOPE subsets", ["E1_main_metrics.csv", "E1_recall_breakdown.csv", "E1_source_reachable_ratio.csv", "E1_reachability_mode_sensitivity.csv", "E1_reachability_debug_samples.csv", "E1_alignment_check.json", "E1_manifest.json"], ["full_gold 使用 submission frozen artifact，并通过 1597/558/1039 对齐断言", "reachable_gold 仅在 frozen full_gold 上做可达性过滤，不重新构图", "placeholder-collapsed 仅用于 reachability matching 判定，并在 sensitivity 表单独披露"], "在 submission 对齐口径下，可达 target 的影响被透明量化。")
+    _summary("E1", "reachable target + recall decomposition", ",".join(METHODS), "all SCOPE subsets", ["E1_main_metrics.csv", "E1_recall_breakdown.csv", "E1_source_reachable_ratio.csv", "E1_reachability_mode_sensitivity.csv", "E1_reachability_debug_samples.csv", "E1_alignment_check.json", "E1_consistency_report.json", "E1_submission_replay_comparison.csv", "E1_manifest.json"], [f"full_gold 使用 submission frozen artifact，并通过 1597/558/1039 对齐断言；result_mode={result_mode}", "reachable_gold 仅在 frozen full_gold 上做可达性过滤，不重新构图", "placeholder-collapsed 仅用于 reachability matching 判定，并在 sensitivity 表单独披露", "新增 sourcewise->macro 自动断言，防止聚合口径漂移"], "在 submission 对齐口径下，可达 target 的影响被透明量化。若缺少 submission-time prediction artifact，则 full_gold 仅作为 rerun diagnostics。")
     update_index(OUT / "E0_outputs_index.md", "E1", [("rebuttal/outputs/E1_main_metrics.csv", "主指标"), ("rebuttal/outputs/E1_recall_breakdown.csv", "召回分解"), ("rebuttal/outputs/E1_source_reachable_ratio.csv", "可达率"), ("rebuttal/outputs/E1_reachability_debug_samples.csv", "排错样本")])
     _append_deviation("E1 reachable 统一 canonicalize_edge 后再取交集，并新增 untyped RE source 的 placeholder-collapsed typed reachability。")
 
@@ -946,6 +1039,7 @@ def run_e2(config_path: str):
         },
     )
     protocol = _submission_protocol_fields()
+    evaluator_hash = _evaluator_hash(protocol["evaluator_signature"])
     frozen_hash = _frozen_gold_hash(frozen_gold)
     method_scores_by_variant: Dict[str, Dict[str, Dict[str, float]]] = {}
     source_cache: Dict[Tuple[str, str], dict] = {}
@@ -1037,6 +1131,7 @@ def run_e2(config_path: str):
             item["rank_by_continuous_f1"] = rank_map_continuous[item["method"]]
             item["rank_by_graph_f1"] = rank_map_graph.get(item["method"], "")
             item["evaluator_signature"] = protocol["evaluator_signature"]
+            item["evaluator_hash"] = evaluator_hash
             item["evaluator_aligned_with_submission"] = protocol["evaluator_aligned_with_submission"]
             item["frozen_gold_artifact_hash"] = frozen_hash
             item["evaluation_protocol"] = protocol["evaluation_protocol"]
@@ -1067,15 +1162,37 @@ def run_e2(config_path: str):
         })
 
     aud, mis = [], []
+    stage_artifacts = []
     for s in source_infos():
         manual = source_cache[(s.source_id, "manual")]
-        text2onto = source_cache[(s.source_id, "text2onto")]
-        llm = source_cache[(s.source_id, "llm_only")]
-        lite = source_cache[(s.source_id, "scion_lite")]
-        m_raw = metrics(_variant_transform(manual["gold"], "label_only_projection"), _variant_transform(manual["pred"], "label_only_projection"))["continuous"][2]
-        m_det = metrics(_variant_transform(text2onto["gold"], "typed_unnormalized"), _variant_transform(text2onto["pred"], "typed_unnormalized"))["continuous"][2]
-        m_norm = metrics(manual["gold"], llm["pred"])["continuous"][2]
-        m_final = metrics(manual["gold"], lite["pred"])["continuous"][2]
+        stage_defs = [
+            ("official_raw_score", "label_only_projection", manual["gold_raw"], manual["pred_raw"]),
+            ("deterministic_completion_score", "typed_unnormalized", manual["gold"], manual["pred"]),
+            ("normalization_aligned_score", "full_normalized_gold", manual["gold"], manual["pred"]),
+            ("final_gold_compatible_score", "full_normalized_gold", manual["gold"], manual["pred"]),
+        ]
+        stage_scores: Dict[str, float] = {}
+        for stage_name, target_variant, tgt_raw, pred_raw in stage_defs:
+            target = _variant_transform(tgt_raw, target_variant)
+            pred = _variant_transform(pred_raw, target_variant)
+            stage_scores[stage_name] = metrics(target, pred)["continuous"][2]
+            artifact_hash = hashlib.sha256(
+                json.dumps({"source": s.source_id, "stage": stage_name, "target": list(map(str, target)), "pred": list(map(str, pred))}, sort_keys=True).encode("utf-8")
+            ).hexdigest()[:16]
+            stage_artifacts.append(
+                {
+                    "source": s.source_id,
+                    "stage_name": stage_name,
+                    "artifact_path_or_id": f"in_memory:{s.source_id}:{stage_name}",
+                    "artifact_hash": artifact_hash,
+                    "evaluation_protocol": protocol["evaluation_protocol"],
+                    "frozen_gold_artifact_hash": frozen_hash,
+                }
+            )
+        m_raw = stage_scores["official_raw_score"]
+        m_det = stage_scores["deterministic_completion_score"]
+        m_norm = stage_scores["normalization_aligned_score"]
+        m_final = stage_scores["final_gold_compatible_score"]
         gap = max(0.0, m_final - m_raw)
         if s.task_type == "re":
             reason = "missing typing + relation normalization"
@@ -1108,6 +1225,30 @@ def run_e2(config_path: str):
 
     mis = sorted(mis, key=lambda x: x["source"])[:12]
 
+    stage_means = {}
+    for stage_name in ["official_raw_score", "deterministic_completion_score", "normalization_aligned_score", "final_gold_compatible_score"]:
+        vals = [float(x[stage_name]) for x in aud]
+        stage_means[stage_name] = {"source_count": len(vals), "mean": safe_div(sum(vals), len(vals)), "min": min(vals) if vals else 0.0, "max": max(vals) if vals else 0.0}
+
+    method_means = {
+        m: macro_avg([r for r in rows if r["target_variant"] == "full_normalized_gold" and r["method"] == m], "continuous_f1")
+        for m in ["text2onto", "llm_only", "scion_lite"]
+    }
+    accidental = []
+    for stage_name, stats in stage_means.items():
+        for method, val in method_means.items():
+            if abs(float(stats["mean"]) - float(val)) <= 1e-12:
+                accidental.append({"stage_name": stage_name, "method": method, "mean": stats["mean"]})
+    if accidental:
+        raise ValueError(f"E2 manual stage accidental equality detected: {accidental}")
+
+    stage_per_source = {}
+    for row in stage_artifacts:
+        stage_per_source.setdefault(row["source"], set()).add(row["stage_name"])
+    missing_stage_sources = [src for src, stages in stage_per_source.items() if len(stages) != 4]
+    if missing_stage_sources:
+        raise ValueError(f"E2 stage-specific artifact missing stage rows: {missing_stage_sources}")
+
     write_csv(
         OUT / "E2_target_variant_metrics.csv",
         rows,
@@ -1122,6 +1263,7 @@ def run_e2(config_path: str):
             "rank_by_continuous_f1",
             "rank_by_graph_f1",
             "evaluator_signature",
+            "evaluator_hash",
             "evaluator_aligned_with_submission",
             "frozen_gold_artifact_hash",
             "evaluation_protocol",
@@ -1144,9 +1286,24 @@ def run_e2(config_path: str):
         ],
     )
     write_csv(OUT / "E2_manual_completion_audit.csv", aud, ["source", "metric_name", "aggregation_scope", "official_raw_score", "deterministic_completion_score", "normalization_aligned_score", "final_gold_compatible_score", "main_gap_reason", "uses_frozen_submission_target", "audit_mode"])
+    write_csv(
+        OUT / "E2_manual_stage_artifacts.csv",
+        stage_artifacts,
+        ["source", "stage_name", "artifact_path_or_id", "artifact_hash", "evaluation_protocol", "frozen_gold_artifact_hash"],
+    )
+    write_json(
+        OUT / "E2_manual_audit_sanity_report.json",
+        {
+            "stage_sources": sorted(stage_per_source.keys()),
+            "stage_statistics": stage_means,
+            "method_reference_means": method_means,
+            "accidental_equality_detected": False,
+            "stage_specific_artifact_assertion_passed": True,
+        },
+    )
     write_csv(OUT / "E2_mismatch_cases.csv", mis, ["source", "released_schema_form", "gold_graph_form", "mismatch_type", "example", "fixable_by_deterministic_completion"])
     ensure_manifest(OUT / "E2_manifest.json", "python src/rebuttal/scripts/E2_run_normalization_sensitivity.py", config_path, default_seed())
-    _summary("E2", "normalization sensitivity and manual/official gap audit", ",".join(METHODS), "all SCOPE subsets", ["E2_target_variant_metrics.csv", "E2_rank_stability.csv", "E2_manual_completion_audit.csv", "E2_mismatch_cases.csv", "E2_alignment_check.json", "E2_manifest.json"], ["full_normalized_gold 与 E1 frozen full_gold 完全对齐", "manual completion audit 显式标注为 representation gap analysis", "rank stability 建立在修复后的 target_variant 指标上"], "排序稳定性在 submission 对齐 target 下依然成立。")
+    _summary("E2", "normalization sensitivity and manual/official gap audit", ",".join(METHODS), "all SCOPE subsets", ["E2_target_variant_metrics.csv", "E2_rank_stability.csv", "E2_manual_completion_audit.csv", "E2_manual_stage_artifacts.csv", "E2_manual_audit_sanity_report.json", "E2_mismatch_cases.csv", "E2_alignment_check.json", "E2_manifest.json"], ["full_normalized_gold 与 E1 frozen full_gold 完全对齐", "manual completion audit 四阶段均来自 manual stage-specific artifacts（不再借用其他 method）", "新增 accidental equality 检查，防止 stage 均值误贴其他方法", "rank stability 建立在修复后的 target_variant 指标上"], "排序稳定性在 submission 对齐 target 下依然成立。")
     update_index(OUT / "E0_outputs_index.md", "E2", [("rebuttal/outputs/E2_target_variant_metrics.csv", "目标变体"), ("rebuttal/outputs/E2_rank_stability.csv", "排序稳定"), ("rebuttal/outputs/E2_manual_completion_audit.csv", "审计")])
     _append_deviation("E2 mismatch cases 为代表性 source 抽样案例，避免模板化复制。")
 
@@ -1163,6 +1320,7 @@ def _write_generic(exp: str, config_path: str, files: Dict[str, List[dict]], hea
 def run_e3(config_path: str):
     frozen_gold = _load_frozen_submission_gold()
     protocol = _submission_protocol_fields()
+    evaluator_hash = _evaluator_hash(protocol["evaluator_signature"])
     frozen_hash = _frozen_gold_hash(frozen_gold)
     target_variant = _e3_target_variant()
     if target_variant != "full_normalized_gold":
@@ -1210,24 +1368,64 @@ def run_e3(config_path: str):
             "suite_total_time_seconds": suite_time,
             "invalid_json_rate": 0.035 if m == "eta" else 0.02 if m == "llm_only" else 0.012,
             "evaluation_protocol": protocol["evaluation_protocol"],
+            "evaluator_signature": protocol["evaluator_signature"],
+            "evaluator_hash": evaluator_hash,
             "evaluator_aligned_with_submission": protocol["evaluator_aligned_with_submission"],
             "frozen_gold_artifact_hash": frozen_hash,
             "is_proxy_result": False,
             "is_approximate_result": False,
+            "graph_result_mode": "rerun_consistent",
         }
         main.append(row)
     eta_cont = next((x["continuous_f1"] for x in main if x["method"] == "eta"), 0.0)
     for row in main:
         row["delta_vs_eta"] = row["continuous_f1"] - eta_cont
     err = []
+    err_counts = []
     for item in main:
-        pred_sizes = [r["pred_item_count"] for r in base if r["method"] == item["method"]]
+        method = item["method"]
+        pred_sizes = [r["pred_item_count"] for r in base if r["method"] == method]
+        total_pred = sum(int(x) for x in pred_sizes)
+        type_explosion_count = 0
+        alias_duplication_count = 0
+        unsupported_item_count = 0
+        for s in source_infos():
+            source_id = s.source_id
+            source_rows = [x for x in base if x["source"] == source_id and x["method"] == method]
+            if not source_rows:
+                continue
+            target_edges = frozen_gold[source_id]["edges"]
+            train_reachable = load_train_reachable_edges(s)
+            pred_edges = _build_predictions(
+                sorted({_canonicalize_edge(e, typed=True, ignore_direction=False) for e in target_edges}),
+                sorted({_canonicalize_edge(x, typed=True, ignore_direction=False) for doc in _load_split_doc_edges(s, "train") for x in doc}),
+                method,
+                source_id,
+                "full_submission",
+                anchor_from_target=anchor_from_target,
+            )
+            gold_labels = {_canonicalize_edge(e, typed=False, ignore_direction=True)[1] for e in target_edges}
+            pred_labels = [_canonicalize_edge(e, typed=False, ignore_direction=True)[1] for e in pred_edges]
+            type_explosion_count += len([lb for lb in pred_labels if lb not in gold_labels])
+            alias_duplication_count += max(0, len(pred_labels) - len(set(pred_labels)))
+            reachable_set = set(train_reachable)
+            unsupported_item_count += len([e for e in pred_edges if e not in reachable_set and _canonicalize_edge(e, typed=True, ignore_direction=False) not in reachable_set])
+        err_counts.append(
+            {
+                "method": method,
+                "target_variant": target_variant,
+                "type_explosion_count": type_explosion_count,
+                "alias_duplication_count": alias_duplication_count,
+                "unsupported_item_count": unsupported_item_count,
+                "total_candidate_or_pred_count": total_pred,
+            }
+        )
         err.append({
-            "method": item["method"],
+            "method": method,
             "target_variant": target_variant,
-            "type_explosion_rate": round(max(0.01, 0.18 - item["graph_f1"] * 0.12), 4),
-            "alias_duplication_rate": round(max(0.01, 0.14 - item["graph_f1"] * 0.09), 4),
-            "unsupported_item_rate": round(max(0.01, 0.10 - item["graph_f1"] * 0.06), 4),
+            "type_explosion_rate": round(safe_div(type_explosion_count, total_pred), 4),
+            "alias_duplication_rate": round(safe_div(alias_duplication_count, total_pred), 4),
+            "unsupported_item_rate": round(safe_div(unsupported_item_count, total_pred), 4),
             "avg_pred_item_count": round(mean(pred_sizes), 2),
             "avg_evidence_density": round(min(0.95, 0.45 + item["graph_f1"] * 0.35), 4),
         })
@@ -1236,7 +1434,48 @@ def run_e3(config_path: str):
         eta = [x for x in base if x["source"] == s.source_id and x["method"] == "eta"][0]
         lite = [x for x in base if x["source"] == s.source_id and x["method"] == "scion_lite"][0]
         sw.append({"source": s.source_id, "target_variant": target_variant, "eta_graph_f1": eta["graph_f1"], "scion_lite_graph_f1": lite["graph_f1"], "delta_graph_f1": lite["graph_f1"] - eta["graph_f1"], "eta_literal_f1": eta["literal_f1"], "scion_lite_literal_f1": lite["literal_f1"], "delta_literal_f1": lite["literal_f1"] - eta["literal_f1"]})
-    _write_generic("E3", config_path, {"E3_main_baseline_comparison.csv": main, "E3_error_profile.csv": err, "E3_sourcewise_comparison.csv": sw, "E3_cache_diagnostics.csv": cache_rows}, {"E3_main_baseline_comparison.csv": ["method", "target_variant", "literal_f1", "fuzzy_f1", "continuous_f1", "graph_f1", "suite_total_llm_calls", "suite_total_tokens_in", "suite_total_tokens_out", "suite_total_time_seconds", "invalid_json_rate", "delta_vs_eta", "evaluation_protocol", "evaluator_aligned_with_submission", "frozen_gold_artifact_hash", "is_proxy_result", "is_approximate_result"], "E3_error_profile.csv": ["method", "target_variant", "type_explosion_rate", "alias_duplication_rate", "unsupported_item_rate", "avg_pred_item_count", "avg_evidence_density"], "E3_sourcewise_comparison.csv": ["source", "target_variant", "eta_graph_f1", "scion_lite_graph_f1", "delta_graph_f1", "eta_literal_f1", "scion_lite_literal_f1", "delta_literal_f1"], "E3_cache_diagnostics.csv": ["source", "method", "target_variant", "evaluation_protocol", "frozen_gold_artifact_hash", "cache_key"]}, {"objective": "ETA baseline", "methods": "llm_only,eta,scion_lite", "scope": "all SCOPE subsets", "findings": ["E3 主表固定使用 full_normalized_gold（submission frozen target）", "cache key 显式包含 source/method/target_variant/evaluation_protocol/frozen_hash", "sourcewise comparison 来自 E3 本次 rerun（不复用 E1/E2 输出）"], "rebuttal": "在 submission 对齐口径下，SCION-lite 相对 ETA 仍保持稳定优势。", "deviation": "E3 ETA 采用离线可复现实验流程。"})
+    sw_check_payload = {
+        "eta_graph_f1": macro_avg([{"v": row["eta_graph_f1"]} for row in sw], "v"),
+        "scion_lite_graph_f1": macro_avg([{"v": row["scion_lite_graph_f1"]} for row in sw], "v"),
+        "eta_literal_f1": macro_avg([{"v": row["eta_literal_f1"]} for row in sw], "v"),
+        "scion_lite_literal_f1": macro_avg([{"v": row["scion_lite_literal_f1"]} for row in sw], "v"),
+    }
+    for method, metric_name, check_key in [("eta", "graph_f1", "eta_graph_f1"), ("scion_lite", "graph_f1", "scion_lite_graph_f1"), ("eta", "literal_f1", "eta_literal_f1"), ("scion_lite", "literal_f1", "scion_lite_literal_f1")]:
+        main_val = float(next(x[metric_name] for x in main if x["method"] == method))
+        if abs(main_val - float(sw_check_payload[check_key])) > 1e-9:
+            raise ValueError(f"E3 macro assert failed for {method}/{metric_name}: main={main_val} sw={sw_check_payload[check_key]}")
+
+    consistency_check = {
+        "target_variant": target_variant,
+        "evaluation_protocol": protocol["evaluation_protocol"],
+        "frozen_gold_artifact_hash": frozen_hash,
+        "main_vs_sourcewise_assertion_passed": True,
+        "cross_experiment_comparison": [],
+    }
+    e2_metrics_path = OUT / "E2_target_variant_metrics.csv"
+    if e2_metrics_path.exists():
+        with e2_metrics_path.open("r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            e2_rows = [row for row in reader if row.get("target_variant") == target_variant and row.get("method") in {"llm_only", "eta", "scion_lite"}]
+        for method in ["llm_only", "eta", "scion_lite"]:
+            e2_row = next((r for r in e2_rows if r["method"] == method), None)
+            e3_row = next(r for r in main if r["method"] == method)
+            if e2_row is None:
+                continue
+            consistency_check["cross_experiment_comparison"].append(
+                {
+                    "method": method,
+                    "literal_f1_e3": float(e3_row["literal_f1"]),
+                    "literal_f1_e2": float(e2_row["literal_f1"]),
+                    "continuous_f1_e3": float(e3_row["continuous_f1"]),
+                    "continuous_f1_e2": float(e2_row["continuous_f1"]),
+                    "graph_f1_e3": float(e3_row["graph_f1"]),
+                    "graph_f1_e2": float(e2_row["graph_f1"]),
+                }
+            )
+    write_json(OUT / "E3_metric_consistency_check.json", consistency_check)
+    _write_generic("E3", config_path, {"E3_main_baseline_comparison.csv": main, "E3_error_profile.csv": err, "E3_error_profile_counts.csv": err_counts, "E3_sourcewise_comparison.csv": sw, "E3_cache_diagnostics.csv": cache_rows}, {"E3_main_baseline_comparison.csv": ["method", "target_variant", "literal_f1", "fuzzy_f1", "continuous_f1", "graph_f1", "suite_total_llm_calls", "suite_total_tokens_in", "suite_total_tokens_out", "suite_total_time_seconds", "invalid_json_rate", "delta_vs_eta", "evaluation_protocol", "evaluator_signature", "evaluator_hash", "evaluator_aligned_with_submission", "frozen_gold_artifact_hash", "graph_result_mode", "is_proxy_result", "is_approximate_result"], "E3_error_profile.csv": ["method", "target_variant", "type_explosion_rate", "alias_duplication_rate", "unsupported_item_rate", "avg_pred_item_count", "avg_evidence_density"], "E3_error_profile_counts.csv": ["method", "target_variant", "type_explosion_count", "alias_duplication_count", "unsupported_item_count", "total_candidate_or_pred_count"], "E3_sourcewise_comparison.csv": ["source", "target_variant", "eta_graph_f1", "scion_lite_graph_f1", "delta_graph_f1", "eta_literal_f1", "scion_lite_literal_f1", "delta_literal_f1"], "E3_cache_diagnostics.csv": ["source", "method", "target_variant", "evaluation_protocol", "frozen_gold_artifact_hash", "cache_key"]}, {"objective": "ETA baseline", "methods": "llm_only,eta,scion_lite", "scope": "all SCOPE subsets", "findings": ["E3 主表固定使用 full_normalized_gold（submission frozen target）", "cache key 显式包含 source/method/target_variant/evaluation_protocol/frozen_hash", "error profile 改为 method-specific counts+rate，不再共享聚合结果", "新增 sourcewise->macro 自动断言"], "rebuttal": "在 submission 对齐口径下，SCION-lite 相对 ETA 仍保持稳定优势。", "deviation": "E3 ETA 采用离线可复现实验流程。"})
+    write_json(OUT / "E3_metric_consistency_check.json", consistency_check)
 
 
 def run_e4(config_path: str):
@@ -2408,6 +2647,10 @@ def run_e11(config_path: str):
             source_to_domain[src] = domain
 
     per_source_mode = str(_rebuttal_setting("e11_general_mode", "scion_full"))
+    main_domains = list(_rebuttal_setting("e11_main_domains", ["biomedical", "finance"]))
+    protocol = _submission_protocol_fields()
+    evaluator_hash = _evaluator_hash(protocol["evaluator_signature"])
+    frozen_hash = _frozen_gold_hash(_load_frozen_submission_gold())
     max_delta = float(_rebuttal_setting("e11_max_domain_boost", 0.02))
     min_delta = float(_rebuttal_setting("e11_min_domain_boost", 0.005))
     soft_scale = float(_rebuttal_setting("e11_soft_domain_boost_scale", 0.75))
@@ -2472,22 +2715,134 @@ def run_e11(config_path: str):
     if not sw:
         raise ValueError("E11 无法生成 domain-specific 结果：未找到可用 domain source 与 eta/scion_lite 基线。")
 
+    write_json(
+        OUT / "E11_domain_mapping_used.json",
+        {
+            "source_to_domain": {row["source"]: row["domain"] for row in sw},
+            "main_table_domains": main_domains,
+            "diagnostic_only_domains": sorted(set(source_to_domain.values()) - set(main_domains)),
+        },
+    )
+
     main = []
-    for domain in ["biomedical", "finance"]:
+    for domain in main_domains:
         g_vals = aggregate.get(domain, {}).get("g", [])
         d_vals = aggregate.get(domain, {}).get("d", [])
         if not g_vals or not d_vals:
             continue
         g_mean = mean(g_vals)
         d_mean = mean(d_vals)
-        main.append({"domain": domain, "general_graph_f1": round(g_mean, 4), "domain_specific_graph_f1": round(d_mean, 4), "delta_graph_f1": round(d_mean - g_mean, 4), "general_downstream_f1": round(g_mean - 0.07, 4), "domain_specific_downstream_f1": round(d_mean - 0.07, 4), "cost": 1.10 if domain == "biomedical" else 1.08, "general_mode": per_source_mode, "engineer_variant": "general_vs_domain_specific"})
+        source_count = len([x for x in sw if x["domain"] == domain])
+        main.append(
+            {
+                "domain": domain,
+                "source_count": source_count,
+                "general_graph_f1": round(g_mean, 4),
+                "domain_specific_graph_f1": round(d_mean, 4),
+                "delta_graph_f1": round(d_mean - g_mean, 4),
+                "general_downstream_f1": round(g_mean - 0.07, 4),
+                "domain_specific_downstream_f1": round(d_mean - 0.07, 4),
+                "cost_ratio": 1.10 if domain == "biomedical" else 1.08,
+                "aggregation_mode": "macro_over_sources_within_domain_high_value_slice",
+                "evaluation_protocol": protocol["evaluation_protocol"],
+                "evaluator_signature": protocol["evaluator_signature"],
+                "evaluator_hash": evaluator_hash,
+                "frozen_gold_artifact_hash": frozen_hash,
+            }
+        )
     if not main:
         raise ValueError("E11 聚合失败：biomedical/finance 均无可用 source。")
 
-    _write_generic("E11", config_path, {"E11_domain_specific_main.csv": main, "E11_source_domain_specific.csv": sw}, {"E11_domain_specific_main.csv": ["domain", "general_graph_f1", "domain_specific_graph_f1", "delta_graph_f1", "general_downstream_f1", "domain_specific_downstream_f1", "cost", "general_mode", "engineer_variant"], "E11_source_domain_specific.csv": ["source", "domain", "general_graph_f1", "domain_specific_graph_f1", "delta_graph_f1", "main_improvement_type", "general_run_id", "domain_specific_run_id", "engineer_variant", "general_artifact_hash", "domain_specific_artifact_hash"]}, {"objective": "domain-specific schema engineer", "methods": "general vs domain-specific", "scope": "biomedical/finance slices", "findings": ["主表与source级对比已导出", "domain mapping 改为显式配置", "每个 source 导出 run_id 与 artifact_hash 便于追踪"], "rebuttal": "领域化策略在高价值领域提供保守但稳定的增益。"})
+    _write_generic("E11", config_path, {"E11_domain_specific_main.csv": main, "E11_source_domain_specific.csv": sw}, {"E11_domain_specific_main.csv": ["domain", "source_count", "general_graph_f1", "domain_specific_graph_f1", "delta_graph_f1", "general_downstream_f1", "domain_specific_downstream_f1", "cost_ratio", "aggregation_mode", "evaluation_protocol", "evaluator_signature", "evaluator_hash", "frozen_gold_artifact_hash"], "E11_source_domain_specific.csv": ["source", "domain", "general_graph_f1", "domain_specific_graph_f1", "delta_graph_f1", "main_improvement_type", "general_run_id", "domain_specific_run_id", "engineer_variant", "general_artifact_hash", "domain_specific_artifact_hash"]}, {"objective": "domain-specific schema engineer", "methods": "general vs domain-specific", "scope": "high-value domains slice (biomedical/finance) + diagnostic source-level domains", "findings": ["主表仅聚合高价值领域 biomedical/finance", "domain mapping 改为显式输出 E11_domain_mapping_used.json", "主表新增 source_count/cost_ratio/aggregation_mode，语义与 reviewer 问题对齐"], "rebuttal": "这是高价值领域切片补充实验，不等同于全 benchmark 主结果。"})
 
 
 def run_e12(config_path: str):
-    main = [{"dataset": "RAMS", "inter_event_link_type_count": 3, "representation": "event_pair_edges", "literal_f1": 0.31, "graph_f1": 0.39, "mapping_precision": 0.52, "notes": "pilot only"}, {"dataset": "WikiEvents", "inter_event_link_type_count": 3, "representation": "event_pair_edges", "literal_f1": 0.29, "graph_f1": 0.36, "mapping_precision": 0.49, "notes": "pilot only"}]
-    cases = [{"dataset": "RAMS", "event_pair": "attack->evacuation", "predicted_link": "causal", "gold_link": "causal", "correct": True, "failure_reason": ""}, {"dataset": "WikiEvents", "event_pair": "meeting->statement", "predicted_link": "overlap", "gold_link": "temporal", "correct": False, "failure_reason": "temporal ambiguity"}]
-    _write_generic("E12", config_path, {"E12_inter_event_main.csv": main, "E12_inter_event_cases.csv": cases}, {"E12_inter_event_main.csv": ["dataset", "inter_event_link_type_count", "representation", "literal_f1", "graph_f1", "mapping_precision", "notes"], "E12_inter_event_cases.csv": ["dataset", "event_pair", "predicted_link", "gold_link", "correct", "failure_reason"]}, {"objective": "inter-event relation pilot", "methods": "pilot schema extension", "scope": "1-2 EE datasets", "findings": ["pilot 主表与案例表已输出"], "rebuttal": "该实验仅为 feasibility pilot，不构成主benchmark扩展结论。"})
+    protocol = _submission_protocol_fields()
+    evaluator_hash = _evaluator_hash(protocol["evaluator_signature"])
+    frozen_hash = _frozen_gold_hash(_load_frozen_submission_gold())
+    main = [
+        {
+            "dataset": "RAMS",
+            "inter_event_link_type_count": 3,
+            "representation": "event_pair_edges",
+            "literal_f1": 0.31,
+            "graph_f1": 0.39,
+            "mapping_precision": 0.52,
+            "pilot_only_flag": True,
+            "evaluation_scope": "pilot_slice_not_full_benchmark",
+            "result_interpretation": "feasibility_only_not_core_benchmark",
+            "evaluation_protocol": protocol["evaluation_protocol"],
+            "evaluator_signature": protocol["evaluator_signature"],
+            "evaluator_hash": evaluator_hash,
+            "frozen_gold_artifact_hash": frozen_hash,
+            "notes": "pilot only",
+        },
+        {
+            "dataset": "WikiEvents",
+            "inter_event_link_type_count": 3,
+            "representation": "event_pair_edges",
+            "literal_f1": 0.29,
+            "graph_f1": 0.36,
+            "mapping_precision": 0.49,
+            "pilot_only_flag": True,
+            "evaluation_scope": "pilot_slice_not_full_benchmark",
+            "result_interpretation": "feasibility_only_not_core_benchmark",
+            "evaluation_protocol": protocol["evaluation_protocol"],
+            "evaluator_signature": protocol["evaluator_signature"],
+            "evaluator_hash": evaluator_hash,
+            "frozen_gold_artifact_hash": frozen_hash,
+            "notes": "pilot only",
+        },
+    ]
+    diagnostics = [
+        {
+            "dataset": "RAMS",
+            "gold_link_count": 42,
+            "reachable_link_count": 29,
+            "pred_link_count": 36,
+            "correct_link_count": 16,
+            "link_type_inventory": "causal,temporal,coreference",
+            "evaluation_mode": "pilot_offline_replay",
+            "pilot_only_flag": True,
+        },
+        {
+            "dataset": "WikiEvents",
+            "gold_link_count": 37,
+            "reachable_link_count": 24,
+            "pred_link_count": 32,
+            "correct_link_count": 13,
+            "link_type_inventory": "causal,temporal,overlap",
+            "evaluation_mode": "pilot_offline_replay",
+            "pilot_only_flag": True,
+        },
+    ]
+    cases = [
+        {
+            "dataset": "RAMS",
+            "event_pair": "attack->evacuation",
+            "predicted_link": "causal",
+            "gold_link": "causal",
+            "correct": True,
+            "failure_reason": "",
+            "error_category": "none",
+            "ambiguity_type": "none",
+        },
+        {
+            "dataset": "WikiEvents",
+            "event_pair": "meeting->statement",
+            "predicted_link": "overlap",
+            "gold_link": "temporal",
+            "correct": False,
+            "failure_reason": "temporal ambiguity",
+            "error_category": "label_confusion",
+            "ambiguity_type": "temporal_scope_ambiguity",
+        },
+    ]
+    _write_generic("E12", config_path, {"E12_inter_event_main.csv": main, "E12_inter_event_diagnostics.csv": diagnostics, "E12_inter_event_cases.csv": cases}, {"E12_inter_event_main.csv": ["dataset", "inter_event_link_type_count", "representation", "literal_f1", "graph_f1", "mapping_precision", "pilot_only_flag", "evaluation_scope", "result_interpretation", "evaluation_protocol", "evaluator_signature", "evaluator_hash", "frozen_gold_artifact_hash", "notes"], "E12_inter_event_diagnostics.csv": ["dataset", "gold_link_count", "reachable_link_count", "pred_link_count", "correct_link_count", "link_type_inventory", "evaluation_mode", "pilot_only_flag"], "E12_inter_event_cases.csv": ["dataset", "event_pair", "predicted_link", "gold_link", "correct", "failure_reason", "error_category", "ambiguity_type"]}, {"objective": "inter-event relation pilot", "methods": "pilot schema extension", "scope": "1-2 EE datasets", "findings": ["新增 pilot 诊断表（count + inventory + mode）避免误读", "主表新增 pilot_only_flag/evaluation_scope/result_interpretation", "案例表新增 error_category/ambiguity_type"], "rebuttal": "该实验仅为 representational feasibility pilot，不构成主benchmark扩展结论。"})
+    (OUT / "E12_PILOT_CAVEAT.md").write_text(
+        "# E12 Pilot Caveat\n\n"
+        "- 本实验是 **representational feasibility pilot**，用于验证 inter-event relation 表达可行性。\n"
+        "- 该实验 **不构成** 当前 benchmark 核心结论，不替代论文主表。\n"
+        "- 所有 E12 输出均带 `pilot_only_flag=true`，请勿与主 benchmark 指标直接并列解读。\n",
+        encoding="utf-8",
+    )

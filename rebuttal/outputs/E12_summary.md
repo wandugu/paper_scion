@@ -11,11 +11,15 @@
 
 ## exact files produced
 - `E12_inter_event_main.csv`
+- `E12_inter_event_diagnostics.csv`
 - `E12_inter_event_cases.csv`
+- `E12_PILOT_CAVEAT.md`
 - `E12_manifest.json`
 
 ## key findings
-- pilot 主表与案例表已输出
+- 新增 pilot 诊断表（count + inventory + mode）避免误读
+- 主表新增 pilot_only_flag/evaluation_scope/result_interpretation
+- 案例表新增 error_category/ambiguity_type
 
 ## Suggested rebuttal sentence
-该实验仅为 feasibility pilot，不构成主benchmark扩展结论。
+该实验仅为 representational feasibility pilot，不构成主benchmark扩展结论。

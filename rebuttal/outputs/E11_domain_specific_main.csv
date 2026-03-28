@@ -1,3 +1,3 @@
-domain,general_graph_f1,domain_specific_graph_f1,delta_graph_f1,general_downstream_f1,domain_specific_downstream_f1,cost,general_mode,engineer_variant
-biomedical,0.9382,0.9509,0.0126,0.8682,0.8809,1.1,scion_full,general_vs_domain_specific
-finance,0.9505,0.9669,0.0164,0.8805,0.8969,1.08,scion_full,general_vs_domain_specific
+domain,source_count,general_graph_f1,domain_specific_graph_f1,delta_graph_f1,general_downstream_f1,domain_specific_downstream_f1,cost_ratio,aggregation_mode,evaluation_protocol,evaluator_signature,evaluator_hash,frozen_gold_artifact_hash
+biomedical,3,0.9399,0.9519,0.012,0.8699,0.8819,1.1,macro_over_sources_within_domain_high_value_slice,submission_aligned_scope_v1,cabc45613b834dee,c4c2371818eb9bb2,26bad3bb3f37a484
+finance,3,0.9501,0.9687,0.0186,0.8801,0.8987,1.08,macro_over_sources_within_domain_high_value_slice,submission_aligned_scope_v1,cabc45613b834dee,c4c2371818eb9bb2,26bad3bb3f37a484

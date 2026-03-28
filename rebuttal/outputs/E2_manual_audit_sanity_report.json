@@ -1,0 +1,61 @@
+{
+  "stage_sources": [
+    "ADE_corpus",
+    "CASIE",
+    "CMeIE",
+    "COAE2016",
+    "CrudeOilNews",
+    "DuEE-fin",
+    "DuEE1.0",
+    "FewFC",
+    "GIDS",
+    "IPRE",
+    "NYT11",
+    "New-York-Times-RE",
+    "PHEE",
+    "RAMS",
+    "SKE2020",
+    "SciERC",
+    "SemEval2010_task8",
+    "WikiEvents",
+    "ccf_law",
+    "conll04",
+    "duIE_zh",
+    "instructIE_en",
+    "instructIE_zh",
+    "kbp37"
+  ],
+  "stage_statistics": {
+    "official_raw_score": {
+      "source_count": 24,
+      "mean": 0.7527541666666666,
+      "min": 0.0,
+      "max": 0.9688
+    },
+    "deterministic_completion_score": {
+      "source_count": 24,
+      "mean": 0.7696833333333334,
+      "min": 0.0,
+      "max": 0.9474
+    },
+    "normalization_aligned_score": {
+      "source_count": 24,
+      "mean": 0.7696833333333334,
+      "min": 0.0,
+      "max": 0.9474
+    },
+    "final_gold_compatible_score": {
+      "source_count": 24,
+      "mean": 0.7696833333333334,
+      "min": 0.0,
+      "max": 0.9474
+    }
+  },
+  "method_reference_means": {
+    "text2onto": 0.7892540807803877,
+    "llm_only": 0.8082642622340234,
+    "scion_lite": 0.8516994119578993
+  },
+  "accidental_equality_detected": false,
+  "stage_specific_artifact_assertion_passed": true
+}

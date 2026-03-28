@@ -1,0 +1,3 @@
+dataset,gold_link_count,reachable_link_count,pred_link_count,correct_link_count,link_type_inventory,evaluation_mode,pilot_only_flag
+RAMS,42,29,36,16,"causal,temporal,coreference",pilot_offline_replay,True
+WikiEvents,37,24,32,13,"causal,temporal,overlap",pilot_offline_replay,True

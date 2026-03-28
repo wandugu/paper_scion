@@ -84,17 +84,18 @@
 ## E1
 - `rebuttal/outputs/E1_main_metrics.csv`: 主指标
 - `rebuttal/outputs/E1_recall_breakdown.csv`: 召回分解
-- `rebuttal/outputs/E1_source_reachable_ratio.csv`: 可达比例
-- `rebuttal/outputs/E1_summary.md`: 总结
-
+- `rebuttal/outputs/E1_source_reachable_ratio.csv`: 可达率
+- `rebuttal/outputs/E1_reachability_debug_samples.csv`: 排错样本
 ## E2
-- `rebuttal/outputs/E2_target_variant_metrics.csv`: 目标变体指标
-- `rebuttal/outputs/E2_rank_stability.csv`: 排序稳定性
-- `rebuttal/outputs/E2_manual_completion_audit.csv`: 官方schema审计
-
+- `rebuttal/outputs/E2_target_variant_metrics.csv`: 目标变体
+- `rebuttal/outputs/E2_rank_stability.csv`: 排序稳定
+- `rebuttal/outputs/E2_manual_completion_audit.csv`: 审计
 ## E3
-- `rebuttal/outputs/E3_main_baseline_comparison.csv`: ETA主比较
-
+- `rebuttal/outputs/E3_main_baseline_comparison.csv`: E3 output
+- `rebuttal/outputs/E3_error_profile.csv`: E3 output
+- `rebuttal/outputs/E3_error_profile_counts.csv`: E3 output
+- `rebuttal/outputs/E3_sourcewise_comparison.csv`: E3 output
+- `rebuttal/outputs/E3_cache_diagnostics.csv`: E3 output
 ## E4
 - `rebuttal/outputs/E4_downstream_main.csv`: 下游主结果
 
@@ -118,7 +119,9 @@
 - `rebuttal/outputs/E8_noise_robustness.csv`: 噪声鲁棒性
 
 ## E11
-- `rebuttal/outputs/E11_domain_specific_main.csv`: 领域化比较
-
+- `rebuttal/outputs/E11_domain_specific_main.csv`: E11 output
+- `rebuttal/outputs/E11_source_domain_specific.csv`: E11 output
 ## E12
-- `rebuttal/outputs/E12_inter_event_main.csv`: 事件间关系试点
+- `rebuttal/outputs/E12_inter_event_main.csv`: E12 output
+- `rebuttal/outputs/E12_inter_event_diagnostics.csv`: E12 output
+- `rebuttal/outputs/E12_inter_event_cases.csv`: E12 output

@@ -1,0 +1,53 @@
+{
+  "alignment_check_passed": true,
+  "result_mode": "rerun_only",
+  "submission_artifact_dir": "rebuttal/artifacts/submission_predictions",
+  "submission_artifact_detected": false,
+  "evaluator_signature": "cabc45613b834dee",
+  "evaluator_hash": "c4c2371818eb9bb2",
+  "evaluation_protocol": "submission_aligned_scope_v1",
+  "frozen_gold_artifact_hash": "26bad3bb3f37a484",
+  "placeholder_collapsed_matching_enabled": true,
+  "method_deltas": [
+    {
+      "method": "manual",
+      "full_minus_reachable_continuous_f1": -0.094704,
+      "full_minus_reachable_graph_f1": -0.096366
+    },
+    {
+      "method": "text2onto",
+      "full_minus_reachable_continuous_f1": -0.101295,
+      "full_minus_reachable_graph_f1": -0.100473
+    },
+    {
+      "method": "llm_only",
+      "full_minus_reachable_continuous_f1": -0.099466,
+      "full_minus_reachable_graph_f1": -0.103055
+    },
+    {
+      "method": "eta",
+      "full_minus_reachable_continuous_f1": -0.078962,
+      "full_minus_reachable_graph_f1": -0.078772
+    },
+    {
+      "method": "scion_lite",
+      "full_minus_reachable_continuous_f1": -0.082122,
+      "full_minus_reachable_graph_f1": -0.082692
+    },
+    {
+      "method": "scion_fusion",
+      "full_minus_reachable_continuous_f1": -0.079673,
+      "full_minus_reachable_graph_f1": -0.081028
+    },
+    {
+      "method": "scion_full",
+      "full_minus_reachable_continuous_f1": -0.079412,
+      "full_minus_reachable_graph_f1": -0.083313
+    },
+    {
+      "method": "scion_rl",
+      "full_minus_reachable_continuous_f1": -0.08358,
+      "full_minus_reachable_graph_f1": -0.083152
+    }
+  ]
+}
