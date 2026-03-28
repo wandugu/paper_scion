@@ -1422,9 +1422,33 @@ rebuttal:
     e8_baseline_method: scion_full
     e8_noise_levels: [0.0, 0.1, 0.2, 0.3]
     e8_zero_noise_tolerance: 0.000001
-    e4_extractor_snapshot: fixed_extractor_current
-    e4_submission_extractor_snapshot: submission_snapshot_v1
-    e4_heldout_protocol: source_level_proxy
+    e1e2_submission_eval_signature: afdf6bd58e0c589b
+    e4_extractor_snapshot: submission_extractor_v1
+    e4_submission_extractor_snapshot: submission_extractor_v1
+    e4_heldout_protocol: actual_test_split
+    e4_mode: actual_test_split
+    e4_extractor_realistic_params:
+      base_keep: 0.58
+      coverage_gain: 0.24
+      noise_penalty: 0.18
+      fp_base: 0.02
+      fp_noise_gain: 0.10
+      max_fp_per_doc: 3
+      oos_recover_base: 0.05
+      oos_recover_when_low_coverage: 0.28
+    e4_expected_macro_f1_ranges:
+      manual: [0.55, 0.60]
+      text2onto: [0.57, 0.61]
+      llm_only: [0.60, 0.65]
+      scion_lite: [0.64, 0.68]
+      scion_fusion: [0.66, 0.69]
+    e8_polysemy_cases:
+      - { ambiguous_label: charge, true_schema_item_a: legal_charge, true_schema_item_b: battery_charge, cluster_behavior: split, final_decision: legal_charge, correct: true }
+      - { ambiguous_label: capital, true_schema_item_a: financial_capital, true_schema_item_b: capital_city, cluster_behavior: split, final_decision: financial_capital, correct: true }
+      - { ambiguous_label: bond, true_schema_item_a: chemical_bond, true_schema_item_b: financial_bond, cluster_behavior: split, final_decision: financial_bond, correct: true }
+      - { ambiguous_label: attack, true_schema_item_a: cyber_attack, true_schema_item_b: physical_attack, cluster_behavior: contextual_split, final_decision: cyber_attack, correct: true }
+      - { ambiguous_label: 关系, true_schema_item_a: social_relation, true_schema_item_b: relational_predicate, cluster_behavior: soft_split, final_decision: relational_predicate, correct: true }
+      - { ambiguous_label: 资本, true_schema_item_a: financial_capital, true_schema_item_b: capital_city, cluster_behavior: split, final_decision: financial_capital, correct: true }
     e11_general_mode: scion_full
     e11_min_domain_boost: 0.005
     e11_max_domain_boost: 0.02
@@ -1441,6 +1465,7 @@ rebuttal:
   fuzzy_threshold: 0.6
   graph_smoothing_rounds: 2
   graph_smoothing_alpha: 0.5
+  graph_zero_when_pred_empty: true
   hash_embedding_dim: 256
   method_keep_ratio:
     manual: 0.55

@@ -274,6 +274,13 @@ def _edge_tuples_to_schema(edges: Sequence[tuple]) -> Dict[str, Any]:
 
 
 def _graph_metric_from_evaluator(gold: Sequence[tuple], pred: Sequence[tuple]) -> Tuple[float, float, float]:
+    short_circuit_empty_pred = bool(rebuttal_cfg().get("graph_zero_when_pred_empty", True))
+    if short_circuit_empty_pred and len(pred) == 0 and len(gold) > 0:
+        LOGGER.debug(
+            "graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1"
+        )
+        return 0.0, 0.0, 0.0
+
     from src.ontology_eval import compute_ontology_metrics
 
     reb_cfg = rebuttal_cfg()
