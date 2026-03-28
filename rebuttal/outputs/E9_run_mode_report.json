@@ -1,5 +1,31 @@
 {
   "evaluation_scope": "subset_8",
   "actual_subset_audit": true,
-  "is_proxy_result": false
+  "is_proxy_result": false,
+  "metadata_source": "E9_scion_rl_ablation.yaml + deterministic seed trace",
+  "algorithm_name": "offline_ppo",
+  "seed_list": [
+    42,
+    43,
+    44
+  ],
+  "reward_terms": [
+    "json_validity",
+    "candidate_constraint",
+    "evidence_coverage",
+    "compactness",
+    "structural_consistency"
+  ],
+  "reward_weights": [
+    0.25,
+    0.2,
+    0.2,
+    0.1,
+    0.25
+  ],
+  "update_steps_per_seed": [
+    360,
+    380,
+    400
+  ]
 }
