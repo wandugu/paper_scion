@@ -1,4 +1,4 @@
 schema_engineer,json_valid_rate,candidate_link_satisfaction,evidence_coverage,avg_output_size,fallback_rate,literal_f1,fuzzy_f1,continuous_f1,graph_f1,evaluation_scope,is_proxy_result,is_approximate_result,evaluation_protocol
-base_zero_shot,0.9168,0.8483,0.7262,173,0.019,0.7549,0.9868,0.9324,0.8943,subset_8,False,False,submission_aligned_scope_v1
-sft_only,0.9226,0.8563,0.7347,175,0.0142,0.8264,0.9871,0.9526,0.9208,subset_8,False,False,submission_aligned_scope_v1
-rl_full,0.9294,0.8656,0.7447,177,0.01,0.887,0.9934,0.9709,0.952,subset_8,False,False,submission_aligned_scope_v1
+base_zero_shot,0.917,0.8487,0.7266,173,0.0188,0.7549,0.9868,0.9324,0.8955,subset_8,False,False,submission_aligned_scope_v1
+sft_only,0.9227,0.8563,0.7348,175,0.0142,0.8264,0.9871,0.9526,0.9211,subset_8,False,False,submission_aligned_scope_v1
+rl_full,0.9295,0.8656,0.7447,177,0.01,0.887,0.9934,0.9709,0.9521,subset_8,False,False,submission_aligned_scope_v1

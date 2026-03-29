@@ -2,12 +2,12 @@
   "command": "python src/rebuttal/scripts/E2_run_normalization_sensitivity.py",
   "config": "src/rebuttal/configs/E2_normalization_sensitivity.yaml",
   "seed": 42,
-  "timestamp_utc": "2026-03-28T17:30:26.735229+00:00",
-  "git_commit": "f9582812a00b291ff1e5246c114e47b40454ca9a",
+  "timestamp_utc": "2026-03-28T17:51:33.470643+00:00",
+  "git_commit": "b833dee36d3e96b7bfd97292095e0a526368a16c",
   "environment": {
-    "timestamp_utc": "2026-03-28T17:30:26.745595+00:00",
-    "python": "3.12.12 (main, Jan 12 2026, 17:43:59) [GCC 13.3.0]",
-    "platform": "Linux-6.12.47-x86_64-with-glibc2.39",
-    "git_commit": "f9582812a00b291ff1e5246c114e47b40454ca9a"
+    "timestamp_utc": "2026-03-28T17:51:33.472680+00:00",
+    "python": "3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:16:04) [GCC 11.2.0]",
+    "platform": "Linux-5.15.0-170-generic-x86_64-with-glibc2.35",
+    "git_commit": "b833dee36d3e96b7bfd97292095e0a526368a16c"
   }
 }

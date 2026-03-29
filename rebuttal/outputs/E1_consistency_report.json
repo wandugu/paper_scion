@@ -11,43 +11,43 @@
   "method_deltas": [
     {
       "method": "manual",
-      "full_minus_reachable_continuous_f1": -0.094704,
-      "full_minus_reachable_graph_f1": -0.095369
+      "full_minus_reachable_continuous_f1": -0.058847,
+      "full_minus_reachable_graph_f1": -0.062199
     },
     {
       "method": "text2onto",
-      "full_minus_reachable_continuous_f1": -0.101295,
-      "full_minus_reachable_graph_f1": -0.10078
+      "full_minus_reachable_continuous_f1": -0.0641,
+      "full_minus_reachable_graph_f1": -0.064988
     },
     {
       "method": "llm_only",
-      "full_minus_reachable_continuous_f1": -0.099466,
-      "full_minus_reachable_graph_f1": -0.104684
+      "full_minus_reachable_continuous_f1": -0.061406,
+      "full_minus_reachable_graph_f1": -0.067493
     },
     {
       "method": "eta",
-      "full_minus_reachable_continuous_f1": -0.078962,
-      "full_minus_reachable_graph_f1": -0.082987
+      "full_minus_reachable_continuous_f1": -0.041105,
+      "full_minus_reachable_graph_f1": -0.045754
     },
     {
       "method": "scion_lite",
-      "full_minus_reachable_continuous_f1": -0.082122,
-      "full_minus_reachable_graph_f1": -0.086501
+      "full_minus_reachable_continuous_f1": -0.043032,
+      "full_minus_reachable_graph_f1": -0.048666
     },
     {
       "method": "scion_fusion",
-      "full_minus_reachable_continuous_f1": -0.079673,
-      "full_minus_reachable_graph_f1": -0.085542
+      "full_minus_reachable_continuous_f1": -0.040691,
+      "full_minus_reachable_graph_f1": -0.047236
     },
     {
       "method": "scion_full",
-      "full_minus_reachable_continuous_f1": -0.079412,
-      "full_minus_reachable_graph_f1": -0.08808
+      "full_minus_reachable_continuous_f1": -0.0401,
+      "full_minus_reachable_graph_f1": -0.048991
     },
     {
       "method": "scion_rl",
-      "full_minus_reachable_continuous_f1": -0.08358,
-      "full_minus_reachable_graph_f1": -0.087314
+      "full_minus_reachable_continuous_f1": -0.043992,
+      "full_minus_reachable_graph_f1": -0.047563
     }
   ]
 }

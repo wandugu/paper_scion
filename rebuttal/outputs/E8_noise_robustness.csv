@@ -1,5 +1,5 @@
 noise_level,cluster_purity,merge_error_rate,literal_p,literal_r,literal_f1,fuzzy_f1,continuous_f1,graph_p,graph_r,graph_f1,pred_item_count,fallback_rate,evaluation_scope,is_proxy_result,is_approximate_result,encoder_rerun_mode
-0.0,0.8824,0.1176,0.8745,0.8623,0.8558,0.9885,0.955,0.9608,0.9163,0.936,102.38,0.02,subset_8,False,False,actual_rerun
-0.1,0.823,0.177,0.8158,0.8623,0.8278,0.9904,0.9513,0.9392,0.9461,0.9412,111.5,0.05,subset_8,False,False,actual_rerun
-0.2,0.7681,0.2319,0.7614,0.8623,0.8005,0.9906,0.9466,0.9143,0.97,0.9404,119.88,0.08,subset_8,False,False,actual_rerun
-0.3,0.7145,0.2855,0.7082,0.8623,0.7714,0.9913,0.9423,0.8692,0.9766,0.9192,128.12,0.11,subset_8,False,False,actual_rerun
+0.0,0.8824,0.1176,0.8745,0.8623,0.8558,0.9885,0.955,0.9606,0.9161,0.9358,102.38,0.02,subset_8,False,False,actual_rerun
+0.1,0.823,0.177,0.8158,0.8623,0.8278,0.9904,0.9513,0.9391,0.946,0.9411,111.5,0.05,subset_8,False,False,actual_rerun
+0.2,0.7681,0.2319,0.7614,0.8623,0.8005,0.9906,0.9466,0.9132,0.9689,0.9393,119.88,0.08,subset_8,False,False,actual_rerun
+0.3,0.7145,0.2855,0.7082,0.8623,0.7714,0.9913,0.9423,0.8686,0.9761,0.9186,128.12,0.11,subset_8,False,False,actual_rerun

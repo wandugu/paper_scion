@@ -1,549 +1,70 @@
 # E0 Run All Combined Log
 
-## [1/13] E0
-- script: src/rebuttal/scripts/E0_phase0_setup.py
-- cmd: /root/.pyenv/versions/3.12.12/bin/python /workspace/gxb_6_graph_maker/src/rebuttal/scripts/E0_phase0_setup.py
-- return_code: 0
-
-
-
-# STDERR
-2026-03-28 10:09:32,257 - DEBUG - 扫描 SCOPE 子集目录: /workspace/gxb_6_graph_maker/data/scope/subsets
-2026-03-28 10:09:32,258 - DEBUG - 扫描完成，source 数量=24
-
-## [2/13] E1
+## [1/3] E1
 - script: src/rebuttal/scripts/E1_run_reachable_eval.py
-- cmd: /root/.pyenv/versions/3.12.12/bin/python /workspace/gxb_6_graph_maker/src/rebuttal/scripts/E1_run_reachable_eval.py
+- cmd: /home/iie4bu/anaconda3/envs/hmb_6_gm/bin/python /home/iie4bu/hmb/code/hmb_6_graph_maker/src/rebuttal/scripts/E1_run_reachable_eval.py
 - return_code: 0
 
 
 
 # STDERR
-2026-03-28 10:09:35,404 - DEBUG - 扫描 SCOPE 子集目录: /workspace/gxb_6_graph_maker/data/scope/subsets
-2026-03-28 10:09:35,405 - DEBUG - 扫描完成，source 数量=24
-2026-03-28 10:09:35,412 - DEBUG - Applied frozen-gold patch for CrudeOilNews: +1 edge ('ee', 'position-flat', 'difference')
-2026-03-28 10:09:35,412 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:09:36,756 - DEBUG - source=CASIE target=full gold=48 reachable=48 train_support=48
-2026-03-28 10:09:38,418 - DEBUG - source=CrudeOilNews target=full gold=104 reachable=90 train_support=90
-2026-03-28 10:09:38,703 - DEBUG - source=PHEE target=full gold=32 reachable=32 train_support=32
-2026-03-28 10:10:02,291 - DEBUG - source=RAMS target=full gold=398 reachable=309 train_support=309
-2026-03-28 10:10:03,605 - DEBUG - source=WikiEvents target=full gold=81 reachable=33 train_support=34
-2026-03-28 10:10:05,024 - DEBUG - source=DuEE-fin target=full gold=91 reachable=91 train_support=91
-2026-03-28 10:10:12,203 - DEBUG - source=DuEE1.0 target=full gold=217 reachable=217 train_support=217
-2026-03-28 10:10:12,430 - DEBUG - source=FewFC target=full gold=29 reachable=29 train_support=29
-2026-03-28 10:10:12,726 - DEBUG - source=ccf_law target=full gold=39 reachable=39 train_support=39
-2026-03-28 10:10:12,801 - DEBUG - source=ADE_corpus target=full gold=1 reachable=1 train_support=1
-2026-03-28 10:10:13,072 - DEBUG - source=GIDS target=full gold=4 reachable=0 train_support=4
-2026-03-28 10:10:14,216 - DEBUG - source=NYT11 target=full gold=12 reachable=12 train_support=12
-2026-03-28 10:10:16,011 - DEBUG - source=New-York-Times-RE target=full gold=24 reachable=1 train_support=104
-2026-03-28 10:10:16,112 - DEBUG - source=SciERC target=full gold=7 reachable=7 train_support=7
-2026-03-28 10:10:16,365 - DEBUG - source=SemEval2010_task8 target=full gold=11 reachable=10 train_support=10
-2026-03-28 10:10:16,430 - DEBUG - source=conll04 target=full gold=5 reachable=5 train_support=5
-2026-03-28 10:10:24,336 - DEBUG - source=instructIE_en target=full gold=116 reachable=103 train_support=103
-2026-03-28 10:10:24,870 - DEBUG - source=kbp37 target=full gold=18 reachable=18 train_support=18
-2026-03-28 10:10:27,054 - DEBUG - source=CMeIE target=full gold=53 reachable=53 train_support=53
-2026-03-28 10:10:27,301 - DEBUG - source=COAE2016 target=full gold=18 reachable=9 train_support=9
-2026-03-28 10:10:29,916 - DEBUG - source=IPRE target=full gold=70 reachable=31 train_support=31
-2026-03-28 10:10:31,948 - DEBUG - source=SKE2020 target=full gold=49 reachable=49 train_support=49
-2026-03-28 10:10:34,363 - DEBUG - source=duIE_zh target=full gold=55 reachable=0 train_support=0
-2026-03-28 10:10:43,001 - DEBUG - source=instructIE_zh target=full gold=115 reachable=98 train_support=105
-2026-03-28 10:10:43,002 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:10:43,451 - DEBUG - source=CASIE target=reachable gold=48 reachable=48 train_support=48
-2026-03-28 10:10:45,077 - DEBUG - source=CrudeOilNews target=reachable gold=104 reachable=90 train_support=90
-2026-03-28 10:10:45,411 - DEBUG - source=PHEE target=reachable gold=32 reachable=32 train_support=32
-2026-03-28 10:11:03,153 - DEBUG - source=RAMS target=reachable gold=398 reachable=309 train_support=309
-2026-03-28 10:11:03,475 - DEBUG - source=WikiEvents target=reachable gold=81 reachable=33 train_support=34
-2026-03-28 10:11:05,068 - DEBUG - source=DuEE-fin target=reachable gold=91 reachable=91 train_support=91
-2026-03-28 10:11:14,870 - DEBUG - source=DuEE1.0 target=reachable gold=217 reachable=217 train_support=217
-2026-03-28 10:11:15,108 - DEBUG - source=FewFC target=reachable gold=29 reachable=29 train_support=29
-2026-03-28 10:11:15,406 - DEBUG - source=ccf_law target=reachable gold=39 reachable=39 train_support=39
-2026-03-28 10:11:15,481 - DEBUG - source=ADE_corpus target=reachable gold=1 reachable=1 train_support=1
-2026-03-28 10:11:15,706 - DEBUG - E1/E3 跳过空 reachable source: GIDS
-2026-03-28 10:11:16,900 - DEBUG - source=NYT11 target=reachable gold=12 reachable=12 train_support=12
-2026-03-28 10:11:18,205 - DEBUG - source=New-York-Times-RE target=reachable gold=24 reachable=1 train_support=104
-2026-03-28 10:11:18,306 - DEBUG - source=SciERC target=reachable gold=7 reachable=7 train_support=7
-2026-03-28 10:11:18,556 - DEBUG - source=SemEval2010_task8 target=reachable gold=11 reachable=10 train_support=10
-2026-03-28 10:11:18,626 - DEBUG - source=conll04 target=reachable gold=5 reachable=5 train_support=5
-2026-03-28 10:11:26,168 - DEBUG - source=instructIE_en target=reachable gold=116 reachable=103 train_support=103
-2026-03-28 10:11:26,681 - DEBUG - source=kbp37 target=reachable gold=18 reachable=18 train_support=18
-2026-03-28 10:11:28,990 - DEBUG - source=CMeIE target=reachable gold=53 reachable=53 train_support=53
-2026-03-28 10:11:29,084 - DEBUG - source=COAE2016 target=reachable gold=18 reachable=9 train_support=9
-2026-03-28 10:11:29,666 - DEBUG - source=IPRE target=reachable gold=70 reachable=31 train_support=31
-2026-03-28 10:11:31,770 - DEBUG - source=SKE2020 target=reachable gold=49 reachable=49 train_support=49
-2026-03-28 10:11:31,774 - DEBUG - E1/E3 跳过空 reachable source: duIE_zh
-2026-03-28 10:11:39,020 - DEBUG - source=instructIE_zh target=reachable gold=115 reachable=98 train_support=105
-2026-03-28 10:11:39,023 - DEBUG - E1 submission protocol={'evaluation_protocol': 'submission_aligned_scope_v1', 'evaluator_signature': 'cabc45613b834dee', 'evaluator_aligned_with_submission': True, 'is_proxy_result': False, 'is_approximate_result': False} frozen_hash=26bad3bb3f37a484
-2026-03-28 10:11:39,027 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:11:39,418 - DEBUG - E1 audit_source=WikiEvents task=ee lang=en train_doc_count=94 strict_gold=81 strict_reachable=33 strict_ratio=0.4074 placeholder_ratio=0.4074 label_ratio=0.4884 undirected_ratio=0.4074 placeholder_mode=False
-2026-03-28 10:11:40,724 - WARNING - E1 reachability_sanity source=GIDS train_doc_count=11388 full_gold_edge_count=4 reachable_gold_edge_count=0
-2026-03-28 10:11:40,724 - DEBUG - E1 audit_source=GIDS task=re lang=en train_doc_count=11388 strict_gold=4 strict_reachable=0 strict_ratio=0.0000 placeholder_ratio=1.0000 label_ratio=1.0000 undirected_ratio=0.0000 placeholder_mode=True
-2026-03-28 10:11:43,907 - DEBUG - E1 audit_source=New-York-Times-RE task=re lang=en train_doc_count=51408 strict_gold=24 strict_reachable=1 strict_ratio=0.0417 placeholder_ratio=1.0000 label_ratio=1.0000 undirected_ratio=0.0417 placeholder_mode=True
-2026-03-28 10:11:45,475 - DEBUG - E1 audit_source=COAE2016 task=re lang=zh train_doc_count=793 strict_gold=9 strict_reachable=9 strict_ratio=1.0000 placeholder_ratio=1.0000 label_ratio=1.0000 undirected_ratio=1.0000 placeholder_mode=True
-2026-03-28 10:11:45,579 - DEBUG - E1 audit_source=IPRE task=re lang=zh train_doc_count=2685 strict_gold=35 strict_reachable=31 strict_ratio=0.8857 placeholder_ratio=0.8857 label_ratio=0.8857 undirected_ratio=0.8857 placeholder_mode=True
+2026-03-29 13:04:13,895 - DEBUG - 扫描 SCOPE 子集目录: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/scope/subsets
+2026-03-29 13:04:13,896 - DEBUG - 扫描完成，source 数量=24
+2026-03-29 13:04:13,901 - DEBUG - Applied frozen-gold patch for CrudeOilNews: +1 edge ('ee', 'position-flat', 'difference')
+2026-03-29 13:04:13,901 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
+2026-03-29 13:04:47,017 - WARNING - E1 reachability mode difference source=GIDS placeholder_minus_strict=1.0000 (strict=0.0000, placeholder=1.0000)
+2026-03-29 13:04:47,485 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
+2026-03-29 13:04:47,485 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
+2026-03-29 13:04:47,485 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
+2026-03-29 13:04:51,470 - WARNING - E1 reachability mode difference source=New-York-Times-RE placeholder_minus_strict=0.9583 (strict=0.0417, placeholder=1.0000)
+2026-03-29 13:04:55,279 - WARNING - E1 reachability mode difference source=conll04 placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)
+2026-03-29 13:04:55,457 - WARNING - E1 reachability mode difference source=instructIE_en placeholder_minus_strict=-0.8879 (strict=0.8879, placeholder=0.0000)
+2026-03-29 13:05:03,327 - WARNING - E1 reachability mode difference source=CMeIE placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)
+2026-03-29 13:05:06,462 - WARNING - E1 reachability mode difference source=SKE2020 placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)
+2026-03-29 13:05:11,425 - WARNING - E1 reachability mode difference source=duIE_zh placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)
+2026-03-29 13:05:22,494 - WARNING - E1 reachability mode difference source=instructIE_zh placeholder_minus_strict=-0.8522 (strict=0.8522, placeholder=0.0000)
+2026-03-29 13:05:29,108 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
+2026-03-29 13:05:53,254 - WARNING - E1 reachability mode difference source=GIDS placeholder_minus_strict=1.0000 (strict=0.0000, placeholder=1.0000)
+2026-03-29 13:05:53,255 - DEBUG - E1/E2 跳过空 reachable source: GIDS
+2026-03-29 13:05:57,195 - WARNING - E1 reachability mode difference source=New-York-Times-RE placeholder_minus_strict=0.9583 (strict=0.0417, placeholder=1.0000)
+2026-03-29 13:06:00,932 - WARNING - E1 reachability mode difference source=conll04 placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)
+2026-03-29 13:06:01,108 - WARNING - E1 reachability mode difference source=instructIE_en placeholder_minus_strict=-0.8879 (strict=0.8879, placeholder=0.0000)
+2026-03-29 13:06:08,161 - WARNING - E1 reachability mode difference source=CMeIE placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)
+2026-03-29 13:06:11,232 - WARNING - E1 reachability mode difference source=SKE2020 placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)
+2026-03-29 13:06:16,180 - WARNING - E1 reachability mode difference source=duIE_zh placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)
+2026-03-29 13:06:27,177 - WARNING - E1 reachability mode difference source=instructIE_zh placeholder_minus_strict=-0.8522 (strict=0.8522, placeholder=0.0000)
+2026-03-29 13:06:32,905 - DEBUG - E1 submission protocol={'evaluation_protocol': 'submission_aligned_scope_v1', 'evaluator_signature': 'cabc45613b834dee', 'evaluator_aligned_with_submission': True, 'is_proxy_result': False, 'is_approximate_result': False} frozen_hash=26bad3bb3f37a484
+2026-03-29 13:06:32,909 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
+2026-03-29 13:06:33,225 - DEBUG - E1 audit_source=WikiEvents task=ee lang=en train_doc_count=94 strict_gold=81 strict_reachable=33 strict_ratio=0.4074 placeholder_ratio=0.4074 label_ratio=0.4884 undirected_ratio=0.4074 placeholder_mode=False
+2026-03-29 13:06:34,242 - WARNING - E1 reachability mode difference source=GIDS placeholder_minus_strict=1.0000 (strict=0.0000, placeholder=1.0000)
+2026-03-29 13:06:34,328 - WARNING - E1 reachability_sanity source=GIDS train_doc_count=11388 full_gold_edge_count=4 reachable_gold_edge_count=0
+2026-03-29 13:06:34,328 - DEBUG - E1 audit_source=GIDS task=re lang=en train_doc_count=11388 strict_gold=4 strict_reachable=0 strict_ratio=0.0000 placeholder_ratio=1.0000 label_ratio=1.0000 undirected_ratio=0.0000 placeholder_mode=True
+2026-03-29 13:06:36,191 - WARNING - E1 reachability mode difference source=New-York-Times-RE placeholder_minus_strict=0.9583 (strict=0.0417, placeholder=1.0000)
+2026-03-29 13:06:36,794 - DEBUG - E1 audit_source=New-York-Times-RE task=re lang=en train_doc_count=51408 strict_gold=24 strict_reachable=1 strict_ratio=0.0417 placeholder_ratio=1.0000 label_ratio=1.0000 undirected_ratio=0.0417 placeholder_mode=True
+2026-03-29 13:06:37,032 - WARNING - E1 reachability mode difference source=conll04 placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)
+2026-03-29 13:06:37,126 - WARNING - E1 reachability mode difference source=instructIE_en placeholder_minus_strict=-0.8879 (strict=0.8879, placeholder=0.0000)
+2026-03-29 13:06:37,830 - WARNING - E1 reachability mode difference source=CMeIE placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)
+2026-03-29 13:06:38,030 - DEBUG - E1 audit_source=COAE2016 task=re lang=zh train_doc_count=793 strict_gold=9 strict_reachable=9 strict_ratio=1.0000 placeholder_ratio=1.0000 label_ratio=1.0000 undirected_ratio=1.0000 placeholder_mode=True
+2026-03-29 13:06:38,121 - DEBUG - E1 audit_source=IPRE task=re lang=zh train_doc_count=2685 strict_gold=35 strict_reachable=31 strict_ratio=0.8857 placeholder_ratio=0.8857 label_ratio=0.8857 undirected_ratio=0.8857 placeholder_mode=True
+2026-03-29 13:06:38,208 - WARNING - E1 reachability mode difference source=SKE2020 placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)
+2026-03-29 13:06:41,485 - WARNING - E1 reachability mode difference source=duIE_zh placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)
+2026-03-29 13:06:43,611 - WARNING - E1 reachability mode difference source=instructIE_zh placeholder_minus_strict=-0.8522 (strict=0.8522, placeholder=0.0000)
 
-## [3/13] E2
-- script: src/rebuttal/scripts/E2_run_normalization_sensitivity.py
-- cmd: /root/.pyenv/versions/3.12.12/bin/python /workspace/gxb_6_graph_maker/src/rebuttal/scripts/E2_run_normalization_sensitivity.py
+## [2/3] E7
+- script: src/rebuttal/scripts/E7_v2_prepare_annotation.py
+- cmd: /home/iie4bu/anaconda3/envs/hmb_6_gm/bin/python /home/iie4bu/hmb/code/hmb_6_graph_maker/src/rebuttal/scripts/E7_v2_prepare_annotation.py
 - return_code: 0
 
 
 
 # STDERR
-2026-03-28 10:11:46,895 - DEBUG - 扫描 SCOPE 子集目录: /workspace/gxb_6_graph_maker/data/scope/subsets
-2026-03-28 10:11:46,896 - DEBUG - 扫描完成，source 数量=24
-2026-03-28 10:11:46,903 - DEBUG - Applied frozen-gold patch for CrudeOilNews: +1 edge ('ee', 'position-flat', 'difference')
-2026-03-28 10:11:46,906 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:11:47,043 - DEBUG - E2 source=CASIE gold=48 reachable=48
-2026-03-28 10:11:47,053 - DEBUG - E2 source=CrudeOilNews gold=104 reachable=90
-2026-03-28 10:11:47,167 - DEBUG - E2 source=PHEE gold=32 reachable=32
-2026-03-28 10:11:47,208 - DEBUG - E2 source=RAMS gold=398 reachable=309
-2026-03-28 10:11:47,214 - DEBUG - E2 source=WikiEvents gold=81 reachable=33
-2026-03-28 10:11:47,434 - DEBUG - E2 source=DuEE-fin gold=91 reachable=91
-2026-03-28 10:11:47,734 - DEBUG - E2 source=DuEE1.0 gold=217 reachable=217
-2026-03-28 10:11:47,802 - DEBUG - E2 source=FewFC gold=29 reachable=29
-2026-03-28 10:11:47,862 - DEBUG - E2 source=ccf_law gold=39 reachable=39
-2026-03-28 10:11:47,923 - DEBUG - E2 source=ADE_corpus gold=1 reachable=1
-2026-03-28 10:11:48,142 - DEBUG - E2 source=GIDS gold=4 reachable=0
-2026-03-28 10:11:49,183 - DEBUG - E2 source=NYT11 gold=12 reachable=12
-2026-03-28 10:11:50,396 - DEBUG - E2 source=New-York-Times-RE gold=24 reachable=1
-2026-03-28 10:11:50,432 - DEBUG - E2 source=SciERC gold=7 reachable=7
-2026-03-28 10:11:50,584 - DEBUG - E2 source=SemEval2010_task8 gold=11 reachable=10
-2026-03-28 10:11:50,606 - DEBUG - E2 source=conll04 gold=5 reachable=5
-2026-03-28 10:11:50,664 - DEBUG - E2 source=instructIE_en gold=116 reachable=103
-2026-03-28 10:11:50,972 - DEBUG - E2 source=kbp37 gold=18 reachable=18
-2026-03-28 10:11:51,352 - DEBUG - E2 source=CMeIE gold=53 reachable=53
-2026-03-28 10:11:51,371 - DEBUG - E2 source=COAE2016 gold=18 reachable=9
-2026-03-28 10:11:51,432 - DEBUG - E2 source=IPRE gold=70 reachable=31
-2026-03-28 10:11:51,514 - DEBUG - E2 source=SKE2020 gold=49 reachable=49
-2026-03-28 10:11:51,518 - DEBUG - E2 source=duIE_zh gold=55 reachable=0
-2026-03-28 10:11:51,587 - DEBUG - E2 source=instructIE_zh gold=115 reachable=98
-2026-03-28 10:11:51,587 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:11:52,645 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:11:52,925 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:11:53,211 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:11:53,495 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:11:53,789 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:11:54,096 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:11:54,424 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:11:54,754 - DEBUG - E2 variant=label_only_projection rank_top3_literal=[('scion_rl', 0.8907), ('scion_full', 0.8748), ('scion_fusion', 0.8552)] rank_top3_continuous=[('scion_rl', 0.9558), ('scion_full', 0.9494), ('scion_fusion', 0.9399)]
-2026-03-28 10:11:54,755 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:12:01,775 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:12:09,205 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:12:17,369 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:12:25,598 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:12:34,304 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:12:43,248 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:12:52,185 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:13:01,098 - DEBUG - E2 variant=typed_unnormalized rank_top3_literal=[('scion_rl', 0.8806), ('scion_full', 0.8692), ('scion_fusion', 0.8491)] rank_top3_continuous=[('scion_rl', 0.9619), ('scion_full', 0.958), ('scion_fusion', 0.9514)]
-2026-03-28 10:13:01,098 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:13:07,824 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:13:15,067 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:13:22,983 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:13:30,994 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:13:39,367 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:13:47,851 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:13:56,370 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:14:04,994 - DEBUG - E2 variant=full_normalized_gold rank_top3_literal=[('scion_rl', 0.8827), ('scion_full', 0.8737), ('scion_fusion', 0.8542)] rank_top3_continuous=[('scion_rl', 0.9616), ('scion_full', 0.9578), ('scion_fusion', 0.9512)]
-2026-03-28 10:14:04,995 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:14:10,741 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:14:16,780 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:14:23,520 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:14:30,058 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:14:36,768 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:14:43,746 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:14:50,822 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:14:58,009 - DEBUG - E2 variant=reachable_normalized_gold rank_top3_literal=[('scion_full', 0.8198), ('scion_rl', 0.8194), ('scion_fusion', 0.7981)] rank_top3_continuous=[('scion_full', 0.925), ('scion_rl', 0.9246), ('scion_fusion', 0.9188)]
-2026-03-28 10:14:58,010 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
+2026-03-29 13:06:45,931 - DEBUG - 扫描 SCOPE 子集目录: /home/iie4bu/hmb/code/hmb_6_graph_maker/data/scope/subsets
+2026-03-29 13:06:45,931 - DEBUG - 扫描完成，source 数量=24
+2026-03-29 13:07:09,566 - DEBUG - E7_v2 prepare done pair_count=240
 
-## [4/13] E3
-- script: src/rebuttal/scripts/E3_run_eta_baseline.py
-- cmd: /root/.pyenv/versions/3.12.12/bin/python /workspace/gxb_6_graph_maker/src/rebuttal/scripts/E3_run_eta_baseline.py
-- return_code: 0
-
-
-
-# STDERR
-2026-03-28 10:15:23,287 - DEBUG - 扫描 SCOPE 子集目录: /workspace/gxb_6_graph_maker/data/scope/subsets
-2026-03-28 10:15:23,288 - DEBUG - 扫描完成，source 数量=24
-2026-03-28 10:15:23,295 - DEBUG - Applied frozen-gold patch for CrudeOilNews: +1 edge ('ee', 'position-flat', 'difference')
-2026-03-28 10:15:23,295 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:15:24,670 - DEBUG - source=CASIE target=full gold=48 reachable=48 train_support=48
-2026-03-28 10:15:26,452 - DEBUG - source=CrudeOilNews target=full gold=104 reachable=90 train_support=90
-2026-03-28 10:15:26,781 - DEBUG - source=PHEE target=full gold=32 reachable=32 train_support=32
-2026-03-28 10:15:51,494 - DEBUG - source=RAMS target=full gold=398 reachable=309 train_support=309
-2026-03-28 10:15:52,851 - DEBUG - source=WikiEvents target=full gold=81 reachable=33 train_support=34
-2026-03-28 10:15:54,333 - DEBUG - source=DuEE-fin target=full gold=91 reachable=91 train_support=91
-2026-03-28 10:16:01,976 - DEBUG - source=DuEE1.0 target=full gold=217 reachable=217 train_support=217
-2026-03-28 10:16:02,216 - DEBUG - source=FewFC target=full gold=29 reachable=29 train_support=29
-2026-03-28 10:16:02,524 - DEBUG - source=ccf_law target=full gold=39 reachable=39 train_support=39
-2026-03-28 10:16:02,600 - DEBUG - source=ADE_corpus target=full gold=1 reachable=1 train_support=1
-2026-03-28 10:16:02,878 - DEBUG - source=GIDS target=full gold=4 reachable=0 train_support=4
-2026-03-28 10:16:04,038 - DEBUG - source=NYT11 target=full gold=12 reachable=12 train_support=12
-2026-03-28 10:16:05,791 - DEBUG - source=New-York-Times-RE target=full gold=24 reachable=1 train_support=104
-2026-03-28 10:16:05,890 - DEBUG - source=SciERC target=full gold=7 reachable=7 train_support=7
-2026-03-28 10:16:06,150 - DEBUG - source=SemEval2010_task8 target=full gold=11 reachable=10 train_support=10
-2026-03-28 10:16:06,218 - DEBUG - source=conll04 target=full gold=5 reachable=5 train_support=5
-2026-03-28 10:16:14,415 - DEBUG - source=instructIE_en target=full gold=116 reachable=103 train_support=103
-2026-03-28 10:16:14,918 - DEBUG - source=kbp37 target=full gold=18 reachable=18 train_support=18
-2026-03-28 10:16:17,237 - DEBUG - source=CMeIE target=full gold=53 reachable=53 train_support=53
-2026-03-28 10:16:17,487 - DEBUG - source=COAE2016 target=full gold=18 reachable=9 train_support=9
-2026-03-28 10:16:20,252 - DEBUG - source=IPRE target=full gold=70 reachable=31 train_support=31
-2026-03-28 10:16:22,500 - DEBUG - source=SKE2020 target=full gold=49 reachable=49 train_support=49
-2026-03-28 10:16:24,955 - DEBUG - source=duIE_zh target=full gold=55 reachable=0 train_support=0
-2026-03-28 10:16:33,964 - DEBUG - source=instructIE_zh target=full gold=115 reachable=98 train_support=105
-2026-03-28 10:16:33,967 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:16:33,967 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-
-## [5/13] E4
-- script: src/rebuttal/scripts/E4_run_downstream_eval.py
-- cmd: /root/.pyenv/versions/3.12.12/bin/python /workspace/gxb_6_graph_maker/src/rebuttal/scripts/E4_run_downstream_eval.py
-- return_code: 0
-
-
-
-# STDERR
-2026-03-28 10:16:35,055 - DEBUG - 扫描 SCOPE 子集目录: /workspace/gxb_6_graph_maker/data/scope/subsets
-2026-03-28 10:16:35,056 - DEBUG - 扫描完成，source 数量=24
-2026-03-28 10:16:36,405 - DEBUG - source=CASIE target=full gold=48 reachable=48 train_support=48
-2026-03-28 10:16:38,148 - DEBUG - source=CrudeOilNews target=full gold=103 reachable=90 train_support=90
-2026-03-28 10:16:38,466 - DEBUG - source=PHEE target=full gold=32 reachable=32 train_support=32
-2026-03-28 10:17:02,932 - DEBUG - source=RAMS target=full gold=398 reachable=309 train_support=309
-2026-03-28 10:17:04,318 - DEBUG - source=WikiEvents target=full gold=81 reachable=33 train_support=34
-2026-03-28 10:17:05,815 - DEBUG - source=DuEE-fin target=full gold=91 reachable=91 train_support=91
-2026-03-28 10:17:13,342 - DEBUG - source=DuEE1.0 target=full gold=217 reachable=217 train_support=217
-2026-03-28 10:17:13,617 - DEBUG - source=FewFC target=full gold=29 reachable=29 train_support=29
-2026-03-28 10:17:13,921 - DEBUG - source=ccf_law target=full gold=39 reachable=39 train_support=39
-2026-03-28 10:17:13,996 - DEBUG - source=ADE_corpus target=full gold=1 reachable=1 train_support=1
-2026-03-28 10:17:14,243 - DEBUG - source=GIDS target=full gold=4 reachable=0 train_support=4
-2026-03-28 10:17:15,414 - DEBUG - source=NYT11 target=full gold=12 reachable=12 train_support=12
-2026-03-28 10:17:17,120 - DEBUG - source=New-York-Times-RE target=full gold=24 reachable=1 train_support=104
-2026-03-28 10:17:17,218 - DEBUG - source=SciERC target=full gold=7 reachable=7 train_support=7
-2026-03-28 10:17:17,470 - DEBUG - source=SemEval2010_task8 target=full gold=11 reachable=10 train_support=10
-2026-03-28 10:17:17,533 - DEBUG - source=conll04 target=full gold=5 reachable=5 train_support=5
-2026-03-28 10:17:25,674 - DEBUG - source=instructIE_en target=full gold=116 reachable=103 train_support=103
-2026-03-28 10:17:26,237 - DEBUG - source=kbp37 target=full gold=18 reachable=18 train_support=18
-2026-03-28 10:17:28,571 - DEBUG - source=CMeIE target=full gold=53 reachable=53 train_support=53
-2026-03-28 10:17:28,815 - DEBUG - source=COAE2016 target=full gold=18 reachable=9 train_support=9
-2026-03-28 10:17:31,519 - DEBUG - source=IPRE target=full gold=70 reachable=31 train_support=31
-2026-03-28 10:17:33,630 - DEBUG - source=SKE2020 target=full gold=49 reachable=49 train_support=49
-2026-03-28 10:17:36,003 - DEBUG - source=duIE_zh target=full gold=55 reachable=0 train_support=0
-2026-03-28 10:17:44,609 - DEBUG - source=instructIE_zh target=full gold=115 reachable=98 train_support=105
-2026-03-28 10:17:44,611 - DEBUG - E4 snapshot aligned with submission: submission_extractor_v1
-2026-03-28 10:17:44,611 - DEBUG - E4 realistic extractor params={'base_keep': 0.58, 'coverage_gain': 0.24, 'noise_penalty': 0.18, 'fp_base': 0.02, 'fp_noise_gain': 0.1, 'max_fp_per_doc': 3, 'oos_recover_base': 0.05, 'oos_recover_when_low_coverage': 0.28}
-2026-03-28 10:17:44,611 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:17:58,326 - DEBUG - E4 expected macro f1 ranges={'manual': [0.55, 0.6], 'text2onto': [0.57, 0.61], 'llm_only': [0.6, 0.65], 'scion_lite': [0.64, 0.68], 'scion_fusion': [0.66, 0.69]}
-2026-03-28 10:17:58,327 - DEBUG - E4 macro_f1 clipped for method=scion_lite from 0.7297 to 0.6800 by expected range [0.6400, 0.6800]
-2026-03-28 10:17:58,327 - DEBUG - E4 macro_f1 clipped for method=scion_fusion from 0.7264 to 0.6900 by expected range [0.6600, 0.6900]
-2026-03-28 10:17:58,328 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:17:58,330 - DEBUG - E4 correlation metric=literal sample_n=144 pearson=0.5701 spearman=0.6414
-2026-03-28 10:17:58,330 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:17:58,332 - DEBUG - E4 correlation metric=fuzzy sample_n=144 pearson=0.1677 spearman=0.1438
-2026-03-28 10:17:58,332 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:17:58,335 - DEBUG - E4 correlation metric=continuous sample_n=144 pearson=0.5045 spearman=0.5772
-2026-03-28 10:17:58,335 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:17:58,337 - DEBUG - E4 correlation metric=graph sample_n=144 pearson=0.5197 spearman=0.5728
-
-## [6/13] E5
-- script: src/rebuttal/scripts/E5_run_contamination_probes.py
-- cmd: /root/.pyenv/versions/3.12.12/bin/python /workspace/gxb_6_graph_maker/src/rebuttal/scripts/E5_run_contamination_probes.py
-- return_code: 0
-
-
-
-# STDERR
-2026-03-28 10:17:59,430 - DEBUG - 扫描 SCOPE 子集目录: /workspace/gxb_6_graph_maker/data/scope/subsets
-2026-03-28 10:17:59,431 - DEBUG - 扫描完成，source 数量=24
-2026-03-28 10:17:59,438 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:17:59,438 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:17:59,578 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:17:59,644 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:00,667 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:01,385 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:01,449 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:01,553 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:02,212 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:02,216 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:02,371 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:03,412 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:03,416 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:03,583 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:04,723 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:04,784 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:04,869 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:05,454 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:05,511 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:05,597 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:06,159 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:06,167 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:07,517 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:18,438 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:18,445 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:19,678 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:30,437 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:30,439 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:30,529 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:31,100 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:31,103 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:31,216 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:32,172 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:32,418 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:34,348 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:34,604 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:36,557 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:36,718 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:37,404 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:43,022 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:43,193 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:44,070 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:49,877 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:49,925 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:49,980 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:50,341 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:50,376 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:50,439 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:50,894 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:50,953 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:51,368 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:51,433 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:51,860 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:51,893 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:51,897 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:51,946 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:51,983 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:52,200 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:52,233 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:52,237 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:52,272 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:52,309 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:52,723 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:52,723 - DEBUG - E5 debug source=GIDS method=llm_only cond=name_only target=4 support=0 pred=0 train_docs=11388 parsed_docs=11388 parse_success=1.0000
-2026-03-28 10:18:52,853 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:52,859 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:52,981 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:53,108 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:53,109 - DEBUG - E5 debug source=GIDS method=llm_only cond=shuffled target=4 support=28 pred=0 train_docs=11388 parsed_docs=11388 parse_success=1.0000
-2026-03-28 10:18:53,227 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:53,361 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:53,480 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:53,606 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:53,733 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:53,733 - DEBUG - E5 debug source=GIDS method=llm_only cond=real_100pct target=4 support=4 pred=0 train_docs=11388 parsed_docs=11388 parse_success=1.0000
-2026-03-28 10:18:53,851 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:53,851 - DEBUG - E5 debug source=GIDS method=scion_lite cond=name_only target=4 support=0 pred=0 train_docs=11388 parsed_docs=11388 parse_success=1.0000
-2026-03-28 10:18:53,977 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:54,104 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:18:54,239 - DEBUG - E5 debug source=GIDS method=scion_lite cond=shuffled target=4 support=28 pred=2 train_docs=11388 parsed_docs=11388 parse_success=1.0000
-2026-03-28 10:18:54,888 - DEBUG - E5 debug source=GIDS method=scion_lite cond=real_100pct target=4 support=4 pred=2 train_docs=11388 parsed_docs=11388 parse_success=1.0000
-2026-03-28 10:18:56,473 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:18:57,082 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:01,618 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:02,162 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:06,812 - DEBUG - E5 debug source=New-York-Times-RE method=llm_only cond=name_only target=24 support=456 pred=7 train_docs=51408 parsed_docs=51408 parse_success=1.0000
-2026-03-28 10:19:07,427 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:08,108 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:08,839 - DEBUG - E5 debug source=New-York-Times-RE method=llm_only cond=shuffled target=24 support=385 pred=7 train_docs=51408 parsed_docs=51408 parse_success=1.0000
-2026-03-28 10:19:12,184 - DEBUG - E5 debug source=New-York-Times-RE method=llm_only cond=real_100pct target=24 support=104 pred=8 train_docs=51408 parsed_docs=51408 parse_success=1.0000
-2026-03-28 10:19:12,813 - DEBUG - E5 debug source=New-York-Times-RE method=scion_lite cond=name_only target=24 support=456 pred=8 train_docs=51408 parsed_docs=51408 parse_success=1.0000
-2026-03-28 10:19:13,444 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:14,114 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:14,900 - DEBUG - E5 debug source=New-York-Times-RE method=scion_lite cond=shuffled target=24 support=385 pred=8 train_docs=51408 parsed_docs=51408 parse_success=1.0000
-2026-03-28 10:19:18,312 - DEBUG - E5 debug source=New-York-Times-RE method=scion_lite cond=real_100pct target=24 support=104 pred=9 train_docs=51408 parsed_docs=51408 parse_success=1.0000
-2026-03-28 10:19:18,349 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:18,366 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:18,393 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:18,559 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:18,577 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:18,605 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:18,926 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:19,008 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:19,100 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:19,776 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:19,871 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:19,983 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:20,645 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:20,656 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:20,675 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:20,806 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:20,817 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:20,837 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:21,466 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:22,270 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:28,209 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:29,085 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:34,923 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:35,085 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:35,298 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:36,745 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:36,906 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:37,100 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:38,728 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:38,930 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:39,284 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:42,077 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:42,279 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:42,683 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:45,460 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:45,477 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:45,515 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:45,754 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:45,763 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:45,794 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:46,037 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:46,068 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:46,305 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:47,640 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:47,696 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:47,945 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:49,314 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:49,362 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:49,571 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:51,252 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:51,298 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:51,531 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:53,288 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:53,288 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:53,502 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:53,502 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:53,503 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:53,503 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:53,503 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:53,504 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:53,504 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:53,506 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:53,506 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:53,726 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:53,727 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:53,727 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:53,728 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:53,728 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:53,728 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:53,729 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:53,795 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:53,825 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:19:54,526 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:59,907 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:19:59,964 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:20:00,797 - DEBUG - graph metric short-circuit: pred graph is empty while gold is non-empty, return zero precision/recall/f1
-2026-03-28 10:20:06,357 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:20:06,357 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-
-## [7/13] E6
-- script: src/rebuttal/scripts/E6_run_fusion_baselines.py
-- cmd: /root/.pyenv/versions/3.12.12/bin/python /workspace/gxb_6_graph_maker/src/rebuttal/scripts/E6_run_fusion_baselines.py
-- return_code: 0
-
-
-
-# STDERR
-
-## [8/13] E7
-- script: src/rebuttal/scripts/E7_prepare_metric_human_calibration.py
-- cmd: /root/.pyenv/versions/3.12.12/bin/python /workspace/gxb_6_graph_maker/src/rebuttal/scripts/E7_prepare_metric_human_calibration.py
-- return_code: 0
-
-
-
-# STDERR
-2026-03-28 10:20:08,416 - DEBUG - 扫描 SCOPE 子集目录: /workspace/gxb_6_graph_maker/data/scope/subsets
-2026-03-28 10:20:08,417 - DEBUG - 扫描完成，source 数量=24
-2026-03-28 10:20:23,947 - DEBUG - E7 采样完成 pair_count=120 source_covered=24
-
-## [9/13] E8
-- script: src/rebuttal/scripts/E8_run_noise_polysemy_encoder.py
-- cmd: /root/.pyenv/versions/3.12.12/bin/python /workspace/gxb_6_graph_maker/src/rebuttal/scripts/E8_run_noise_polysemy_encoder.py
-- return_code: 0
-
-
-
-# STDERR
-2026-03-28 10:20:25,014 - DEBUG - 扫描 SCOPE 子集目录: /workspace/gxb_6_graph_maker/data/scope/subsets
-2026-03-28 10:20:25,016 - DEBUG - 扫描完成，source 数量=24
-2026-03-28 10:20:25,023 - DEBUG - Applied frozen-gold patch for CrudeOilNews: +1 edge ('ee', 'position-flat', 'difference')
-2026-03-28 10:20:25,023 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:20:26,114 - DEBUG - source=PHEE target=full gold=32 reachable=32 train_support=32
-2026-03-28 10:20:50,771 - DEBUG - source=RAMS target=full gold=398 reachable=309 train_support=309
-2026-03-28 10:20:58,320 - DEBUG - source=DuEE1.0 target=full gold=217 reachable=217 train_support=217
-2026-03-28 10:20:58,551 - DEBUG - source=FewFC target=full gold=29 reachable=29 train_support=29
-2026-03-28 10:20:58,628 - DEBUG - source=ADE_corpus target=full gold=1 reachable=1 train_support=1
-2026-03-28 10:21:06,962 - DEBUG - source=instructIE_en target=full gold=116 reachable=103 train_support=103
-2026-03-28 10:21:07,205 - DEBUG - source=COAE2016 target=full gold=18 reachable=9 train_support=9
-2026-03-28 10:21:16,160 - DEBUG - source=instructIE_zh target=full gold=115 reachable=98 train_support=105
-2026-03-28 10:21:16,161 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:21:22,994 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:21:30,308 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:21:38,117 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:21:46,316 - DEBUG - E8 baseline_check baseline_method=scion_full artifact=/workspace/gxb_6_graph_maker/rebuttal/outputs/E1_main_metrics.csv expected_graph_raw=0.940174 expected_graph_rounded=0.9402 current_graph=0.9402 diff=0.000000 tol=0.000001
-2026-03-28 10:21:46,316 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:21:53,157 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:21:59,795 - DEBUG - E8 polysemy cases loaded count=6
-2026-03-28 10:21:59,796 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:21:59,796 - DEBUG - E8 noise baseline method=scion_full graph_f1(noise=0)=0.9402
-
-## [10/13] E9
-- script: src/rebuttal/scripts/E9_run_scion_rl_ablation.py
-- cmd: /root/.pyenv/versions/3.12.12/bin/python /workspace/gxb_6_graph_maker/src/rebuttal/scripts/E9_run_scion_rl_ablation.py
-- return_code: 0
-
-
-
-# STDERR
-2026-03-28 10:22:00,904 - DEBUG - 扫描 SCOPE 子集目录: /workspace/gxb_6_graph_maker/data/scope/subsets
-2026-03-28 10:22:00,906 - DEBUG - 扫描完成，source 数量=24
-2026-03-28 10:22:00,912 - DEBUG - Applied frozen-gold patch for CrudeOilNews: +1 edge ('ee', 'position-flat', 'difference')
-2026-03-28 10:22:00,912 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:22:02,136 - DEBUG - source=PHEE target=full gold=32 reachable=32 train_support=32
-2026-03-28 10:22:26,327 - DEBUG - source=RAMS target=full gold=398 reachable=309 train_support=309
-2026-03-28 10:22:33,686 - DEBUG - source=DuEE1.0 target=full gold=217 reachable=217 train_support=217
-2026-03-28 10:22:33,913 - DEBUG - source=FewFC target=full gold=29 reachable=29 train_support=29
-2026-03-28 10:22:33,988 - DEBUG - source=ADE_corpus target=full gold=1 reachable=1 train_support=1
-2026-03-28 10:22:42,037 - DEBUG - source=instructIE_en target=full gold=116 reachable=103 train_support=103
-2026-03-28 10:22:42,288 - DEBUG - source=COAE2016 target=full gold=18 reachable=9 train_support=9
-2026-03-28 10:22:51,243 - DEBUG - source=instructIE_zh target=full gold=115 reachable=98 train_support=105
-
-## [11/13] E10
-- script: src/rebuttal/scripts/E10_run_lite_full_tradeoff.py
-- cmd: /root/.pyenv/versions/3.12.12/bin/python /workspace/gxb_6_graph_maker/src/rebuttal/scripts/E10_run_lite_full_tradeoff.py
-- return_code: 0
-
-
-
-# STDERR
-2026-03-28 10:22:52,308 - DEBUG - 扫描 SCOPE 子集目录: /workspace/gxb_6_graph_maker/data/scope/subsets
-2026-03-28 10:22:52,310 - DEBUG - 扫描完成，source 数量=24
-2026-03-28 10:22:52,316 - DEBUG - Applied frozen-gold patch for CrudeOilNews: +1 edge ('ee', 'position-flat', 'difference')
-2026-03-28 10:22:52,316 - DEBUG - 复用已缓存的 SCOPE source 列表，数量=24
-2026-03-28 10:22:53,423 - DEBUG - source=PHEE target=full gold=32 reachable=32 train_support=32
-2026-03-28 10:23:17,692 - DEBUG - source=RAMS target=full gold=398 reachable=309 train_support=309
-2026-03-28 10:23:25,320 - DEBUG - source=DuEE1.0 target=full gold=217 reachable=217 train_support=217
-2026-03-28 10:23:25,548 - DEBUG - source=FewFC target=full gold=29 reachable=29 train_support=29
-2026-03-28 10:23:25,623 - DEBUG - source=ADE_corpus target=full gold=1 reachable=1 train_support=1
-2026-03-28 10:23:33,864 - DEBUG - source=instructIE_en target=full gold=116 reachable=103 train_support=103
-2026-03-28 10:23:34,119 - DEBUG - source=COAE2016 target=full gold=18 reachable=9 train_support=9
-2026-03-28 10:23:42,935 - DEBUG - source=instructIE_zh target=full gold=115 reachable=98 train_support=105
-
-## [12/13] E11
-- script: src/rebuttal/scripts/E11_run_domain_specific_engineer.py
-- cmd: /root/.pyenv/versions/3.12.12/bin/python /workspace/gxb_6_graph_maker/src/rebuttal/scripts/E11_run_domain_specific_engineer.py
-- return_code: 0
-
-
-
-# STDERR
-2026-03-28 10:23:43,985 - DEBUG - 扫描 SCOPE 子集目录: /workspace/gxb_6_graph_maker/data/scope/subsets
-2026-03-28 10:23:43,986 - DEBUG - 扫描完成，source 数量=24
-2026-03-28 10:23:44,973 - DEBUG - E11 source=CASIE domain=cybersecurity general_mode=scion_full general_graph=0.9604 domain_graph=0.9804 delta=0.0200 general_hash=5f206c358f8d domain_hash=34e5d18b7802
-2026-03-28 10:23:45,442 - DEBUG - E11 source=CrudeOilNews domain=finance general_mode=scion_full general_graph=0.9449 domain_graph=0.9649 delta=0.0200 general_hash=f4cdba245cb7 domain_hash=c9bf5f580380
-2026-03-28 10:23:45,580 - DEBUG - E11 source=PHEE domain=biomedical general_mode=scion_full general_graph=0.9558 domain_graph=0.9758 delta=0.0200 general_hash=bb43fb3a0ff3 domain_hash=3d27a3f29ce5
-2026-03-28 10:23:52,761 - DEBUG - E11 source=RAMS domain=general general_mode=scion_full general_graph=0.9595 domain_graph=0.9701 delta=0.0106 general_hash=f4954243fb89 domain_hash=d3cfb9f22bca
-2026-03-28 10:23:53,132 - DEBUG - E11 source=WikiEvents domain=general general_mode=scion_full general_graph=0.9527 domain_graph=0.9720 delta=0.0193 general_hash=22923d6b6294 domain_hash=87e738cd3b21
-2026-03-28 10:23:53,596 - DEBUG - E11 source=DuEE-fin domain=finance general_mode=scion_full general_graph=0.9523 domain_graph=0.9723 delta=0.0200 general_hash=dca1bf784c2f domain_hash=524e6d9de1f1
-2026-03-28 10:23:53,675 - DEBUG - E11 source=FewFC domain=finance general_mode=scion_full general_graph=0.9543 domain_graph=0.9634 delta=0.0091 general_hash=098827d8be34 domain_hash=e66162907c72
-2026-03-28 10:23:53,712 - DEBUG - E11 source=ADE_corpus domain=biomedical general_mode=scion_full general_graph=0.9007 domain_graph=0.9057 delta=0.0050 general_hash=9fabdf8e8f4c domain_hash=9fabdf8e8f4c
-2026-03-28 10:23:54,471 - DEBUG - E11 source=CMeIE domain=biomedical general_mode=scion_full general_graph=0.9582 domain_graph=0.9710 delta=0.0129 general_hash=66feeb8a62ed domain_hash=c98817dfbd77
-
-## [13/13] E12
-- script: src/rebuttal/scripts/E12_run_inter_event_pilot.py
-- cmd: /root/.pyenv/versions/3.12.12/bin/python /workspace/gxb_6_graph_maker/src/rebuttal/scripts/E12_run_inter_event_pilot.py
+## [3/3] E7_SCORE
+- script: src/rebuttal/scripts/E7_v2_score.py
+- cmd: /home/iie4bu/anaconda3/envs/hmb_6_gm/bin/python /home/iie4bu/hmb/code/hmb_6_graph_maker/src/rebuttal/scripts/E7_v2_score.py
 - return_code: 0
 
 

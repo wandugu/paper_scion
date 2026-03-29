@@ -2,12 +2,12 @@
   "command": "python src/rebuttal/scripts/E4_run.py",
   "config": "src/rebuttal/configs/E4_downstream_eval.yaml",
   "seed": 42,
-  "timestamp_utc": "2026-03-28T10:17:58.338237+00:00",
-  "git_commit": "4bd79613ab2cda309bbf7554716eb0e6ab9c99d9",
+  "timestamp_utc": "2026-03-28T17:55:07.449087+00:00",
+  "git_commit": "b833dee36d3e96b7bfd97292095e0a526368a16c",
   "environment": {
-    "timestamp_utc": "2026-03-28T10:17:58.345221+00:00",
-    "python": "3.12.12 (main, Jan 12 2026, 17:43:59) [GCC 13.3.0]",
-    "platform": "Linux-6.12.47-x86_64-with-glibc2.39",
-    "git_commit": "4bd79613ab2cda309bbf7554716eb0e6ab9c99d9"
+    "timestamp_utc": "2026-03-28T17:55:07.452362+00:00",
+    "python": "3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:16:04) [GCC 11.2.0]",
+    "platform": "Linux-5.15.0-170-generic-x86_64-with-glibc2.35",
+    "git_commit": "b833dee36d3e96b7bfd97292095e0a526368a16c"
   }
 }

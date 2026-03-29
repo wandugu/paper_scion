@@ -21,5 +21,5 @@ CMeIE,re,zh,53,53,0,1.0,0.0,44,44,14312,strict_typed_target,strict_typed_only,Fa
 COAE2016,re,zh,9,9,9,1.0,1.0,9,9,793,strict_typed_target,strict_typed+placeholder_for_membership_only,True,False,9,9,1.0,1.0
 IPRE,re,zh,35,31,31,0.8857142857142857,0.8857142857142857,35,31,2685,strict_typed_target,strict_typed+placeholder_for_membership_only,True,False,31,31,0.8857142857142857,0.8857142857142857
 SKE2020,re,zh,49,49,0,1.0,0.0,48,48,2874,strict_typed_target,strict_typed_only,False,"placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)",49,49,1.0,1.0
-duIE_zh,re,zh,55,0,0,0.0,0.0,48,0,0,strict_typed_target,strict_typed_only,False,True,0,0,0.0,0.0
+duIE_zh,re,zh,55,55,0,1.0,0.0,48,48,153278,strict_typed_target,strict_typed_only,False,"placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)",55,55,1.0,1.0
 instructIE_zh,re,zh,115,98,0,0.8521739130434782,0.0,89,77,1558,strict_typed_target,strict_typed_only,False,"placeholder_minus_strict=-0.8522 (strict=0.8522, placeholder=0.0000)",103,98,0.8956521739130435,0.8521739130434782

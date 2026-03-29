@@ -1,4 +1,4 @@
 variant,literal_f1,fuzzy_f1,continuous_f1,graph_f1,subset_total_llm_calls,subset_total_tokens_in,subset_total_tokens_out,subset_total_time_seconds,parse_success,fallback_rate,retained_graph_ratio_vs_full,retained_continuous_ratio_vs_full,cost_ratio_vs_lite,evaluation_scope,is_proxy_result
-scion_lite,0.8264,0.9871,0.9526,0.9213,136,25133,5395,101,0.9737,0.0587,0.9763671047053837,0.9843959904929214,1.0,subset_8,False
-scion_full,0.8727,0.9952,0.9677,0.9436,203,37645,5453,140,0.9755,0.0562,1.0,1.0,1.497831536227271,subset_8,False
-scion_full_minus_struct,0.8519,0.9917,0.9612,0.9381,202,37513,5439,139,0.975,0.0568,0.9941712590080544,0.9932830422651648,1.492579477181395,subset_8,False
+scion_lite,0.8264,0.9871,0.9526,0.9209,136,25129,5394,101,0.9737,0.0587,0.9761500953996184,0.9843959904929214,1.0,subset_8,False
+scion_full,0.8727,0.9952,0.9677,0.9434,203,37640,5452,140,0.9755,0.0562,1.0,1.0,1.4978709857137171,subset_8,False
+scion_full_minus_struct,0.8519,0.9917,0.9612,0.9379,202,37508,5438,139,0.975,0.0568,0.9941700233199067,0.9932830422651648,1.4926180906522344,subset_8,False

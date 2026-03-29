@@ -1,2 +1,0 @@
-split,pair_count,human_accept_rate,annotator_agreement,notes
-all,240,0.0468,0.9362,"scored_from=rebuttal/outputs/E7_annotation_template_1.csv,rebuttal/outputs/E7_annotation_template_2.csv; adjudicated=235"

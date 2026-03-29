@@ -15,7 +15,6 @@
 - `E3_error_profile_counts.csv`
 - `E3_sourcewise_comparison.csv`
 - `E3_cache_diagnostics.csv`
-- `E3_metric_consistency_check.json`
 - `E3_manifest.json`
 
 ## key findings

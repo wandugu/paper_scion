@@ -28,33 +28,33 @@
   "stage_statistics": {
     "official_raw_score": {
       "source_count": 24,
-      "mean": 0.7527541666666666,
+      "mean": 0.7869625,
       "min": 0.0,
       "max": 0.9688
     },
     "deterministic_completion_score": {
       "source_count": 24,
-      "mean": 0.7696833333333334,
+      "mean": 0.8048500000000001,
       "min": 0.0,
       "max": 0.9474
     },
     "normalization_aligned_score": {
       "source_count": 24,
-      "mean": 0.7696833333333334,
+      "mean": 0.8048500000000001,
       "min": 0.0,
       "max": 0.9474
     },
     "final_gold_compatible_score": {
       "source_count": 24,
-      "mean": 0.7696833333333334,
+      "mean": 0.8048500000000001,
       "min": 0.0,
       "max": 0.9474
     }
   },
   "method_reference_means": {
-    "text2onto": 0.7892540807803877,
-    "llm_only": 0.8082642622340234,
-    "scion_lite": 0.8516994119578993
+    "text2onto": 0.8258086394491261,
+    "llm_only": 0.8459972699670312,
+    "scion_lite": 0.8909274351618262
   },
   "accidental_equality_detected": false,
   "stage_specific_artifact_assertion_passed": true,

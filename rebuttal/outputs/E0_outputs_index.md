@@ -74,13 +74,9 @@
 - `rebuttal/outputs/E9_training_stability.csv`: generated artifact
 
 ## E0
-- `rebuttal/outputs/E0_repo_map.md`: 仓库实现映射
-- `rebuttal/outputs/E0_method_mapping.json`: 方法名对齐
+- `rebuttal/outputs/E0_repo_map.md`: 仓库映射
+- `rebuttal/outputs/E0_method_mapping.json`: 方法映射
 - `rebuttal/outputs/E0_environment.json`: 环境信息
-- `rebuttal/outputs/E0_subset_definition.json`: 8源子集定义
-- `rebuttal/outputs/E0_common_run_policy.md`: 统一运行策略
-- `rebuttal/outputs/E0_deviations.md`: 偏差记录
-
 ## E1
 - `rebuttal/outputs/E1_main_metrics.csv`: 主指标
 - `rebuttal/outputs/E1_recall_breakdown.csv`: 召回分解
@@ -97,27 +93,38 @@
 - `rebuttal/outputs/E3_sourcewise_comparison.csv`: E3 output
 - `rebuttal/outputs/E3_cache_diagnostics.csv`: E3 output
 ## E4
-- `rebuttal/outputs/E4_downstream_main.csv`: 下游主结果
-
+- `rebuttal/outputs/E4_downstream_main.csv`: E4 output
+- `rebuttal/outputs/E4_metric_downstream_correlation.csv`: E4 output
+- `rebuttal/outputs/E4_sourcewise_downstream.csv`: E4 output
 ## E5
-- `rebuttal/outputs/E5_probe_results.csv`: 污染探针
-
+- `rebuttal/outputs/E5_probe_results.csv`: E5 output
+- `rebuttal/outputs/E5_popular_vs_niche.csv`: E5 output
+- `rebuttal/outputs/E5_source_probe.csv`: E5 output
+- `rebuttal/outputs/E5_source_diagnostics.csv`: E5 output
+- `rebuttal/outputs/E5_cache_sanity_check.csv`: E5 output
 ## E6
-- `rebuttal/outputs/E6_fusion_main.csv`: 融合基线比较
-
+- `rebuttal/outputs/E6_fusion_main.csv`: E6 output
+- `rebuttal/outputs/E6_mapping_type_distribution.csv`: E6 output
+- `rebuttal/outputs/E6_mapping_audit.csv`: E6 output
 ## E7
 - `rebuttal/outputs/E7_annotation_template.csv`: 双人标注合并结果
 - `rebuttal/outputs/E7_metric_human_agreement.csv`: 指标-人工一致性
 - `rebuttal/outputs/E7_annotation_summary.csv`: 标注摘要
 ## E9
-- `rebuttal/outputs/E9_sft_vs_rl.csv`: SFT vs RL
-
+- `rebuttal/outputs/E9_sft_vs_rl.csv`: E9 output
+- `rebuttal/outputs/E9_reward_ablation.csv`: E9 output
+- `rebuttal/outputs/E9_training_stability.csv`: E9 output
 ## E10
-- `rebuttal/outputs/E10_lite_full_main.csv`: lite/full主比较
-
+- `rebuttal/outputs/E10_lite_full_main.csv`: E10 output
+- `rebuttal/outputs/E10_train_fraction_curve.csv`: E10 output
+- `rebuttal/outputs/E10_subset_tradeoff.csv`: E10 output
 ## E8
-- `rebuttal/outputs/E8_noise_robustness.csv`: 噪声鲁棒性
-
+- `rebuttal/outputs/E8_noise_robustness.csv`: E8 output
+- `rebuttal/outputs/E8_clustering_encoder_sensitivity.csv`: E8 output
+- `rebuttal/outputs/E8_metric_encoder_sensitivity.csv`: E8 output
+- `rebuttal/outputs/E8_polysemy_cases.csv`: E8 output
+- `rebuttal/outputs/E8_source_encoder_sensitivity.csv`: E8 output
+- `rebuttal/outputs/E8_cache_sanity.csv`: E8 output
 ## E11
 - `rebuttal/outputs/E11_domain_specific_main.csv`: E11 output
 - `rebuttal/outputs/E11_source_domain_specific.csv`: E11 output

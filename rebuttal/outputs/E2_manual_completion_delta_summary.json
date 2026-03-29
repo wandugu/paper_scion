@@ -1,8 +1,8 @@
 {
-  "delta_raw_to_completion": 0.016929,
-  "improved_source_count": 17,
+  "delta_raw_to_completion": 0.017888,
+  "improved_source_count": 18,
   "declined_source_count": 5,
-  "unchanged_source_count": 2,
+  "unchanged_source_count": 1,
   "source_count": 24,
   "representation_gap_analysis_only": true,
   "interpretation_guardrail": "part_of_gap_from_representation_mismatch_missing_explicit_typing_implicit_role_structure",

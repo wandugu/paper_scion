@@ -1,2 +1,2 @@
 subset,lite_graph_f1,full_graph_f1,delta_graph_f1,lite_cost,full_cost,lite_fallback,full_fallback,evaluation_scope,is_proxy_result
-subset_8,0.9213,0.9436,0.022299999999999986,1.0,1.497831536227271,0.0587,0.0562,subset_8,False
+subset_8,0.9209,0.9434,0.022499999999999964,1.0,1.4978709857137171,0.0587,0.0562,subset_8,False

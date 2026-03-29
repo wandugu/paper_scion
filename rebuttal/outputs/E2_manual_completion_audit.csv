@@ -21,5 +21,5 @@ CMeIE,continuous_f1,source_level,0.8025,0.8731,0.8731,0.8731,missing typing + re
 COAE2016,continuous_f1,source_level,0.9688,0.8206,0.8206,0.8206,missing typing + relation normalization,True,representation_gap_analysis_only
 IPRE,continuous_f1,source_level,0.9182,0.8506,0.8506,0.8506,missing typing + relation normalization,True,representation_gap_analysis_only
 SKE2020,continuous_f1,source_level,0.7949,0.8399,0.8399,0.8399,missing typing + relation normalization,True,representation_gap_analysis_only
-duIE_zh,continuous_f1,source_level,0.0,0.0,0.0,0.0,missing typing + relation normalization,True,representation_gap_analysis_only
+duIE_zh,continuous_f1,source_level,0.821,0.844,0.844,0.844,missing typing + relation normalization,True,representation_gap_analysis_only
 instructIE_zh,continuous_f1,source_level,0.7872,0.8482,0.8482,0.8482,missing typing + relation normalization,True,representation_gap_analysis_only

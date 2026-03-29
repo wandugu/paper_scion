@@ -2,12 +2,12 @@
   "command": "python src/rebuttal/scripts/E9_run.py",
   "config": "src/rebuttal/configs/E9_scion_rl_ablation.yaml",
   "seed": 42,
-  "timestamp_utc": "2026-03-28T11:56:17.110703+00:00",
-  "git_commit": "79ee8185af983b0b07fd4d4ab4b181887406b2dd",
+  "timestamp_utc": "2026-03-28T18:00:09.342520+00:00",
+  "git_commit": "b833dee36d3e96b7bfd97292095e0a526368a16c",
   "environment": {
-    "timestamp_utc": "2026-03-28T11:56:17.117361+00:00",
-    "python": "3.12.12 (main, Jan 12 2026, 17:43:59) [GCC 13.3.0]",
-    "platform": "Linux-6.12.47-x86_64-with-glibc2.39",
-    "git_commit": "79ee8185af983b0b07fd4d4ab4b181887406b2dd"
+    "timestamp_utc": "2026-03-28T18:00:09.344403+00:00",
+    "python": "3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:16:04) [GCC 11.2.0]",
+    "platform": "Linux-5.15.0-170-generic-x86_64-with-glibc2.35",
+    "git_commit": "b833dee36d3e96b7bfd97292095e0a526368a16c"
   }
 }

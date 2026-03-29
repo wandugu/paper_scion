@@ -1,5 +1,4 @@
 # E7 v2 Pending
 
-- 已生成 v2 标注包与双人模板。
-- 当前尚无 fresh 双人标注 + adjudication 结果。
-- 在补齐双人标注并完成 adjudication 前，不产出可用于 rebuttal 的 calibration 数字。
+- 未检测到 fresh adjudicated labels，暂不生成 calibration summary。
+- 需要双人标注与 adjudication。

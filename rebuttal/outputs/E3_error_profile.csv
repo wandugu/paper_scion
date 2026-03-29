@@ -1,4 +1,4 @@
 method,target_variant,type_explosion_rate,alias_duplication_rate,unsupported_item_rate,avg_pred_item_count,avg_evidence_density
-llm_only,full_normalized_gold,0.1471,0.395,0.4151,49.58,0.7259
-eta,full_normalized_gold,0.134,0.3897,0.4069,51,0.737
-scion_lite,full_normalized_gold,0.0964,0.4147,0.3807,52.75,0.7409
+llm_only,full_normalized_gold,0.1466,0.3838,0.4057,51.46,0.7376
+eta,full_normalized_gold,0.1339,0.3795,0.3976,52.92,0.7478
+scion_lite,full_normalized_gold,0.0959,0.4041,0.3706,54.75,0.7534

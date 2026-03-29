@@ -1,5 +1,5 @@
 ontology_metric,pearson_r,spearman_rho,p_value,notes
-literal,0.5701,0.6414,<1e-12,"actual_test_split_source×method,n=144"
-fuzzy,0.1677,0.1438,0.0444,"actual_test_split_source×method,n=144"
-continuous,0.5045,0.5772,4.26e-11,"actual_test_split_source×method,n=144"
-graph,0.5197,0.5728,8.00e-12,"actual_test_split_source×method,n=144"
+literal,0.5731,0.6421,<1e-12,"actual_test_split_source×method,n=144"
+fuzzy,0.1699,0.1532,0.0416,"actual_test_split_source×method,n=144"
+continuous,0.5063,0.58,3.52e-11,"actual_test_split_source×method,n=144"
+graph,0.5198,0.5687,7.90e-12,"actual_test_split_source×method,n=144"

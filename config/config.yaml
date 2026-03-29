@@ -1505,7 +1505,7 @@ rebuttal:
     output_md: rebuttal/outputs/E0_run_all_output.md
     output_preview_char_limit: 20000
     subprocess_heartbeat_seconds: 20
-    selected_experiments: [E1, E7]
+    selected_experiments: [E1, E7, E7_SCORE]
     clean_old_outputs: true
     protect_output_inputs: true
     output_include_suffixes: [".csv", ".json", ".md"]

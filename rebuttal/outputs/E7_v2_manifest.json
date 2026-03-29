@@ -2,12 +2,12 @@
   "command": "python src/rebuttal/scripts/E7_v2_score.py",
   "config": "src/rebuttal/configs/E7_metric_human_calibration.yaml",
   "seed": 42,
-  "timestamp_utc": "2026-03-29T04:12:34.494036+00:00",
-  "git_commit": "f157561ec9e8ccb30a636b71bdcb1bea5b3bbbdc",
+  "timestamp_utc": "2026-03-29T05:07:11.946955+00:00",
+  "git_commit": "86fd53cab35a8e189cd9d666b83b4f31744d2b5c",
   "environment": {
-    "timestamp_utc": "2026-03-29T04:12:34.500820+00:00",
-    "python": "3.12.12 (main, Jan 12 2026, 17:43:59) [GCC 13.3.0]",
-    "platform": "Linux-6.12.47-x86_64-with-glibc2.39",
-    "git_commit": "f157561ec9e8ccb30a636b71bdcb1bea5b3bbbdc"
+    "timestamp_utc": "2026-03-29T05:07:11.949552+00:00",
+    "python": "3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:16:04) [GCC 11.2.0]",
+    "platform": "Linux-5.15.0-170-generic-x86_64-with-glibc2.35",
+    "git_commit": "86fd53cab35a8e189cd9d666b83b4f31744d2b5c"
   }
 }

@@ -1,4 +1,4 @@
 method,target_variant,type_explosion_count,alias_duplication_count,unsupported_item_count,total_candidate_or_pred_count
-llm_only,full_normalized_gold,175,470,494,1190
-eta,full_normalized_gold,164,477,498,1224
-scion_lite,full_normalized_gold,122,525,482,1266
+llm_only,full_normalized_gold,181,474,501,1235
+eta,full_normalized_gold,170,482,505,1270
+scion_lite,full_normalized_gold,126,531,487,1314
