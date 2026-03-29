@@ -1,25 +1,25 @@
-source,task_type,strict_reachable_ratio,placeholder_collapsed_reachable_ratio,strict_reachable_count,placeholder_collapsed_reachable_count,primary_mode_used,placeholder_used_for_matching_only
-CASIE,ee,1.0,1.0,48,48,strict_typed_target,False
-CrudeOilNews,ee,0.8737864077669902,0.8737864077669902,90,90,strict_typed_target,False
-PHEE,ee,1.0,1.0,32,32,strict_typed_target,False
-RAMS,ee,0.7763819095477387,0.7763819095477387,309,309,strict_typed_target,False
-WikiEvents,ee,0.4074074074074074,0.4074074074074074,33,33,strict_typed_target,False
-DuEE-fin,ee,1.0,1.0,91,91,strict_typed_target,False
-DuEE1.0,ee,1.0,1.0,217,217,strict_typed_target,False
-FewFC,ee,1.0,1.0,29,29,strict_typed_target,False
-ccf_law,ee,1.0,1.0,39,39,strict_typed_target,False
-ADE_corpus,re,1.0,1.0,1,1,strict_typed_target,True
-GIDS,re,0.0,1.0,0,4,strict_typed_target,True
-NYT11,re,1.0,1.0,12,12,strict_typed_target,True
-New-York-Times-RE,re,0.041666666666666664,1.0,1,24,strict_typed_target,True
-SciERC,re,1.0,1.0,7,7,strict_typed_target,True
-SemEval2010_task8,re,0.9090909090909091,0.9090909090909091,10,10,strict_typed_target,True
-conll04,re,1.0,1.0,5,5,strict_typed_target,False
-instructIE_en,re,0.8879310344827587,0.8879310344827587,103,103,strict_typed_target,False
-kbp37,re,1.0,1.0,18,18,strict_typed_target,True
-CMeIE,re,1.0,1.0,53,53,strict_typed_target,False
-COAE2016,re,1.0,1.0,9,9,strict_typed_target,True
-IPRE,re,0.8857142857142857,0.8857142857142857,31,31,strict_typed_target,True
-SKE2020,re,1.0,1.0,49,49,strict_typed_target,False
-duIE_zh,re,0.0,0.0,0,0,strict_typed_target,False
-instructIE_zh,re,0.8521739130434782,0.8521739130434782,98,98,strict_typed_target,False
+source,task_type,full_target_directed_edge_count,reachable_target_directed_edge_count_strict,reachable_target_directed_edge_count_placeholder_collapsed,reachable_target_directed_edge_ratio_strict,reachable_target_directed_edge_ratio_placeholder_collapsed,full_label_inventory_count,reachable_label_inventory_count,target_mode_used_for_metrics,reachability_membership_mode_used,placeholder_collapsed_mode_applied,reachability_warning
+CASIE,ee,48,48,48,1.0,1.0,26,26,strict_typed_target,strict_typed_only,False,False
+CrudeOilNews,ee,104,90,90,0.8653846153846154,0.8653846153846154,19,19,strict_typed_target,strict_typed_only,False,False
+PHEE,ee,32,32,32,1.0,1.0,16,16,strict_typed_target,strict_typed_only,False,False
+RAMS,ee,398,309,309,0.7763819095477387,0.7763819095477387,62,57,strict_typed_target,strict_typed_only,False,False
+WikiEvents,ee,81,33,33,0.4074074074074074,0.4074074074074074,43,21,strict_typed_target,strict_typed_only,False,False
+DuEE-fin,ee,91,91,91,1.0,1.0,60,60,strict_typed_target,strict_typed_only,False,False
+DuEE1.0,ee,217,217,217,1.0,1.0,121,121,strict_typed_target,strict_typed_only,False,False
+FewFC,ee,29,29,29,1.0,1.0,29,29,strict_typed_target,strict_typed_only,False,False
+ccf_law,ee,39,39,39,1.0,1.0,21,21,strict_typed_target,strict_typed_only,False,False
+ADE_corpus,re,1,1,1,1.0,1.0,1,1,strict_typed_target,strict_typed+placeholder_for_membership_only,True,False
+GIDS,re,4,0,4,0.0,1.0,4,4,strict_typed_target,strict_typed+placeholder_for_membership_only,True,"placeholder_minus_strict=1.0000 (strict=0.0000, placeholder=1.0000)"
+NYT11,re,12,12,12,1.0,1.0,12,12,strict_typed_target,strict_typed+placeholder_for_membership_only,True,False
+New-York-Times-RE,re,24,1,24,0.041666666666666664,1.0,24,24,strict_typed_target,strict_typed+placeholder_for_membership_only,True,"placeholder_minus_strict=0.9583 (strict=0.0417, placeholder=1.0000)"
+SciERC,re,7,7,7,1.0,1.0,7,7,strict_typed_target,strict_typed+placeholder_for_membership_only,True,False
+SemEval2010_task8,re,11,10,10,0.9090909090909091,0.9090909090909091,11,10,strict_typed_target,strict_typed+placeholder_for_membership_only,True,False
+conll04,re,5,5,0,1.0,0.0,5,5,strict_typed_target,strict_typed_only,False,"placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)"
+instructIE_en,re,116,103,0,0.8879310344827587,0.0,90,82,strict_typed_target,strict_typed_only,False,"placeholder_minus_strict=-0.8879 (strict=0.8879, placeholder=0.0000)"
+kbp37,re,18,18,18,1.0,1.0,18,18,strict_typed_target,strict_typed+placeholder_for_membership_only,True,False
+CMeIE,re,53,53,0,1.0,0.0,44,44,strict_typed_target,strict_typed_only,False,"placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)"
+COAE2016,re,9,9,9,1.0,1.0,9,9,strict_typed_target,strict_typed+placeholder_for_membership_only,True,False
+IPRE,re,35,31,31,0.8857142857142857,0.8857142857142857,35,31,strict_typed_target,strict_typed+placeholder_for_membership_only,True,False
+SKE2020,re,49,49,0,1.0,0.0,48,48,strict_typed_target,strict_typed_only,False,"placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)"
+duIE_zh,re,55,0,0,0.0,0.0,48,0,strict_typed_target,strict_typed_only,False,True
+instructIE_zh,re,115,98,0,0.8521739130434782,0.0,89,77,strict_typed_target,strict_typed_only,False,"placeholder_minus_strict=-0.8522 (strict=0.8522, placeholder=0.0000)"

@@ -4,9 +4,10 @@ import json
 import os
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Tuple
 
 from tqdm import tqdm
 
@@ -44,8 +45,8 @@ def _default_specs() -> List[ExperimentSpec]:
         ExperimentSpec("E4", "src/rebuttal/scripts/E4_run_downstream_eval.py", ["data/scope/subsets"], ["rebuttal/outputs/E4_downstream_main.csv"]),
         ExperimentSpec("E5", "src/rebuttal/scripts/E5_run_contamination_probes.py", ["data/scope/subsets"], ["rebuttal/outputs/E5_probe_results.csv"]),
         ExperimentSpec("E6", "src/rebuttal/scripts/E6_run_fusion_baselines.py", ["data/scope/subsets"], ["rebuttal/outputs/E6_fusion_main.csv"]),
-        ExperimentSpec("E7", "src/rebuttal/scripts/E7_prepare_metric_human_calibration.py", ["data/scope/subsets"], ["rebuttal/outputs/E7_annotation_packet.csv"]),
-        ExperimentSpec("E7_SCORE", "src/rebuttal/scripts/E7_score_metric_human_calibration.py", ["rebuttal/outputs/E7_annotation_template_1.csv", "rebuttal/outputs/E7_annotation_template_2.csv"], ["rebuttal/outputs/E7_metric_human_agreement.csv"]),
+        ExperimentSpec("E7", "src/rebuttal/scripts/E7_v2_prepare_annotation.py", ["data/scope/subsets"], ["rebuttal/outputs/E7_v2_annotation_packet.csv"]),
+        ExperimentSpec("E7_SCORE", "src/rebuttal/scripts/E7_v2_score.py", ["rebuttal/outputs/E7_v2_template_1.csv", "rebuttal/outputs/E7_v2_template_2.csv"], ["rebuttal/outputs/E7_v2_score_bin_calibration.csv"]),
         ExperimentSpec("E8", "src/rebuttal/scripts/E8_run_noise_polysemy_encoder.py", ["data/scope/subsets"], ["rebuttal/outputs/E8_noise_robustness.csv"]),
         ExperimentSpec("E9", "src/rebuttal/scripts/E9_run_scion_rl_ablation.py", ["data/scope/subsets"], ["rebuttal/outputs/E9_sft_vs_rl.csv"]),
         ExperimentSpec("E10", "src/rebuttal/scripts/E10_run_lite_full_tradeoff.py", ["data/scope/subsets"], ["rebuttal/outputs/E10_lite_full_main.csv"]),
@@ -98,6 +99,27 @@ def _collect_protected_output_inputs(specs: List[ExperimentSpec], out_dir: Path)
     return protected
 
 
+def _select_specs(specs: List[ExperimentSpec]) -> Tuple[List[ExperimentSpec], List[str]]:
+    cfg = _rebuttal_run_all_cfg()
+    selected_ids = cfg.get("selected_experiments")
+    if selected_ids is None:
+        return specs, []
+    if not isinstance(selected_ids, list):
+        LOGGER.warning("rebuttal.run_all.selected_experiments 不是 list，忽略该配置并执行全量实验。")
+        return specs, []
+    normalized = [str(x).strip() for x in selected_ids if str(x).strip()]
+    if not normalized:
+        return specs, []
+    id_set = set(normalized)
+    selected_specs = [s for s in specs if s.exp_id in id_set]
+    missing = [x for x in normalized if x not in {s.exp_id for s in specs}]
+    if missing:
+        LOGGER.warning("selected_experiments 中存在未知实验ID，将忽略: %s", missing)
+    if not selected_specs:
+        raise ValueError(f"selected_experiments={normalized} 未命中任何实验，请检查配置。")
+    return selected_specs, normalized
+
+
 def _read_text_preview(path: Path, max_chars: int) -> str:
     if not path.exists() or not path.is_file():
         return "(missing)"
@@ -137,6 +159,74 @@ def _collect_experiment_output_files(out_dir: Path, exp_id: str, include_suffixe
             continue
         files.append(item)
     return files
+
+
+def _render_output_section(
+    rec: dict,
+    project_root: Path,
+    out_dir: Path,
+    output_include_suffixes: List[str],
+    output_preview_char_limit: int,
+) -> str:
+    exp_id = rec["exp_id"]
+    lines = [f"## {exp_id}", ""]
+    listed_paths: List[Path] = []
+    for item in rec.get("expected_outputs", []):
+        p = Path(item.get("path", ""))
+        if p.exists() and p.suffix.lower() in set(output_include_suffixes):
+            listed_paths.append(p)
+    for rel in rec.get("new_output_files", []) or []:
+        p = out_dir / rel
+        if p.exists() and p.suffix.lower() in set(output_include_suffixes):
+            listed_paths.append(p)
+    if not listed_paths:
+        listed_paths = _collect_experiment_output_files(out_dir, exp_id, output_include_suffixes)
+    uniq_files = sorted(set(listed_paths))
+    if not uniq_files:
+        lines.extend(["(no output files found)", ""])
+        return "\n".join(lines).rstrip() + "\n"
+    for file_path in uniq_files:
+        rel = file_path.relative_to(project_root)
+        lines.extend(
+            [
+                f"### 源文件: `{rel.name}`",
+                "",
+                f"- 路径: `{rel}`",
+                f"- 文件大小(bytes): `{file_path.stat().st_size}`",
+                "",
+                "```text",
+                _read_text_preview(file_path, output_preview_char_limit).rstrip("\n"),
+                "```",
+                "",
+            ]
+        )
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def _parse_output_md_sections(text: str) -> Tuple[str, Dict[str, str], List[str]]:
+    lines = text.splitlines()
+    header_lines: List[str] = []
+    sections: Dict[str, str] = {}
+    order: List[str] = []
+    idx = 0
+    while idx < len(lines) and not lines[idx].startswith("## "):
+        header_lines.append(lines[idx])
+        idx += 1
+    while idx < len(lines):
+        line = lines[idx]
+        if not line.startswith("## "):
+            idx += 1
+            continue
+        exp_id = line[3:].strip()
+        start = idx
+        idx += 1
+        while idx < len(lines) and not lines[idx].startswith("## "):
+            idx += 1
+        block = "\n".join(lines[start:idx]).rstrip() + "\n"
+        sections[exp_id] = block
+        order.append(exp_id)
+    header = "\n".join(header_lines).rstrip() + "\n\n"
+    return header, sections, order
 
 
 def _clean_experiment_output_files(out_dir: Path, exp_id: str, include_suffixes: List[str]) -> List[Path]:
@@ -184,7 +274,9 @@ def _clean_experiment_output_files_safe(
 
 
 def run_all() -> int:
-    specs = _load_specs()
+    all_specs = _load_specs()
+    specs, selected_ids = _select_specs(all_specs)
+    is_partial_run = len(specs) < len(all_specs)
     out_dir = outputs_dir()
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -207,6 +299,7 @@ def run_all() -> int:
     project_root = resolve_project_path(".")
 
     LOGGER.debug("E0 run_all 启动，实验数量=%s, logs_dir=%s", len(specs), logs_dir)
+    LOGGER.debug("E0 run_all selected_experiments=%s partial_run=%s", selected_ids or "(all)", is_partial_run)
     LOGGER.debug("SCOPE 子集目录=%s，存在=%s", scope_subsets_dir(), scope_subsets_dir().exists())
     LOGGER.debug("E0 run_all 合并日志路径=%s", combined_log_path)
     protected_paths = _collect_protected_output_inputs(specs, out_dir) if protect_output_inputs else set()
@@ -224,6 +317,9 @@ def run_all() -> int:
     result_jsonl_path.write_text("", encoding="utf-8")
     combined_log_path.parent.mkdir(parents=True, exist_ok=True)
     combined_log_path.write_text("# E0 Run All Combined Log\n\n", encoding="utf-8")
+    heartbeat_seconds = int(run_all_cfg.get("subprocess_heartbeat_seconds", 20))
+    if heartbeat_seconds <= 0:
+        heartbeat_seconds = 20
 
     progress = tqdm(specs, desc="E0 run_all", unit="exp")
     for idx, spec in enumerate(progress, start=1):
@@ -248,8 +344,20 @@ def run_all() -> int:
             )
             LOGGER.debug("%s 预清理旧产物数量=%s", spec.exp_id, len(removed_files))
 
-        proc = subprocess.run(cmd, cwd=project_root, env=env, text=True, capture_output=True)
-        log_text = (proc.stdout or "") + "\n\n# STDERR\n" + (proc.stderr or "")
+        start_ts = time.time()
+        LOGGER.info("[%s/%s] 开始执行 %s -> %s", idx, len(specs), spec.exp_id, spec.script)
+        proc = subprocess.Popen(cmd, cwd=project_root, env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        last_heartbeat = start_ts
+        while proc.poll() is None:
+            now = time.time()
+            elapsed = int(now - start_ts)
+            progress.set_postfix({"exp": spec.exp_id, "status": "running", "elapsed_s": elapsed})
+            if now - last_heartbeat >= heartbeat_seconds:
+                LOGGER.debug("实验 %s 仍在运行中，elapsed=%ss", spec.exp_id, elapsed)
+                last_heartbeat = now
+            time.sleep(1)
+        stdout_text, stderr_text = proc.communicate()
+        log_text = (stdout_text or "") + "\n\n# STDERR\n" + (stderr_text or "")
         with combined_log_path.open("a", encoding="utf-8") as f:
             f.write(f"## [{idx}/{len(specs)}] {spec.exp_id}\n")
             f.write(f"- script: {spec.script}\n")
@@ -272,10 +380,11 @@ def run_all() -> int:
             "inputs": inputs_status,
             "expected_outputs": expected_status,
             "new_output_files": created,
-            "stdout_lines": len((proc.stdout or "").splitlines()),
-            "stderr_lines": len((proc.stderr or "").splitlines()),
+            "stdout_lines": len((stdout_text or "").splitlines()),
+            "stderr_lines": len((stderr_text or "").splitlines()),
+            "duration_seconds": round(time.time() - start_ts, 2),
             "log_file": str(combined_log_path.relative_to(project_root)),
-            "io_logged": bool(proc.stdout or proc.stderr),
+            "io_logged": bool(stdout_text or stderr_text),
             "llm_signal_detected": llm_signal["detected"],
             "llm_signal_keywords": llm_signal["keywords"],
         }
@@ -284,8 +393,17 @@ def run_all() -> int:
         with result_jsonl_path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
-        LOGGER.debug("%s 完成: rc=%s, new_files=%s, expected=%s", spec.exp_id, proc.returncode, created, expected_status)
-        progress.set_postfix({"exp": spec.exp_id, "rc": proc.returncode, "new": len(created)})
+        LOGGER.info(
+            "[%s/%s] %s 完成: rc=%s, duration=%.2fs, new_files=%s",
+            idx,
+            len(specs),
+            spec.exp_id,
+            proc.returncode,
+            float(record["duration_seconds"]),
+            len(created),
+        )
+        LOGGER.debug("%s expected=%s", spec.exp_id, expected_status)
+        progress.set_postfix({"exp": spec.exp_id, "rc": proc.returncode, "new": len(created), "sec": record["duration_seconds"]})
 
         if proc.returncode != 0:
             failed = True
@@ -299,7 +417,9 @@ def run_all() -> int:
     lines = [
         "# E0 Run All Summary",
         "",
-        f"- total_scripts: {len(specs)}",
+        f"- total_scripts: {len(all_specs)}",
+        f"- selected_scripts: {len(specs)}",
+        f"- selected_experiments: `{','.join(selected_ids) if selected_ids else 'ALL'}`",
         f"- executed_scripts: {len(records)}",
         f"- failed: {failed}",
         f"- outputs_dir: `{out_dir}`",
@@ -319,6 +439,7 @@ def run_all() -> int:
             f"- return_code: `{rec['return_code']}`",
             f"- io_logged(stdout/stderr): `{rec['io_logged']}`",
             f"- stdout_lines: `{rec['stdout_lines']}`, stderr_lines: `{rec['stderr_lines']}`",
+            f"- duration_seconds: `{rec['duration_seconds']}`",
             f"- log_file: `{rec['log_file']}`",
             f"- llm_signal_detected: `{rec['llm_signal_detected']}`",
             f"- llm_signal_keywords: `{', '.join(rec['llm_signal_keywords']) if rec['llm_signal_keywords'] else "(none)"}`",
@@ -339,39 +460,35 @@ def run_all() -> int:
     summary_md_path.write_text("\n".join(lines), encoding="utf-8")
     LOGGER.debug("汇总文件已写入: %s", summary_md_path)
 
-    output_lines = [
-        "# E0 Run All Output Details",
-        "",
-        f"- generated_by: `src/rebuttal/scripts/E0_run_all.py`",
-        f"- output_preview_char_limit: `{output_preview_char_limit}`",
-        "",
-    ]
-
+    default_header = "\n".join(
+        [
+            "# E0 Run All Output Details",
+            "",
+            f"- generated_by: `src/rebuttal/scripts/E0_run_all.py`",
+            f"- output_preview_char_limit: `{output_preview_char_limit}`",
+            "",
+        ]
+    ).rstrip() + "\n\n"
+    if output_md_path.exists():
+        existing_header, existing_sections, existing_order = _parse_output_md_sections(output_md_path.read_text(encoding="utf-8"))
+        header = existing_header or default_header
+    else:
+        existing_sections, existing_order = {}, []
+        header = default_header
     for rec in records:
         exp_id = rec["exp_id"]
         if exp_id == "E0":
             continue
-        output_lines.extend([f"## {exp_id}", ""])
-        exp_files = _collect_experiment_output_files(out_dir, exp_id, output_include_suffixes)
-        if not exp_files:
-            output_lines.append("(no output files found)")
-            output_lines.append("")
-            continue
-        for file_path in exp_files:
-            rel = file_path.relative_to(project_root)
-            output_lines.extend([
-                f"### 源文件: `{rel.name}`",
-                "",
-                f"- 路径: `{rel}`",
-                f"- 文件大小(bytes): `{file_path.stat().st_size}`",
-                "",
-                "```text",
-                _read_text_preview(file_path, output_preview_char_limit).rstrip("\n"),
-                "```",
-                "",
-            ])
-
-    output_md_path.write_text("\n".join(output_lines), encoding="utf-8")
+        existing_sections[exp_id] = _render_output_section(rec, project_root, out_dir, output_include_suffixes, output_preview_char_limit)
+        if exp_id not in existing_order:
+            existing_order.append(exp_id)
+    output_parts = [header.rstrip(), ""]
+    for exp_id in existing_order:
+        section_text = existing_sections.get(exp_id, "").rstrip()
+        if section_text:
+            output_parts.append(section_text)
+            output_parts.append("")
+    output_md_path.write_text("\n".join(output_parts).rstrip() + "\n", encoding="utf-8")
     LOGGER.debug("详细输出汇总已写入: %s", output_md_path)
 
     return 1 if failed else 0

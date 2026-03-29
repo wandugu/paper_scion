@@ -1,25 +1,25 @@
-source,task_type,language,full_gold_edge_count,reachable_gold_edge_count,reachable_ratio_used_for_target,reachable_mode_used_for_target,full_gold_edge_count_used_for_target,reachable_gold_edge_count_used_for_target,reachable_ratio_strict_typed,reachable_ratio_placeholder_collapsed_typed,reachable_ratio_label_only,reachable_ratio_typed_undirected,reachable_gold_edge_count_placeholder_collapsed_typed,reachable_gold_edge_count_label_only,reachable_gold_edge_count_typed_undirected,train_doc_count,placeholder_collapsed_mode_applied,reachability_warning
-CASIE,ee,en,48,48,1.0,strict_typed_target,48,48,1.0,1.0,1.0,1.0,48,26,48,4475,False,False
-CrudeOilNews,ee,en,104,90,0.8653846153846154,strict_typed_target,104,90,0.8737864077669902,0.8737864077669902,1.0,0.8737864077669902,90,19,90,207,False,False
-PHEE,ee,en,32,32,1.0,strict_typed_target,32,32,1.0,1.0,1.0,1.0,32,16,32,3903,False,False
-RAMS,ee,en,398,309,0.7763819095477387,strict_typed_target,398,309,0.7763819095477387,0.7763819095477387,0.9193548387096774,0.7763819095477387,309,57,309,468,False,False
-WikiEvents,ee,en,81,33,0.4074074074074074,strict_typed_target,81,33,0.4074074074074074,0.4074074074074074,0.4883720930232558,0.4074074074074074,33,21,33,94,False,False
-DuEE-fin,ee,zh,91,91,1.0,strict_typed_target,91,91,1.0,1.0,1.0,1.0,91,60,91,5276,False,False
-DuEE1.0,ee,zh,217,217,1.0,strict_typed_target,217,217,1.0,1.0,1.0,1.0,217,121,217,10456,False,False
-FewFC,ee,zh,29,29,1.0,strict_typed_target,29,29,1.0,1.0,1.0,1.0,29,29,29,2296,False,False
-ccf_law,ee,zh,39,39,1.0,strict_typed_target,39,39,1.0,1.0,1.0,1.0,39,21,39,728,False,False
-ADE_corpus,re,en,1,1,1.0,strict_typed_target,1,1,1.0,1.0,1.0,1.0,1,1,1,3371,True,False
-GIDS,re,en,4,0,0.0,strict_typed_target,4,0,0.0,1.0,1.0,0.0,4,4,0,11388,True,True
-NYT11,re,en,12,12,1.0,strict_typed_target,12,12,1.0,1.0,1.0,1.0,12,12,12,49063,True,False
-New-York-Times-RE,re,en,24,1,0.041666666666666664,strict_typed_target,24,1,0.041666666666666664,1.0,1.0,0.041666666666666664,24,24,1,51408,True,True
-SciERC,re,en,7,7,1.0,strict_typed_target,7,7,1.0,1.0,1.0,1.0,7,7,7,1536,True,False
-SemEval2010_task8,re,en,11,10,0.9090909090909091,strict_typed_target,11,10,0.9090909090909091,0.9090909090909091,0.9090909090909091,0.9090909090909091,10,10,10,8512,True,False
-conll04,re,en,5,5,1.0,strict_typed_target,5,5,1.0,1.0,1.0,1.0,5,5,5,1113,False,False
-instructIE_en,re,en,116,103,0.8879310344827587,strict_typed_target,116,103,0.8879310344827587,0.8879310344827587,0.9111111111111111,0.8879310344827587,103,82,103,1518,False,False
-kbp37,re,en,18,18,1.0,strict_typed_target,18,18,1.0,1.0,1.0,1.0,18,18,18,16714,True,False
-CMeIE,re,zh,53,53,1.0,strict_typed_target,53,53,1.0,1.0,1.0,1.0,53,44,53,14312,False,False
-COAE2016,re,zh,18,9,0.5,strict_typed_target,18,9,1.0,1.0,1.0,1.0,9,9,9,793,True,False
-IPRE,re,zh,70,31,0.44285714285714284,strict_typed_target,70,31,0.8857142857142857,0.8857142857142857,0.8857142857142857,0.8857142857142857,31,31,31,2685,True,False
-SKE2020,re,zh,49,49,1.0,strict_typed_target,49,49,1.0,1.0,1.0,1.0,49,48,49,2874,False,False
-duIE_zh,re,zh,55,0,0.0,strict_typed_target,55,0,0.0,0.0,0.0,0.0,0,0,0,0,False,True
-instructIE_zh,re,zh,115,98,0.8521739130434782,strict_typed_target,115,98,0.8521739130434782,0.8521739130434782,0.8651685393258427,0.8521739130434782,98,77,98,1558,False,False
+source,task_type,language,full_target_directed_edge_count,reachable_target_directed_edge_count_strict,reachable_target_directed_edge_count_placeholder_collapsed,reachable_target_directed_edge_ratio_strict,reachable_target_directed_edge_ratio_placeholder_collapsed,full_label_inventory_count,reachable_label_inventory_count,train_doc_count,target_mode_used_for_metrics,reachability_membership_mode_used,placeholder_collapsed_mode_applied,reachability_warning,reachable_target_directed_edge_count_label_only,reachable_target_directed_edge_count_typed_undirected,reachable_target_directed_edge_ratio_label_only,reachable_target_directed_edge_ratio_typed_undirected
+CASIE,ee,en,48,48,48,1.0,1.0,26,26,4475,strict_typed_target,strict_typed_only,False,False,48,48,1.0,1.0
+CrudeOilNews,ee,en,104,90,90,0.8653846153846154,0.8653846153846154,19,19,207,strict_typed_target,strict_typed_only,False,False,104,90,1.0,0.8653846153846154
+PHEE,ee,en,32,32,32,1.0,1.0,16,16,3903,strict_typed_target,strict_typed_only,False,False,32,32,1.0,1.0
+RAMS,ee,en,398,309,309,0.7763819095477387,0.7763819095477387,62,57,468,strict_typed_target,strict_typed_only,False,False,392,309,0.9849246231155779,0.7763819095477387
+WikiEvents,ee,en,81,33,33,0.4074074074074074,0.4074074074074074,43,21,94,strict_typed_target,strict_typed_only,False,False,51,33,0.6296296296296297,0.4074074074074074
+DuEE-fin,ee,zh,91,91,91,1.0,1.0,60,60,5276,strict_typed_target,strict_typed_only,False,False,91,91,1.0,1.0
+DuEE1.0,ee,zh,217,217,217,1.0,1.0,121,121,10456,strict_typed_target,strict_typed_only,False,False,217,217,1.0,1.0
+FewFC,ee,zh,29,29,29,1.0,1.0,29,29,2296,strict_typed_target,strict_typed_only,False,False,29,29,1.0,1.0
+ccf_law,ee,zh,39,39,39,1.0,1.0,21,21,728,strict_typed_target,strict_typed_only,False,False,39,39,1.0,1.0
+ADE_corpus,re,en,1,1,1,1.0,1.0,1,1,3371,strict_typed_target,strict_typed+placeholder_for_membership_only,True,False,1,1,1.0,1.0
+GIDS,re,en,4,0,4,0.0,1.0,4,4,11388,strict_typed_target,strict_typed+placeholder_for_membership_only,True,"placeholder_minus_strict=1.0000 (strict=0.0000, placeholder=1.0000)",4,0,1.0,0.0
+NYT11,re,en,12,12,12,1.0,1.0,12,12,49063,strict_typed_target,strict_typed+placeholder_for_membership_only,True,False,12,12,1.0,1.0
+New-York-Times-RE,re,en,24,1,24,0.041666666666666664,1.0,24,24,51408,strict_typed_target,strict_typed+placeholder_for_membership_only,True,"placeholder_minus_strict=0.9583 (strict=0.0417, placeholder=1.0000)",24,1,1.0,0.041666666666666664
+SciERC,re,en,7,7,7,1.0,1.0,7,7,1536,strict_typed_target,strict_typed+placeholder_for_membership_only,True,False,7,7,1.0,1.0
+SemEval2010_task8,re,en,11,10,10,0.9090909090909091,0.9090909090909091,11,10,8512,strict_typed_target,strict_typed+placeholder_for_membership_only,True,False,10,10,0.9090909090909091,0.9090909090909091
+conll04,re,en,5,5,0,1.0,0.0,5,5,1113,strict_typed_target,strict_typed_only,False,"placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)",5,5,1.0,1.0
+instructIE_en,re,en,116,103,0,0.8879310344827587,0.0,90,82,1518,strict_typed_target,strict_typed_only,False,"placeholder_minus_strict=-0.8879 (strict=0.8879, placeholder=0.0000)",108,103,0.9310344827586207,0.8879310344827587
+kbp37,re,en,18,18,18,1.0,1.0,18,18,16714,strict_typed_target,strict_typed+placeholder_for_membership_only,True,False,18,18,1.0,1.0
+CMeIE,re,zh,53,53,0,1.0,0.0,44,44,14312,strict_typed_target,strict_typed_only,False,"placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)",53,53,1.0,1.0
+COAE2016,re,zh,9,9,9,1.0,1.0,9,9,793,strict_typed_target,strict_typed+placeholder_for_membership_only,True,False,9,9,1.0,1.0
+IPRE,re,zh,35,31,31,0.8857142857142857,0.8857142857142857,35,31,2685,strict_typed_target,strict_typed+placeholder_for_membership_only,True,False,31,31,0.8857142857142857,0.8857142857142857
+SKE2020,re,zh,49,49,0,1.0,0.0,48,48,2874,strict_typed_target,strict_typed_only,False,"placeholder_minus_strict=-1.0000 (strict=1.0000, placeholder=0.0000)",49,49,1.0,1.0
+duIE_zh,re,zh,55,0,0,0.0,0.0,48,0,0,strict_typed_target,strict_typed_only,False,True,0,0,0.0,0.0
+instructIE_zh,re,zh,115,98,0,0.8521739130434782,0.0,89,77,1558,strict_typed_target,strict_typed_only,False,"placeholder_minus_strict=-0.8522 (strict=0.8522, placeholder=0.0000)",103,98,0.8956521739130435,0.8521739130434782

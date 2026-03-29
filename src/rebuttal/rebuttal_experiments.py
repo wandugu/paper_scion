@@ -309,11 +309,11 @@ def _placeholder_collapse_edge(edge: tuple) -> tuple:
     return ("re", default_type, edge[2], default_type)
 
 
-def _reachable_debug_for_source(source) -> dict:
+def _reachable_debug_for_source(source, gold_edges: Sequence[tuple] | None = None) -> dict:
     sample_size = int(_rebuttal_setting("e1_debug_sample_size", 20))
     strict_ignore_direction = bool(_rebuttal_setting("e1_ignore_direction_strict", False))
 
-    gold_raw = load_schema_edges(source.path / "schema.json")
+    gold_raw = list(gold_edges) if gold_edges is not None else load_schema_edges(source.path / "schema.json")
     prov_raw = load_train_reachable_edges(source)
 
     gold_strict = {_canonicalize_edge(e, typed=True, ignore_direction=strict_ignore_direction) for e in gold_raw}
@@ -631,31 +631,90 @@ def _source_metrics(target: str = "full", frozen_gold: Dict[str, dict] | None = 
 
 def _compute_reachable_target_for_source(source, gold_edges: Sequence[tuple]) -> dict:
     strict_ignore_direction = bool(_rebuttal_setting("e1_ignore_direction_strict", False))
-    canonical_gold_list = [_canonicalize_edge(e, typed=True, ignore_direction=strict_ignore_direction) for e in gold_edges]
-    canonical_gold_set = set(canonical_gold_list)
-    train_reachable = {_canonicalize_edge(e, typed=True, ignore_direction=strict_ignore_direction) for e in load_train_reachable_edges(source)}
-    strict_reachable = sorted(canonical_gold_set & train_reachable)
-    reachable_masked_full = [edge for edge, cano in zip(gold_edges, canonical_gold_list) if cano in train_reachable]
-    strict_reachable_from_full = sorted({_canonicalize_edge(e, typed=True, ignore_direction=strict_ignore_direction) for e in reachable_masked_full})
+    canonical_gold_set = {_canonicalize_edge(e, typed=True, ignore_direction=strict_ignore_direction) for e in gold_edges}
+    strict_gold_edges = sorted(canonical_gold_set)
+    train_edges_raw = load_train_reachable_edges(source)
+    train_reachable_strict = {_canonicalize_edge(e, typed=True, ignore_direction=strict_ignore_direction) for e in train_edges_raw}
+    train_reachable_label = {_canonicalize_edge(e, typed=False) for e in train_edges_raw}
+    train_reachable_undirected = {_canonicalize_edge(e, typed=True, ignore_direction=True) for e in train_edges_raw}
 
-    debug = _reachable_debug_for_source(source)
+    debug = _reachable_debug_for_source(source, gold_edges=gold_edges)
     use_placeholder = bool(_rebuttal_setting("e1_reachable_use_placeholder_auto", True)) and bool(debug["placeholder_mode_applied"])
-    used_mode = "strict_typed_target"
-    used_reachable_count = len(strict_reachable_from_full)
-    used_full_count = len(gold_edges)
+    if use_placeholder:
+        train_reachable_placeholder = {_placeholder_collapse_edge(e) for e in train_reachable_strict}
+    else:
+        train_reachable_placeholder = set(train_reachable_strict)
 
+    edge_membership = []
+    strict_reachable_edges = []
+    placeholder_reachable_edges = []
+    for edge in strict_gold_edges:
+        strict_hit = edge in train_reachable_strict
+        placeholder_hit = _placeholder_collapse_edge(edge) in train_reachable_placeholder
+        label_hit = _canonicalize_edge(edge, typed=False) in train_reachable_label
+        undirected_hit = _canonicalize_edge(edge, typed=True, ignore_direction=True) in train_reachable_undirected
+        if strict_hit:
+            strict_reachable_edges.append(edge)
+        if placeholder_hit:
+            placeholder_reachable_edges.append(edge)
+        edge_membership.append(
+            {
+                "edge": edge,
+                "reachable_strict_typed": strict_hit,
+                "reachable_placeholder_collapsed_typed": placeholder_hit,
+                "reachable_label_only": label_hit,
+                "reachable_typed_undirected": undirected_hit,
+            }
+        )
+
+    full_target_directed_edge_count = len(strict_gold_edges)
+    strict_reachable_count = len(strict_reachable_edges)
+    placeholder_reachable_count = len(placeholder_reachable_edges)
+    label_reachable_count = sum(1 for x in edge_membership if x["reachable_label_only"])
+    undirected_reachable_count = sum(1 for x in edge_membership if x["reachable_typed_undirected"])
+    full_label_inventory_count = len({_canonicalize_edge(e, typed=False) for e in strict_gold_edges})
+    reachable_label_inventory_count = len({_canonicalize_edge(e["edge"], typed=False) for e in edge_membership if e["reachable_label_only"]})
+
+    strict_ratio = safe_div(strict_reachable_count, full_target_directed_edge_count)
+    placeholder_ratio = safe_div(placeholder_reachable_count, full_target_directed_edge_count)
+    label_ratio = safe_div(label_reachable_count, full_target_directed_edge_count)
+    undirected_ratio = safe_div(undirected_reachable_count, full_target_directed_edge_count)
+    reachability_diff_warn_threshold = float(_rebuttal_setting("e1_reachability_mode_diff_warn_threshold", 0.2))
+    reachability_warning = ""
+    if abs(placeholder_ratio - strict_ratio) >= reachability_diff_warn_threshold:
+        reachability_warning = (
+            f"placeholder_minus_strict={placeholder_ratio - strict_ratio:.4f} "
+            f"(strict={strict_ratio:.4f}, placeholder={placeholder_ratio:.4f})"
+        )
+        LOGGER.warning("E1 reachability mode difference source=%s %s", source.source_id, reachability_warning)
+
+    used_mode = "strict_typed_target"
+    used_reachable_count = strict_reachable_count
+    used_full_count = full_target_directed_edge_count
     used_ratio = safe_div(used_reachable_count, used_full_count)
     return {
-        "strict_reachable_edges": strict_reachable,
-        "strict_reachable_edges_from_full_mask": strict_reachable_from_full,
-        "strict_gold_edges": sorted(canonical_gold_set),
-        "strict_gold_count": len(gold_edges),
-        "strict_reachable_count": len(strict_reachable),
+        "strict_reachable_edges": sorted(strict_reachable_edges),
+        "strict_reachable_edges_from_full_mask": sorted(strict_reachable_edges),
+        "placeholder_reachable_edges_from_full_mask": sorted(placeholder_reachable_edges),
+        "strict_gold_edges": strict_gold_edges,
+        "strict_gold_count": full_target_directed_edge_count,
+        "strict_reachable_count": strict_reachable_count,
+        "placeholder_reachable_count": placeholder_reachable_count,
+        "label_reachable_count": label_reachable_count,
+        "undirected_reachable_count": undirected_reachable_count,
+        "strict_ratio": strict_ratio,
+        "placeholder_collapsed_ratio": placeholder_ratio,
+        "label_ratio": label_ratio,
+        "undirected_ratio": undirected_ratio,
+        "full_label_inventory_count": full_label_inventory_count,
+        "reachable_label_inventory_count": reachable_label_inventory_count,
+        "edge_membership": edge_membership,
+        "reachability_warning": reachability_warning,
         "used_mode": used_mode,
         "used_full_count": used_full_count,
         "used_reachable_count": used_reachable_count,
         "used_ratio": used_ratio,
-        "reachable_masked_full_count": len(reachable_masked_full),
+        "reachable_masked_full_count": strict_reachable_count,
         "placeholder_used_for_matching": use_placeholder,
         "debug": debug,
     }
@@ -811,21 +870,21 @@ def run_e1(config_path: str):
     debug_rows = []
     for s in source_infos():
         gold = list(frozen_gold[s.source_id]["edges"])
-        dbg = _reachable_debug_for_source(s)
         reach_info = _compute_reachable_target_for_source(s, gold)
+        dbg = reach_info["debug"]
         canonical_gold = {_canonicalize_edge(e, typed=True, ignore_direction=False) for e in gold}
         reach = sorted(reach_info["strict_reachable_edges"])
         train_docs = _load_split_doc_edges(s, "train")
-        if s.task_type == "re" and max(len(reach), int(dbg["placeholder_reachable_count"])) > 0:
+        if s.task_type == "re" and max(len(reach), int(reach_info["placeholder_reachable_count"])) > 0:
             re_all_zero = False
         ratio = reach_info["used_ratio"]
         reachable_count_for_target = int(reach_info["used_reachable_count"])
         full_count_for_target = int(reach_info["used_full_count"])
         mode_used_for_target = str(reach_info["used_mode"])
-        if full_count_for_target != len(gold):
+        if full_count_for_target != len(canonical_gold):
             raise AssertionError(
                 f"E1 invariant violated: source={s.source_id} full_gold_edge_count_used_for_target={full_count_for_target} "
-                f"!= full_gold_edge_count={len(gold)}"
+                f"!= canonical_full_gold_edge_count={len(canonical_gold)}"
             )
         if set(reach_info["strict_reachable_edges_from_full_mask"]) - set(canonical_gold):
             raise AssertionError(f"E1 invariant violated: source={s.source_id} reachable target contains out-of-full edges")
@@ -834,6 +893,24 @@ def run_e1(config_path: str):
                 f"E1 invariant violated: source={s.source_id} reachable_gold_edge_count_used_for_target={reachable_count_for_target} "
                 f"> full_gold_edge_count_used_for_target={full_count_for_target}"
             )
+        for key in ["strict_reachable_count", "placeholder_reachable_count", "label_reachable_count", "undirected_reachable_count"]:
+            count_val = int(reach_info[key])
+            if count_val < 0 or count_val > full_count_for_target:
+                raise AssertionError(
+                    f"E1 invariant violated: source={s.source_id} {key}={count_val} outside [0,{full_count_for_target}]"
+                )
+        ratio_checks = {
+            "strict_ratio": (reach_info["strict_reachable_count"], reach_info["strict_ratio"]),
+            "placeholder_collapsed_ratio": (reach_info["placeholder_reachable_count"], reach_info["placeholder_collapsed_ratio"]),
+            "label_ratio": (reach_info["label_reachable_count"], reach_info["label_ratio"]),
+            "undirected_ratio": (reach_info["undirected_reachable_count"], reach_info["undirected_ratio"]),
+        }
+        for ratio_name, (count_val, ratio_val) in ratio_checks.items():
+            expected = safe_div(int(count_val), full_count_for_target)
+            if abs(float(ratio_val) - float(expected)) > 1e-12:
+                raise AssertionError(
+                    f"E1 invariant violated: source={s.source_id} {ratio_name}={ratio_val} != count/denominator={expected}"
+                )
         if train_docs and gold and len(reach) == 0:
             LOGGER.warning("E1 reachability_sanity source=%s train_doc_count=%s full_gold_edge_count=%s reachable_gold_edge_count=0", s.source_id, len(train_docs), len(gold))
         if s.source_id in suspicious_sources:
@@ -859,22 +936,22 @@ def run_e1(config_path: str):
             "source": s.source_id,
             "task_type": s.task_type,
             "language": s.language,
-            "full_gold_edge_count": len(gold),
-            "reachable_gold_edge_count": reachable_count_for_target,
-            "reachable_ratio_used_for_target": ratio,
-            "reachable_mode_used_for_target": mode_used_for_target,
-            "full_gold_edge_count_used_for_target": full_count_for_target,
-            "reachable_gold_edge_count_used_for_target": reachable_count_for_target,
-            "reachable_ratio_strict_typed": dbg["strict_ratio"],
-            "reachable_ratio_placeholder_collapsed_typed": dbg["placeholder_collapsed_ratio"],
-            "reachable_ratio_label_only": dbg["label_ratio"],
-            "reachable_ratio_typed_undirected": dbg["undirected_ratio"],
-            "reachable_gold_edge_count_placeholder_collapsed_typed": dbg["placeholder_reachable_count"],
-            "reachable_gold_edge_count_label_only": dbg["label_reachable_count"],
-            "reachable_gold_edge_count_typed_undirected": dbg["undirected_reachable_count"],
+            "full_target_directed_edge_count": full_count_for_target,
+            "reachable_target_directed_edge_count_strict": int(reach_info["strict_reachable_count"]),
+            "reachable_target_directed_edge_count_placeholder_collapsed": int(reach_info["placeholder_reachable_count"]),
+            "reachable_target_directed_edge_ratio_strict": float(reach_info["strict_ratio"]),
+            "reachable_target_directed_edge_ratio_placeholder_collapsed": float(reach_info["placeholder_collapsed_ratio"]),
+            "full_label_inventory_count": int(reach_info["full_label_inventory_count"]),
+            "reachable_label_inventory_count": int(reach_info["reachable_label_inventory_count"]),
             "train_doc_count": len(train_docs),
+            "target_mode_used_for_metrics": mode_used_for_target,
+            "reachability_membership_mode_used": "strict_typed+placeholder_for_membership_only" if bool(reach_info["placeholder_used_for_matching"]) else "strict_typed_only",
             "placeholder_collapsed_mode_applied": bool(reach_info["placeholder_used_for_matching"]),
-            "reachability_warning": ratio < reach_ratio_warn_threshold and len(gold) > 0,
+            "reachability_warning": reach_info["reachability_warning"] or (ratio < reach_ratio_warn_threshold and len(gold) > 0),
+            "reachable_target_directed_edge_count_label_only": int(reach_info["label_reachable_count"]),
+            "reachable_target_directed_edge_count_typed_undirected": int(reach_info["undirected_reachable_count"]),
+            "reachable_target_directed_edge_ratio_label_only": float(reach_info["label_ratio"]),
+            "reachable_target_directed_edge_ratio_typed_undirected": float(reach_info["undirected_ratio"]),
         })
     if re_all_zero:
         raise ValueError("E1 reachability check failed: all RE sources have zero reachable edges.")
@@ -948,22 +1025,22 @@ def run_e1(config_path: str):
             "source",
             "task_type",
             "language",
-            "full_gold_edge_count",
-            "reachable_gold_edge_count",
-            "reachable_ratio_used_for_target",
-            "reachable_mode_used_for_target",
-            "full_gold_edge_count_used_for_target",
-            "reachable_gold_edge_count_used_for_target",
-            "reachable_ratio_strict_typed",
-            "reachable_ratio_placeholder_collapsed_typed",
-            "reachable_ratio_label_only",
-            "reachable_ratio_typed_undirected",
-            "reachable_gold_edge_count_placeholder_collapsed_typed",
-            "reachable_gold_edge_count_label_only",
-            "reachable_gold_edge_count_typed_undirected",
+            "full_target_directed_edge_count",
+            "reachable_target_directed_edge_count_strict",
+            "reachable_target_directed_edge_count_placeholder_collapsed",
+            "reachable_target_directed_edge_ratio_strict",
+            "reachable_target_directed_edge_ratio_placeholder_collapsed",
+            "full_label_inventory_count",
+            "reachable_label_inventory_count",
             "train_doc_count",
+            "target_mode_used_for_metrics",
+            "reachability_membership_mode_used",
             "placeholder_collapsed_mode_applied",
             "reachability_warning",
+            "reachable_target_directed_edge_count_label_only",
+            "reachable_target_directed_edge_count_typed_undirected",
+            "reachable_target_directed_edge_ratio_label_only",
+            "reachable_target_directed_edge_ratio_typed_undirected",
         ],
     )
     write_csv(OUT / "E1_reachability_debug_samples.csv", debug_rows, ["source", "sample_type", "edge_text"])
@@ -1001,12 +1078,17 @@ def run_e1(config_path: str):
         {
             "source": row["source"],
             "task_type": row["task_type"],
-            "strict_reachable_ratio": row["reachable_ratio_strict_typed"],
-            "placeholder_collapsed_reachable_ratio": row["reachable_ratio_placeholder_collapsed_typed"],
-            "strict_reachable_count": row["reachable_gold_edge_count_used_for_target"],
-            "placeholder_collapsed_reachable_count": row["reachable_gold_edge_count_placeholder_collapsed_typed"],
-            "primary_mode_used": row["reachable_mode_used_for_target"],
-            "placeholder_used_for_matching_only": bool(row["placeholder_collapsed_mode_applied"]),
+            "full_target_directed_edge_count": row["full_target_directed_edge_count"],
+            "reachable_target_directed_edge_count_strict": row["reachable_target_directed_edge_count_strict"],
+            "reachable_target_directed_edge_count_placeholder_collapsed": row["reachable_target_directed_edge_count_placeholder_collapsed"],
+            "reachable_target_directed_edge_ratio_strict": row["reachable_target_directed_edge_ratio_strict"],
+            "reachable_target_directed_edge_ratio_placeholder_collapsed": row["reachable_target_directed_edge_ratio_placeholder_collapsed"],
+            "full_label_inventory_count": row["full_label_inventory_count"],
+            "reachable_label_inventory_count": row["reachable_label_inventory_count"],
+            "target_mode_used_for_metrics": row["target_mode_used_for_metrics"],
+            "reachability_membership_mode_used": row["reachability_membership_mode_used"],
+            "placeholder_collapsed_mode_applied": bool(row["placeholder_collapsed_mode_applied"]),
+            "reachability_warning": row["reachability_warning"],
         }
         for row in rr
     ]
@@ -1016,12 +1098,17 @@ def run_e1(config_path: str):
         [
             "source",
             "task_type",
-            "strict_reachable_ratio",
-            "placeholder_collapsed_reachable_ratio",
-            "strict_reachable_count",
-            "placeholder_collapsed_reachable_count",
-            "primary_mode_used",
-            "placeholder_used_for_matching_only",
+            "full_target_directed_edge_count",
+            "reachable_target_directed_edge_count_strict",
+            "reachable_target_directed_edge_count_placeholder_collapsed",
+            "reachable_target_directed_edge_ratio_strict",
+            "reachable_target_directed_edge_ratio_placeholder_collapsed",
+            "full_label_inventory_count",
+            "reachable_label_inventory_count",
+            "target_mode_used_for_metrics",
+            "reachability_membership_mode_used",
+            "placeholder_collapsed_mode_applied",
+            "reachability_warning",
         ],
     )
     ensure_manifest(OUT / "E1_manifest.json", "python src/rebuttal/scripts/E1_run_reachable_eval.py", config_path, default_seed())

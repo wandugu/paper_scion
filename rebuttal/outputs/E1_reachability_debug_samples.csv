@@ -9,6 +9,7 @@ CrudeOilNews,unmatched_gold_strict,EE[movement flat]-role->supplier consumer
 CrudeOilNews,unmatched_gold_strict,EE[movement flat]-role->type
 CrudeOilNews,unmatched_gold_strict,EE[movement up gain]-role->forecast
 CrudeOilNews,unmatched_gold_strict,EE[oversupply]-role->attribute
+CrudeOilNews,unmatched_gold_strict,EE[position flat]-role->difference
 CrudeOilNews,unmatched_gold_strict,EE[shortage]-role->final value
 CrudeOilNews,unmatched_gold_strict,EE[shortage]-role->forecast
 CrudeOilNews,unmatched_gold_strict,EE[shortage]-role->reference point time
