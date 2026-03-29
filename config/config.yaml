@@ -1404,6 +1404,7 @@ rebuttal:
       scion_rl: { keep: 0.90, support: 0.40, noise: 0.05 }
     e5_popular_sources: [GIDS, NYT11, SemEval2010_task8, WikiEvents, RAMS, CMeIE, duIE_zh, conll04]
     e1_reachability_warn_threshold: 0.2
+    e1_reachability_mode_diff_warn_threshold: 0.2
     e1_audit_sources: [GIDS, New-York-Times-RE, WikiEvents, IPRE, COAE2016]
     e1_debug_sample_size: 20
     e1_placeholder_types: ["", entity, ent, object, obj, misc, thing]
@@ -1503,6 +1504,8 @@ rebuttal:
     summary_md: rebuttal/outputs/E0_run_all_summary.md
     output_md: rebuttal/outputs/E0_run_all_output.md
     output_preview_char_limit: 20000
+    subprocess_heartbeat_seconds: 20
+    selected_experiments: [E1, E7]
     clean_old_outputs: true
     protect_output_inputs: true
     output_include_suffixes: [".csv", ".json", ".md"]
@@ -1550,18 +1553,18 @@ rebuttal:
         expected_outputs:
           - rebuttal/outputs/E6_fusion_main.csv
       - id: E7
-        script: src/rebuttal/scripts/E7_prepare_metric_human_calibration.py
+        script: src/rebuttal/scripts/E7_v2_prepare_annotation.py
         inputs:
           - data/scope/subsets
         expected_outputs:
-          - rebuttal/outputs/E7_annotation_packet.csv
+          - rebuttal/outputs/E7_v2_annotation_packet.csv
       - id: E7_SCORE
-        script: src/rebuttal/scripts/E7_score_metric_human_calibration.py
+        script: src/rebuttal/scripts/E7_v2_score.py
         inputs:
-          - rebuttal/outputs/E7_annotation_template_1.csv
-          - rebuttal/outputs/E7_annotation_template_2.csv
+          - rebuttal/outputs/E7_v2_template_1.csv
+          - rebuttal/outputs/E7_v2_template_2.csv
         expected_outputs:
-          - rebuttal/outputs/E7_metric_human_agreement.csv
+          - rebuttal/outputs/E7_v2_score_bin_calibration.csv
       - id: E8
         script: src/rebuttal/scripts/E8_run_noise_polysemy_encoder.py
         inputs:
