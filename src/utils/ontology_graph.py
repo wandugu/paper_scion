@@ -1,4 +1,4 @@
-"""本体结构构建与加载的可复用工具。"""
+"""Reusable schema loading and graph-conversion utilities."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import json
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Sequence, Set
+from typing import Any, Dict, Iterable, List, Sequence, Set
 
 from .logger import get_ot_logger
 
@@ -21,10 +21,163 @@ def normalize_label(label: str | None) -> str:
     return str(label).strip().lower()
 
 
+def _first_text(item: Dict[str, Any], keys: Iterable[str]) -> str:
+    for key in keys:
+        value = item.get(key)
+        text = str(value or "").strip()
+        if text:
+            return text
+    return ""
+
+
+def _dedupe_dicts_by_key(items: Sequence[Dict[str, Any]], key: str) -> List[Dict[str, Any]]:
+    seen: Set[str] = set()
+    deduped: List[Dict[str, Any]] = []
+    for item in items:
+        value = str(item.get(key) or "").strip()
+        normalized = normalize_label(value)
+        if not normalized or normalized in seen:
+            continue
+        seen.add(normalized)
+        deduped.append(item)
+    return deduped
+
+
+def _argument_from_role(role: str, description: str = "", required: bool = False) -> Dict[str, Any] | None:
+    role = str(role or "").strip()
+    if not role:
+        return None
+    return {"role": role, "description": str(description or "").strip(), "required": bool(required)}
+
+
+def _argument_from_item(item: Any) -> Dict[str, Any] | None:
+    if isinstance(item, str):
+        return _argument_from_role(item)
+    if not isinstance(item, dict):
+        return None
+    role = _first_text(item, ["role", "arg_role", "argument_role", "role_type", "name"])
+    return _argument_from_role(
+        role,
+        description=str(item.get("description") or "").strip(),
+        required=bool(item.get("required", False)),
+    )
+
+
+def _event_arguments(item: Dict[str, Any]) -> List[Dict[str, Any]]:
+    arguments: List[Dict[str, Any]] = []
+
+    raw_arguments = item.get("arguments") or item.get("args") or []
+    if isinstance(raw_arguments, list):
+        for arg in raw_arguments:
+            payload = _argument_from_item(arg)
+            if payload:
+                arguments.append(payload)
+
+    raw_roles = item.get("roles", [])
+    if isinstance(raw_roles, list):
+        for role in raw_roles:
+            payload = _argument_from_item(role)
+            if payload:
+                arguments.append(payload)
+    elif raw_roles:
+        payload = _argument_from_role(str(raw_roles))
+        if payload:
+            arguments.append(payload)
+
+    direct_role = _first_text(item, ["role", "arg_role", "argument_role", "role_type"])
+    payload = _argument_from_role(direct_role)
+    if payload:
+        arguments.append(payload)
+
+    return _dedupe_dicts_by_key(arguments, "role")
+
+
+def _trigger_words(item: Dict[str, Any]) -> List[str]:
+    raw_triggers = item.get("trigger_words") or item.get("triggers") or []
+    if isinstance(raw_triggers, str):
+        raw_triggers = [raw_triggers]
+    if not isinstance(raw_triggers, list):
+        return []
+    seen: Set[str] = set()
+    triggers: List[str] = []
+    for word in raw_triggers:
+        text = str(word or "").strip()
+        normalized = normalize_label(text)
+        if text and normalized not in seen:
+            seen.add(normalized)
+            triggers.append(text)
+    return triggers
+
+
+def _merge_event(target: Dict[str, Dict[str, Any]], event: Dict[str, Any]) -> None:
+    event_type = str(event.get("event_type") or "").strip()
+    if not event_type:
+        return
+    if event_type not in target:
+        target[event_type] = {
+            "event_type": event_type,
+            "description": str(event.get("description") or "").strip(),
+            "trigger_words": [],
+            "arguments": [],
+        }
+    current = target[event_type]
+    if not current.get("description") and event.get("description"):
+        current["description"] = str(event.get("description") or "").strip()
+
+    current["trigger_words"] = _merge_strings(current.get("trigger_words", []), event.get("trigger_words", []))
+    current["arguments"] = _dedupe_dicts_by_key(
+        list(current.get("arguments", [])) + list(event.get("arguments", [])),
+        "role",
+    )
+
+
+def _merge_strings(primary: Sequence[str], secondary: Sequence[str]) -> List[str]:
+    seen: Set[str] = set()
+    merged: List[str] = []
+    for value in list(primary) + list(secondary):
+        text = str(value or "").strip()
+        normalized = normalize_label(text)
+        if text and normalized not in seen:
+            seen.add(normalized)
+            merged.append(text)
+    return merged
+
+
+def _relationship_from_item(item: Dict[str, Any]) -> Dict[str, str] | None:
+    if str(item.get("edge_kind") or "").strip().lower() == "ee":
+        return None
+    head = _first_text(item, ["head_entity", "head_type", "head", "source_entity", "src"])
+    tail = _first_text(item, ["tail_entity", "tail_type", "tail", "target_entity", "tgt"])
+    rel_type = _first_text(item, ["rel_type", "relation", "relationship", "predicate", "type"])
+    if not (head and tail and rel_type):
+        return None
+    return {
+        "head_entity": head,
+        "tail_entity": tail,
+        "rel_type": rel_type,
+        "description": str(item.get("description") or "").strip(),
+    }
+
+
+def _event_from_item(item: Dict[str, Any]) -> Dict[str, Any] | None:
+    edge_kind = str(item.get("edge_kind") or "").strip().lower()
+    if edge_kind and edge_kind != "ee" and "event_type" not in item:
+        return None
+    event_type = _first_text(item, ["event_type", "event", "type"])
+    if not event_type:
+        return None
+    return {
+        "event_type": event_type,
+        "description": str(item.get("description") or "").strip(),
+        "trigger_words": _trigger_words(item),
+        "arguments": _event_arguments(item),
+    }
+
+
 def _schema_from_sequence(items: Sequence[Any]) -> Dict[str, Any]:
     entities: Set[str] = set()
     relationships: List[Dict[str, str]] = []
-    events: List[Dict[str, Any]] = []
+    events_by_type: Dict[str, Dict[str, Any]] = {}
 
     for idx, item in enumerate(items):
         if isinstance(item, str):
@@ -33,70 +186,38 @@ def _schema_from_sequence(items: Sequence[Any]) -> Dict[str, Any]:
                 entities.add(label)
             continue
         if not isinstance(item, dict):
-            LOGGER.debug("跳过非字典/字符串的 schema 条目: index=%s type=%s", idx, type(item).__name__)
+            LOGGER.debug("Skip unsupported schema item: index=%s type=%s", idx, type(item).__name__)
             continue
 
-        if {"head_entity", "tail_entity", "rel_type"}.issubset(item.keys()):
-            head = str(item.get("head_entity") or "").strip()
-            tail = str(item.get("tail_entity") or "").strip()
-            rel_type = str(item.get("rel_type") or "").strip()
-            if not (head and tail and rel_type):
-                LOGGER.debug("跳过不完整关系条目: index=%s item=%s", idx, item)
-                continue
-            entities.update([head, tail])
-            relationships.append({"head_entity": head, "rel_type": rel_type, "tail_entity": tail})
+        relationship = _relationship_from_item(item)
+        if relationship:
+            entities.update([relationship["head_entity"], relationship["tail_entity"]])
+            relationships.append(relationship)
             continue
 
-        if "event_type" in item:
-            event_type = str(item.get("event_type") or "").strip()
-            if not event_type:
-                LOGGER.debug("跳过空 event_type 条目: index=%s item=%s", idx, item)
-                continue
-            description = str(item.get("description") or "").strip()
-            trigger_words = [str(word).strip() for word in item.get("trigger_words", []) if str(word).strip()]
-            arguments: List[Dict[str, Any]] = []
-            for arg in item.get("arguments", []) or []:
-                if not isinstance(arg, dict):
-                    continue
-                role = str(arg.get("role") or "").strip()
-                if not role:
-                    continue
-                arguments.append(
-                    {
-                        "role": role,
-                        "description": str(arg.get("description") or "").strip(),
-                        "required": bool(arg.get("required", False)),
-                    }
-                )
-            events.append(
-                {
-                    "event_type": event_type,
-                    "description": description,
-                    "trigger_words": trigger_words,
-                    "arguments": arguments,
-                }
-            )
+        event = _event_from_item(item)
+        if event:
+            _merge_event(events_by_type, event)
             continue
 
-        if "entity" in item:
-            label = str(item.get("entity") or "").strip()
-            if label:
-                entities.add(label)
-                continue
+        label = _first_text(item, ["entity", "label", "name"])
+        if label:
+            entities.add(label)
+            continue
 
-        LOGGER.debug("未识别的 schema 条目: index=%s keys=%s", idx, sorted(item.keys()))
+        LOGGER.debug("Unrecognized schema item: index=%s keys=%s", idx, sorted(item.keys()))
 
     schema: Dict[str, Any] = {
         "entities": sorted(entities),
         "relationships": relationships,
     }
-    if events:
-        schema["events"] = events
+    if events_by_type:
+        schema["events"] = list(events_by_type.values())
     LOGGER.debug(
-        "从列表 schema 生成结构: entities=%s relationships=%s events=%s",
+        "Loaded sequence schema: entities=%s relationships=%s events=%s",
         len(schema.get("entities", [])),
         len(schema.get("relationships", [])),
-        len(schema.get("events", [])) if schema.get("events") else 0,
+        len(schema.get("events", [])),
     )
     return schema
 
@@ -104,16 +225,16 @@ def _schema_from_sequence(items: Sequence[Any]) -> Dict[str, Any]:
 def load_schema_file(path: str | Path) -> Dict[str, Any]:
     schema_path = Path(path)
     if not schema_path.exists():
-        raise FileNotFoundError(f"未找到本体文件: {schema_path}")
-    LOGGER.debug("加载本体文件: %s", schema_path)
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    LOGGER.debug("Loading schema file: %s", schema_path)
     data = json.loads(schema_path.read_text(encoding="utf-8"))
     if isinstance(data, dict):
-        LOGGER.debug("本体文件为 JSON 对象: keys=%s", sorted(data.keys()))
+        LOGGER.debug("Schema file is a JSON object: keys=%s", sorted(data.keys()))
         return data
     if isinstance(data, list):
-        LOGGER.debug("本体文件为 JSON 数组: len=%s", len(data))
+        LOGGER.debug("Schema file is a JSON array: len=%s", len(data))
         return _schema_from_sequence(data)
-    raise ValueError("本体文件必须是 JSON 对象。")
+    raise ValueError("Schema file must be a JSON object or JSON array.")
 
 
 @dataclass(frozen=True)
@@ -139,13 +260,13 @@ class _SchemaGraphBuilder:
 
     def _ensure_node(self, label: str) -> str:
         normalized = normalize_label(label)
-        key = normalized or label.strip().lower() or f"node-{self._counter}"
+        key = normalized or str(label or "").strip().lower() or f"node-{self._counter}"
         if key in self._label_to_id:
             return self._label_to_id[key]
         node_id = f"n{self._counter:05d}"
         self._counter += 1
         self._label_to_id[key] = node_id
-        self.nodes[node_id] = normalized or label.strip() or key
+        self.nodes[node_id] = normalized or str(label or "").strip() or key
         return node_id
 
     def add_edge_by_labels(self, src_label: str, tgt_label: str) -> None:
@@ -168,11 +289,16 @@ def _normalize_entities(items: Sequence[Any] | None) -> List[str]:
         if isinstance(item, str):
             label = item.strip()
         elif isinstance(item, dict):
-            for key, value in item.items():
-                key_str = str(key).strip()
-                desc_str = str(value).strip()
-                label = f"{key_str}: {desc_str}" if desc_str else key_str
-                break
+            entity_name = _first_text(item, ["entity", "label", "name"])
+            if entity_name:
+                description = str(item.get("description") or "").strip()
+                label = f"{entity_name}: {description}" if description else entity_name
+            else:
+                for key, value in item.items():
+                    key_str = str(key).strip()
+                    desc_str = str(value).strip()
+                    label = f"{key_str}: {desc_str}" if desc_str else key_str
+                    break
         if label:
             normalized.append(label)
     return normalized
@@ -183,55 +309,42 @@ def _normalize_relationships(items: Sequence[Any] | None) -> List[Dict[str, str]
     for item in items or []:
         if not isinstance(item, dict):
             continue
-        head = str(item.get("head_entity", "")).strip()
-        tail = str(item.get("tail_entity", "")).strip()
-        rel_type = str(item.get("rel_type", "")).strip()
-        if not (head and tail and rel_type):
-            continue
-        normalized.append(
-            {
-                "head_entity": head,
-                "tail_entity": tail,
-                "rel_type": rel_type,
-                "description": str(item.get("description", "")).strip(),
-            }
-        )
+        relationship = _relationship_from_item(item)
+        if relationship:
+            normalized.append(relationship)
     return normalized
 
 
 def _normalize_events(items: Sequence[Any] | None) -> List[Dict[str, Any]]:
-    normalized: List[Dict[str, Any]] = []
+    events_by_type: Dict[str, Dict[str, Any]] = {}
     for item in items or []:
         if not isinstance(item, dict):
             continue
-        event_type = str(item.get("event_type", "")).strip()
-        if not event_type:
-            continue
-        description = str(item.get("description", "")).strip()
-        trigger_words = [str(word).strip() for word in item.get("trigger_words", []) if str(word).strip()]
-        arguments: List[Dict[str, Any]] = []
-        for arg in item.get("arguments", []):
-            if not isinstance(arg, dict):
-                continue
-            role = str(arg.get("role", "")).strip()
-            if not role:
-                continue
-            arguments.append(
-                {
-                    "role": role,
-                    "description": str(arg.get("description", "")).strip(),
-                    "required": bool(arg.get("required", False)),
-                }
-            )
-        normalized.append(
-            {
-                "event_type": event_type,
-                "description": description,
-                "trigger_words": trigger_words,
-                "arguments": arguments,
-            }
-        )
-    return normalized
+        event = _event_from_item(item)
+        if event:
+            _merge_event(events_by_type, event)
+    return list(events_by_type.values())
+
+
+def _events_from_schema_dict(schema: Dict[str, Any]) -> List[Dict[str, Any]]:
+    raw_events: List[Any] = []
+    if isinstance(schema.get("events"), list):
+        raw_events.extend(schema.get("events") or [])
+    if isinstance(schema.get("edges"), list):
+        raw_events.extend(schema.get("edges") or [])
+
+    event_type_roles = schema.get("event_type_roles") or schema.get("event_type_role_map")
+    if isinstance(event_type_roles, dict):
+        for event_type, roles in event_type_roles.items():
+            raw_events.append({"event_type": event_type, "roles": roles})
+
+    event_types = schema.get("event_types")
+    if isinstance(event_types, list):
+        global_roles = schema.get("roles", [])
+        for event_type in event_types:
+            raw_events.append({"event_type": event_type, "roles": global_roles})
+
+    return _normalize_events(raw_events)
 
 
 def schema_dict_to_graph(schema: Dict[str, Any]) -> OntologyGraph:
@@ -244,7 +357,12 @@ def schema_dict_to_graph(schema: Dict[str, Any]) -> OntologyGraph:
         for label in entities:
             builder.add_edge_by_labels(section_label, label)
 
-    relationships = _normalize_relationships(schema.get("relationships"))
+    raw_relationships: List[Any] = []
+    if isinstance(schema.get("relationships"), list):
+        raw_relationships.extend(schema.get("relationships") or [])
+    if isinstance(schema.get("edges"), list):
+        raw_relationships.extend(schema.get("edges") or [])
+    relationships = _normalize_relationships(raw_relationships)
     if relationships:
         section_label = "section::relationships"
         builder.add_edge_by_labels(builder.root_label, section_label)
@@ -256,7 +374,7 @@ def schema_dict_to_graph(schema: Dict[str, Any]) -> OntologyGraph:
             if rel.get("description"):
                 builder.add_edge_by_labels(rel_label, f"desc::{rel['description']}")
 
-    events = _normalize_events(schema.get("events"))
+    events = _events_from_schema_dict(schema)
     if events:
         section_label = "section::events"
         builder.add_edge_by_labels(builder.root_label, section_label)

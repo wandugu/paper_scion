@@ -376,6 +376,11 @@ runtime:
   verbose: false
   delay_between_requests: 8
   graph_extraction_enabled: false
+scion:
+  mode: lite  # lite or full; full adds clustered structural candidates.
+  candidate_constraints_enabled: true
+  max_text_candidates: 40
+  max_evidence_per_candidate: 3
 pipeline:
   # all: 生成+评估全流程；generate_only: 只生成；eval_only: 只评估
   mode: all
@@ -405,9 +410,9 @@ repro_settings:
     sentence_splitter: "none"
     tokenizer_pos_dep_parser: "none"
   candidate_mining:
-    term_extractor: "LLM prompt (ontology_generate)"
-    predicate_dep_patterns: "none"
-    event_sketches: "LLM prompt (event_extraction)"
+    term_extractor: "SCION candidate package from config hints + train-text term mining; LLM schema engineer constrained to package"
+    predicate_dep_patterns: "disabled in lite; planned for full structural reproduction"
+    event_sketches: "SCION candidate package event/role mining + event_extraction prompt"
   clustering:
     embedding_model: "none"
     algorithm: "none"
@@ -1376,6 +1381,7 @@ scope_experiment:
 output:
   dir: data/output
   schema_filename: ontology_schema.json
+  candidate_package_filename: scion_candidate_package.json
   nodes_filename: graph_nodes.json
   edges_filename: graph_edges.json
   neo4j_nodes_csv: neo4j_nodes.csv

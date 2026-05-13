@@ -2,7 +2,7 @@
   "Manual / official schemas": "SCOPE schema/base artifacts",
   "Text2Onto-style baseline": "rule/lexical projection approximation",
   "LLM-only baseline": "single-shot generation path in ontology_generate",
-  "SCION-lite": "single-source induction approximation",
-  "SCION-full": "induction + structural processing + optional fusion approximation",
-  "SCION-RL": "not implemented; approximated variant"
+  "SCION-lite": "candidate-constrained generation path in ontology_generate",
+  "SCION-full": "candidate-constrained generation path with clustered candidate package",
+  "SCION-RL": "lightweight native contract-policy runner; Qwen/PPO artifact not bundled"
 }

@@ -7,7 +7,6 @@ import time
 from typing import Any, Dict, Protocol
 
 import requests
-from openai import OpenAI
 
 from .llm_stats import get_llm_run_stats, llm_stats_enabled
 from .logger import get_ot_logger
@@ -119,6 +118,7 @@ class OpenRouterClient(LLMClient):
             raise RuntimeError(
                 "OpenRouter API key 未提供，请在 config.openrouter.api_key 或环境变量中设置 api_key_env"
             )
+        from openai import OpenAI
 
         extra_headers_cfg = cfg.get("extra_headers", {}) or {}
         default_headers: Dict[str, str] = {}

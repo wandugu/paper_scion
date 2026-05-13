@@ -40,7 +40,7 @@ def main() -> None:
 - metric evaluation: `src/ontology_eval.py`
 - fusion pipeline related: `src/utils/build_scope_dataset.py`
 - downstream extraction: `src/knowledge_graph_maker/graph_maker.py`
-- RL training/inference: repository not found (only controllability hooks)
+- RL training/inference: `src/scion_rl.py` lightweight contract-policy train/infer
 - configs/logging: `config/config.yaml`, `src/utils/logger.py`
 """,
         encoding="utf-8",
@@ -50,9 +50,9 @@ def main() -> None:
         "Manual / official schemas": "SCOPE schema/base artifacts",
         "Text2Onto-style baseline": "rule/lexical projection approximation",
         "LLM-only baseline": "single-shot generation path in ontology_generate",
-        "SCION-lite": "single-source induction approximation",
-        "SCION-full": "induction + structural processing + optional fusion approximation",
-        "SCION-RL": "not implemented; approximated variant",
+        "SCION-lite": "candidate-constrained generation path in ontology_generate",
+        "SCION-full": "candidate-constrained generation path with clustered candidate package",
+        "SCION-RL": "lightweight native contract-policy runner; Qwen/PPO artifact not bundled",
     })
     write_json(out / "E0_environment.json", env_info())
 
@@ -94,7 +94,7 @@ def main() -> None:
     (out / "E0_deviations.md").write_text(
         """# E0 Deviations
 
-- 缺少原生 RL 训练代码与人工标注文件，相关实验按规范生成近似结果或 STATUS_NOT_RUN。
+- 缺少论文 Qwen/PPO 训练 artifact 与人工标注文件；仓库提供轻量原生 SCION-RL contract-policy runner。
 - 软匹配/图匹配在 rebuttal 实验中使用可复现启发式近似。
 """,
         encoding="utf-8",

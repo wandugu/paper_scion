@@ -55,6 +55,13 @@ from .utils.llm_factory import instantiate_llm_client
 from .utils.llm_stats import dump_llm_run_stats, ensure_llm_run_stats, llm_stats_enabled
 from .utils.logger import get_ot_logger
 from .utils.scope_dataset_utils import build_scope_background_text, load_scope_docs
+from .utils.scion_candidates import (
+    build_candidate_package,
+    candidate_package_to_prompt,
+    candidate_package_to_schema,
+    constrain_events_to_candidates,
+    constrain_ontology_to_candidates,
+)
 
 
 CONFIG: Dict = load_yaml_config(CONFIG_PATH)
@@ -389,7 +396,6 @@ def _input_path_with_language(raw_path: str | Path) -> Path:
     return _apply_language_suffix(resolved)
 
 from knowledge_graph_maker.graph_maker import GraphMaker
-from knowledge_graph_maker.neo4j_graph_model import Neo4jGraphModel
 from knowledge_graph_maker.types import (
     Document,
     Edge,
@@ -408,6 +414,7 @@ from knowledge_graph_maker.types import (
 class OutputPaths:
     base_dir: Path
     schema: Path
+    candidate_package: Path
     nodes: Path
     edges: Path
     neo4j_nodes_csv: Path
@@ -439,12 +446,21 @@ def _schema_filename_for_output(dataset_name: str | None) -> str:
     return _apply_language_suffix(Path(CONFIG["output"]["schema_filename"])).name
 
 
+def _candidate_package_filename_for_output(dataset_name: str | None) -> str:
+    configured = str(CONFIG.get("output", {}).get("candidate_package_filename") or "scion_candidate_package.json")
+    if dataset_name:
+        normalized = _append_language_suffix(_normalize_dataset_name(dataset_name))
+        return f"scion_candidate_package_{normalized}.json"
+    return _apply_language_suffix(Path(configured)).name
+
+
 def ensure_output_paths(dataset_name: str | None = None) -> OutputPaths:
     base_dir = resolve_project_path(CONFIG["output"]["dir"])
     base_dir.mkdir(parents=True, exist_ok=True)
     return OutputPaths(
         base_dir=base_dir,
         schema=base_dir / _schema_filename_for_output(dataset_name),
+        candidate_package=base_dir / _candidate_package_filename_for_output(dataset_name),
         nodes=_apply_language_suffix(base_dir / CONFIG["output"]["nodes_filename"]),
         edges=_apply_language_suffix(base_dir / CONFIG["output"]["edges_filename"]),
         neo4j_nodes_csv=_apply_language_suffix(base_dir / CONFIG["output"]["neo4j_nodes_csv"]),
@@ -467,6 +483,28 @@ def _bool_from_cfg(cfg: Dict[str, Any], key: str, default: bool) -> bool:
     if isinstance(value, str):
         return value.strip().lower() in {"1", "true", "yes", "y", "on"}
     return bool(value)
+
+
+def scion_config() -> Dict[str, Any]:
+    cfg = CONFIG.get("scion")
+    return cfg if isinstance(cfg, dict) else {}
+
+
+def scion_candidate_constraints_enabled() -> bool:
+    cfg = scion_config()
+    return _bool_from_cfg(cfg, "candidate_constraints_enabled", True)
+
+
+def scion_mode() -> str:
+    mode = str(scion_config().get("mode") or "lite").strip().lower()
+    return "full" if mode == "full" else "lite"
+
+
+def _scion_int(key: str, default: int) -> int:
+    value = _coerce_int(scion_config().get(key))
+    if value is None:
+        return default
+    return max(1, value)
 
 
 def evaluation_enabled() -> bool:
@@ -910,6 +948,32 @@ def _format_trigger_guidelines() -> str:
     return "\n".join(f"- {item}" for item in guidelines if isinstance(item, str))
 
 
+def build_scion_candidate_package(chunks: Sequence[str]) -> Dict[str, Any] | None:
+    if not scion_candidate_constraints_enabled():
+        return None
+    package = build_candidate_package(
+        chunks=chunks,
+        entity_hints=_localized_entities_config(),
+        relationship_hints=_localized_relationships_config(),
+        event_type_hints=_event_cfg().get("event_type_hints", []),
+        argument_role_hints=_event_cfg().get("argument_role_hints", []),
+        mode=scion_mode(),
+        language_code=LANGUAGE_CODE,
+        max_text_candidates=_scion_int("max_text_candidates", 40),
+        max_evidence=_scion_int("max_evidence_per_candidate", 3),
+    )
+    diagnostics = package.get("diagnostics", {})
+    LOGGER.info(
+        "SCION candidate package built: mode=%s entities=%s relationships=%s events=%s roles=%s",
+        package.get("mode"),
+        diagnostics.get("entity_count", len(package.get("entities", []))),
+        diagnostics.get("relationship_count", len(package.get("relationships", []))),
+        diagnostics.get("event_count", len(package.get("events", []))),
+        diagnostics.get("role_count", len(package.get("roles", []))),
+    )
+    return package
+
+
 def _extract_json_payload(response: str) -> Dict[str, Any]:
     try:
         return json.loads(response)
@@ -1041,6 +1105,7 @@ def build_ontology(
     llm_client: LLMClient,
     background_text: str,
     stats: ControllabilityStats | None = None,
+    candidate_package: Dict[str, Any] | None = None,
 ) -> Ontology:
     """根据背景语料动态生成本体。"""
 
@@ -1048,6 +1113,12 @@ def build_ontology(
         LOGGER.warning("背景文本为空，退回使用配置中的本体。")
         if stats:
             stats.record_fallback("ontology", "empty_background")
+        if candidate_package:
+            candidate_schema = candidate_package_to_schema(candidate_package)
+            return Ontology(
+                entities=candidate_schema.get("entities", []),
+                relationships=_normalize_relationships(candidate_schema.get("relationships")),
+            )
         return _fallback_ontology()
 
     language_instruction = _language_instruction_text()
@@ -1071,6 +1142,13 @@ def build_ontology(
 
     system_message = _render_prompt("ontology", "system", context)
     user_message = _render_prompt("ontology", "user", context)
+    if candidate_package:
+        user_message = (
+            f"{user_message}\n\n"
+            "[SCION Candidate Contract]\n"
+            f"{candidate_package_to_prompt(candidate_package)}\n"
+            "Return only entity and relationship items that can be linked to the candidate ids or evidence above."
+        )
 
     try:
         response = llm_client.generate(user_message=user_message, system_message=system_message)
@@ -1081,13 +1159,34 @@ def build_ontology(
             stats.record_json_success("ontology")
         entities = _normalize_entities(payload.get("entities"))
         relationships = _normalize_relationships(payload.get("relationships"))
+        if candidate_package:
+            entities, relationships, constraint_report = constrain_ontology_to_candidates(
+                entities,
+                relationships,
+                candidate_package,
+            )
+            LOGGER.info("SCION ontology candidate validation: %s", json.dumps(constraint_report, ensure_ascii=False))
         if not entities or not relationships:
+            if candidate_package:
+                candidate_schema = candidate_package_to_schema(candidate_package)
+                fallback_entities = _normalize_entities(candidate_schema.get("entities"))
+                fallback_relationships = _normalize_relationships(candidate_schema.get("relationships"))
+                if fallback_entities and fallback_relationships:
+                    if stats:
+                        stats.record_fallback("ontology", "candidate_constraint_empty")
+                    return Ontology(entities=fallback_entities, relationships=fallback_relationships)
             raise ValueError("LLM 响应缺少实体或关系")
         return Ontology(entities=entities, relationships=relationships)
     except Exception as exc:  # noqa: BLE001
         LOGGER.warning("根据背景生成动态本体失败，改用配置本体。原因: %s", exc)
         if stats:
             stats.record_fallback("ontology", f"exception:{exc}")
+        if candidate_package:
+            candidate_schema = candidate_package_to_schema(candidate_package)
+            fallback_entities = _normalize_entities(candidate_schema.get("entities"))
+            fallback_relationships = _normalize_relationships(candidate_schema.get("relationships"))
+            if fallback_entities and fallback_relationships:
+                return Ontology(entities=fallback_entities, relationships=fallback_relationships)
         return _fallback_ontology()
 
 
@@ -1114,13 +1213,25 @@ def _normalize_event_schema(raw_events: Any) -> List[Dict[str, Any]]:
         raw_arguments = item.get("arguments", [])
         if isinstance(raw_arguments, list):
             for arg in raw_arguments:
-                if not isinstance(arg, dict):
+                if isinstance(arg, str):
+                    role = arg.strip()
+                    description_text = ""
+                    required = False
+                elif isinstance(arg, dict):
+                    role = str(
+                        arg.get("role")
+                        or arg.get("arg_role")
+                        or arg.get("argument_role")
+                        or arg.get("role_type")
+                        or arg.get("name")
+                        or ""
+                    ).strip()
+                    description_text = str(arg.get("description", "")).strip()
+                    required = bool(arg.get("required", False))
+                else:
                     continue
-                role = str(arg.get("role", "")).strip()
                 if not role:
                     continue
-                description_text = str(arg.get("description", "")).strip()
-                required = bool(arg.get("required", False))
                 arguments.append(
                     {
                         "role": role,
@@ -1128,12 +1239,46 @@ def _normalize_event_schema(raw_events: Any) -> List[Dict[str, Any]]:
                         "required": required,
                     }
                 )
+        raw_roles = item.get("roles", [])
+        if isinstance(raw_roles, list):
+            for role_item in raw_roles:
+                if isinstance(role_item, dict):
+                    role = str(role_item.get("role") or role_item.get("name") or "").strip()
+                    description_text = str(role_item.get("description") or "").strip()
+                    required = bool(role_item.get("required", False))
+                else:
+                    role = str(role_item or "").strip()
+                    description_text = ""
+                    required = False
+                if role:
+                    arguments.append({"role": role, "description": description_text, "required": required})
+        elif raw_roles:
+            role = str(raw_roles).strip()
+            if role:
+                arguments.append({"role": role, "description": "", "required": False})
+        direct_role = str(
+            item.get("role")
+            or item.get("arg_role")
+            or item.get("argument_role")
+            or item.get("role_type")
+            or ""
+        ).strip()
+        if direct_role:
+            arguments.append({"role": direct_role, "description": "", "required": False})
+        deduped_arguments: List[Dict[str, Any]] = []
+        seen_roles: Set[str] = set()
+        for arg in arguments:
+            role_key = str(arg.get("role") or "").strip().lower()
+            if not role_key or role_key in seen_roles:
+                continue
+            seen_roles.add(role_key)
+            deduped_arguments.append(arg)
         normalized.append(
             {
                 "event_type": event_type,
                 "description": description,
                 "trigger_words": trigger_words,
-                "arguments": arguments,
+                "arguments": deduped_arguments,
             }
             )
     return normalized
@@ -1401,6 +1546,7 @@ def build_event_schema(
     llm_client: LLMClient,
     background_text: str,
     stats: ControllabilityStats | None = None,
+    candidate_package: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
     cfg = _event_cfg()
     if not cfg.get("enabled", False):
@@ -1410,6 +1556,11 @@ def build_event_schema(
         LOGGER.warning("背景文本为空，事件抽取提示退回使用 fallback 配置。")
         if stats:
             stats.record_fallback("events", "empty_background")
+        if candidate_package:
+            candidate_schema = candidate_package_to_schema(candidate_package)
+            candidate_events = _normalize_event_schema(candidate_schema.get("events"))
+            if candidate_events:
+                return candidate_events
         return _fallback_events()
 
     language_instruction = _language_instruction_text()
@@ -1437,6 +1588,13 @@ def build_event_schema(
 
     system_message = _render_prompt("events", "system", context)
     user_message = _render_prompt("events", "user", context)
+    if candidate_package:
+        user_message = (
+            f"{user_message}\n\n"
+            "[SCION Candidate Contract]\n"
+            f"{candidate_package_to_prompt(candidate_package)}\n"
+            "Return only event types and argument roles that can be linked to the candidate ids or evidence above."
+        )
 
     try:
         response = llm_client.generate(user_message=user_message, system_message=system_message)
@@ -1446,13 +1604,28 @@ def build_event_schema(
         if stats:
             stats.record_json_success("events")
         events = _normalize_event_schema(payload.get("events"))
+        if candidate_package:
+            events, constraint_report = constrain_events_to_candidates(events, candidate_package)
+            LOGGER.info("SCION event candidate validation: %s", json.dumps(constraint_report, ensure_ascii=False))
         if not events:
+            if candidate_package:
+                candidate_schema = candidate_package_to_schema(candidate_package)
+                candidate_events = _normalize_event_schema(candidate_schema.get("events"))
+                if candidate_events:
+                    if stats:
+                        stats.record_fallback("events", "candidate_constraint_empty")
+                    return candidate_events
             raise ValueError("LLM 响应缺少 events 字段或内容为空")
         return events
     except Exception as exc:  # noqa: BLE001
         LOGGER.warning("生成事件抽取配置失败，改用 fallback。原因: %s", exc)
         if stats:
             stats.record_fallback("events", f"exception:{exc}")
+        if candidate_package:
+            candidate_schema = candidate_package_to_schema(candidate_package)
+            candidate_events = _normalize_event_schema(candidate_schema.get("events"))
+            if candidate_events:
+                return candidate_events
         return _fallback_events()
 
 
@@ -1530,6 +1703,8 @@ def maybe_save_to_neo4j(edges: Sequence[Edge]):
     if not CONFIG["neo4j"]["enabled"]:
         return
     sync_neo4j_config()
+    from knowledge_graph_maker.neo4j_graph_model import Neo4jGraphModel
+
     neo_model = Neo4jGraphModel(edges=list(edges), create_indices=CONFIG["neo4j"]["create_indices"])
     inserted = neo_model.save()
     LOGGER.info("已写入 Neo4j 关系数: %s", inserted)
@@ -1557,9 +1732,18 @@ def main():
     if not chunks:
         raise RuntimeError("未获取到任何文本块，请检查 input 配置")
     documents = build_documents(chunks)
+    candidate_package = build_scion_candidate_package(chunks)
+    if candidate_package:
+        save_json(output_paths.candidate_package, candidate_package)
+        LOGGER.info("已保存 SCION candidate package: %s", output_paths.candidate_package)
     llm_client = instantiate_llm_client(CONFIG)
     background_excerpt = build_background_excerpt(chunks)
-    ontology = build_ontology(llm_client=llm_client, background_text=background_excerpt, stats=controllability_stats)
+    ontology = build_ontology(
+        llm_client=llm_client,
+        background_text=background_excerpt,
+        stats=controllability_stats,
+        candidate_package=candidate_package,
+    )
     log_label = "新构建出的本体" if existing_schema else "构建出的本体"
     LOGGER.info("%s: %s", log_label, json.dumps(ontology.model_dump(), ensure_ascii=False, indent=2))
     schema_sections = schema_output_sections()
@@ -1574,6 +1758,7 @@ def main():
             llm_client=llm_client,
             background_text=background_excerpt,
             stats=controllability_stats,
+            candidate_package=candidate_package,
         )
     schema_for_eval: Dict[str, Any] = {
         "entities": _normalize_entities(ontology.entities),
@@ -1588,9 +1773,30 @@ def main():
         enabled_sections=schema_sections,
     )
 
-    candidate_entities = _entity_key_set(ontology.entities)
-    candidate_relationships = _relationship_key_set(ontology.relationships)
-    candidate_events = _event_key_set(event_schema)
+    if candidate_package:
+        candidate_entities = {
+            str(item.get("label") or "").strip()
+            for item in candidate_package.get("entities", [])
+            if str(item.get("label") or "").strip()
+        }
+        candidate_relationships = {
+            (
+                str(item.get("head_entity") or "").strip(),
+                str(item.get("rel_type") or "").strip(),
+                str(item.get("tail_entity") or "").strip(),
+            )
+            for item in candidate_package.get("relationships", [])
+            if str(item.get("rel_type") or "").strip()
+        }
+        candidate_events = {
+            str(item.get("event_type") or "").strip()
+            for item in candidate_package.get("events", [])
+            if str(item.get("event_type") or "").strip()
+        }
+    else:
+        candidate_entities = _entity_key_set(ontology.entities)
+        candidate_relationships = _relationship_key_set(ontology.relationships)
+        candidate_events = _event_key_set(event_schema)
     merged_entities = _entity_key_set(merged_ontology.entities)
     merged_relationships = _relationship_key_set(merged_ontology.relationships)
     merged_events_set = _event_key_set(merged_events)

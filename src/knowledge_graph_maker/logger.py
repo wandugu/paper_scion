@@ -1,7 +1,16 @@
 import logging
-from yachalk import chalk
+import importlib.util
 import os
-import logging
+
+
+if importlib.util.find_spec("yachalk") is not None:
+    from yachalk import chalk
+else:
+    class _PlainChalk:
+        def __getattr__(self, name):
+            return lambda text: text
+
+    chalk = _PlainChalk()
 
 
 class GraphLogger:

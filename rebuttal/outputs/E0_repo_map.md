@@ -6,5 +6,5 @@
 - metric evaluation: `src/ontology_eval.py`
 - fusion pipeline related: `src/utils/build_scope_dataset.py`
 - downstream extraction: `src/knowledge_graph_maker/graph_maker.py`
-- RL training/inference: repository not found (only controllability hooks)
+- RL training/inference: `src/scion_rl.py` lightweight contract-policy train/infer
 - configs/logging: `config/config.yaml`, `src/utils/logger.py`
