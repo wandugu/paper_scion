@@ -1,0 +1,6 @@
+Scope dataset: SCOPE
+- docs: 348854
+- chunks: 38417
+- chunk_size: 1200
+- scope: part=scope name=SCOPE split=train
+- latex_row: SCOPE & 348854 & 38417 \\
